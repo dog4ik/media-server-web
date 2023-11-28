@@ -3,7 +3,6 @@ import { For, Show } from "solid-js";
 import PageTitle from "../PageTitle";
 import { EventKind } from "../../utils/ServerApi";
 import {
-  notificator,
   useNotificationsContext,
 } from "../../context/NotificationContext";
 
