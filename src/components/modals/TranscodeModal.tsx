@@ -2,12 +2,12 @@ import Modal from "./Modal";
 
 type Props = {
   video_id: string;
-  onClose: () => void;
 };
 
 export function TranscodeModal(props: Props) {
+  let dialog: HTMLDialogElement;
   return (
-    <Modal onClose={props.onClose}>
+    <Modal ref={dialog!}>
       <div></div>
     </Modal>
   );

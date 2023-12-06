@@ -1,0 +1,31 @@
+dialog[open] {
+  opacity: 1;
+}
+
+dialog {
+  opacity: 0;
+  transition:
+    opacity 0.1s ease-out,
+    overlay 0.1s ease-out allow-discrete,
+    display 0.1s ease-out allow-discrete;
+}
+
+@starting-style {
+  dialog[open] {
+    opacity: 0;
+  }
+}
+
+dialog::backdrop {
+  transition: backdrop-filter 0.1s allow-discrete;
+}
+
+dialog[open]::backdrop {
+  backdrop-filter: blur(8px);
+}
+
+@starting-style {
+  dialog[open]::backdrop {
+    backdrop-filter: blur(0px);
+  }
+}
