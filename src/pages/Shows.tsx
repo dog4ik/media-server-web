@@ -1,5 +1,5 @@
 import { For, createResource } from "solid-js";
-import { getAllShows } from "../utils/ServerApi";
+import { getAllShows } from "../utils/serverApi";
 import ShowCard from "../components/Cards/ShowCard";
 import PageTitle from "../components/PageTitle";
 export default function Shows() {

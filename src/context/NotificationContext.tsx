@@ -5,7 +5,7 @@ import {
   createSignal,
   useContext,
 } from "solid-js";
-import Notififcation, { NotificationType } from "../components/Notification";
+import Notification, { NotificationType } from "../components/Notification";
 
 type NotificationsContextType = ReturnType<typeof createNotificationsContext>;
 
@@ -49,7 +49,7 @@ export default function NotificationsProvider(props: ParentProps) {
       <div class="fixed right-2 top-2 z-50 flex max-w-xs select-none flex-col items-end gap-3 md:max-w-2xl">
         <For each={notifications()}>
           {(item) => (
-            <Notififcation
+            <Notification
               onClose={() => removeNotification(item.id)}
               type={item.type}
               message={item.message}

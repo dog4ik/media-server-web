@@ -6,7 +6,7 @@ import {
   onCleanup,
   useContext,
 } from "solid-js";
-import { cancelTaskMutation, getActiveTasks } from "../utils/ServerApi";
+import { cancelTaskMutation, getActiveTasks } from "../utils/serverApi";
 import { useNotifications } from "./NotificationContext";
 
 export type EventStatus =
@@ -23,18 +23,33 @@ export type EventType = {
   status: EventStatus;
 };
 
-type TasksContextType = ReturnType<typeof createTaskContext>;
+type ServerStatusType = ReturnType<typeof createServerStatusContext>;
 
-export const TasksContext = createContext<TasksContextType>();
+export const ServerStatusContext = createContext<ServerStatusType>();
 
-export const useTasksContext = () => useContext(TasksContext)!;
+export const useServerStatus = () => useContext(ServerStatusContext)!;
 
-function createTaskContext(notificator: ReturnType<typeof useNotifications>) {
+function createServerStatusContext(
+  notificator: ReturnType<typeof useNotifications>,
+) {
   let [serverTasks, { refetch, mutate }] = createResource(getActiveTasks);
   // Record<task_id, progress%>
   let [tasksProgress, setTasksProgress] = createSignal<Map<string, number>>(
     new Map(),
   );
+  let [isConnecting, setIsConnecting] = createSignal(true);
+  let [isErrored, setIsErrored] = createSignal(false);
+  let wakeSubscribers: Map<string, () => void> = new Map();
+
+  function addWakeSubscriber(cb: () => void) {
+    let uuid = crypto.randomUUID();
+    wakeSubscribers.set(uuid, cb);
+    return uuid;
+  }
+
+  function removeWakeSubscriber(id: string) {
+    return wakeSubscribers.delete(id);
+  }
 
   function getTaskWithProgress(task_id: string) {
     let task = (serverTasks() ?? []).find((task) => task.id == task_id);
@@ -66,8 +81,21 @@ function createTaskContext(notificator: ReturnType<typeof useNotifications>) {
     await cancelTaskMutation(task_id).then(() => {
       mutate(serverTasks()?.filter((t) => t.id !== task_id));
       cleanupProgress();
-      console.log(tasksProgress());
     });
+  }
+
+  function handleOpen() {
+    for (let cb of wakeSubscribers.values()) {
+      cb();
+    }
+    wakeSubscribers.clear();
+    setIsConnecting(false);
+    setIsErrored(false);
+  }
+
+  function handleError() {
+    setIsErrored(true);
+    setIsConnecting(false);
   }
 
   async function handleProgressEvent(event: MessageEvent<string>) {
@@ -77,7 +105,6 @@ function createTaskContext(notificator: ReturnType<typeof useNotifications>) {
     // task is new
     if (data.status == "start") {
       refetch();
-      console.log("refetching cause: new task");
       notificator("success", "Created new task");
     }
 
@@ -99,23 +126,33 @@ function createTaskContext(notificator: ReturnType<typeof useNotifications>) {
     import.meta.env.VITE_MEDIA_SERVER_URL + "/admin/progress",
   );
   sse.addEventListener("message", handleProgressEvent);
+  sse.addEventListener("open", handleOpen);
+  sse.addEventListener("error", handleError);
   onCleanup(() => {
     sse.removeEventListener("message", handleProgressEvent);
+    sse.removeEventListener("open", handleOpen);
+    sse.removeEventListener("error", handleError);
     sse.close();
   });
 
   return [
-    { serverTasks, tasksProgress, getTaskWithProgress },
-    { setTasksProgress, cancelTask },
+    {
+      serverTasks,
+      tasksProgress,
+      getTaskWithProgress,
+      isConnecting,
+      isErrored,
+    },
+    { setTasksProgress, cancelTask, addWakeSubscriber, removeWakeSubscriber },
   ] as const;
 }
 
 export default function TaskContextProvider(props: ParentProps) {
   let notificator = useNotifications();
-  let context = createTaskContext(notificator);
+  let context = createServerStatusContext(notificator);
   return (
-    <TasksContext.Provider value={context}>
+    <ServerStatusContext.Provider value={context}>
       {props.children}
-    </TasksContext.Provider>
+    </ServerStatusContext.Provider>
   );
 }

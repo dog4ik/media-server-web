@@ -1,14 +1,13 @@
-import Modal from "./Modal";
+import Modal, { ModalProps } from "./Modal";
 
 type Props = {
   video_id: string;
 };
 
-export function TranscodeModal(props: Props) {
-  let dialog: HTMLDialogElement;
+export function TranscodeModal(props: Props & ModalProps) {
   return (
-    <Modal ref={dialog!}>
-      <div></div>
+    <Modal ref={props.ref}>
+      <div>Wanna transcode?</div>
     </Modal>
   );
 }

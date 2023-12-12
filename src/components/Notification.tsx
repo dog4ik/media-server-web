@@ -25,7 +25,7 @@ function getNotificationColor(type: NotificationType["type"]) {
   return "bg-green-400";
 }
 
-export default function Notififcation(
+export default function Notification(
   props: NotificationType & { onClose: () => void },
 ) {
   let [shouldAnimateOut, close] = useClose(props.onClose, 200);

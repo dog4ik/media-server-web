@@ -1,9 +1,9 @@
 import { FiActivity } from "solid-icons/fi";
 import { Show } from "solid-js";
-import { useTasksContext } from "../../context/ProgressContext";
+import { useServerStatus } from "../../context/ServerStatusContext";
 
 export function StatusIndicator() {
-  let [{ serverTasks, tasksProgress }] = useTasksContext();
+  let [{ serverTasks, tasksProgress }] = useServerStatus();
 
   return (
     <Show when={!serverTasks.loading} fallback={<div>Loading</div>}>

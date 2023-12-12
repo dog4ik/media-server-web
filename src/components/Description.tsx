@@ -1,4 +1,4 @@
-import { ShowWithDetails } from "../utils/ServerApi";
+import { ShowWithDetails } from "../utils/serverApi";
 import BlurImage from "./BlurImage";
 
 type Props = {
@@ -8,8 +8,13 @@ type Props = {
 export default function Description(props: Props) {
   return (
     <div class="flex items-center w-full">
-      <div class="h-72 w-52 overflow-hidden rounded-xl">
-        <BlurImage src={props.show.poster} blurData={props.show.blur_data} />
+      <div class="w-52 overflow-hidden rounded-xl">
+        <BlurImage
+          width={208}
+          height={312}
+          src={props.show.poster}
+          blurData={props.show.blur_data}
+        />
       </div>
       <div class="h-full p-8">
         <div class="text-2xl">{props.show.title}</div>

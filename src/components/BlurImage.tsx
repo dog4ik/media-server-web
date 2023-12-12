@@ -1,6 +1,8 @@
 import { createSignal, Show } from "solid-js";
 type Props = {
   alt?: string;
+  height: number;
+  width: number;
   blurData: string;
   src: string;
 };
@@ -14,11 +16,14 @@ export default function BlurImage(props: Props) {
   }
   return (
     <div
-      class={`${isLoaded() ? "blur-none" : "blur-sm"
-        } transition-all w-full duration-200`}
+      class={`${
+        isLoaded() ? "blur-none" : "blur-sm"
+      } transition-all w-full duration-200`}
     >
       <Show when={!isLoaded()}>
         <img
+          height={props.height}
+          width={props.width}
           class="w-full transition-all"
           src={`data:image/png;base64,${props.blurData}`}
         />

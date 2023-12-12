@@ -1,10 +1,7 @@
 const MEDIA_SERVER_URL = import.meta.env.VITE_MEDIA_SERVER_URL!;
 class MediaUrl extends URL {
   constructor(appendix: string) {
-    let url = new URL(
-      `/api${appendix}`,
-      import.meta.env.VITE_MEDIA_SERVER_URL!,
-    );
+    let url = new URL(`/api${appendix}`, MEDIA_SERVER_URL);
     super(url);
   }
 
@@ -25,10 +22,7 @@ class MediaUrl extends URL {
 
 class AdminMediaUrl extends URL {
   constructor(appendix: string) {
-    let url = new URL(
-      `/admin${appendix}`,
-      import.meta.env.VITE_MEDIA_SERVER_URL!,
-    );
+    let url = new URL(`/admin${appendix}`, MEDIA_SERVER_URL);
     super(url);
   }
 
@@ -44,6 +38,27 @@ class AdminMediaUrl extends URL {
           );
         }),
     );
+  }
+}
+
+class AdminMutation {
+  url: URL;
+  constructor(appendix: string) {
+    this.url = new URL(`/admin${appendix}`, MEDIA_SERVER_URL);
+  }
+
+  async mutate<T>(body?: {}): Promise<T> {
+    let headers = new Headers();
+    headers.append("Content-type", "application/json");
+    let options = {
+      method: "POST",
+      headers,
+      body: body ? JSON.stringify({ ...body }) : undefined,
+    };
+    return await fetch(this.url, options).then(async (res) => {
+      let text = await res.text();
+      if (text.length > 0) return JSON.parse(text);
+    });
   }
 }
 
@@ -98,7 +113,6 @@ export async function getEpisode(
   url.searchParams.append("id", showId.toString());
   url.searchParams.append("season", season.toString());
   url.searchParams.append("episode", episode.toString());
-  console.log("req url", url.search);
   return await url.fetch<EpisodeWithDetails>();
 }
 
@@ -115,26 +129,40 @@ export async function getActiveTasks() {
 }
 
 export async function getLatestLog() {
-  let url = new AdminMediaUrl("/log");
-  // TODO: create log type
-  return await url.fetch<ServerTask[]>();
+  let url = new AdminMediaUrl("/latest_log");
+  return await url.fetch<LogMessage[]>();
 }
 
 // mutations
 
 export async function cancelTaskMutation(task_id: string) {
-  let headers = new Headers();
-  headers.append("Content-type", "application/json");
-  return await fetch(MEDIA_SERVER_URL + "/admin/cancel_task", {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ task_id }),
-  }).then((res) => res.ok);
+  let mutator = new AdminMutation("/cancel_task");
+  return await mutator.mutate({ task_id });
+}
+
+export async function refreshLibrary() {
+  let mutator = new AdminMutation("/scan");
+  return await mutator.mutate();
+}
+
+export async function alterEpisode(data: {}) {
+  let mutator = new AdminMutation("/alter_episode_metadata");
+  return await mutator.mutate(data);
 }
 
 //types
 
 type EventKind = "transcode" | "scan" | "previews";
+
+type LogLevel = "TRACE" | "DEBUG" | "INFO" | "ERROR";
+
+type LogMessage = {
+  fields: { message?: string };
+  level: LogLevel;
+  name: string;
+  target: string;
+  timestamp: string;
+};
 
 type ServerTask = {
   id: string;
@@ -235,4 +263,6 @@ export type {
   EpisodeWithDetails,
   ServerTask,
   EventKind,
+  LogLevel,
+  LogMessage,
 };

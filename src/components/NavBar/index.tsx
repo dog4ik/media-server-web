@@ -33,7 +33,7 @@ export default function NavBar() {
     <div class="p-2 justify-between flex flex-col-reverse rounded-md items-center bg-neutral-700">
       <nav class="flex flex-col my-auto rounded-md relative sm:justify-center">
         <div
-          class={`w-full bg-white rounded-md transition-all duration-200 absolute left-0 right-0`}
+          class={`w-full bg-white rounded-md transition-all duration-200 absolute z-10 left-0 right-0`}
           style={{
             height: `${100 / routes.length}%`,
             top: `${(currentIndex() / routes.length) * 100}%`,
