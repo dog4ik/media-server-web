@@ -1,5 +1,11 @@
 import { A, useLocation } from "@solidjs/router";
-import { For, createSignal, createMemo, createEffect, ErrorBoundary } from "solid-js";
+import {
+  For,
+  createSignal,
+  createMemo,
+  createEffect,
+  ErrorBoundary,
+} from "solid-js";
 import { StatusIndicator } from "./ServerStatusIndicator";
 
 export default function NavBar() {
@@ -30,7 +36,7 @@ export default function NavBar() {
   });
 
   return (
-    <div class="p-2 justify-between flex flex-col-reverse rounded-md items-center bg-neutral-700">
+    <div class="p-2 justify-between flex flex-col-reverse rounded-md items-center">
       <nav class="flex flex-col my-auto rounded-md relative sm:justify-center">
         <div
           class={`w-full bg-white rounded-md transition-all duration-200 absolute z-10 left-0 right-0`}

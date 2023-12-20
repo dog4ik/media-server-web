@@ -1,22 +1,17 @@
 import { FiActivity } from "solid-icons/fi";
-import { Show } from "solid-js";
+import { Show, Suspense } from "solid-js";
 import { useServerStatus } from "../../context/ServerStatusContext";
 
 export function StatusIndicator() {
-  let [{ serverTasks, tasksProgress }] = useServerStatus();
+  let [{ tasksProgress }] = useServerStatus();
 
   return (
-    <Show when={!serverTasks.loading} fallback={<div>Loading</div>}>
-      <div class="bg-amber-800 w-12 flex justify-center cursor-pointer relative items-center h-12 rounded-full">
+    <Suspense fallback={<div>Loading</div>}>
+      <div class="bg-white/20 z-10 w-12 flex justify-center cursor-pointer relative items-center h-12 rounded-full">
         <FiActivity size={20} stroke="white" />
         <div class="flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center h-12 w-12">
           <Show when={tasksProgress().size > 0}>
-            <svg
-              class="animate-spin h-12 w-12 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
+            <svg class="animate-spin h-12 w-12 text-white">
               <circle
                 class="opacity-25"
                 cx="12"
@@ -34,6 +29,6 @@ export function StatusIndicator() {
           </Show>
         </div>
       </div>
-    </Show>
+    </Suspense>
   );
 }

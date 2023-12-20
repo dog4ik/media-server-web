@@ -5,6 +5,7 @@ import { EventKind } from "../../utils/serverApi";
 
 type TaskProps = {
   onCancel: () => void;
+  number: number;
   cancelable: boolean;
   target: string;
   kind: EventKind;
@@ -13,23 +14,26 @@ type TaskProps = {
 
 function Task(props: TaskProps) {
   return (
-    <div class="flex w-full justify-between items-center relative">
+    <div class="flex w-full gap-2 justify-between items-start relative">
       <Show when={props.progress !== undefined}>
         <div
           class="bg-green-400 p-2 rounded-full absolute h-full"
           style={{ width: `${props.progress}%` }}
         ></div>
       </Show>
-      <span class="z-10 max-w-xs truncate" title={props.target}>
-        {props.kind} {props.target}
+      <span class="z-10">{props.number}</span>
+      <span class="z-10 truncate" title={props.target}>
+        {props.kind} {props.target.split("/").at(-1)}
       </span>
       <div class="z-10">{props.progress}</div>
-      <button
-        class="bg-white text-black rounded-full p-3"
-        onClick={props.onCancel}
-      >
-        Cancel
-      </button>
+      <Show when={props.cancelable}>
+        <button
+          class="bg-white text-black rounded-full p-3"
+          onClick={props.onCancel}
+        >
+          Cancel
+        </button>
+      </Show>
     </div>
   );
 }
@@ -44,9 +48,10 @@ export default function Activity() {
           <div>No current tasks running</div>
         </Show>
         <For each={serverTasks()}>
-          {(task) => {
+          {(task, idx) => {
             return (
               <Task
+                number={idx() + 1}
                 kind={task.kind}
                 cancelable={task.cancelable}
                 onCancel={() => cancelTask(task.id)}

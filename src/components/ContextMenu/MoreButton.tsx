@@ -18,7 +18,7 @@ export default function MoreButton(props: ParentProps) {
   let resizeObserver = new ResizeObserver((_) => handleResize());
 
   function handleResize() {
-    popoverElement.togglePopover(false);
+    popoverElement.hidePopover();
     let bounds = popoverButton.getBoundingClientRect();
     if (window.innerWidth < bounds.right + 240) {
       setButtonBounds({ x: bounds.x - 240, y: bounds.bottom });

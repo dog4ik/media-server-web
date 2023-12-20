@@ -31,7 +31,7 @@ export function MenuWrapper(props: WrapperProps & ParentProps) {
       id={props.popoverId}
       // @ts-expect-error
       popover
-      class="w-60 m-0 rounded-md bg-neutral-900"
+      class="w-60 m-0 select-none rounded-md bg-neutral-900"
       onClick={props.onClick}
       style={{ top: `${props.y}px`, left: `${props.x}px` }}
     >

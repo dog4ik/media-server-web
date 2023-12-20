@@ -1,4 +1,36 @@
+import BaseError, {
+  NotFoundError,
+  ServerError,
+  UnavailableError,
+} from "./errors";
+
+function availabilityCatch(e: Error) {
+  if (!(e instanceof BaseError))
+    throw new UnavailableError("Server is not available");
+}
+
+async function handleResponse(response: Response) {
+  if (!response.ok) {
+    if (response.status == 404) {
+      throw new NotFoundError();
+    }
+    throw new ServerError();
+  }
+  try {
+    return await response.json();
+  } catch (error) {
+    throw new ServerError();
+  }
+}
+
 const MEDIA_SERVER_URL = import.meta.env.VITE_MEDIA_SERVER_URL!;
+
+export function getVideoUrl(videoId: number | string) {
+  let url = new MediaUrl(`/watch`);
+  url.searchParams.append("id", videoId.toString());
+  return url;
+}
+
 class MediaUrl extends URL {
   constructor(appendix: string) {
     let url = new URL(`/api${appendix}`, MEDIA_SERVER_URL);
@@ -6,17 +38,9 @@ class MediaUrl extends URL {
   }
 
   async fetch<T>(): Promise<T> {
-    return await fetch(super.toString()).then(
-      async (data) =>
-        await data.json().catch((e) => {
-          console.log(
-            "media server error on route: ",
-            super.pathname,
-            "with message",
-            e.message,
-          );
-        }),
-    );
+    return await fetch(super.toString())
+      .then(handleResponse)
+      .catch(availabilityCatch);
   }
 }
 
@@ -27,23 +51,19 @@ class AdminMediaUrl extends URL {
   }
 
   async fetch<T>(): Promise<T> {
-    return await fetch(super.toString()).then(
-      async (data) =>
-        await data.json().catch((e) => {
-          console.log(
-            "media server error on route: ",
-            super.pathname,
-            "with message",
-            e.message,
-          );
-        }),
-    );
+    return await fetch(super.toString())
+      .then(handleResponse)
+      .catch(availabilityCatch);
   }
 }
 
+type Method = "GET" | "POST" | "PUT" | "DELETE";
+
 class AdminMutation {
   url: URL;
-  constructor(appendix: string) {
+  method: Method | undefined;
+  constructor(appendix: string, method?: Method) {
+    this.method = method;
     this.url = new URL(`/admin${appendix}`, MEDIA_SERVER_URL);
   }
 
@@ -51,14 +71,16 @@ class AdminMutation {
     let headers = new Headers();
     headers.append("Content-type", "application/json");
     let options = {
-      method: "POST",
+      method: this.method ?? "POST",
       headers,
       body: body ? JSON.stringify({ ...body }) : undefined,
     };
-    return await fetch(this.url, options).then(async (res) => {
-      let text = await res.text();
-      if (text.length > 0) return JSON.parse(text);
-    });
+    return await fetch(this.url, options)
+      .then(async (res) => {
+        let text = await res.text();
+        if (text.length > 0) return JSON.parse(text);
+      })
+      .catch(availabilityCatch);
   }
 }
 
@@ -148,6 +170,11 @@ export async function refreshLibrary() {
 export async function alterEpisode(data: {}) {
   let mutator = new AdminMutation("/alter_episode_metadata");
   return await mutator.mutate(data);
+}
+
+export async function clearDatabase() {
+  let mutator = new AdminMutation("/clear_db", "DELETE");
+  return await mutator.mutate();
 }
 
 //types

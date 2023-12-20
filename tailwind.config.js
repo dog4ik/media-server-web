@@ -5,8 +5,8 @@ export default {
     extend: {
       fontFamily: { sans: ["Inter", "system-ui"] },
       animation: {
-        "fade-in": "fadein 0.2s ease-in-out",
-        "fade-out": "fadeout 0.2s ease-in-out",
+        "fade-in": "fadein 0.5s ease-in-out",
+        "fade-out": "fadeout 0.5s ease-in-out",
         "push-in-fade-out": "push-in-fade-out 0.5s ease-in-out",
         blob: "blob 7s infinite",
         "slide-from-top": "slide-from-top 0.2s ease-in-out",
@@ -76,5 +76,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/container-queries")],
 };

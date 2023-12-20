@@ -1,16 +1,18 @@
-import { For, createResource } from "solid-js";
-import { getAllShows } from "../utils/serverApi";
+import { For } from "solid-js";
 import ShowCard from "../components/Cards/ShowCard";
 import PageTitle from "../components/PageTitle";
+import ElementsGrid from "../components/ElementsGrid";
+import { createAsync } from "@solidjs/router";
+import { getCachedAllShows } from "../utils/cachedApi";
 export default function Shows() {
-  const [shows] = createResource(async () => await getAllShows());
+  const shows = createAsync(() => getCachedAllShows());
 
   return (
     <>
       <PageTitle>Shows</PageTitle>
-      <div class="flex gap-10 flex-wrap">
+      <ElementsGrid elementSize={250}>
         <For each={shows()}>{(show) => <ShowCard show={show} />}</For>
-      </div>
+      </ElementsGrid>
     </>
   );
 }

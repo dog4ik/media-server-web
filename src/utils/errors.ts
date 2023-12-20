@@ -1,4 +1,4 @@
-export type ErrorType = "database" | "server" | "notfound" | "unknown";
+export type ErrorType = "database" | "server" | "notfound" | "unavailable";
 
 export default class BaseError extends Error {
   errorType: ErrorType;
@@ -26,8 +26,8 @@ export class NotFoundError extends BaseError {
   }
 }
 
-export class UnknownError extends BaseError {
+export class UnavailableError extends BaseError {
   constructor(message?: string) {
-    super("unknown", message);
+    super("unavailable", message);
   }
 }

@@ -7,7 +7,9 @@ type Props = {
 export function TranscodeModal(props: Props & ModalProps) {
   return (
     <Modal ref={props.ref}>
-      <div>Wanna transcode?</div>
+      <form method="dialog">
+        <div>Wanna transcode: {props.video_id}</div>
+      </form>
     </Modal>
   );
 }

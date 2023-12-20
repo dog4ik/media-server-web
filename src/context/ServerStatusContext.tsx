@@ -1,13 +1,14 @@
 import {
   ParentProps,
   createContext,
-  createResource,
   createSignal,
   onCleanup,
   useContext,
 } from "solid-js";
-import { cancelTaskMutation, getActiveTasks } from "../utils/serverApi";
+import { cancelTaskMutation } from "../utils/serverApi";
 import { useNotifications } from "./NotificationContext";
+import { getCachedActiveTasks } from "../utils/cachedApi";
+import { createAsync, revalidate } from "@solidjs/router";
 
 export type EventStatus =
   | "start"
@@ -32,7 +33,7 @@ export const useServerStatus = () => useContext(ServerStatusContext)!;
 function createServerStatusContext(
   notificator: ReturnType<typeof useNotifications>,
 ) {
-  let [serverTasks, { refetch, mutate }] = createResource(getActiveTasks);
+  let serverTasks = createAsync(getCachedActiveTasks);
   // Record<task_id, progress%>
   let [tasksProgress, setTasksProgress] = createSignal<Map<string, number>>(
     new Map(),
@@ -68,18 +69,14 @@ function createServerStatusContext(
       if (taskProgress === undefined) {
         continue;
       }
-      if (taskProgress === 100) {
-        mutate(serverTasks()?.filter((t) => t.id != task.id));
-      } else {
-        cleanProgress.set(task.id, taskProgress);
-      }
+      cleanProgress.set(task.id, taskProgress);
     }
     setTasksProgress(cleanProgress);
   }
 
   async function cancelTask(task_id: string) {
     await cancelTaskMutation(task_id).then(() => {
-      mutate(serverTasks()?.filter((t) => t.id !== task_id));
+      revalidate(getCachedActiveTasks.key);
       cleanupProgress();
     });
   }
@@ -100,11 +97,10 @@ function createServerStatusContext(
 
   async function handleProgressEvent(event: MessageEvent<string>) {
     let data = JSON.parse(event.data) as EventType;
-    let currentTasks = serverTasks() ?? [];
 
     // task is new
     if (data.status == "start") {
-      refetch();
+      revalidate(getCachedActiveTasks.key);
       notificator("success", "Created new task");
     }
 
@@ -113,7 +109,7 @@ function createServerStatusContext(
         notificator("warn", "Canceled task with id: " + data.task_id);
       if (data.status == "finish")
         notificator("success", "Finished task with id: " + data.task_id);
-      mutate(currentTasks.filter((task) => task.id !== data.task_id));
+      revalidate(getCachedActiveTasks.key);
     }
 
     let updatedTasks = new Map(tasksProgress());

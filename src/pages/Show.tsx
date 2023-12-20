@@ -1,42 +1,30 @@
-import {
-  createEffect,
-  createResource,
-  createSignal,
-  For,
-  Show,
-  Suspense,
-} from "solid-js";
-import { getEpisodes, getSeasons, getShowById } from "../utils/serverApi";
-import { useParams } from "@solidjs/router";
+import { createSignal, For, Show, Suspense } from "solid-js";
+import { createAsync, useParams } from "@solidjs/router";
 import Description from "../components/Description";
 import SeasonsCarousel from "../components/ShowView/SeasonsCarousel";
 import EpisodeCard from "../components/Cards/EpisodeCard";
 import ElementsGrid from "../components/ElementsGrid";
 import AlterEpisodeDetailsModal from "../components/modals/AlterEpisodeDetails";
-import { useBackdrop } from "../context/BackdropContext";
+import { getCachedEpisodes, getCachedSeasons, getCachedShowById } from "../utils/cachedApi";
 
 export default function ShowPage() {
   let params = useParams();
 
-  let [show] = createResource(+params.show_id, getShowById);
+  let show = createAsync(() => getCachedShowById(+params.show_id));
   let [selectedSeason, setSelectedSeason] = createSignal<number | undefined>();
 
-  createEffect(() => {
-    useBackdrop(show()?.backdrop);
-  });
-
-  let [seasons] = createResource(+params.show_id, async (id) => {
-    let seasons = await getSeasons(id);
+  let seasons = createAsync(async () => {
+    let seasons = await getCachedSeasons(+params.show_id);
     setSelectedSeason(seasons[0].number);
     return seasons;
   });
 
-  let [episodes, { refetch: refetchEpisodes }] = createResource(
-    selectedSeason,
-    async (season) => {
-      return await getEpisodes(+params.show_id, season);
-    },
-  );
+  let episodes = createAsync(async () => {
+    return getCachedEpisodes(
+      +params.show_id,
+      selectedSeason() ?? seasons()?.at(0)?.number ?? 0,
+    );
+  });
 
   let [alteredEpisode, setAlteredEpisode] = createSignal<number | undefined>();
   let episodeModal: HTMLDialogElement;
@@ -50,18 +38,14 @@ export default function ShowPage() {
     <>
       <Show when={alteredEpisode() !== undefined}>
         <AlterEpisodeDetailsModal
-          onEdit={refetchEpisodes}
+          onEdit={() => {}}
           episodeId={alteredEpisode()!}
           ref={episodeModal!}
         />
       </Show>
-      <Suspense fallback={<div>Loading description</div>}>
-        <Show when={!show.loading}>
-          <Description show={show()!} />
-        </Show>
-      </Suspense>
+      <Description item={show()} />
       <Suspense fallback={<div>Loading seasons</div>}>
-        <Show when={!show.loading && !seasons.loading}>
+        <Show when={show() && seasons()}>
           <SeasonsCarousel
             tabs={seasons()!.map((s) => s.number)}
             onClick={(season) => setSelectedSeason(season)}
@@ -69,12 +53,13 @@ export default function ShowPage() {
         </Show>
       </Suspense>
       <Suspense fallback={<div>Loading episodes</div>}>
-        <Show when={!show.loading && !seasons.loading && !episodes.loading}>
+        <Show when={show() && seasons() && episodes()}>
           <ElementsGrid elementSize={320}>
             <For each={episodes()!}>
               {(ep) => {
                 return (
                   <EpisodeCard
+                    url={`${selectedSeason()}/${ep.number}`}
                     onEditDetails={() => handleEditDetails(ep.id)}
                     onFixMetadata={() => null}
                     onOptimize={() => null}
