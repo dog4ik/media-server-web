@@ -11,6 +11,10 @@ import Settings from "./pages/Settings";
 import Logs from "./pages/Logs";
 import Layout from "./Layout";
 import { getCachedAllShows, getCachedShowById } from "./utils/cachedApi";
+import Library from "./pages/Settings/Library";
+import General from "./pages/Settings/General";
+import Metadata from "./pages/Settings/Metadata";
+import SettingsLayout from "./layouts/SettingsLayout";
 
 function loadShows() {
   void getCachedAllShows();
@@ -32,7 +36,12 @@ function App() {
       <Route path="/shows/:show_id" component={Show} load={loadShow} />
       <Route path="/shows/:show_id/:season/:episode" component={Episode} />
       <Route path="/torrent" component={Torrent} />
-      <Route path="/settings" component={Settings} />
+      <Route path="/settings" component={SettingsLayout}>
+        <Route path="/" component={Settings}/>
+        <Route path="/library" component={Library}/>
+        <Route path="/general" component={General}/>
+        <Route path="/metadata" component={Metadata}/>
+      </Route>
       <Route path="/logs" component={Logs} />
     </Router>
   );
