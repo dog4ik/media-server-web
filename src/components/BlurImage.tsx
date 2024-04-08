@@ -3,7 +3,6 @@ type Props = {
   alt?: string;
   ref?: Ref<HTMLDivElement>;
   class?: string;
-  viewTransitionName?: string;
   height: number;
   width: number;
   blurData?: string;
@@ -22,24 +21,25 @@ export default function BlurImage(props: Props) {
   return (
     <div
       ref={props.ref}
-      style={{ "view-transition-name": props.viewTransitionName }}
       class={`${
         isLoaded() ? "blur-none" : "blur-sm"
-      } overflow-hidden w-full duration-1000 ${props.class}`}
+      } overflow-hidden duration-1000 ${props.class ? props.class : ""}`}
     >
-      <Show when={!isLoaded()}>
+      <Show when={!isLoaded() && props.blurData}>
         <img
           height={props.height}
           width={props.width}
-          class="w-full transition-all"
+          class="w-full"
           src={props.blurData && `data:image/png;base64,${props.blurData}`}
         />
       </Show>
       <img
-        class={isLoaded() ? "block" : "hidden"}
+        class={isLoaded() ? "object-cover max-h-full max-w-full" : "hidden"}
         ref={imgRef!}
         src={props.src}
         alt={props.alt}
+        height={props.height}
+        width={props.width}
         loading="eager"
         onLoad={onLoad}
       />

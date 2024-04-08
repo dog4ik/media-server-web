@@ -1,4 +1,5 @@
 import {
+  ErrorBoundary,
   ParentProps,
   Show,
   createEffect,
@@ -6,40 +7,43 @@ import {
   onMount,
 } from "solid-js";
 import { useBackdropContext } from "../context/BackdropContext";
-function createHex() {
-  let hexCode = "";
-  let hexValues = "0123456789abcdef";
+import ServerNotAvailable from "../pages/ServerNotAvailable";
+import SideBar from "../components/SideBar";
+import { useLocation } from "@solidjs/router";
+import NavBar from "../components/NavBar";
 
-  for (var i = 0; i < 6; i++) {
-    hexCode += hexValues.charAt(Math.floor(Math.random() * hexValues.length));
+function createHexPair() {
+  let randomNumber = () => Math.floor(Math.random() * 256);
+  let firstNumbers = [randomNumber(), randomNumber(), randomNumber()];
+  let secondNumbers = [randomNumber(), randomNumber(), randomNumber()];
+  let satisfiesRange = firstNumbers.every(
+    (_, idx) => Math.abs(firstNumbers[idx] - secondNumbers[idx]) > 70,
+  );
+
+  let intoHex = (nums: number[]) =>
+    nums.map((n) => n.toString(16).padStart(2, "0")).join("");
+
+  if (!satisfiesRange) {
+    return createHexPair();
   }
-  return hexCode;
+  return [intoHex(firstNumbers), intoHex(secondNumbers)] as const;
 }
 
 function generate() {
   let deg = Math.floor(Math.random() * 360);
-
-  let gradient =
-    "linear-gradient(" +
-    deg +
-    "deg, " +
-    "#" +
-    createHex() +
-    ", " +
-    "#" +
-    createHex() +
-    ")";
+  let [from, to] = createHexPair();
+  let gradient = `linear-gradient(${deg}deg, #${from}, #${to})`;
 
   return gradient;
 }
+
 export default function PageLayout(props: ParentProps) {
   let [{ backdrop }] = useBackdropContext();
   let backdropElement: HTMLImageElement;
   let gradientElement: HTMLDivElement;
   let [isLoaded, setIsLoaded] = createSignal(false);
-  onMount(() => {
-    setIsLoaded(backdropElement.complete);
-  });
+
+  let location = useLocation();
 
   let animation = {
     opacity: [0, 1],
@@ -50,6 +54,7 @@ export default function PageLayout(props: ParentProps) {
   };
 
   createEffect(() => {
+    setIsLoaded(false);
     if (backdrop()) {
       backdropElement.animate(animation, options);
     } else {
@@ -59,16 +64,20 @@ export default function PageLayout(props: ParentProps) {
 
   return (
     <>
-      <div ref={backdropElement!} class="fixed blur-sm brightness-50 inset-0">
-        <div class="absolute w-full h-full">
-          <Show when={!backdrop() || !isLoaded()}>
+      <Show when={!location.pathname.startsWith("/watch")}>
+        <SideBar />
+        <NavBar />
+      </Show>
+      <div ref={backdropElement!} class="absolute inset-0">
+        <div class="relative h-full w-full">
+          <Show when={!backdrop()}>
             <div
               ref={gradientElement!}
               style={`background: ${generate()};`}
-              class="h-full w-full object-cover"
+              class="h-full w-full object-cover transition-opacity"
             ></div>
           </Show>
-          <Show when={backdrop()}>
+          <Show when={backdrop() || isLoaded()}>
             <img
               ref={backdropElement!}
               onLoad={() => setIsLoaded(true)}
@@ -78,10 +87,17 @@ export default function PageLayout(props: ParentProps) {
               }`}
             />
           </Show>
+          <div class="absolute inset-0 bg-black/50" />
         </div>
       </div>
-      <main class="w-full relative overflow-y-scroll min-h-screen p-4 text-white flex flex-col rounded-md">
-        {props.children}
+      <main class="relative flex min-h-screen w-full flex-col overflow-y-scroll rounded-md pt-16 text-white">
+        <ErrorBoundary
+          fallback={(err, reset) => (
+            <ServerNotAvailable reset={reset} error={err} />
+          )}
+        >
+          {props.children}
+        </ErrorBoundary>
       </main>
     </>
   );

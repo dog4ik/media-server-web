@@ -16,7 +16,7 @@ type RowProps = {
 export function MenuRow(props: RowProps) {
   return (
     <li
-      class="flex cursor-pointer items-center rounded-md pl-2 py-1 hover:bg-neutral-700"
+      class="flex cursor-pointer items-center rounded-md py-1 pl-2 hover:bg-neutral-700"
       onClick={props.onClick}
     >
       <span class="pointer-events-none text-white">{props.title}</span>
@@ -29,9 +29,8 @@ export function MenuWrapper(props: WrapperProps & ParentProps) {
   return (
     <div
       id={props.popoverId}
-      // @ts-expect-error
       popover
-      class="w-60 m-0 select-none rounded-md bg-neutral-900"
+      class="m-0 w-60 select-none rounded-md bg-neutral-900"
       onClick={props.onClick}
       style={{ top: `${props.y}px`, left: `${props.x}px` }}
     >
@@ -39,7 +38,7 @@ export function MenuWrapper(props: WrapperProps & ParentProps) {
         ref={listRef!}
         class={
           props.scroll
-            ? "overflow-y-auto scrollbar-thumb-white scrollbar-track-rounded-sm scrollbar-thumb-rounded-sm w-full"
+            ? "scrollbar-thumb-white scrollbar-track-rounded-sm scrollbar-thumb-rounded-sm w-full overflow-y-auto"
             : "w-full"
         }
       >

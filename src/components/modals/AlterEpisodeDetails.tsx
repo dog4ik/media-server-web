@@ -2,12 +2,12 @@ import { Show, createMemo, createResource, createUniqueId } from "solid-js";
 import PrimeButton from "../ui/PrimeButton";
 import TextInput from "../ui/TextInput";
 import Modal, { ModalProps } from "./Modal";
-import { alterEpisode, getEpisodeById } from "../../utils/serverApi";
+import { alterEpisode, getEpisode } from "../../utils/serverApi";
 import TextBox from "../ui/TextBox";
 import { useNotifications } from "../../context/NotificationContext";
 
 type Props = {
-  episodeId: number;
+  episodeId: string;
   onEdit: () => void;
 };
 
@@ -20,7 +20,7 @@ type FieldProps = {
 function TextBoxField(props: FieldProps) {
   let id = createUniqueId();
   return (
-    <div class="flex flex-col gap-2 justify-center max-w-xl">
+    <div class="flex max-w-xl flex-col justify-center gap-2">
       <label for={id}>{props.title}</label>
       <TextBox id={id} value={props.value} name={props.name} rows={5} />
     </div>
@@ -30,7 +30,7 @@ function TextBoxField(props: FieldProps) {
 function InputField(props: FieldProps) {
   let id = createUniqueId();
   return (
-    <div class="flex gap-2 pt-3 justify-between items-center">
+    <div class="flex items-center justify-between gap-2 pt-3">
       <label for={id}>{props.title}:</label>
       <TextInput
         id={id}
@@ -45,7 +45,7 @@ function InputField(props: FieldProps) {
 export default function AlterEpisodeDetailsModal(props: Props & ModalProps) {
   // NOTE: something wrong here. Aren't props reactive?
   let id = createMemo(() => props.episodeId);
-  let [episode] = createResource(id, getEpisodeById);
+  let [episode] = createResource(id, getEpisode);
   let notificator = useNotifications();
 
   async function handleSubmit(e: SubmitEvent) {
@@ -69,7 +69,7 @@ export default function AlterEpisodeDetailsModal(props: Props & ModalProps) {
         <form
           method="dialog"
           onSubmit={handleSubmit}
-          class="flex flex-col h-full justify-between"
+          class="flex h-full flex-col justify-between"
         >
           <div class="pt-10">
             <InputField name="title" title="Title" value={episode()?.title} />
@@ -85,7 +85,7 @@ export default function AlterEpisodeDetailsModal(props: Props & ModalProps) {
             />
             <TextBoxField name="plot" title="Plot" value={episode()?.plot} />
           </div>
-          <div class="flex items-center self-end gap-2">
+          <div class="flex items-center gap-2 self-end">
             <PrimeButton>Save</PrimeButton>
           </div>
         </form>

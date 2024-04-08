@@ -1,37 +1,57 @@
 import { A } from "@solidjs/router";
-import { EpisodeWithDetails } from "../../utils/serverApi";
+import { EpisodeMetadata } from "../../utils/serverApi";
 import BlurImage from "../BlurImage";
 import MoreButton from "../ContextMenu/MoreButton";
 import { MenuRow } from "../ContextMenu/Menu";
+import { Show } from "solid-js";
+import { FiDownload } from "solid-icons/fi";
+import { formatDuration, formatTimeBeforeRelease } from "../../utils/formats";
 
 type Props = {
-  episode: EpisodeWithDetails;
+  episode: EpisodeMetadata;
   url: string;
-  onEditDetails: () => void;
+  availableLocally: boolean;
   onFixMetadata: () => void;
   onOptimize: () => void;
   onDelete: () => void;
 };
 export default function EpisodeCard(props: Props) {
+  let upcomingReleaseTime = formatTimeBeforeRelease(props.episode.release_date);
   return (
-    <div class="w-80 flex flex-col cursor-pointer">
-      <A href={props.url} class="w-full">
+    <div class="flex w-80 cursor-pointer flex-col">
+      <A href={props.url} class="relative w-full">
+        <Show when={upcomingReleaseTime}>
+          <div class="bg-black-20 absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full">
+            <span class="text-xl">{upcomingReleaseTime}</span>
+          </div>
+        </Show>
+        <Show when={props.availableLocally}>
+          <div class="absolute right-2 top-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-green-500">
+            <FiDownload />
+          </div>
+        </Show>
+        <Show when={props.episode.runtime}>
+          <div class="absolute bottom-2 right-2 z-20 flex items-center justify-center bg-black/90 p-1">
+            <span class="text-xs font-semibold">
+              {formatDuration(props.episode.runtime!)}
+            </span>
+          </div>
+        </Show>
         <BlurImage
-          width={208}
-          height={312}
-          blurData={props.episode.blur_data}
-          src={props.episode.poster}
+          width={320}
+          height={178}
+          class="aspect-video rounded-xl"
+          src={props.episode.poster ?? "/no-photo.png"}
         />
       </A>
-      <div class="flex justify-between items-center">
-        <A href={props.url} class="pt-2 flex flex-col">
+      <div class="flex items-center justify-between">
+        <A href={props.url} class="flex flex-col pt-2">
           <span class="text-base" title={props.episode.title}>
             {props.episode.title}
           </span>
-          <span class="text-sm pt-1">Episode {props.episode.number}</span>
+          <span class="pt-1 text-sm">Episode {props.episode.number}</span>
         </A>
         <MoreButton>
-          <MenuRow title="Edit details" onClick={props.onEditDetails} />
           <MenuRow title="Fix metadata" onClick={props.onFixMetadata} />
           <MenuRow title="Optimize video" onClick={props.onOptimize} />
           <MenuRow title="Delete" onClick={props.onDelete} />

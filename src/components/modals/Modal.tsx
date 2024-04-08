@@ -20,11 +20,11 @@ export default function Modal(props: ParentProps & ModalProps) {
       onMouseDown={closeDialog}
       ref={props.ref}
       id={id}
-      class="w-5/6 h-2/3 text-white bg-neutral-900 rounded-xl"
+      class="w-5/6 h-2/3 text-white bg-black rounded-xl"
     >
       <div
         onMouseDown={(e) => e.stopPropagation()}
-        class="w-full h-full p-4 bg-neutral-900 rounded-xl relative"
+        class="w-full h-full p-4 bg-black rounded-xl relative"
       >
         <button onClick={closeDialog} class="absolute top-5 right-5">
           <FiX size={25} stroke="white" />

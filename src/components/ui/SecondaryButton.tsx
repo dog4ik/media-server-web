@@ -9,15 +9,14 @@ type Props =
       href: string;
     };
 export default function SecondaryButton(props: Props & ParentProps) {
-  let style = "rounded-xl bg-neutral-200 text-black py-2 px-4";
   if ("href" in props)
     return (
-      <A href={props.href} class={style}>
+      <A href={props.href} class="btn-secondary">
         {props.children}
       </A>
     );
   return (
-    <button onClick={props.onClick} class={style}>
+    <button onClick={props.onClick} class="btn-secondary">
       {props.children}
     </button>
   );

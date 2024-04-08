@@ -6,7 +6,7 @@ export default function Settings() {
   return (
     <>
       <PageTitle>Settings</PageTitle>
-      <div class="flex p-10 flex-wrap self-center place-items-center gap-10 grid-rows-2 ">
+      <div class="flex grid-rows-2 flex-wrap place-items-center gap-10 self-center p-10 ">
         <Block title="Library" href="/settings/library">
           <FiBook size={70} />
         </Block>

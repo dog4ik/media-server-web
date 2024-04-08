@@ -1,13 +1,11 @@
-import { useLocation, useParams } from "@solidjs/router";
+import { useLocation } from "@solidjs/router";
 import {
   ParentProps,
   createContext,
   createEffect,
   createSignal,
-  onCleanup,
   useContext,
 } from "solid-js";
-import { getShowById } from "../utils/serverApi";
 
 type BackdropContextType = ReturnType<typeof createBackdropContext>;
 
@@ -15,35 +13,26 @@ export const BackdropContext = createContext<BackdropContextType>();
 
 export const useBackdropContext = () => useContext(BackdropContext)!;
 
-export function useBackdrop(url?: string) {
+export function useBackdrop(url: string | undefined) {
   let [{ backdrop }, { changeBackdrop }] = useBackdropContext();
   changeBackdrop(url);
-  onCleanup(() => changeBackdrop(undefined));
   return backdrop();
 }
 
 function createBackdropContext() {
   let [backdrop, setBackdrop] = createSignal<string>();
   let location = useLocation();
-  let params = useParams();
 
   function changeBackdrop(url?: string) {
     setBackdrop(url);
   }
 
   createEffect(() => {
-    if (location.pathname.startsWith("/shows/")) {
-      let showId = +params.show_id;
-      if (showId && !isNaN(showId)) {
-        getShowById(+showId).then((data) => changeBackdrop(data.backdrop));
-      }
-    } else if (location.pathname.startsWith("/movies/")) {
-      let movieId = +params.movie_id;
-      if (movieId && !isNaN(movieId)) {
-        getShowById(+movieId).then((data) => changeBackdrop(data.backdrop));
-      }
-    } else {
-      changeBackdrop(undefined);
+    if (
+      !location.pathname.startsWith("/shows/") &&
+      !location.pathname.startsWith("/movies/")
+    ) {
+      removeBackdrop();
     }
   });
 

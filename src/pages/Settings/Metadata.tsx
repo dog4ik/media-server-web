@@ -1,3 +1,3 @@
 export default function Metadata() {
-  return <div></div>
+  return <div></div>;
 }

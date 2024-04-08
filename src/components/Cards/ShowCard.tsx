@@ -1,68 +1,58 @@
-import { ShowWithDetails } from "../../utils/serverApi";
 import BlurImage from "../BlurImage";
 import { MenuRow } from "../ContextMenu/Menu";
 import MoreButton from "../ContextMenu/MoreButton";
-import { createSignal } from "solid-js";
-import TransitionLink from "../TransitionLink";
-import { getCachedShowById } from "../../utils/cachedApi";
+import { Show, createSignal } from "solid-js";
+import { ShowMetadata } from "../../utils/serverApi";
+import { A } from "@solidjs/router";
 
-export default function ShowCard(props: { show: ShowWithDetails }) {
-  let url = `/shows/${props.show.id}`;
-  let [titleTransitionName, setTitleTransitionName] =
-    createSignal<"description-title">();
-  let [imageTransitionName, setImageTransitionName] =
-    createSignal<"description-img">();
+function provider(provider: string): string {
+  if (provider === "local") {
+    return "";
+  }
+  return `?provider=${provider}`;
+}
+
+export default function ShowCard(props: { show: ShowMetadata }) {
+  let url = `/shows/${props.show.metadata_id}${provider(props.show.metadata_provider)}`;
   function handleDelete() {}
 
-  function onStartTransition() {
-    setTitleTransitionName("description-title");
-    setImageTransitionName("description-img");
-  }
-  async function onEndTransition() {
-    void (await getCachedShowById(props.show.id));
-    setTitleTransitionName(undefined);
-    setImageTransitionName(undefined);
-  }
   return (
     <>
       <div class="w-52">
-        <TransitionLink
-          startCallBack={onStartTransition}
-          endCallBack={onEndTransition}
+        <A
           href={url}
-          class="w-full relative"
+          class="relative w-full"
         >
           <BlurImage
             src={props.show.poster}
-            class="rounded-xl duration-500"
+            class="rounded-xl"
             width={208}
             height={312}
-            blurData={props.show.blur_data}
-            viewTransitionName={imageTransitionName()}
           />
-          <div class="absolute top-0 right-0 w-8 h-8 flex justify-center items-center bg-white rounded-xl rounded-t-none rounded-r-none">
-            <span class="text-sm text-black font-semibold">
-              {props.show.episodes_count}
-            </span>
-          </div>
-        </TransitionLink>
-        <div class="flex justify-between items-center">
-          <TransitionLink
-            startCallBack={onStartTransition}
-            endCallBack={onEndTransition}
+          <Show when={props.show.episodes_amount}>
+            <div class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center rounded-xl rounded-r-none rounded-t-none bg-white">
+              <span class="text-sm font-semibold text-black">
+                {props.show.episodes_amount}
+              </span>
+            </div>
+          </Show>
+        </A>
+        <div class="flex items-center justify-between">
+          <A
             href={url}
           >
             <div
-              style={{ "view-transition-name": titleTransitionName() }}
-              class="text-lg truncate"
+              class="truncate text-lg"
             >
               <span>{props.show.title}</span>
             </div>
-            <div class="text-white text-sm">
-              {props.show.seasons_count}{" "}
-              {props.show.seasons_count == 1 ? "season" : "seasons"}
-            </div>
-          </TransitionLink>
+            <Show when={props.show.seasons}>
+              <div class="text-sm text-white">
+                {props.show.seasons!.length}{" "}
+                {props.show.seasons!.length == 1 ? "season" : "seasons"}
+              </div>
+            </Show>
+          </A>
           <MoreButton>
             <MenuRow title="Delete" onClick={handleDelete} />
           </MoreButton>

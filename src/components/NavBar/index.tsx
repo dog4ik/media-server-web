@@ -1,81 +1,26 @@
-import { A, useLocation } from "@solidjs/router";
-import {
-  For,
-  createSignal,
-  createMemo,
-  createEffect,
-  ErrorBoundary,
-} from "solid-js";
-import { StatusIndicator } from "./ServerStatusIndicator";
+import { A } from "@solidjs/router";
+import { FiArrowLeftCircle } from "solid-icons/fi";
+import Search from "../Search";
 
 export default function NavBar() {
-  let routes = [
-    ["Home", "/"],
-    ["Dashboard", "/dashboard"],
-    ["Shows", "/shows"],
-    ["Movies", "/movies"],
-    ["Torrent", "/torrent"],
-    ["Logs", "/logs"],
-    ["Settings", "/settings"],
-  ];
-
-  let location = useLocation();
-  const pathname = createMemo(() => location.pathname);
-  let [currentIndex, setCurrentIndex] = createSignal(-1);
-
-  createEffect(() => {
-    let idx = routes.findIndex(([, route]) => {
-      if (pathname() == "/" && route == "/") {
-        return true;
-      } else if (route != "/") {
-        return pathname().startsWith(route);
-      }
-      return false;
-    });
-    setCurrentIndex(idx);
-  });
-
+  function back() {
+    window.navigation.back();
+  }
   return (
-    <div class="p-2 justify-between flex flex-col-reverse rounded-md items-center">
-      <nav class="flex flex-col my-auto rounded-md relative sm:justify-center">
-        <div
-          class={`w-full bg-white rounded-md transition-all duration-200 absolute z-10 left-0 right-0`}
-          style={{
-            height: `${100 / routes.length}%`,
-            top: `${(currentIndex() / routes.length) * 100}%`,
-          }}
-        />
-        <For each={routes}>
-          {([title, url], idx) => {
-            let isActive = () => {
-              return currentIndex() == idx();
-            };
-            return (
-              <A
-                href={url}
-                class={`rounded-lg px-3 z-10 bg-transparent py-2 flex-1 font-medium ${
-                  isActive()
-                    ? "text-neutral-800"
-                    : "text-white hover:text-neutral-200"
-                }`}
-              >
-                {title}
-              </A>
-            );
-          }}
-        </For>
+    <header class="dark:border-gray-850 fixed top-0 z-10 flex h-16 w-full shrink-0 items-center px-4 text-white">
+      <nav class="flex flex-1 justify-between text-sm font-semibold">
+        <button onClick={back}>
+          <FiArrowLeftCircle stroke="white" size={40} />
+        </button>
+        <Search />
+        <ul class="flex items-center space-x-4">
+          <li class="">
+            <A class="" href="#">
+              Contact
+            </A>
+          </li>
+        </ul>
       </nav>
-      <div class="flex justify-center items-center">
-        <ErrorBoundary
-          fallback={
-            <div class="flex justify-center items-center text-white">
-              <span class="text-center">No connection</span>
-            </div>
-          }
-        >
-          <StatusIndicator />
-        </ErrorBoundary>
-      </div>
-    </div>
+    </header>
   );
 }

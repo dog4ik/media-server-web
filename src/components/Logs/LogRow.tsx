@@ -21,7 +21,7 @@ function backgroundColor(level: LogLevel) {
 export default function LogRow(props: Props) {
   let bg = backgroundColor(props.message.level);
   return (
-    <p class={`${bg} hover:bg-neutral-950 w-full p-2`}>
+    <p class={`${bg} w-full p-2 hover:bg-neutral-950`}>
       {props.message.timestamp} {props.message.target} ({props.message.level}):{" "}
       {props.message.fields.message ?? JSON.stringify(props.message.fields)}
     </p>

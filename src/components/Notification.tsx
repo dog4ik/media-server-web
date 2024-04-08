@@ -18,7 +18,7 @@ function useClose(cb: () => void, time: number) {
   return [shouldAnimateOut, setClose] as const;
 }
 
-function getNotificationColor(type: NotificationType["type"]) {
+function notificationColor(type: NotificationType["type"]) {
   if (type == "success") return "bg-green-500";
   if (type == "warn") return "bg-yellow-500";
   if (type == "error") return "bg-red-500";
@@ -30,13 +30,14 @@ export default function Notification(
 ) {
   let [shouldAnimateOut, close] = useClose(props.onClose, 200);
   let closeTimeout = setTimeout(() => close(), 5_000);
-  let color = getNotificationColor(props.type);
+  let color = notificationColor(props.type);
   return (
     <div
       onMouseEnter={() => clearTimeout(closeTimeout)}
       onMouseLeave={() => (closeTimeout = setTimeout(() => close(), 5_000))}
-      class={`w-fit transition-all duration-200 ${shouldAnimateOut() ? "translate-x-full" : "animate-fade-in"
-        } flex items-center justify-between rounded-lg ${color}`}
+      class={`w-fit transition-all duration-200 ${
+        shouldAnimateOut() ? "translate-x-full" : "animate-fade-in"
+      } flex items-center justify-between rounded-lg ${color}`}
     >
       <p
         title={props.message}

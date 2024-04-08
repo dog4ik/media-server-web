@@ -55,10 +55,9 @@ export default function MoreButton(props: ParentProps) {
         {props.children}
       </MenuWrapper>
       <button
-        // @ts-expect-error
         popovertarget={popoverId}
         ref={popoverButton!}
-        class="hover:bg-neutral-600 p-1.5 rounded-full transition-colors"
+        class="rounded-full p-1.5 transition-colors hover:bg-neutral-600"
       >
         <FiMoreVertical size={25} stroke="white" />
       </button>

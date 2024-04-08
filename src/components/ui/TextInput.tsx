@@ -14,7 +14,7 @@ export default function TextInput(props: Props) {
   let type = props.password ? "password" : "text";
   return (
     <input
-      class="rounded-full max-w-sm h-4 bg-neutral-950 text-white py-4 px-2 placeholder:text-neutral-500"
+      class="input input-primary text-black"
       id={props.id}
       type={type}
       onInput={(e) => props.onInput && props.onInput(e.currentTarget.value)}

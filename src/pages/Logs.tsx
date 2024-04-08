@@ -16,17 +16,20 @@ function CheckBox(props: CheckBoxProps) {
   }
   return (
     <div class="flex">
-      <label class="pr-3 cursor-pointer" for={props.value.toLowerCase()}>
-        {props.value}:
+      <label
+        class="label flex cursor-pointer gap-2"
+        for={props.value.toLowerCase()}
+      >
+        <span class="label-text text-white">{props.value}:</span>
+        <input
+          checked={props.checked}
+          class="checkbox-primary checkbox cursor-pointer"
+          onInput={onInput}
+          value={props.value}
+          id={props.value.toLowerCase()}
+          type="checkbox"
+        />
       </label>
-      <input
-        checked={props.checked}
-        class="cursor-pointer"
-        onInput={onInput}
-        value={props.value}
-        id={props.value.toLowerCase()}
-        type="checkbox"
-      />
     </div>
   );
 }
@@ -37,7 +40,7 @@ type FilterBarProps = {
 
 function FilterBar(props: FilterBarProps) {
   return (
-    <div class="flex gap-5 items-center justify-center">
+    <div class="flex items-center justify-center gap-5">
       <CheckBox checked onInput={props.onChange} value="INFO" />
       <CheckBox checked onInput={props.onChange} value="TRACE" />
       <CheckBox checked onInput={props.onChange} value="DEBUG" />
@@ -81,7 +84,7 @@ export default function Logs() {
     <>
       <PageTitle>Logs</PageTitle>
       <FilterBar onChange={handleFilterChange} />
-      <div class="flex overflow-hidden w-full p-10 max-h-fit h-full justify-center items-center">
+      <div class="flex h-full max-h-fit w-full items-center justify-center overflow-hidden p-10">
         <Show when={!logs.loading}>
           <LogWindow
             logs={logs()!.filter((l) => filterState().includes(l.level))}

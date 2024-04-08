@@ -9,7 +9,9 @@ export default function Home() {
   }
   return (
     <div class="p-2">
-      <button onClick={handleRefresh} class="p-2 rounded-xl bg-green-500">Refresh library</button>
+      <button onClick={handleRefresh} class="rounded-xl bg-green-500 p-2">
+        Refresh library
+      </button>
     </div>
   );
 }

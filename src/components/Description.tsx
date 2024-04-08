@@ -1,48 +1,66 @@
-import { createSignal, onMount } from "solid-js";
-import { EpisodeWithDetails, ShowWithDetails } from "../utils/serverApi";
+import { For, ParentProps, Show } from "solid-js";
+import {} from "../utils/serverApi";
 import BlurImage from "./BlurImage";
 
 type Props = {
-  item?: ShowWithDetails | EpisodeWithDetails;
+  poster?: string;
+  plot?: string;
+  title: string;
+  additionalInfo?: string[];
   imageDirection?: "horizontal" | "vertical";
 };
 
-export default function Description(props: Props) {
-  let imageDirection = props.imageDirection ?? "vertical";
-  let [imageTransitionName, setImageTransitionName] = createSignal<
-    undefined | string
-  >("description-img");
-  let [titleTransitionName, setTitleTransitionName] = createSignal<
-    undefined | string
-  >("description-title");
-
-  onMount(() => {
-    setTimeout(() => {
-      setTitleTransitionName(undefined);
-      setImageTransitionName(undefined);
-    }, 400);
-  });
-
+function Addition(props: { data: string[] }) {
   return (
-    <div class="flex items-center w-full">
-      <div class={`${imageDirection == "horizontal" ? "w-80" : "w-52"} `}>
+    <div class="flex items-center gap-1">
+      <For each={props.data}>
+        {(content, i) => {
+          let isLast = i() == props.data.length - 1;
+          return (
+            <>
+              <span class="text-sm">{content}</span>
+              <Show when={!isLast}>
+                <span>·</span>
+              </Show>
+            </>
+          );
+        }}
+      </For>
+    </div>
+  );
+}
+
+export default function Description(props: Props & ParentProps) {
+  let imageDirection = props.imageDirection ?? "vertical";
+  return (
+    <div class="flex w-full flex-col gap-8 md:flex-row">
+      <div
+        class={`${imageDirection == "horizontal" ? "w-80" : "w-52"} shrink-0`}
+      >
         <BlurImage
-          width={imageDirection == "horizontal" ? 312 : 208}
+          width={imageDirection == "horizontal" ? 350 : 208}
           class="rounded-xl"
           height={imageDirection == "horizontal" ? 208 : 312}
-          src={props.item?.poster ?? ""}
-          blurData={props.item?.blur_data}
-          viewTransitionName={imageTransitionName()}
+          src={props.poster ?? ""}
+          blurData={undefined}
         />
       </div>
-      <div class="h-full p-8">
-        <div
-          class="text-2xl"
-          style={{ "view-transition-name": titleTransitionName() }}
-        >
-          <span>{props.item?.title}</span>
+      <div>
+        <div class="text-3xl">
+          <span>{props.title}</span>
         </div>
-        <div class="pt-8 max-w-2xl animate-fade-in">{props.item?.plot}</div>
+        <Show when={props.additionalInfo}>
+          <Addition data={props.additionalInfo!} />
+        </Show>
+        <Show when={props.plot && props.plot.length > 0}>
+          <p
+            title={props.plot}
+            class={`${imageDirection == "horizontal" ? "line-clamp-2" : "line-clamp-5"} max-w-2xl animate-fade-in pt-8`}
+          >
+            {props.plot}
+          </p>
+        </Show>
+        {props.children}
       </div>
     </div>
   );

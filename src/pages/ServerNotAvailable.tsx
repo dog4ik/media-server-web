@@ -28,25 +28,31 @@ function ErrorIcon(props: ErrorIconProps) {
   return <FiAlertTriangle size={size} />;
 }
 
+function errorMessage(e: Error) {
+  if (e instanceof UnavailableError) {
+    console.log(e);
+    return "Make sure server is available";
+  }
+  if (e instanceof NotFoundError) {
+    return "404 Not found";
+  }
+
+  console.error(e);
+  return "Unknown error: " + e.name;
+}
+
 export default function ServerNotAvailable(props: Props) {
   let [, { addWakeSubscriber, removeWakeSubscriber }] = useServerStatus();
   let id = addWakeSubscriber(props.reset);
-  let errorMessage;
   onCleanup(() => removeWakeSubscriber(id));
-  if (props.error instanceof UnavailableError) {
-    errorMessage = "Make sure server is available";
-    console.log(props.error);
-  } else {
-    errorMessage = "Unknown error: " + props.error.name;
-    console.error(props.error);
-  }
+  let message = errorMessage(props.error);
 
   return (
-    <div class="h-full w-full flex flex-col gap-4 justify-center items-center">
+    <div class="flex h-full w-full flex-col items-center justify-center gap-4">
       <ErrorIcon error={props.error} />
-      <div>{errorMessage}</div>
+      <div>{message}</div>
       <button
-        class="p-3 mt-2 bg-neutral-200 rounded-xl text-black"
+        class="mt-2 rounded-xl bg-neutral-200 p-3 text-black"
         onClick={props.reset}
       >
         <FiRotateCcw size={30} />

@@ -5,10 +5,11 @@ import {
   onCleanup,
   useContext,
 } from "solid-js";
-import { cancelTaskMutation } from "../utils/serverApi";
+import { Task, cancelTaskMutation } from "../utils/serverApi";
 import { useNotifications } from "./NotificationContext";
-import { getCachedActiveTasks } from "../utils/cachedApi";
+import { getActiveTasks } from "../utils/serverApi";
 import { createAsync, revalidate } from "@solidjs/router";
+import { createStore } from "solid-js/store";
 
 export type EventStatus =
   | "start"
@@ -33,11 +34,19 @@ export const useServerStatus = () => useContext(ServerStatusContext)!;
 function createServerStatusContext(
   notificator: ReturnType<typeof useNotifications>,
 ) {
-  let serverTasks = createAsync(getCachedActiveTasks);
-  // Record<task_id, progress%>
-  let [tasksProgress, setTasksProgress] = createSignal<Map<string, number>>(
-    new Map(),
+  let serverTasks = createAsync(
+    async () => {
+      let tasks = await getActiveTasks();
+      setTasks(tasks);
+      return tasks;
+    },
+    { initialValue: [] },
   );
+  // Record<task_id, progress%>
+  let [tasksProgress, setTasksProgress] = createStore<Record<string, number>>(
+    {},
+  );
+  let [tasks, setTasks] = createStore<Task[]>([]);
   let [isConnecting, setIsConnecting] = createSignal(true);
   let [isErrored, setIsErrored] = createSignal(false);
   let wakeSubscribers: Map<string, () => void> = new Map();
@@ -53,35 +62,35 @@ function createServerStatusContext(
   }
 
   function getTaskWithProgress(task_id: string) {
-    let task = (serverTasks() ?? []).find((task) => task.id == task_id);
+    let task = serverTasks().find((task) => task.id == task_id);
 
     if (task) {
-      return { ...task, progress: tasksProgress().get(task_id) };
+      return { ...task, progress: tasksProgress[task_id] };
     } else {
       return undefined;
     }
   }
 
   function cleanupProgress() {
-    let cleanProgress = new Map();
-    for (let task of serverTasks() ?? []) {
-      let taskProgress = tasksProgress().get(task.id);
+    let cleanProgress: Record<string, number> = {};
+    for (let task of serverTasks()) {
+      let taskProgress = tasksProgress[task.id];
       if (taskProgress === undefined) {
         continue;
       }
-      cleanProgress.set(task.id, taskProgress);
+      cleanProgress[task.id] = taskProgress;
     }
     setTasksProgress(cleanProgress);
   }
 
   async function cancelTask(task_id: string) {
     await cancelTaskMutation(task_id).then(() => {
-      revalidate(getCachedActiveTasks.key);
+      revalidate(getActiveTasks.key);
       cleanupProgress();
     });
   }
 
-  function handleOpen() {
+  function onOpen() {
     for (let cb of wakeSubscribers.values()) {
       cb();
     }
@@ -90,56 +99,57 @@ function createServerStatusContext(
     setIsErrored(false);
   }
 
-  function handleError() {
+  function onError() {
     setIsErrored(true);
     setIsConnecting(false);
   }
 
-  async function handleProgressEvent(event: MessageEvent<string>) {
+  async function onProgressEvent(event: MessageEvent<string>) {
     let data = JSON.parse(event.data) as EventType;
+    let status = data.status;
 
     // task is new
     if (data.status == "start") {
-      revalidate(getCachedActiveTasks.key);
+      revalidate(getActiveTasks.key);
       notificator("success", "Created new task");
     }
 
-    if (data.status == "cancel" || data.status == "finish") {
+    // task ended
+    if (status == "cancel" || status == "finish" || status == "error") {
       if (data.status == "cancel")
         notificator("warn", "Canceled task with id: " + data.task_id);
       if (data.status == "finish")
         notificator("success", "Finished task with id: " + data.task_id);
-      revalidate(getCachedActiveTasks.key);
+      setTasks(tasks.filter((t) => t.id !== data.task_id));
+      cleanupProgress();
+      return;
     }
 
-    let updatedTasks = new Map(tasksProgress());
-    updatedTasks.set(data.task_id, data.progress);
-    setTasksProgress(updatedTasks);
-    cleanupProgress();
+    setTasksProgress(data.task_id, data.progress);
   }
 
   let sse = new EventSource(
     import.meta.env.VITE_MEDIA_SERVER_URL + "/admin/progress",
   );
-  sse.addEventListener("message", handleProgressEvent);
-  sse.addEventListener("open", handleOpen);
-  sse.addEventListener("error", handleError);
+  sse.addEventListener("message", onProgressEvent);
+  sse.addEventListener("open", onOpen);
+  sse.addEventListener("error", onError);
   onCleanup(() => {
-    sse.removeEventListener("message", handleProgressEvent);
-    sse.removeEventListener("open", handleOpen);
-    sse.removeEventListener("error", handleError);
+    sse.removeEventListener("message", onProgressEvent);
+    sse.removeEventListener("open", onOpen);
+    sse.removeEventListener("error", onError);
     sse.close();
   });
 
   return [
     {
-      serverTasks,
+      tasks,
       tasksProgress,
       getTaskWithProgress,
       isConnecting,
       isErrored,
     },
-    { setTasksProgress, cancelTask, addWakeSubscriber, removeWakeSubscriber },
+    { cancelTask, addWakeSubscriber, removeWakeSubscriber },
   ] as const;
 }
 

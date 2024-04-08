@@ -17,4 +17,12 @@ Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
 
 ## Description
 
-Dashboard for [Media Server](https://github.com/dog4ik/media-server)  
+Dashboard for [Media Server](https://github.com/dog4ik/media-server)
+
+### Features
+
+- [x] Compatibility detection
+- [] Settings
+- [x] Video player
+- [x] Task management
+- [] Torrent client

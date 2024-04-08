@@ -17,7 +17,7 @@ export default function LogWindow(props: Props) {
     <>
       <div
         ref={windowRef!}
-        class="w-full overflow-y-scroll p-3 h-full max-h-fit rounded-xl bg-neutral-950"
+        class="h-full max-h-fit w-full overflow-y-scroll rounded-xl bg-neutral-950 p-3"
       >
         <For each={props.logs}>{(msg) => <LogRow message={msg} />}</For>
       </div>

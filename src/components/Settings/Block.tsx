@@ -9,8 +9,8 @@ export default function SettingsBlock(props: Props & ParentProps) {
   return (
     <A
       href={props.href}
-      class="aspect-square w-52 hover:shadow-2xl transition-all duration-500 bg-white/20 rounded-xl
-      flex flex-col justify-center gap-5 items-center"
+      class="flex aspect-square w-52 flex-col items-center justify-center gap-5
+      rounded-xl bg-white/20 transition-all duration-500 hover:shadow-2xl"
     >
       <div>{props.children}</div>
       <div class="text-2xl">{props.title}</div>

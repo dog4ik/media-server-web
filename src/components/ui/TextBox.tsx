@@ -12,7 +12,7 @@ type Props = {
 export default function TextBox(props: Props) {
   return (
     <textarea
-      class="resize-none bg-neutral-950 text-white"
+      class="textarea resize-none bg-neutral-950 text-white"
       id={props.id}
       name={props.name}
       maxLength={props.maxLength}

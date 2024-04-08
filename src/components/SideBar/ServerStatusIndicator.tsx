@@ -7,11 +7,11 @@ export function StatusIndicator() {
 
   return (
     <Suspense fallback={<div>Loading</div>}>
-      <div class="bg-white/20 z-10 w-12 flex justify-center cursor-pointer relative items-center h-12 rounded-full">
+      <div class="relative z-10 flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white/20">
         <FiActivity size={20} stroke="white" />
-        <div class="flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center h-12 w-12">
-          <Show when={tasksProgress().size > 0}>
-            <svg class="animate-spin h-12 w-12 text-white">
+        <div class="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center">
+          <Show when={tasksProgress.size > 0}>
+            <svg class="h-12 w-12 animate-spin text-white">
               <circle
                 class="opacity-25"
                 cx="12"

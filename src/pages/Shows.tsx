@@ -3,9 +3,9 @@ import ShowCard from "../components/Cards/ShowCard";
 import PageTitle from "../components/PageTitle";
 import ElementsGrid from "../components/ElementsGrid";
 import { createAsync } from "@solidjs/router";
-import { getCachedAllShows } from "../utils/cachedApi";
+import { getAllShows } from "../utils/serverApi";
 export default function Shows() {
-  const shows = createAsync(() => getCachedAllShows());
+  const shows = createAsync(() => getAllShows());
 
   return (
     <>
