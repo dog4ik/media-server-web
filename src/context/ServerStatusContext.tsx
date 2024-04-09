@@ -5,7 +5,7 @@ import {
   onCleanup,
   useContext,
 } from "solid-js";
-import { Task, cancelTaskMutation } from "../utils/serverApi";
+import { MEDIA_SERVER_URL, Task, cancelTaskMutation } from "../utils/serverApi";
 import { useNotifications } from "./NotificationContext";
 import { getActiveTasks } from "../utils/serverApi";
 import { createAsync, revalidate } from "@solidjs/router";
@@ -128,9 +128,7 @@ function createServerStatusContext(
     setTasksProgress(data.task_id, data.progress);
   }
 
-  let sse = new EventSource(
-    import.meta.env.VITE_MEDIA_SERVER_URL + "/admin/progress",
-  );
+  let sse = new EventSource(MEDIA_SERVER_URL + "/admin/progress");
   sse.addEventListener("message", onProgressEvent);
   sse.addEventListener("open", onOpen);
   sse.addEventListener("error", onError);

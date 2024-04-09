@@ -26,7 +26,7 @@ function fetchCatch(e: Error) {
   throw new UnavailableError("Server is not available");
 }
 
-const MEDIA_SERVER_URL = import.meta.env.VITE_MEDIA_SERVER_URL!;
+export const MEDIA_SERVER_URL = import.meta.env.VITE_MEDIA_SERVER_URL ?? "";
 
 export function getVideoUrl(
   videoId: number | string,

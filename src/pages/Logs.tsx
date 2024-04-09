@@ -1,7 +1,12 @@
 import { Show, createResource, createSignal, onCleanup } from "solid-js";
 import LogWindow from "../components/Logs/LogWindow";
 import PageTitle from "../components/PageTitle";
-import { LogLevel, LogMessage, getLatestLog } from "../utils/serverApi";
+import {
+  LogLevel,
+  LogMessage,
+  MEDIA_SERVER_URL,
+  getLatestLog,
+} from "../utils/serverApi";
 
 type CheckBoxProps = {
   value: LogLevel;
@@ -50,7 +55,9 @@ function FilterBar(props: FilterBarProps) {
 }
 
 export default function Logs() {
-  let [logs, { mutate: mutateLogs }] = createResource(async () => await getLatestLog());
+  let [logs, { mutate: mutateLogs }] = createResource(
+    async () => await getLatestLog(),
+  );
   function handleProgressEvent(event: MessageEvent<string>) {
     let data: LogMessage = JSON.parse(event.data);
     mutateLogs([...logs()!, data]);
@@ -62,9 +69,7 @@ export default function Logs() {
     "TRACE",
   ]);
 
-  let sse = new EventSource(
-    import.meta.env.VITE_MEDIA_SERVER_URL + "/admin/log",
-  );
+  let sse = new EventSource(MEDIA_SERVER_URL + "/admin/log");
 
   sse.addEventListener("message", handleProgressEvent);
   onCleanup(() => {

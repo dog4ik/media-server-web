@@ -5,7 +5,7 @@ export type ErrorType =
   | "unavailable"
   | "unknownprovider";
 
-export default class BaseError extends Error {
+export class BaseError extends Error {
   errorType: ErrorType;
   constructor(type: ErrorType, message?: string) {
     super(message);
