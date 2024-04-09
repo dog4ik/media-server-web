@@ -50,7 +50,7 @@ function FilterBar(props: FilterBarProps) {
 }
 
 export default function Logs() {
-  let [logs, { mutate: mutateLogs }] = createResource(getLatestLog);
+  let [logs, { mutate: mutateLogs }] = createResource(async () => await getLatestLog());
   function handleProgressEvent(event: MessageEvent<string>) {
     let data: LogMessage = JSON.parse(event.data);
     mutateLogs([...logs()!, data]);

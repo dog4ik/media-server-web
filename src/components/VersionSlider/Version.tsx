@@ -85,9 +85,6 @@ export default function Version(props: Props) {
       <Stat title="File size" value={formatSize(props.variant.size)}>
         <FiHardDrive size={ICON_SIZE} />
       </Stat>
-      <Stat title="Hash" value={props.variant.hash}>
-        <FiHash size={ICON_SIZE} />
-      </Stat>
     </div>
   );
 }
