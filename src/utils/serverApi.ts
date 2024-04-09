@@ -1,5 +1,10 @@
 import { cache } from "@solidjs/router";
-import { NotFoundError, ServerError, UnavailableError } from "./errors";
+import {
+  BaseError,
+  NotFoundError,
+  ServerError,
+  UnavailableError,
+} from "./errors";
 
 async function handleResponse(response: Response) {
   if (!response.ok) {
@@ -14,7 +19,10 @@ async function handleResponse(response: Response) {
   });
 }
 
-function fetchCatch() {
+function fetchCatch(e: Error) {
+  if (e instanceof BaseError) {
+    throw e;
+  }
   throw new UnavailableError("Server is not available");
 }
 
