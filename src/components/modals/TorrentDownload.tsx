@@ -3,6 +3,7 @@ import {
   ContentType,
   MetadataProvider,
   TorrentSearchResult,
+  downloadTorrent,
   getExternalIds,
   searchTorrent,
 } from "../../utils/serverApi";
@@ -10,12 +11,13 @@ import Modal, { ModalProps } from "./Modal";
 import { For, Show } from "solid-js";
 import { formatSize } from "../../utils/formats";
 import { FiDownload } from "solid-icons/fi";
+import { useNotifications } from "../../context/NotificationContext";
 
 type Props = {
   metadata_provider: MetadataProvider;
   metadata_id: string;
   content_type: ContentType;
-  name: string;
+  query: string;
 };
 
 type TorrentResultProps = {
@@ -40,23 +42,44 @@ function TorrentResult(props: TorrentResultProps) {
   );
 }
 
+async function imdb_id(
+  metadata_provider: MetadataProvider,
+  metadata_id: string,
+  content_type: ContentType,
+) {
+  let ids = await getExternalIds(metadata_id, content_type, metadata_provider);
+  let imdb_id = ids.find((id) => id.provider == "imdb");
+  if (!imdb_id) {
+    return undefined;
+  }
+  return imdb_id.id;
+}
+
 export default function DownloadTorrentModal(props: Props & ModalProps) {
+  let notificator = useNotifications();
   let torrentSearch = createAsync(async () => {
-    let ids = await getExternalIds(
-      props.metadata_id,
-      props.content_type,
-      props.metadata_provider,
-    );
-    let imdb_id = ids.find((id) => id.provider == "imdb");
-    if (!imdb_id) {
+    let result = await searchTorrent(props.query);
+    if (result.length === 0) {
       return undefined;
     }
-    console.log(ids);
-    return await searchTorrent(imdb_id.id);
-
+    return result;
   });
-  function handleDownload() {
-    console.log("download");
+  function handleDownload(magnet: string) {
+    downloadTorrent({
+      magnet,
+      content_hint: {
+        metadata_provider: props.metadata_provider,
+        metadata_id: props.metadata_id,
+        content_type: props.content_type,
+      },
+      save_location: undefined,
+    })
+      .then(() => {
+        notificator("success", "Created torrent download");
+      })
+      .catch(() => {
+        notificator("error", "Failed to download torrent");
+      });
   }
   return (
     <Modal ref={props.ref}>
@@ -76,7 +99,7 @@ export default function DownloadTorrentModal(props: Props & ModalProps) {
               <For each={torrentSearch()!}>
                 {(res) => (
                   <TorrentResult
-                    onDownload={() => handleDownload()}
+                    onDownload={() => handleDownload(res.magnet)}
                     result={res}
                   />
                 )}

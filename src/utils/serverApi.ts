@@ -189,7 +189,7 @@ export const searchContent = cache(async (query: string) => {
 
 export const searchTorrent = cache(async (query: string) => {
   let url = new MediaUrl("/search_torrent");
-  url.searchParams.append("id", query);
+  url.searchParams.append("search", query);
   return await url.fetch<TorrentSearchResult[]>();
 }, "searchtorrent");
 
@@ -225,7 +225,22 @@ export async function removeVariant(data: RemoveVariantPayload) {
   return await mutator.mutate(data);
 }
 
+export async function downloadTorrent(data: TorrentDownloadPayload) {
+  let mutator = new AdminMutation("/download_torrent", "POST");
+  return await mutator.mutate(data);
+}
+
 //types
+
+export type TorrentDownloadPayload = {
+  save_location?: string;
+  content_hint?: {
+    metadata_provider: MetadataProvider;
+    content_type: ContentType;
+    metadata_id: string;
+  };
+  magnet: string;
+};
 
 export type RemoveVariantPayload = {
   video_id: number;

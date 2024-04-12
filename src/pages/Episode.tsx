@@ -1,10 +1,11 @@
 import { createAsync, useParams } from "@solidjs/router";
-import { Show } from "solid-js";
+import { Show, createEffect } from "solid-js";
 import Description from "../components/Description";
 import {
   getLocalByExternalId,
   getContentsVideo,
   getEpisode,
+  getShow,
 } from "../utils/serverApi";
 import VersionSlider from "../components/VersionSlider";
 import { TranscodePayload, transcodeVideo } from "../utils/serverApi";
@@ -15,6 +16,7 @@ import ContentSectionContainer, {
 } from "../components/generic/ContentSectionContainer";
 import DownloadTorrentModal from "../components/modals/TorrentDownload";
 import { NotFoundError } from "../utils/errors";
+import { useBackdrop } from "../context/BackdropContext";
 
 function parseParams() {
   let params = useParams();
@@ -29,6 +31,10 @@ function catchNotFound(e: any) {
     return undefined;
   }
   throw e;
+}
+
+function pad(num: number) {
+  return num.toString().padStart(2, "0");
 }
 
 export default function Episode() {
@@ -59,6 +65,14 @@ export default function Episode() {
     };
   });
 
+  let show = createAsync(async () => {
+    return await getShow(showId(), provider());
+  });
+
+  createEffect(() => {
+    if (show()?.backdrop) useBackdrop(show()?.backdrop);
+  });
+
   let video = createAsync(async () => {
     if (!episode()?.local_id) return undefined;
     let show_id = episode()!.local_id!.toString();
@@ -82,14 +96,20 @@ export default function Episode() {
     }
   };
 
+  let query = () => {
+    if (!episode() || !show()) return undefined;
+    let query = `${show()!.title} S${pad(episode()!.season_number)}E${pad(episode()!.number)}`;
+    return query;
+  };
+
   return (
     <>
-      <Show when={episode()}>
+      <Show when={query()}>
         <DownloadTorrentModal
-          metadata_id={showId()}
+          metadata_id={show()!.metadata_id}
           metadata_provider={provider()}
+          query={query()!}
           content_type="show"
-          name={episode()!.title}
           ref={downloadModal!}
         />
       </Show>
