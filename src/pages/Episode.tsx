@@ -122,9 +122,6 @@ export default function Episode() {
             imageDirection="horizontal"
             additionalInfo={[]}
           >
-            <Show when={video()}>
-              <span>Available locally</span>
-            </Show>
             <button
               onClick={() => downloadModal?.showModal()}
               class="btn btn-success"

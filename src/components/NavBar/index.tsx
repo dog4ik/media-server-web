@@ -14,11 +14,6 @@ export default function NavBar() {
         </button>
         <Search />
         <ul class="flex items-center space-x-4">
-          <li class="">
-            <A class="" href="#">
-              Contact
-            </A>
-          </li>
         </ul>
       </nav>
     </header>

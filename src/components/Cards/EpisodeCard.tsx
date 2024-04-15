@@ -20,29 +20,29 @@ export default function EpisodeCard(props: Props) {
   return (
     <div class="flex w-80 cursor-pointer flex-col">
       <A href={props.url} class="relative w-full">
-        <Show when={upcomingReleaseTime}>
-          <div class="bg-black-20 absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full">
-            <span class="text-xl">{upcomingReleaseTime}</span>
-          </div>
-        </Show>
-        <Show when={props.availableLocally}>
-          <div class="absolute right-2 top-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-green-500">
-            <FiDownload />
-          </div>
-        </Show>
-        <Show when={props.episode.runtime}>
-          <div class="absolute bottom-2 right-2 z-20 flex items-center justify-center bg-black/90 p-1">
-            <span class="text-xs font-semibold">
-              {formatDuration(props.episode.runtime!)}
-            </span>
-          </div>
-        </Show>
         <BlurImage
           width={320}
           height={178}
           class="aspect-video rounded-xl"
           src={props.episode.poster ?? "/no-photo.png"}
         />
+        <Show when={upcomingReleaseTime}>
+          <div class="bg-black-20 absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full">
+            <span class="text-xl">{upcomingReleaseTime}</span>
+          </div>
+        </Show>
+        <Show when={props.availableLocally}>
+          <div class="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-green-500">
+            <FiDownload />
+          </div>
+        </Show>
+        <Show when={props.episode.runtime}>
+          <div class="absolute bottom-2 right-2 flex items-center justify-center bg-black/90 p-1">
+            <span class="text-xs font-semibold">
+              {formatDuration(props.episode.runtime!)}
+            </span>
+          </div>
+        </Show>
       </A>
       <div class="flex items-center justify-between">
         <A href={props.url} class="flex flex-col pt-2">
