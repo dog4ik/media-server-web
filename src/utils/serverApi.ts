@@ -274,6 +274,7 @@ export type Duration = {
 
 export type VideoCodec = "hevc" | "h264";
 export type AudioCodec = "ac3" | "aac" | "eac3";
+export type SubtitleCodec = "subrip" | "ass";
 
 export type Resolution = {
   height: number;
@@ -312,6 +313,12 @@ export type AudioTrack = {
   codec: AudioCodec;
 };
 
+export type SubtitleTrack = {
+  is_default: boolean;
+  language?: string;
+  codec: SubtitleCodec;
+}
+
 export type AllVariantsSummary = {
   title: string;
   poster: string;
@@ -329,6 +336,7 @@ export type Video = {
   duration: Duration;
   video_tracks: VideoTrack[];
   audio_tracks: AudioTrack[];
+  subtitle_tracks: SubtitleTrack[];
   variants: Variant[];
   scan_date: string;
 };
