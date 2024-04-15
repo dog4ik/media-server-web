@@ -1,7 +1,7 @@
 import { useServerStatus } from "../../context/ServerStatusContext";
 import { For, Show } from "solid-js";
 import PageTitle from "../PageTitle";
-import { EventKind } from "../../utils/serverApi";
+import { TaskKind } from "../../utils/serverApi";
 import { FiX } from "solid-icons/fi";
 import TasksTable, { TableRow } from "../ui/TasksTable";
 
@@ -10,7 +10,7 @@ type TaskProps = {
   number: number;
   cancelable: boolean;
   target: string;
-  kind: EventKind;
+  kind: TaskKind;
   progress?: number;
 };
 
@@ -28,13 +28,17 @@ export default function Activity() {
         <TasksTable>
           <For each={tasks}>
             {(task) => {
+              let name = "";
+              if ("target" in task.task) {
+                name = task.task.target;
+              }
               return (
                 <TableRow
-                  type={task.kind}
+                  type={task.task.task_kind}
                   onCancel={
                     task.cancelable ? () => cancelTask(task.id) : undefined
                   }
-                  name={task.target.split("/").at(-1)!}
+                  name={name.split("/").at(-1)!}
                   status="pending"
                   created="now"
                   progress={tasksProgress[task.id]}

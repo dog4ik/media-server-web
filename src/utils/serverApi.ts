@@ -26,7 +26,12 @@ function fetchCatch(e: Error) {
   throw new UnavailableError("Server is not available");
 }
 
-export const MEDIA_SERVER_URL = import.meta.env.VITE_MEDIA_SERVER_URL ?? "";
+const currentProtocol = window.location.protocol;
+const currentHost = window.location.host;
+
+const currentBaseUrl = `${currentProtocol}//${currentHost}`;
+
+export const MEDIA_SERVER_URL = import.meta.env.VITE_MEDIA_SERVER_URL ?? currentBaseUrl;
 
 export function getVideoUrl(
   videoId: number | string,
@@ -258,7 +263,7 @@ export type TranscodePayload = {
   video_id: number;
 };
 
-export type EventKind = "transcode" | "scan" | "previews";
+export type TaskKind = { task_kind: "transcode", target: string } | { task_kind: "scan", target: string } | { task_kind: "previews" } | { task_kind: "torrent", info_hash: string };
 
 export type LogLevel = "TRACE" | "DEBUG" | "INFO" | "ERROR";
 
@@ -285,8 +290,7 @@ export type LogMessage = {
 
 export type Task = {
   id: string;
-  target: string;
-  kind: EventKind;
+  task: TaskKind;
   cancelable: boolean;
 };
 
