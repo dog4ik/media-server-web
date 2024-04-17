@@ -4,7 +4,10 @@ import Arrows from "./Arrows";
 import Version from "./Version";
 import SlideItem from "./SlideItem";
 import AddVersion from "./AddVersion";
-import { CanPlay, isCompatible } from "../../utils/mediaCapabilities/mediaCapabilities";
+import {
+  CanPlay,
+  isCompatible,
+} from "../../utils/mediaCapabilities/mediaCapabilities";
 import { FiPlay } from "solid-icons/fi";
 import { A, useSearchParams } from "@solidjs/router";
 import { canPlayAfterTranscode } from "../../utils/mediaCapabilities/mediaCapabilities";
@@ -20,27 +23,7 @@ function getDefaultTrack<T extends { is_default: boolean }>(items: T[]): T {
 }
 
 export default function VersionSlider(props: Props) {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  let initialVariant = () => {
-    let variantParam = searchParams.variant ?? 0;
-    let numberParam = +variantParam;
-    if (
-      !isNaN(numberParam) &&
-      numberParam > 0 &&
-      numberParam < props.variants.length
-    ) {
-      return numberParam;
-    } else if (variantParam == "new") {
-      return props.variants.length;
-    } else if (variantParam == "original") {
-      return 0;
-    }
-    return 0;
-  };
-
-  let [selectedVariantIdx, setSelectedVariantIdx] =
-    createSignal(initialVariant());
+  let [selectedVariantIdx, setSelectedVariantIdx] = createSignal(0);
   let [canPlay, setCanPlay] = createSignal<CanPlay>("unknown");
   let originalVideo = () => props.variants[0];
   let selectedVideo = () => props.variants[selectedVariantIdx()];
@@ -55,20 +38,10 @@ export default function VersionSlider(props: Props) {
   async function handleClick(direction: "left" | "right") {
     if (direction == "left") {
       let nextIndex = Math.max(0, selectedVariantIdx() - 1);
-      if (nextIndex == 0) {
-        setSearchParams({ variant: "original" });
-      } else {
-        setSearchParams({ variant: nextIndex });
-      }
       setSelectedVariantIdx(nextIndex);
     }
     if (direction == "right") {
       let nextIndex = Math.min(props.variants.length, selectedVariantIdx() + 1);
-      if (nextIndex == props.variants.length) {
-        setSearchParams({ variant: "new" });
-      } else {
-        setSearchParams({ variant: nextIndex });
-      }
       setSelectedVariantIdx(nextIndex);
     }
     if (selectedVariantIdx() == props.variants.length) {
