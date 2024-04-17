@@ -6,7 +6,7 @@ import {
   UnavailableError,
 } from "./errors";
 
-async function handleResponse(response: Response) {
+async function handleJsonResponse(response: Response) {
   if (!response.ok) {
     if (response.status == 404) {
       console.log("404");
@@ -15,6 +15,19 @@ async function handleResponse(response: Response) {
     throw new ServerError();
   }
   return await response.json().catch(() => {
+    throw new ServerError();
+  });
+}
+
+async function handleTextResponse(response: Response) {
+  if (!response.ok) {
+    if (response.status == 404) {
+      console.log("404");
+      throw new NotFoundError();
+    }
+    throw new ServerError();
+  }
+  return await response.text().catch(() => {
     throw new ServerError();
   });
 }
@@ -31,7 +44,8 @@ const currentHost = window.location.host;
 
 const currentBaseUrl = `${currentProtocol}//${currentHost}`;
 
-export const MEDIA_SERVER_URL = import.meta.env.VITE_MEDIA_SERVER_URL ?? currentBaseUrl;
+export const MEDIA_SERVER_URL =
+  import.meta.env.VITE_MEDIA_SERVER_URL ?? currentBaseUrl;
 
 export function getVideoUrl(
   videoId: number | string,
@@ -51,7 +65,9 @@ class MediaUrl extends URL {
   }
 
   async fetch<T>(): Promise<T> {
-    return await fetch(super.toString()).then(handleResponse).catch(fetchCatch);
+    return await fetch(super.toString())
+      .then(handleJsonResponse)
+      .catch(fetchCatch);
   }
 }
 
@@ -62,7 +78,9 @@ class AdminMediaUrl extends URL {
   }
 
   async fetch<T>(): Promise<T> {
-    return await fetch(super.toString()).then(handleResponse).catch(fetchCatch);
+    return await fetch(super.toString())
+      .then(handleJsonResponse)
+      .catch(fetchCatch);
   }
 }
 
@@ -198,6 +216,18 @@ export const searchTorrent = cache(async (query: string) => {
   return await url.fetch<TorrentSearchResult[]>();
 }, "searchtorrent");
 
+export const pullVideoSubtitle = cache(
+  async (videoId: string, subtitleTrack: number) => {
+    let url = new URL(`/api/pull_video_subtitle`, MEDIA_SERVER_URL);
+    url.searchParams.append("id", videoId);
+    url.searchParams.append("number", subtitleTrack.toString());
+    return (await fetch(url)
+      .then(handleTextResponse)
+      .catch(fetchCatch)) as string;
+  },
+  "pullvideosubtitle",
+);
+
 // mutations
 
 export async function cancelTaskMutation(task_id: string) {
@@ -263,7 +293,11 @@ export type TranscodePayload = {
   video_id: number;
 };
 
-export type TaskKind = { task_kind: "transcode", target: string } | { task_kind: "scan", target: string } | { task_kind: "previews" } | { task_kind: "torrent", info_hash: string };
+export type TaskKind =
+  | { task_kind: "transcode"; target: string }
+  | { task_kind: "scan"; target: string }
+  | { task_kind: "previews" }
+  | { task_kind: "torrent"; info_hash: string };
 
 export type LogLevel = "TRACE" | "DEBUG" | "INFO" | "ERROR";
 
@@ -317,7 +351,7 @@ export type SubtitleTrack = {
   is_default: boolean;
   language?: string;
   codec: SubtitleCodec;
-}
+};
 
 export type AllVariantsSummary = {
   title: string;

@@ -1,9 +1,19 @@
-import { useLocation, useNavigate, useParams } from "@solidjs/router";
+import { createAsync, useLocation, useParams } from "@solidjs/router";
 import { NotFoundError } from "../utils/errors";
 import VideoPlayer from "../components/VideoPlayer";
-import { getVideoUrl } from "../utils/serverApi";
-import { Show, createSignal } from "solid-js";
-import { FiArrowLeft } from "solid-icons/fi";
+import {
+  getVideoById,
+  getVideoUrl,
+  pullVideoSubtitle,
+} from "../utils/serverApi";
+
+export type SubtitlesOrigin = "container" | "api" | "local" | "imported";
+
+export type Subtitle = {
+  fetch: () => Promise<string>;
+  origin: SubtitlesOrigin;
+  language?: string;
+};
 
 function videoUrl() {
   let params = useParams();
@@ -18,9 +28,21 @@ function videoUrl() {
   return getVideoUrl(videoId, variant);
 }
 
+function parseVideoParam() {
+  let params = useParams();
+  let videoId = +params.video_id;
+  if (isNaN(videoId)) {
+    throw new NotFoundError();
+  }
+  return () => +params.video_id;
+}
+
 export default function Watch() {
   let url = videoUrl();
-  let [showOverlay, setShowOverlay] = createSignal(true);
+  let videoId = parseVideoParam();
+  let video = createAsync(async () => {
+    return await getVideoById(videoId());
+  });
   function handleAudioError() {
     console.log("audio error encountered");
   }
@@ -29,22 +51,29 @@ export default function Watch() {
     console.log("video error encountered");
   }
 
+  let subtitles = () => {
+    let subtitles: Subtitle[] = [];
+    if (video()) {
+      for (let i = 0; i < video()!.subtitle_tracks.length; i++) {
+        let subtitleTrack = video()!.subtitle_tracks[i];
+        subtitles.push({
+          fetch: () => pullVideoSubtitle(video()!.id, i),
+          origin: "container",
+          language: subtitleTrack.language,
+        });
+      }
+    }
+    return subtitles;
+  };
+
   return (
-    <div class="relative h-screen w-screen overflow-hidden">
-      <Show when={showOverlay()}>
-        <div class="absolute left-5 top-5 flex items-center gap-5 text-2xl text-white">
-          <button onClick={window.history.back}>
-            <FiArrowLeft size={40} />
-          </button>
-          <span>{url.toString()}</span>
-        </div>
-        <div></div>
-      </Show>
-      <VideoPlayer
-        onAudioError={handleAudioError}
-        onVideoError={handleVideoError}
-        src={url.toString()}
-      />
-    </div>
+    <VideoPlayer
+      onAudioError={handleAudioError}
+      onVideoError={handleVideoError}
+      onHistoryUpdate={(time) => console.log("Update history", time)}
+      subtitles={subtitles()}
+      src={url.toString()}
+      title="Test title, very good title"
+    />
   );
 }
