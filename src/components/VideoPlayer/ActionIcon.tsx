@@ -1,6 +1,14 @@
 import { Match, Ref, Switch } from "solid-js";
 import { DispatchedAction } from ".";
-import { FiPause, FiPlay, FiVolume1, FiVolume2 } from "solid-icons/fi";
+import {
+  FiChevronsLeft,
+  FiChevronsRight,
+  FiPause,
+  FiPlay,
+  FiVolume1,
+  FiVolume2,
+} from "solid-icons/fi";
+import { FaSolidClosedCaptioning } from "solid-icons/fa";
 
 type ActionIconProps = {
   ref: Ref<HTMLDivElement>;
@@ -26,6 +34,15 @@ export default function ActionIcon(props: ActionIconProps) {
         </Match>
         <Match when={props.action == "volumeup"}>
           <FiVolume2 stroke="white" size={size} />
+        </Match>
+        <Match when={props.action == "seekleft"}>
+          <FiChevronsLeft stroke="white" size={size} />
+        </Match>
+        <Match when={props.action == "seekright"}>
+          <FiChevronsRight stroke="white" size={size} />
+        </Match>
+        <Match when={props.action == "togglesubs"}>
+          <FaSolidClosedCaptioning stroke="white" size={size} />
         </Match>
       </Switch>
     </div>

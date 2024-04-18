@@ -44,6 +44,7 @@ export type DispatchedAction =
   | "unpause"
   | "volumeup"
   | "volumedown"
+  | "togglesubs"
   | "seekright"
   | "seekleft";
 
@@ -202,6 +203,7 @@ export default function VideoPlayer(props: Props) {
 
   function toggleCaptions() {
     resetOverlayTimeout();
+    dispatchAction("togglesubs");
     setShowCaptions(!showCaptions());
   }
 
@@ -291,11 +293,12 @@ export default function VideoPlayer(props: Props) {
     }
     if (event.code == "ArrowLeft") {
       videoRef.currentTime -= 5;
-      dispatchAction("seekright");
+      dispatchAction("seekleft");
       resetOverlayTimeout();
     }
     if (event.code == "ArrowRight") {
       videoRef.currentTime += 5;
+      dispatchAction("seekright");
       resetOverlayTimeout();
     }
     if (event.code == "ArrowUp") {
@@ -409,7 +412,7 @@ export default function VideoPlayer(props: Props) {
       >
         Browser does not support video
       </video>
-      <ActionIcon ref={actionContainer!} action={dispatchedAction()!} />
+      <ActionIcon ref={actionContainer!} action={dispatchedAction()} />
       <Show when={subs() !== undefined && showCaptions()}>
         <Subtitles time={Math.floor(time() * 1000)} raw_data={subs()!} />
       </Show>
