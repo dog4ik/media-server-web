@@ -216,6 +216,16 @@ export const searchTorrent = cache(async (query: string) => {
   return await url.fetch<TorrentSearchResult[]>();
 }, "searchtorrent");
 
+export const videoHistory = cache(async (videoId: number) => {
+  let url = new MediaUrl(`/history/${videoId}`);
+  return await url.fetch<History>();
+}, "videohistory");
+
+export const allHistory = cache(async () => {
+  let url = new MediaUrl("/history");
+  return await url.fetch<History[]>();
+}, "allhistory");
+
 export const pullVideoSubtitle = cache(
   async (videoId: string, subtitleTrack: number) => {
     let url = new URL(`/api/pull_video_subtitle`, MEDIA_SERVER_URL);
@@ -265,7 +275,36 @@ export async function downloadTorrent(data: TorrentDownloadPayload) {
   return await mutator.mutate(data);
 }
 
+export async function orderProviders(data: ProviderOrder) {
+  let mutator = new AdminMutation("/order_providers", "POST");
+  return await mutator.mutate<ProviderOrder>(data);
+}
+
+export async function updateHistory(data: UpdateHistoryPayload) {
+  let mutator = new AdminMutation("/update_history", "POST");
+  return await mutator.mutate(data);
+}
+
 //types
+
+export type UpdateHistoryPayload = {
+  video_id: number;
+  time: number;
+  is_finished: boolean;
+};
+
+export type History = {
+  id: number;
+  video_id: number;
+  time: number;
+  is_finished: boolean;
+  update_time: string;
+};
+
+export type ProviderOrder = {
+  provider_type: "show" | "movie" | "discover" | "torrent";
+  order: string[];
+};
 
 export type TorrentDownloadPayload = {
   save_location?: string;
@@ -373,6 +412,7 @@ export type Video = {
   subtitle_tracks: SubtitleTrack[];
   variants: Variant[];
   scan_date: string;
+  history?: History;
 };
 
 export type Variant = {

@@ -5,7 +5,9 @@ import {
   getVideoById,
   getVideoUrl,
   pullVideoSubtitle,
+  updateHistory,
 } from "../utils/serverApi";
+import { Show } from "solid-js";
 
 export type SubtitlesOrigin = "container" | "api" | "local" | "imported";
 
@@ -67,13 +69,18 @@ export default function Watch() {
   };
 
   return (
-    <VideoPlayer
-      onAudioError={handleAudioError}
-      onVideoError={handleVideoError}
-      onHistoryUpdate={(time) => console.log("Update history", time)}
-      subtitles={subtitles()}
-      src={url.toString()}
-      title="Test title, very good title"
-    />
+    <Show when={video()}>
+      <VideoPlayer
+        initialTime={video()?.history?.time ?? 0}
+        onAudioError={handleAudioError}
+        onVideoError={handleVideoError}
+        onHistoryUpdate={(time) =>
+          updateHistory({ video_id: videoId(), time, is_finished: false })
+        }
+        subtitles={subtitles()}
+        src={url.toString()}
+        title="Test title, very good title"
+      />
+    </Show>
   );
 }

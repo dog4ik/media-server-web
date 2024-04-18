@@ -15,7 +15,7 @@ type VariantProps = {
 
 function Variant(props: VariantProps) {
   return (
-    <div class="flex items-center justify-between gap-5">
+    <div class="flex items-center w-80 justify-between gap-5">
       <BlurImage src={props.poster} height={80} width={60} />
       <div>{props.title}</div>
       <div>

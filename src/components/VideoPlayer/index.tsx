@@ -26,6 +26,7 @@ function formatDuration(time: number) {
 }
 
 type Props = {
+  initialTime: number;
   src: string;
   onVideoError: (error?: MediaError) => void;
   onAudioError: () => void;
@@ -129,7 +130,7 @@ export default function VideoPlayer(props: Props) {
   let [showMenu, setShowMenu] = createSignal(false);
   let [volume, setVolume] = createSignal(getInitialVolume());
   let [playbackSpeed, setPlaybackSpeed] = createSignal(1);
-  let [time, setTime] = createSignal(0);
+  let [time, setTime] = createSignal(props.initialTime);
   let [duration, setDuration] = createSignal(0);
   let [playbackState, setPlaybackState] =
     createSignal<PlaybackState>("buffering");
@@ -354,7 +355,7 @@ export default function VideoPlayer(props: Props) {
     <div
       ref={videoContainerRef!}
       onMouseLeave={() => setShowControls(false)}
-      class="relative flex items-center justify-center text-white"
+      class={`relative flex items-center justify-center text-white ${showControls() ? "" : "cursor-none"}`}
     >
       <video
         onClick={handleClick}
@@ -378,7 +379,7 @@ export default function VideoPlayer(props: Props) {
         }}
         onPlaying={() => setIsWaiting(false)}
         onLoadedMetadata={(e) => {
-          e.currentTarget.currentTime = time();
+          e.currentTarget.currentTime = props.initialTime;
           setDuration(e.currentTarget.duration);
           setIsMetadataLoading(false);
           setIsError(false);

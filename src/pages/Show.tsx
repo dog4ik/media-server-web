@@ -4,7 +4,14 @@ import Description from "../components/Description";
 import SeasonsCarousel from "../components/ShowView/SeasonsCarousel";
 import EpisodeCard from "../components/Cards/EpisodeCard";
 import ElementsGrid from "../components/ElementsGrid";
-import { getLocalByExternalId, getSeason, getShow } from "../utils/serverApi";
+import {
+  getContentsVideo,
+  getLocalByExternalId,
+  getSeason,
+  getShow,
+  Video,
+  videoHistory,
+} from "../utils/serverApi";
 import { useProvider } from "../utils/metadataProviders";
 import { NotFoundError, UnavailableError } from "../utils/errors";
 import { useBackdrop } from "../context/BackdropContext";
@@ -58,13 +65,43 @@ export default function ShowPage() {
   let localSeason = createAsync(async () => {
     if (!show()?.local_id) return undefined;
     let local_id = show()!.local_id!.toString();
-    return await getSeason(local_id, selectedSeason(), "local").catch((e) => {
+    let local_season = await getSeason(
+      local_id,
+      selectedSeason(),
+      "local",
+    ).catch((e) => {
       if (e instanceof NotFoundError) {
         return undefined;
       }
       throw e;
     });
+    if (local_season) {
+      let settled = await Promise.allSettled(
+        local_season.episodes.map((e) =>
+          getContentsVideo(e.metadata_id, "show"),
+        ),
+      );
+      let videos: (Video | undefined)[] = [];
+      for (let result of settled) {
+        if (result.status === "fulfilled") {
+          videos.push(result.value);
+        } else {
+          console.warn("Could not get video for local episode");
+          videos.push(undefined);
+        }
+      }
+      return {
+        ...local_season,
+        episodes: local_season.episodes.map((ep, i) => {
+          return { ...ep, video: videos[i] };
+        }),
+      };
+    }
+    return undefined;
   });
+  createEffect(() => {
+    console.log(localSeason())
+  })
 
   return (
     <>
@@ -109,6 +146,7 @@ export default function ShowPage() {
                       ep.metadata_provider == "local" ||
                       local_ep() !== undefined
                     }
+                    history={local_ep()?.video?.history}
                   />
                 );
               }}

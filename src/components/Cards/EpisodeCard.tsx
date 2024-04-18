@@ -1,25 +1,29 @@
 import { A } from "@solidjs/router";
-import { EpisodeMetadata } from "../../utils/serverApi";
+import { EpisodeMetadata, History } from "../../utils/serverApi";
 import BlurImage from "../BlurImage";
 import MoreButton from "../ContextMenu/MoreButton";
 import { MenuRow } from "../ContextMenu/Menu";
 import { Show } from "solid-js";
 import { FiDownload } from "solid-icons/fi";
 import { formatDuration, formatTimeBeforeRelease } from "../../utils/formats";
+import ProgressBar from "./ProgressBar";
 
 type Props = {
   episode: EpisodeMetadata;
   url: string;
   availableLocally: boolean;
+  history?: History;
   onFixMetadata: () => void;
   onOptimize: () => void;
   onDelete: () => void;
 };
+
 export default function EpisodeCard(props: Props) {
   let upcomingReleaseTime = formatTimeBeforeRelease(props.episode.release_date);
+  console.log(props.history);
   return (
     <div class="flex w-80 cursor-pointer flex-col">
-      <A href={props.url} class="relative w-full">
+      <A href={props.url} class="relative w-full overflow-hidden rounded-xl">
         <BlurImage
           width={320}
           height={178}
@@ -42,6 +46,12 @@ export default function EpisodeCard(props: Props) {
               {formatDuration(props.episode.runtime!)}
             </span>
           </div>
+        </Show>
+        <Show when={props.history && props.episode.runtime}>
+          <ProgressBar
+            history={props.history!}
+            runtime={props.episode.runtime!.secs}
+          />
         </Show>
       </A>
       <div class="flex items-center justify-between">
