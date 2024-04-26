@@ -5,12 +5,13 @@ import { getEAC3Audio } from "./audio/eac3";
 import { getAVCCodec, getMaxAVCLevel } from "./video/avc";
 import { getHevcVideo, getMaxHEVCLevel } from "./video/hevc";
 
-export type CanPlay = "yes" | "no" | "unknown";
+export type Compatibility = {
+  video: MediaCapabilitiesDecodingInfo;
+  audio: MediaCapabilitiesDecodingInfo;
+  combined: MediaCapabilitiesDecodingInfo;
+};
 
-export async function isCompatible(
-  video: VideoTrack,
-  audio: AudioTrack,
-): Promise<CanPlay> {
+export async function isCompatible(video: VideoTrack, audio: AudioTrack) {
   let videoCodecs: string | undefined;
   let audioCodecs: string | undefined;
 
@@ -31,8 +32,6 @@ export async function isCompatible(
   if (audio.codec == "eac3") {
     audioCodecs = getEAC3Audio();
   }
-
-  if (!videoCodecs || !audioCodecs) return "unknown";
 
   let fullVideoMime = `video/mp4; codecs=${videoCodecs}`;
   let fullAudioMime = `audio/mp4; codecs=${audioCodecs}`;
@@ -56,88 +55,107 @@ export async function isCompatible(
     height,
   };
 
-  let result = await checkCompatibility({
+  return await checkCompatibility({
     video: videoConfig,
     audio: audioConfig,
   });
-  return result.supported ? "yes" : "no";
 }
 
 export async function checkCompatibility(configuration: {
   video?: VideoConfiguration;
   audio?: AudioConfiguration;
 }) {
-  return await navigator.mediaCapabilities
-    .decodingInfo({
-      type: "media-source",
-      video: configuration.video,
-      audio: configuration.audio,
-    })
-    .then((result) => {
-      console.log(
-        `This configuration is ${
-          result.supported ? "" : "not "
-        }supported`.toUpperCase(),
-      );
-      return result;
-    });
+  let combinedQuery = navigator.mediaCapabilities.decodingInfo({
+    type: "media-source",
+    video: configuration.video,
+    audio: configuration.audio,
+  });
+  let videoQuery = navigator.mediaCapabilities.decodingInfo({
+    type: "media-source",
+    video: configuration.video,
+  });
+  let audioQuery = navigator.mediaCapabilities.decodingInfo({
+    type: "media-source",
+    audio: configuration.audio,
+  });
+  let [video, audio, combined] = await Promise.all([
+    videoQuery,
+    audioQuery,
+    combinedQuery,
+  ]);
+  console.log({ video, audio, combined });
+  return { video, audio, combined };
 }
 
 export async function canPlayAfterTranscode(
   payload: TranscodePayload["payload"],
   framerate: number,
-): Promise<CanPlay> {
+) {
   let videoCodec = payload.video_codec;
   let audioCodec = payload.audio_codec;
-  let video: string | undefined = undefined;
-  let audio: string | undefined = undefined;
+  let videoSpec: string | undefined = undefined;
+  let audioSpec: string | undefined = undefined;
   if (videoCodec == "h264") {
     let level = getMaxAVCLevel(payload.resolution, framerate);
     // Assume profile is main
     let profile = "Main";
-    if (!level) return "unknown";
-    video = getAVCCodec(profile, level);
+    if (level) videoSpec = getAVCCodec(profile, level);
   }
   if (videoCodec == "hevc") {
     let level = getMaxHEVCLevel(payload.resolution, framerate);
     // Assume profile is main 10
     let profile = "Main 10";
-    video = getHevcVideo(profile, level);
+    videoSpec = getHevcVideo(profile, level);
   }
   if (audioCodec == "aac") {
-    audio = commonAACProfile();
+    audioSpec = commonAACProfile();
   }
 
   if (audioCodec == "ac3") {
-    audio = getAC3Audio();
+    audioSpec = getAC3Audio();
   }
 
-  if (!video || !audio) return "unknown";
+  let videoConfig: VideoConfiguration | undefined = undefined;
+  let audioConfig: AudioConfiguration | undefined = undefined;
 
-  let fullVideoMime = `video/mp4; codecs=${video}`;
-  let fullAudioMime = `audio/mp4; codecs=${audio}`;
+  if (videoSpec) {
+    let fullVideoMime = `video/mp4; codecs=${videoSpec}`;
+    let { width, height } = payload.resolution;
+    videoConfig = {
+      bitrate: 200_000,
+      contentType: fullVideoMime,
+      framerate,
+      width,
+      height,
+    };
+  }
+  if (audioSpec) {
+    let fullAudioMime = `audio/mp4; codecs=${audioSpec}`;
+    audioConfig = {
+      contentType: fullAudioMime,
+    };
+  }
 
-  console.log(video);
-  console.log(audio);
-
-  let audioConfig = {
-    contentType: fullAudioMime,
-  };
-
-  let { width, height } = payload.resolution;
-  let videoConfig = {
-    bitrate: 200_000,
-    contentType: fullVideoMime,
-    framerate,
-    width,
-    height,
-  };
-
-  let result = await checkCompatibility({
+  let combinedQuery = navigator.mediaCapabilities.decodingInfo({
+    type: "media-source",
     video: videoConfig,
     audio: audioConfig,
   });
-  return result.supported ? "yes" : "no";
+  let videoQuery = navigator.mediaCapabilities.decodingInfo({
+    type: "media-source",
+    video: videoConfig,
+  });
+  let audioQuery = navigator.mediaCapabilities.decodingInfo({
+    type: "media-source",
+    audio: audioConfig,
+  });
+  let [video, audio, combined] = await Promise.all([
+    videoQuery,
+    audioQuery,
+    combinedQuery,
+  ]);
+  console.log({ video, audio, combined });
+  return { video, audio, combined };
 }
 
 // TODO: AV1, VP9/8 codecs
