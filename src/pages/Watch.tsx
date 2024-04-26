@@ -2,6 +2,7 @@ import { createAsync, useLocation, useParams } from "@solidjs/router";
 import { NotFoundError } from "../utils/errors";
 import VideoPlayer from "../components/VideoPlayer";
 import {
+  MEDIA_SERVER_URL,
   getVideoById,
   getVideoUrl,
   pullVideoSubtitle,
@@ -80,6 +81,15 @@ export default function Watch() {
         subtitles={subtitles()}
         src={url.toString()}
         title="Test title, very good title"
+        previews={
+          video()!.previews_count > 0
+            ? {
+                previewsAmount: video()!.previews_count,
+                previewsSource:
+                  MEDIA_SERVER_URL + `/api/previews?id=${video()!.id}`,
+              }
+            : undefined
+        }
       />
     </Show>
   );

@@ -265,6 +265,16 @@ export async function transcodeVideo(data: TranscodePayload) {
   return await mutator.mutate(data);
 }
 
+export async function generatePreviews(id: number) {
+  let mutator = new AdminMutation(`/generate_previews?id=${id}`, "POST");
+  return await mutator.mutate(undefined);
+}
+
+export async function deletePreviews(id: number) {
+  let mutator = new AdminMutation(`/delete_previews?id=${id}`, "DELETE");
+  return await mutator.mutate(undefined);
+}
+
 export async function removeVariant(data: RemoveVariantPayload) {
   let mutator = new AdminMutation("/remove_variant", "DELETE");
   return await mutator.mutate(data);
@@ -402,6 +412,7 @@ export type AllVariantsSummary = {
 export type Video = {
   id: string;
   path: string;
+  previews_count: number;
   hash: string;
   local_title: string;
   size: number;

@@ -355,7 +355,7 @@ export default function VideoPlayer(props: Props) {
     <div
       ref={videoContainerRef!}
       onMouseLeave={() => setShowControls(false)}
-      class={`relative flex items-center justify-center text-white ${showControls() ? "" : "cursor-none"}`}
+      class={`relative flex max-h-screen items-center justify-center text-white ${showControls() ? "" : "cursor-none"}`}
     >
       <video
         onClick={handleClick}
@@ -407,7 +407,7 @@ export default function VideoPlayer(props: Props) {
         ref={videoRef!}
         class={`${
           isMetadataLoading() || isEnded() ? "hidden" : ""
-        }`}
+        } h-full w-full`}
         src={props.src}
         autoplay
       >
@@ -463,7 +463,7 @@ export default function VideoPlayer(props: Props) {
               <Preview
                 src={
                   props.previews!.previewsSource +
-                  "/" +
+                  "&number=" +
                   Math.max(
                     Math.round(
                       (previewPosition()! / timelineRef!.offsetWidth) *

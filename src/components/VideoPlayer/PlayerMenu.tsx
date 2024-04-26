@@ -22,7 +22,7 @@ export function MenuRow(props: RowParams & { borderBottom?: boolean }) {
   return (
     <button
       onClick={props.onClick}
-      class={`flex h-16 items-center justify-between ${props.borderBottom ? "border-b" : ""}`}
+      class={`flex h-16 w-full shrink-0 items-center justify-between ${props.borderBottom ? "border-b" : ""}`}
     >
       <span>{props.key}</span>
       <Switch>
@@ -44,6 +44,8 @@ export function MenuRow(props: RowParams & { borderBottom?: boolean }) {
     </button>
   );
 }
+
+const MAX_ROWS_BEFORE_SCROLL = 5;
 
 export default function PlayerMenu(props: MenuProps) {
   const MAIN_MENU: RowParams[] = [
@@ -86,33 +88,35 @@ export default function PlayerMenu(props: MenuProps) {
   return (
     <div
       style={{
-        height: `${(menu().length + (menu() === MAIN_MENU ? 0 : 1)) * 64}px`,
+        height: `${Math.min(menu().length + (menu() === MAIN_MENU ? 0 : 1), MAX_ROWS_BEFORE_SCROLL) * 64}px`,
       }}
-      class="flex w-60 flex-col overflow-hidden rounded-xl bg-black/80 px-2 py-0.5 transition-all"
+      class="flex w-60 flex-col overflow-hidden rounded-xl bg-black/80 px-2 transition-all"
     >
-      <Show when={menu() !== MAIN_MENU}>
-        <MenuRow
-          key="Back"
-          root={false}
-          onClick={() => setMenu(MAIN_MENU)}
-          borderBottom
-        />
-      </Show>
-      <For each={menu()}>
-        {(row) => (
+      <div class="w-full overflow-y-auto">
+        <Show when={menu() !== MAIN_MENU}>
           <MenuRow
-            key={row.key}
-            value={row.value}
-            root={row.root}
-            onClick={() => {
-              row.onClick();
-              if (!row.root) {
-                setMenu(MAIN_MENU);
-              }
-            }}
+            key="Back"
+            root={false}
+            onClick={() => setMenu(MAIN_MENU)}
+            borderBottom
           />
-        )}
-      </For>
+        </Show>
+        <For each={menu()}>
+          {(row) => (
+            <MenuRow
+              key={row.key}
+              value={row.value}
+              root={row.root}
+              onClick={() => {
+                row.onClick();
+                if (!row.root) {
+                  setMenu(MAIN_MENU);
+                }
+              }}
+            />
+          )}
+        </For>
+      </div>
     </div>
   );
 }

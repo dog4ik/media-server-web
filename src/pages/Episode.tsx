@@ -1,4 +1,4 @@
-import { createAsync, useParams } from "@solidjs/router";
+import { createAsync, revalidate, useParams } from "@solidjs/router";
 import { Show, createEffect } from "solid-js";
 import Description from "../components/Description";
 import {
@@ -6,6 +6,8 @@ import {
   getContentsVideo,
   getEpisode,
   getShow,
+  generatePreviews,
+  deletePreviews,
 } from "../utils/serverApi";
 import VersionSlider from "../components/VersionSlider";
 import { TranscodePayload, transcodeVideo } from "../utils/serverApi";
@@ -128,6 +130,37 @@ export default function Episode() {
             >
               Download
             </button>
+            <Show when={video() && video()!.previews_count == 0}>
+              <button
+                onClick={() =>
+                  generatePreviews(+video()!.id).finally(() => {
+                    revalidate(getContentsVideo.key);
+                  })
+                }
+                class="btn btn-success"
+              >
+                Generate previews
+              </button>
+            </Show>
+            <Show when={video() && video()!.previews_count > 0}>
+              <button
+                onClick={() =>
+                  deletePreviews(+video()!.id)
+                    .then(() => {
+                      notificator("success", "Cleared previews");
+                    })
+                    .catch(() => {
+                      notificator("error", "Failed to clear previews");
+                    })
+                    .finally(() => {
+                      revalidate(getContentsVideo.key);
+                    })
+                }
+                class="btn btn-error"
+              >
+                Delete {video()?.previews_count} Previews
+              </button>
+            </Show>
           </Description>
         </Show>
         <Show when={video()}>

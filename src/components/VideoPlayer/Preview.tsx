@@ -8,15 +8,17 @@ type PreviewProps = {
 export default function Preview(props: PreviewProps) {
   const IMG_WIDTH = 150;
   const IMG_HEIGHT = 98;
-  let position = props.X;
-  if (props.X < IMG_WIDTH / 2) position = IMG_WIDTH / 2;
-  if (props.timelineWidth - props.X < IMG_WIDTH / 2)
-    position = props.timelineWidth - IMG_WIDTH / 2;
+  let position = () => {
+    if (props.X < IMG_WIDTH / 2) return IMG_WIDTH / 2;
+    if (props.timelineWidth - props.X < IMG_WIDTH / 2)
+      return props.timelineWidth - IMG_WIDTH / 2;
+    return props.X;
+  };
   return (
     <div
       class="pointer-events-none absolute bottom-14 hidden shrink-0 -translate-x-1/2 animate-fade-in flex-col items-center justify-center group-hover:flex"
       style={{
-        left: `${position}px`,
+        left: `${position()}px`,
         width: `${IMG_WIDTH}px`,
         height: `${IMG_HEIGHT}px`,
       }}
