@@ -1,16 +1,15 @@
 import { createAsync, useLocation, useParams } from "@solidjs/router";
 import { NotFoundError } from "../utils/errors";
 import VideoPlayer from "../components/VideoPlayer";
-import { MEDIA_SERVER_URL, fullUrl, server } from "../utils/serverApi";
+import { MEDIA_SERVER_URL, Schemas, fullUrl, server } from "../utils/serverApi";
 import { Show } from "solid-js";
-import { components } from "../client/types";
 
 export type SubtitlesOrigin = "container" | "api" | "local" | "imported";
 
 export type Subtitle = {
   fetch: () => Promise<string>;
   origin: SubtitlesOrigin;
-  language?: components["schemas"]["DetailedSubtitleTrack"]["language"];
+  language?: Schemas["DetailedSubtitleTrack"]["language"];
 };
 
 function videoUrl() {

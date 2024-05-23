@@ -5,12 +5,11 @@ import {
   onCleanup,
   useContext,
 } from "solid-js";
-import { MEDIA_SERVER_URL } from "../utils/serverApi";
+import { MEDIA_SERVER_URL, Schemas } from "../utils/serverApi";
 import { useNotifications } from "./NotificationContext";
 import { server, revalidatePath } from "../utils/serverApi";
 import { createAsync } from "@solidjs/router";
 import { createStore } from "solid-js/store";
-import { components } from "../client/types";
 import { ServerError } from "../utils/errors";
 
 export type EventStatus =
@@ -27,7 +26,7 @@ export type EventType = {
   status: EventStatus;
 };
 
-type Task = components["schemas"]["Task"];
+type Task = Schemas["Task"];
 
 type ServerStatusType = ReturnType<typeof createServerStatusContext>;
 

@@ -7,10 +7,9 @@ import {
   onCleanup,
   onMount,
 } from "solid-js";
-import { server } from "../../utils/serverApi";
+import { Schemas, server } from "../../utils/serverApi";
 import { A, createAsync, useBeforeLeave, useNavigate } from "@solidjs/router";
 import ProviderLogo from "../generic/ProviderLogo";
-import { components } from "../../client/types";
 
 const DATA = [
   {
@@ -43,7 +42,7 @@ const DATA = [
 ];
 
 function SearchContent(props: {
-  result: components["schemas"]["MetadataSearchResult"];
+  result: Schemas["MetadataSearchResult"];
   onClick: () => void;
 }) {
   return (

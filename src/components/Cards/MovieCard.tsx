@@ -1,8 +1,7 @@
-import { components } from "../../client/types";
 import MoreButton, { Row } from "../ContextMenu/MoreButton";
 import { A } from "@solidjs/router";
 import FallbackImage from "../FallbackImage";
-import { fullUrl } from "../../utils/serverApi";
+import { Schemas, fullUrl } from "../../utils/serverApi";
 
 function provider(provider: string): string {
   if (provider === "local") {
@@ -12,7 +11,7 @@ function provider(provider: string): string {
 }
 
 export default function MovieCard(props: {
-  movie: components["schemas"]["MovieMetadata"];
+  movie: Schemas["MovieMetadata"];
 }) {
   let url = `/movies/${props.movie.metadata_id}${provider(props.movie.metadata_provider)}`;
   function handleDelete() { }
