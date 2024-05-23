@@ -1,9 +1,9 @@
-import BlurImage from "../BlurImage";
 import { MenuRow } from "../ContextMenu/Menu";
-import MoreButton from "../ContextMenu/MoreButton";
+import MoreButton, { Row } from "../ContextMenu/MoreButton";
 import { Show, createSignal } from "solid-js";
-import { ShowMetadata } from "../../utils/serverApi";
+import { Schemas, fullUrl } from "../../utils/serverApi";
 import { A } from "@solidjs/router";
+import FallbackImage from "../FallbackImage";
 
 function provider(provider: string): string {
   if (provider === "local") {
@@ -12,19 +12,52 @@ function provider(provider: string): string {
   return `?provider=${provider}`;
 }
 
-export default function ShowCard(props: { show: ShowMetadata }) {
+export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
   let url = `/shows/${props.show.metadata_id}${provider(props.show.metadata_provider)}`;
   function handleDelete() {}
+
+  let rows: Row[] = [
+    { title: "Row1" },
+    { title: "Row2" },
+    {
+      title: "Expanded",
+      expanded: [
+        { title: "ExpandedRow1" },
+        { title: "ExpandedRow2" },
+        {
+          custom: (
+            <div class="text-xl text-red-500">Hello from custom element</div>
+          ),
+        },
+        {
+          title: "ExpandedExpanded",
+          expanded: [
+            {
+              title: "ExpandedExpanded1",
+            },
+            {
+              title: "ExpandedExpanded2",
+            },
+          ],
+        },
+      ],
+    },
+  ];
+
+  let imageUrl =
+    props.show.metadata_provider == "local"
+      ? fullUrl("/api/show/{id}/poster", {
+          path: { id: +props.show.metadata_id },
+        })
+      : undefined;
 
   return (
     <>
       <div class="w-52">
-        <A
-          href={url}
-          class="relative w-full"
-        >
-          <BlurImage
-            src={props.show.poster}
+        <A href={url} class="relative w-full">
+          <FallbackImage
+            alt="Show poster"
+            srcList={[imageUrl, props.show.poster ?? undefined]}
             class="rounded-xl"
             width={208}
             height={312}
@@ -38,12 +71,8 @@ export default function ShowCard(props: { show: ShowMetadata }) {
           </Show>
         </A>
         <div class="flex items-center justify-between">
-          <A
-            href={url}
-          >
-            <div
-              class="truncate text-lg"
-            >
+          <A href={url}>
+            <div class="truncate text-lg">
               <span>{props.show.title}</span>
             </div>
             <Show when={props.show.seasons}>
@@ -53,9 +82,7 @@ export default function ShowCard(props: { show: ShowMetadata }) {
               </div>
             </Show>
           </A>
-          <MoreButton>
-            <MenuRow title="Delete" onClick={handleDelete} />
-          </MoreButton>
+          <MoreButton rows={rows} />
         </div>
       </div>
     </>

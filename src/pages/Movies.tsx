@@ -1,3 +1,19 @@
+import { createAsync } from "@solidjs/router";
+import { For } from "solid-js";
+import { server } from "../utils/serverApi";
+import PageTitle from "../components/PageTitle";
+import ElementsGrid from "../components/ElementsGrid";
+import MovieCard from "../components/Cards/MovieCard";
+
 export default function Movies() {
-  return <div></div>;
+  const movies = createAsync(() => server.GET("/api/local_movies"));
+
+  return (
+    <>
+      <PageTitle>Movies</PageTitle>
+      <ElementsGrid elementSize={250}>
+        <For each={movies()?.data}>{(movie) => <MovieCard movie={movie} />}</For>
+      </ElementsGrid>
+    </>
+  );
 }

@@ -7,9 +7,10 @@ import {
   onCleanup,
   onMount,
 } from "solid-js";
-import { ContentSearchResult, searchContent } from "../../utils/serverApi";
+import { server } from "../../utils/serverApi";
 import { A, createAsync, useBeforeLeave, useNavigate } from "@solidjs/router";
 import ProviderLogo from "../generic/ProviderLogo";
+import { components } from "../../client/types";
 
 const DATA = [
   {
@@ -41,7 +42,10 @@ const DATA = [
   },
 ];
 
-function SearchContent(props: { result: ContentSearchResult; onClick: () => void }) {
+function SearchContent(props: {
+  result: components["schemas"]["MetadataSearchResult"];
+  onClick: () => void;
+}) {
   return (
     <A
       onClick={props.onClick}
@@ -60,9 +64,11 @@ function SearchContent(props: { result: ContentSearchResult; onClick: () => void
           </div>
         </div>
         <Show when={props.result.plot}>
-          <p title={props.result.plot} class="line-clamp-3">
-            {props.result.plot}
-          </p>
+          {(plot) => (
+            <p title={plot()} class="line-clamp-3">
+              {plot()}
+            </p>
+          )}
         </Show>
       </div>
     </A>
@@ -77,7 +83,11 @@ export default function Search() {
 
   let timeout: ReturnType<typeof setTimeout> | null = null;
 
-  let searchResult = createAsync(() => searchContent(defferedInput()));
+  let searchResult = createAsync(() =>
+    server.GET("/api/search/content", {
+      params: { query: { search: defferedInput() } },
+    }),
+  );
 
   function handleInput(val: string) {
     setInput(val);
@@ -147,8 +157,8 @@ export default function Search() {
           ref={windowRef!}
           class="absolute bottom-0 flex max-h-96 w-full translate-y-full flex-col overflow-hidden overflow-y-auto bg-transparent backdrop-blur-2xl"
         >
-          <Suspense fallback={<div>Loading..</div>}>
-            <For each={searchResult()}>
+          <Suspense fallback={<div>Loading...</div>}>
+            <For each={searchResult()?.data}>
               {(item) => (
                 <SearchContent result={item} onClick={() => setIsOpen(false)} />
               )}

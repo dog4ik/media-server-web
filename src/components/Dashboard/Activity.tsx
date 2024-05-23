@@ -1,8 +1,7 @@
 import { useServerStatus } from "../../context/ServerStatusContext";
 import { For, Show } from "solid-js";
 import PageTitle from "../PageTitle";
-import { TaskKind } from "../../utils/serverApi";
-import { FiX } from "solid-icons/fi";
+import { Schemas } from "../../utils/serverApi";
 import TasksTable, { TableRow } from "../ui/TasksTable";
 
 type TaskProps = {
@@ -10,7 +9,7 @@ type TaskProps = {
   number: number;
   cancelable: boolean;
   target: string;
-  kind: TaskKind;
+  kind: Schemas["TaskKind"];
   progress?: number;
 };
 
@@ -19,7 +18,7 @@ export default function Activity() {
   return (
     <>
       <PageTitle>Activity</PageTitle>
-      <div class="flex items-center justify-center flex-col gap-2 p-2">
+      <div class="flex flex-col items-center justify-center gap-2 p-2">
         <Show when={tasks?.length === 0}>
           <div class="text-5xl">Activity is empty</div>
         </Show>

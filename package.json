@@ -6,25 +6,28 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "openapi": "openapi-typescript http://localhost:6969/api-docs/openapi.json -o ./src/utils/server-types.ts -t"
   },
   "dependencies": {
-    "@solidjs/router": "^0.13.2",
+    "@solidjs/router": "^0.13.3",
     "@tailwindcss/container-queries": "^0.1.1",
     "@types/dom-view-transitions": "^1.0.4",
+    "openapi-fetch": "^0.9.7",
     "solid-icons": "^1.1.0",
-    "solid-js": "^1.8.16"
+    "solid-js": "^1.8.17"
   },
   "devDependencies": {
     "@types/dom-navigation": "^1.0.3",
     "autoprefixer": "^10.4.19",
-    "daisyui": "^4.10.2",
+    "daisyui": "^4.11.1",
+    "openapi-typescript": "^6.7.6",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.14",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.4.5",
-    "vite": "^5.2.9",
+    "vite": "^5.2.11",
     "vite-plugin-solid": "^2.10.2"
   }
 }

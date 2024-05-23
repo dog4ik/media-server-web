@@ -38,10 +38,11 @@ function generate() {
 }
 
 export default function PageLayout(props: ParentProps) {
-  let [{ backdrop }] = useBackdropContext();
+  let [{ currentBackdrop }] = useBackdropContext();
   let backdropElement: HTMLImageElement;
   let gradientElement: HTMLDivElement;
   let [isLoaded, setIsLoaded] = createSignal(false);
+
 
   let location = useLocation();
 
@@ -55,7 +56,7 @@ export default function PageLayout(props: ParentProps) {
 
   createEffect(() => {
     setIsLoaded(false);
-    if (backdrop()) {
+    if (currentBackdrop()) {
       backdropElement.animate(animation, options);
     } else {
       gradientElement.animate(animation, options);
@@ -70,21 +71,20 @@ export default function PageLayout(props: ParentProps) {
       </Show>
       <div ref={backdropElement!} class="absolute inset-0">
         <div class="relative h-full w-full">
-          <Show when={!backdrop()}>
+          <Show when={!currentBackdrop()}>
             <div
               ref={gradientElement!}
               style={`background: ${generate()};`}
               class="h-full w-full object-cover transition-opacity"
             ></div>
           </Show>
-          <Show when={backdrop() || isLoaded()}>
+          <Show when={currentBackdrop() || isLoaded()}>
             <img
               ref={backdropElement!}
               onLoad={() => setIsLoaded(true)}
-              src={backdrop()}
-              class={`h-full w-full object-cover ${
-                isLoaded() ? "block" : "hidden"
-              }`}
+              src={currentBackdrop()}
+              class={`h-full w-full object-cover ${isLoaded() ? "block" : "hidden"
+                }`}
             />
           </Show>
           <div class="absolute inset-0 bg-black/50" />

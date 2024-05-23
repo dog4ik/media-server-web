@@ -1,12 +1,5 @@
 import { createAsync } from "@solidjs/router";
-import {
-  ContentType,
-  MetadataProvider,
-  TorrentSearchResult,
-  downloadTorrent,
-  getExternalIds,
-  searchTorrent,
-} from "../../utils/serverApi";
+import { Schemas, server } from "../../utils/serverApi";
 import Modal, { ModalProps } from "./Modal";
 import { For, Show } from "solid-js";
 import { formatSize } from "../../utils/formats";
@@ -14,15 +7,15 @@ import { FiDownload } from "solid-icons/fi";
 import { useNotifications } from "../../context/NotificationContext";
 
 type Props = {
-  metadata_provider: MetadataProvider;
+  metadata_provider: Schemas["MetadataProvider"];
   metadata_id: string;
-  content_type: ContentType;
+  content_type: Schemas["ContentType"];
   query: string;
 };
 
 type TorrentResultProps = {
   onDownload: () => void;
-  result: TorrentSearchResult;
+  result: Schemas["Torrent"];
 };
 
 function TorrentResult(props: TorrentResultProps) {
@@ -43,12 +36,22 @@ function TorrentResult(props: TorrentResultProps) {
 }
 
 async function imdb_id(
-  metadata_provider: MetadataProvider,
+  metadata_provider: Schemas["MetadataProvider"],
   metadata_id: string,
-  content_type: ContentType,
+  content_type: Schemas["ContentType"],
 ) {
-  let ids = await getExternalIds(metadata_id, content_type, metadata_provider);
-  let imdb_id = ids.find((id) => id.provider == "imdb");
+  let ids = await server.GET("/api/external_ids/{id}", {
+    params: {
+      path: {
+        id: metadata_id,
+      },
+      query: {
+        provider: metadata_provider,
+        content_type,
+      },
+    },
+  });
+  let imdb_id = ids.data?.find((id) => id.provider == "imdb");
   if (!imdb_id) {
     return undefined;
   }
@@ -58,28 +61,16 @@ async function imdb_id(
 export default function DownloadTorrentModal(props: Props & ModalProps) {
   let notificator = useNotifications();
   let torrentSearch = createAsync(async () => {
-    let result = await searchTorrent(props.query);
-    if (result.length === 0) {
+    let result = await server.GET("/api/torrent/search", {
+      params: { query: { search: props.query } },
+    });
+    if (!result.data || result.data.length === 0) {
       return undefined;
     }
     return result;
   });
   function handleDownload(magnet: string) {
-    downloadTorrent({
-      magnet,
-      content_hint: {
-        metadata_provider: props.metadata_provider,
-        metadata_id: props.metadata_id,
-        content_type: props.content_type,
-      },
-      save_location: undefined,
-    })
-      .then(() => {
-        notificator("success", "Created torrent download");
-      })
-      .catch(() => {
-        notificator("error", "Failed to download torrent");
-      });
+    notificator("warn", "Torrent downloads are not implemented, yet");
   }
   return (
     <Modal ref={props.ref}>
@@ -96,7 +87,7 @@ export default function DownloadTorrentModal(props: Props & ModalProps) {
               </tr>
             </thead>
             <tbody>
-              <For each={torrentSearch()!}>
+              <For each={torrentSearch()?.data}>
                 {(res) => (
                   <TorrentResult
                     onDownload={() => handleDownload(res.magnet)}

@@ -11,7 +11,7 @@ import Torrent from "./pages/Torrent";
 import Settings from "./pages/Settings";
 import Logs from "./pages/Logs";
 import Layout from "./Layout";
-import { MetadataProvider, getAllShows, getShow } from "./utils/serverApi";
+import { server } from "./utils/serverApi";
 import Library from "./pages/Settings/Library";
 import General from "./pages/Settings/General";
 import Metadata from "./pages/Settings/Metadata";
@@ -22,12 +22,14 @@ import SearchPage from "./pages/Search";
 import NotFound from "./pages/NotFound";
 
 function loadShows() {
-  getAllShows();
+  return server.GET("/api/local_shows");
 }
 
 function loadShow({ params, location }: RouteLoadFuncArgs) {
-  let provider = location.query.provider ?? "local";
-  getShow(params.id, provider as MetadataProvider);
+  let provider = (location.query.provider as "local") ?? "local";
+  server.GET("/api/show/{id}", {
+    params: { query: { provider }, path: { id: params.id } },
+  });
 }
 
 function App() {

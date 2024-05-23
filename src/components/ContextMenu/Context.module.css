@@ -1,0 +1,36 @@
+/* anchoring */
+[popovertarget="menu"] {
+  anchor-name: --menu;
+}
+
+[popovertarget="submenu"] {
+  anchor-name: --submenu;
+}
+
+.menu {
+  position-anchor: --menu;
+  inset-area: right span-bottom;
+  position-try-options: --left, --top;
+}
+
+.submenu {
+  position-anchor: --submenu;
+  inset-area: right span-bottom;
+  position-try-options: --left, --bottom, --top;
+}
+
+@position-try --top {
+  inset-area: top span-right;
+}
+
+@position-try --right {
+  inset-area: left span-bottom;
+}
+
+@position-try --bottom {
+  inset-area: bottom span-bottom;
+}
+
+@position-try --left {
+  inset-area: left span-bottom;
+}

@@ -1,21 +1,16 @@
 import { createAsync, useLocation, useParams } from "@solidjs/router";
 import { NotFoundError } from "../utils/errors";
 import VideoPlayer from "../components/VideoPlayer";
-import {
-  MEDIA_SERVER_URL,
-  getVideoById,
-  getVideoUrl,
-  pullVideoSubtitle,
-  updateHistory,
-} from "../utils/serverApi";
+import { MEDIA_SERVER_URL, fullUrl, server } from "../utils/serverApi";
 import { Show } from "solid-js";
+import { components } from "../client/types";
 
 export type SubtitlesOrigin = "container" | "api" | "local" | "imported";
 
 export type Subtitle = {
   fetch: () => Promise<string>;
   origin: SubtitlesOrigin;
-  language?: string;
+  language?: components["schemas"]["DetailedSubtitleTrack"]["language"];
 };
 
 function videoUrl() {
@@ -28,7 +23,10 @@ function videoUrl() {
     throw new NotFoundError();
   }
   let variant: string | undefined = query.variant;
-  return getVideoUrl(videoId, variant);
+  return fullUrl("/api/video/{id}/watch", {
+    query: variant ? { variant } : undefined,
+    path: { id: videoId },
+  });
 }
 
 function parseVideoParam() {
@@ -44,7 +42,9 @@ export default function Watch() {
   let url = videoUrl();
   let videoId = parseVideoParam();
   let video = createAsync(async () => {
-    return await getVideoById(videoId());
+    return await server.GET("/api/video/{id}", {
+      params: { path: { id: videoId() } },
+    });
   });
   function handleAudioError() {
     console.log("audio error encountered");
@@ -56,11 +56,21 @@ export default function Watch() {
 
   let subtitles = () => {
     let subtitles: Subtitle[] = [];
-    if (video()) {
-      for (let i = 0; i < video()!.subtitle_tracks.length; i++) {
-        let subtitleTrack = video()!.subtitle_tracks[i];
+    let data = video()?.data;
+    if (data) {
+      for (let i = 0; i < video()!.data!.subtitle_tracks.length; i++) {
+        let subtitleTrack = video()!.data!.subtitle_tracks[i];
         subtitles.push({
-          fetch: () => pullVideoSubtitle(video()!.id, i),
+          fetch: () =>
+            server
+              .GET("/api/video/{id}/pull_subtitle", {
+                params: {
+                  path: { id: data.id },
+                  query: { number: i },
+                },
+                parseAs: "text",
+              })
+              .then((d) => d.data!),
           origin: "container",
           language: subtitleTrack.language,
         });
@@ -69,28 +79,35 @@ export default function Watch() {
     return subtitles;
   };
 
+  function updateHistory(time: number) {
+    server.PUT("/api/history/{id}", {
+      body: { time: time, is_finished: false },
+      params: { path: { id: videoId() } },
+    });
+  }
+
   return (
-    <Show when={video()}>
-      <VideoPlayer
-        initialTime={video()?.history?.time ?? 0}
-        onAudioError={handleAudioError}
-        onVideoError={handleVideoError}
-        onHistoryUpdate={(time) =>
-          updateHistory({ video_id: videoId(), time, is_finished: false })
-        }
-        subtitles={subtitles()}
-        src={url.toString()}
-        title="Test title, very good title"
-        previews={
-          video()!.previews_count > 0
-            ? {
-                previewsAmount: video()!.previews_count,
+    <Show when={video()?.data}>
+      {(data) => (
+        <VideoPlayer
+          initialTime={data().history?.time ?? 0}
+          onAudioError={handleAudioError}
+          onVideoError={handleVideoError}
+          onHistoryUpdate={(time) => updateHistory(time)}
+          subtitles={subtitles()}
+          src={url.toString()}
+          title="Test title, very good title"
+          previews={
+            data().previews_count > 0
+              ? {
+                previewsAmount: data().previews_count,
                 previewsSource:
-                  MEDIA_SERVER_URL + `/api/previews?id=${video()!.id}`,
+                  MEDIA_SERVER_URL + `/api/previews?id=${data().id}`,
               }
-            : undefined
-        }
-      />
+              : undefined
+          }
+        />
+      )}
     </Show>
   );
 }

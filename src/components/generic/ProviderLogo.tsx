@@ -1,8 +1,8 @@
 import { Match, Switch } from "solid-js";
-import { MetadataProvider } from "../../utils/serverApi";
+import { Schemas } from "../../utils/serverApi";
 
 type Props = {
-  provider: MetadataProvider;
+  provider: Schemas["MetadataProvider"];
 };
 
 export default function ProviderLogo(props: Props) {

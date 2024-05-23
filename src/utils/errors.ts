@@ -1,3 +1,5 @@
+import { Schemas } from "./serverApi";
+
 export type ErrorType =
   | "database"
   | "server"
@@ -41,4 +43,22 @@ export class UnknownProviderError extends BaseError {
   constructor(message?: string) {
     super("unknownprovider", message);
   }
+}
+
+export function throwAppError(appError: Schemas["AppError"]): never {
+  let kind = appError.kind;
+  let msg = appError.message;
+  if (kind == "NotFound") {
+    throw new NotFoundError(msg);
+  }
+  if (kind == "Duplicate") {
+    throw new ServerError(msg);
+  }
+  if (kind == "BadRequest") {
+    throw new ServerError(msg);
+  }
+  if (kind == "InternalError") {
+    throw new ServerError(msg);
+  }
+  throw new ServerError("unknown error");
 }

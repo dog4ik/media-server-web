@@ -1,5 +1,5 @@
 import { ParentProps } from "solid-js";
-import { Variant } from "../../utils/serverApi";
+import { Schemas } from "../../utils/serverApi";
 import {
   FiClock,
   FiHardDrive,
@@ -10,13 +10,21 @@ import {
 } from "solid-icons/fi";
 
 type Props = {
-  variant: Omit<Variant, "video_id">;
+  variant: Omit<Schemas["DetailedVariant"], "video_id">;
 };
 
 type StatProps = {
   title: string;
   value: string | number;
 };
+
+function codecToString<T extends string | { other: string }>(codec: T): string {
+  if (typeof codec === "object") {
+    return codec.other;
+  } else {
+    return codec;
+  }
+}
 
 function formatDuration(secs: number) {
   let hours = Math.floor(secs / (60 * 60));
@@ -67,13 +75,10 @@ export default function Version(props: Props) {
       <Stat title="Resolution" value={`${width}x${height}`}>
         <FiMaximize size={ICON_SIZE} />
       </Stat>
-      <Stat title="Audio codec" value={defaultAudio().codec}>
+      <Stat title="Audio codec" value={codecToString(defaultAudio().codec)}>
         <FiVolume2 size={ICON_SIZE} />
       </Stat>
-      <Stat
-        title="Duration"
-        value={formatDuration(props.variant.duration.secs)}
-      >
+      <Stat title="Duration" value={formatDuration(+props.variant.duration!)}>
         <FiClock size={ICON_SIZE} />
       </Stat>
       <Stat

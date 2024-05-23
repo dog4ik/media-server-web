@@ -1,3 +1,4 @@
+import { FiArrowRight } from "solid-icons/fi";
 import { ParentProps } from "solid-js";
 
 type WrapperProps = {
@@ -10,40 +11,39 @@ type WrapperProps = {
 
 type RowProps = {
   onClick?: () => void;
-  title: string;
 };
 
-export function MenuRow(props: RowProps) {
+export function MenuRow(props: RowProps & ParentProps) {
   return (
     <li
-      class="flex cursor-pointer items-center rounded-md py-1 pl-2 hover:bg-neutral-700"
+      class="flex w-full cursor-pointer items-center rounded-md py-1 pl-2 hover:bg-neutral-700"
       onClick={props.onClick}
     >
-      <span class="pointer-events-none text-white">{props.title}</span>
+      <span class="pointer-events-none text-white">{props.children}</span>
     </li>
   );
 }
 
-export function MenuWrapper(props: WrapperProps & ParentProps) {
-  let listRef: HTMLUListElement;
+type ExpandRowProps = {
+  popoverTarget: string;
+  onClick?: () => void;
+};
+
+export function ExpandRow(props: ExpandRowProps & ParentProps) {
   return (
-    <div
-      id={props.popoverId}
-      popover
-      class="m-0 w-60 select-none rounded-md bg-neutral-900"
-      onClick={props.onClick}
-      style={{ top: `${props.y}px`, left: `${props.x}px` }}
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        props.onClick && props.onClick();
+      }}
+      popovertarget={props.popoverTarget}
+      style={`
+anchor-name: --${props.popoverTarget};
+`}
+      class="flex w-full cursor-pointer items-center justify-between rounded-md py-1 pl-2 hover:bg-neutral-700"
     >
-      <ul
-        ref={listRef!}
-        class={
-          props.scroll
-            ? "scrollbar-thumb-white scrollbar-track-rounded-sm scrollbar-thumb-rounded-sm w-full overflow-y-auto"
-            : "w-full"
-        }
-      >
-        {props.children}
-      </ul>
-    </div>
+      <span class="pointer-events-none text-white">{props.children}</span>
+      <FiArrowRight size={20} class="stroke-white" />
+    </button>
   );
 }

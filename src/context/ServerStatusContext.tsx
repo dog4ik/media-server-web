@@ -5,11 +5,13 @@ import {
   onCleanup,
   useContext,
 } from "solid-js";
-import { MEDIA_SERVER_URL, Task, cancelTaskMutation } from "../utils/serverApi";
+import { MEDIA_SERVER_URL } from "../utils/serverApi";
 import { useNotifications } from "./NotificationContext";
-import { getActiveTasks } from "../utils/serverApi";
-import { createAsync, revalidate } from "@solidjs/router";
+import { server, revalidatePath } from "../utils/serverApi";
+import { createAsync } from "@solidjs/router";
 import { createStore } from "solid-js/store";
+import { components } from "../client/types";
+import { ServerError } from "../utils/errors";
 
 export type EventStatus =
   | "start"
@@ -25,6 +27,8 @@ export type EventType = {
   status: EventStatus;
 };
 
+type Task = components["schemas"]["Task"];
+
 type ServerStatusType = ReturnType<typeof createServerStatusContext>;
 
 export const ServerStatusContext = createContext<ServerStatusType>();
@@ -36,9 +40,13 @@ function createServerStatusContext(
 ) {
   let serverTasks = createAsync(
     async () => {
-      let tasks = await getActiveTasks();
-      setTasks(tasks);
-      return tasks;
+      let tasks = await server.GET("/api/tasks");
+      if (tasks.error) {
+        notificator("error", "Failed to fetch server tasks");
+        throw new ServerError();
+      }
+      setTasks(tasks.data);
+      return tasks.data;
     },
     { initialValue: [] },
   );
@@ -84,10 +92,12 @@ function createServerStatusContext(
   }
 
   async function cancelTask(task_id: string) {
-    await cancelTaskMutation(task_id).then(() => {
-      revalidate(getActiveTasks.key);
-      cleanupProgress();
-    });
+    await server
+      .DELETE("/api/tasks/{id}", { params: { path: { id: task_id } } })
+      .then(() => {
+        revalidatePath("/api/tasks");
+        cleanupProgress();
+      });
   }
 
   function onOpen() {
@@ -110,7 +120,7 @@ function createServerStatusContext(
 
     // task is new
     if (data.status == "start") {
-      revalidate(getActiveTasks.key);
+      revalidatePath("/api/tasks");
       notificator("success", "Created new task");
     }
 
@@ -128,7 +138,7 @@ function createServerStatusContext(
     setTasksProgress(data.task_id, data.progress);
   }
 
-  let sse = new EventSource(MEDIA_SERVER_URL + "/admin/progress");
+  let sse = new EventSource(MEDIA_SERVER_URL + "/api/tasks/progress");
   sse.addEventListener("message", onProgressEvent);
   sse.addEventListener("open", onOpen);
   sse.addEventListener("error", onError);

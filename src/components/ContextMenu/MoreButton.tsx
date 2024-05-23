@@ -1,66 +1,95 @@
-import {
-  ParentProps,
-  createSignal,
-  createUniqueId,
-  onCleanup,
-  onMount,
-} from "solid-js";
-import { MenuWrapper } from "./Menu";
+import { For, createUniqueId } from "solid-js";
 import { FiMoreVertical } from "solid-icons/fi";
+import { ExpandRow, MenuRow } from "./Menu";
+import { JSX } from "solid-js";
 
-export default function MoreButton(props: ParentProps) {
-  let [buttonBounds, setButtonBounds] = createSignal({ x: 0, y: 0 });
-  let popoverId = createUniqueId();
-  let popoverElement: HTMLDivElement;
-  let popoverButton: HTMLButtonElement;
-  let mainContainer: HTMLElement;
-
-  let resizeObserver = new ResizeObserver((_) => handleResize());
-
-  function handleResize() {
-    popoverElement.hidePopover();
-    let bounds = popoverButton.getBoundingClientRect();
-    if (window.innerWidth < bounds.right + 240) {
-      setButtonBounds({ x: bounds.x - 240, y: bounds.bottom });
-    } else {
-      setButtonBounds({ x: bounds.right, y: bounds.bottom });
+export type Row =
+  | {
+      onClick?: () => void;
+      title: string;
     }
-  }
+  | {
+      custom: JSX.Element;
+    }
+  | {
+      expanded: Row[];
+      title: string;
+    };
 
-  onMount(() => {
-    popoverElement = document.getElementById(popoverId) as HTMLDivElement;
-    mainContainer = document.querySelector("main")!;
-    window.addEventListener("resize", handleResize);
-    mainContainer.addEventListener("scroll", handleResize);
-    resizeObserver.observe(popoverButton);
-  });
+type Props = {
+  rows: Row[];
+};
 
-  onCleanup(() => {
-    window.removeEventListener("resize", handleResize);
-    mainContainer.removeEventListener("scroll", handleResize);
-    resizeObserver.unobserve(popoverButton);
-    resizeObserver.disconnect();
-  });
-
+function RecirciveRow(props: { expanded: Row[]; title: string }) {
+  let submenuId = createUniqueId();
   return (
-    <>
-      <MenuWrapper
-        onClick={() => {
-          popoverElement.togglePopover(false);
-        }}
-        popoverId={popoverId}
-        y={buttonBounds().y}
-        x={buttonBounds().x}
+    <li>
+      <ExpandRow popoverTarget={submenuId}>{props.title}</ExpandRow>
+      <ul
+        id={submenuId}
+        class={`w-60 bg-neutral-800`}
+        style={`
+position-anchor: --${submenuId};
+inset-area: right span-bottom;
+position-try-options: inset-area(left span-bottom), inset-area(right span-top);
+`}
+        popover
       >
-        {props.children}
-      </MenuWrapper>
+        <For each={props.expanded}>
+          {(row) => {
+            if ("expanded" in row) {
+              return <RecirciveRow expanded={row.expanded} title={row.title} />;
+            } else if ("custom" in row) {
+              return row.custom;
+            } else {
+              return <MenuRow onClick={row.onClick}>{row.title}</MenuRow>;
+            }
+          }}
+        </For>
+      </ul>
+    </li>
+  );
+}
+
+export default function MoreButton(props: Props) {
+  let menuRef: HTMLUListElement;
+  let menuId = createUniqueId();
+  return (
+    <div>
       <button
-        popovertarget={popoverId}
-        ref={popoverButton!}
-        class="rounded-full p-1.5 transition-colors hover:bg-neutral-600"
+        popovertarget={menuId}
+        style={`
+anchor-name: --${menuId};
+`}
+        id="menu-btn"
+        class="rounded-full p-1.5 transition-colors hover:bg-neutral-600/50"
       >
-        <FiMoreVertical size={25} stroke="white" />
+        <FiMoreVertical size={20} />
       </button>
-    </>
+      <ul
+        id={menuId}
+        ref={menuRef!}
+        onClick={() => menuRef.togglePopover(false)}
+        class="w-60 bg-neutral-800"
+        style={`
+position-anchor: --${menuId};
+inset-area: right span-bottom;
+position-try-options: inset-area(left span-bottom), inset-area(top span-right);
+`}
+        popover
+      >
+        <For each={props.rows}>
+          {(row) => {
+            if ("expanded" in row) {
+              return <RecirciveRow title={row.title} expanded={row.expanded} />;
+            } else if ("custom" in row) {
+              return row.custom;
+            } else {
+              return <MenuRow onClick={row.onClick}>{row.title}</MenuRow>;
+            }
+          }}
+        </For>
+      </ul>
+    </div>
   );
 }

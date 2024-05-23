@@ -1,10 +1,10 @@
 import { useNotifications } from "../context/NotificationContext";
-import { refreshLibrary } from "../utils/serverApi";
+import { server } from "../utils/serverApi";
 
 export default function Home() {
   let notificator = useNotifications();
   async function handleRefresh() {
-    await refreshLibrary();
+    await server.POST("/api/scan");
     notificator("success", "Refreshing library");
   }
   return (

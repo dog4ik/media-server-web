@@ -1,5 +1,4 @@
-import { FiChevronDown } from "solid-icons/fi";
-import { ParentProps, Show, createSignal, onCleanup, onMount } from "solid-js";
+import { ParentProps, createUniqueId } from "solid-js";
 import { JSX } from "solid-js/h/jsx-runtime";
 
 type Props = {
@@ -7,66 +6,54 @@ type Props = {
 };
 
 type OptionProps = {
-  title: string | number;
   disabled?: boolean;
   onClick?: JSX.EventHandler<HTMLButtonElement, MouseEvent>;
 };
 
-export function Option(props: OptionProps) {
+export function Option(props: OptionProps & ParentProps) {
   return (
-    <button
-      disabled={props.disabled}
-      onClick={(e) => !props.disabled && props.onClick && props.onClick(e)}
-      class="w-full px-2 py-1 text-start hover:bg-neutral-300"
-    >
-      {props.title}
-    </button>
+    <li>
+      <button
+        disabled={props.disabled}
+        onClick={(e) => !props.disabled && props.onClick && props.onClick(e)}
+        class="w-full px-2 py-1 text-start hover:bg-neutral-300"
+      >
+        {props.children}
+      </button>
+    </li>
   );
 }
 
 export default function Selection(props: ParentProps & Props) {
-  let [isOpen, setIsOpen] = createSignal(false);
-  let expandButton: HTMLButtonElement;
+  let popoverId = createUniqueId();
 
-  let togglePopover = (force?: boolean) => {
-    if (force !== undefined) {
-      setIsOpen(force);
-    } else {
-      setIsOpen(!isOpen());
-    }
-  };
-
-  let handleDocumentClick = (e: MouseEvent) => {
-    let target = e.target as HTMLElement;
-    if (!expandButton.contains(target)) {
-      if (isOpen()) togglePopover(false);
-    }
-  };
-
-  onMount(() => {
-    document.addEventListener("click", handleDocumentClick);
-  });
-  onCleanup(() => {
-    document.removeEventListener("click", handleDocumentClick);
-  });
+  let menu: HTMLUListElement;
 
   return (
-    <div class="relative min-w-60 rounded-md bg-white text-black">
+    <div class="w-60">
       <button
-        ref={expandButton!}
-        onClick={() => togglePopover()}
-        class="flex w-full justify-between px-2 py-1 text-start"
+        class="w-full rounded-lg bg-white px-2 py-1 text-start text-black hover:bg-neutral-300"
+        style={`
+anchor-name: --${popoverId};
+`}
+        popovertarget={popoverId}
       >
-        <span>{props.value}</span>
-        <div>
-          <FiChevronDown size={25} />
-        </div>
+        {props.value}
       </button>
-      <Show when={isOpen()}>
-        <div class="absolute w-full translate-y-2 divide-y overflow-hidden rounded-md bg-white">
-          {props.children}
-        </div>
-      </Show>
+      <ul
+        id={popoverId}
+        class={`${popoverId} w-60 divide-y overflow-hidden rounded-lg`}
+        style={`
+position-anchor: --${popoverId};
+inset-area: bottom span-all;
+position-try-options: inset-area(top span-all);
+`}
+        ref={menu!}
+        onClick={() => menu.togglePopover(false)}
+        popover
+      >
+        {props.children}
+      </ul>
     </div>
   );
 }

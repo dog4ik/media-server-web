@@ -1,11 +1,11 @@
-import { History } from "../../utils/serverApi";
+import { Schemas } from "../../utils/serverApi";
 
 type Props = {
   runtime: number;
-  history: History;
+  history: Schemas["DbHistory"];
 };
 
-function progressBarPercent(history: History, runtime: number) {
+function progressBarPercent(history: Schemas["DbHistory"], runtime: number) {
   return history.is_finished
     ? 100
     : Math.max(10, (history.time / runtime) * 100);

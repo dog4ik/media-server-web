@@ -1,6 +1,6 @@
-import { Duration } from "./serverApi";
+import { Schemas } from "./serverApi";
 
-export function formatDuration(duration: Duration) {
+export function formatDuration(duration: Schemas["SerdeDuration"]) {
   let str = "";
   let durationInSeconds = duration.secs;
   let hours = Math.floor(durationInSeconds / 3600);

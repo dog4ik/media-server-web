@@ -1,9 +1,12 @@
 import { useLocation, useParams } from "@solidjs/router";
-import { MetadataProvider } from "./serverApi";
+import { Schemas } from "./serverApi";
 import { UnknownProviderError } from "./errors";
 
 // Gets provider from url
-export function useProvider(): [() => string, () => MetadataProvider] {
+export function useProvider(): [
+  () => string,
+  () => Schemas["MetadataProvider"],
+] {
   let params = useParams();
   let location = useLocation();
   let id = params.id;
@@ -12,10 +15,13 @@ export function useProvider(): [() => string, () => MetadataProvider] {
     throw new UnknownProviderError("Id is not provided");
   }
   if (provider === undefined) {
-    return [() => params.id, () => "local" as MetadataProvider];
+    return [() => params.id, () => "local" as Schemas["MetadataProvider"]];
   }
   if (provider !== "local" && provider !== "tmdb" && provider !== "imdb") {
     throw new UnknownProviderError(`Unknown provider: ${provider}`);
   }
-  return [() => params.id, () => location.query.provider as MetadataProvider];
+  return [
+    () => params.id,
+    () => location.query.provider as Schemas["MetadataProvider"],
+  ];
 }

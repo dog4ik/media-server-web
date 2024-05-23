@@ -13,18 +13,55 @@ export const BackdropContext = createContext<BackdropContextType>();
 
 export const useBackdropContext = () => useContext(BackdropContext)!;
 
-export function useBackdrop(url: string | undefined) {
-  let [{ backdrop }, { changeBackdrop }] = useBackdropContext();
+export function useBackdrop(url: (string | undefined)[]) {
+  let [{ currentBackdrop }, { changeBackdrop }] = useBackdropContext();
   changeBackdrop(url);
-  return backdrop();
+  return currentBackdrop();
 }
 
 function createBackdropContext() {
-  let [backdrop, setBackdrop] = createSignal<string>();
+  let [backdropSrcList, setBackdropSrcList] = createSignal<
+    (string | undefined)[]
+  >([]);
+  let [currentBackdrop, setCurrentBackdrop] = createSignal<string>();
+  let abortController = new AbortController();
+  let image = new Image();
+  function handleAbort() {
+    image.src = "";
+  }
   let location = useLocation();
 
-  function changeBackdrop(url?: string) {
-    setBackdrop(url);
+  function loadImage(index: number) {
+    if (index === backdropSrcList().length) {
+      console.log("Failed to load any of image sources");
+      return;
+    }
+
+    let url = backdropSrcList()[index];
+    if (url === undefined) {
+      return loadImage(index + 1);
+    }
+    const img = new Image();
+    img.src = url;
+    img.onload = () => {
+      setCurrentBackdrop(url);
+    };
+    img.onerror = (e) => {
+      console.log(e);
+      loadImage(index + 1);
+    };
+    img.onabort = () => {
+      console.log("Aborted image download", img.src);
+    };
+  }
+
+  function changeBackdrop(url: (string | undefined)[]) {
+    abortController.abort();
+    abortController.signal.removeEventListener("abort", handleAbort);
+    abortController = new AbortController();
+    setBackdropSrcList(url);
+    loadImage(0);
+    abortController.signal.addEventListener("abort", handleAbort);
   }
 
   createEffect(() => {
@@ -37,10 +74,14 @@ function createBackdropContext() {
   });
 
   function removeBackdrop() {
-    changeBackdrop(undefined);
+    changeBackdrop([]);
+    setCurrentBackdrop(undefined);
   }
 
-  return [{ backdrop }, { changeBackdrop, removeBackdrop }] as const;
+  return [
+    { backdropSrcList, currentBackdrop },
+    { changeBackdrop, removeBackdrop },
+  ] as const;
 }
 
 export default function BackdropProvider(props: ParentProps) {

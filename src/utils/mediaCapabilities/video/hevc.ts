@@ -1,4 +1,4 @@
-import { Resolution } from "../../serverApi";
+import { Schemas } from "../../serverApi";
 
 const HEVC_PROFILES_DESC = [
   { profile_idc: 1, profile: "Main" },
@@ -38,7 +38,7 @@ const HVEC_LEVEL_TO_LUMA = {
   6.2: 4_278_190_080,
 };
 
-export function getMaxHEVCLevel(resolution: Resolution, framerate: number) {
+export function getMaxHEVCLevel(resolution: Schemas["Resolution"], framerate: number) {
   let { width, height } = resolution;
   let sum = width * height * framerate;
   let maxLumaSampleRate = sum + sum / 15;

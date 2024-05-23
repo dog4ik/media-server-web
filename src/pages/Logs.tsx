@@ -5,7 +5,7 @@ import {
   LogLevel,
   LogMessage,
   MEDIA_SERVER_URL,
-  getLatestLog,
+  server,
 } from "../utils/serverApi";
 
 type CheckBoxProps = {
@@ -55,8 +55,9 @@ function FilterBar(props: FilterBarProps) {
 }
 
 export default function Logs() {
-  let [logs, { mutate: mutateLogs }] = createResource(
-    async () => await getLatestLog(),
+  let [logs, { mutate: mutateLogs }] = createResource<LogMessage[]>(
+    async () =>
+      await server.GET("/api/log/latest").then((r) => JSON.parse(r.data!)),
   );
   function handleProgressEvent(event: MessageEvent<string>) {
     let data: LogMessage = JSON.parse(event.data);

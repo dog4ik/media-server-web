@@ -1,4 +1,4 @@
-import { Resolution } from "../../serverApi";
+import { Schemas } from "../../serverApi";
 
 const AVC_PROFILES_DESC = [
   { profile_idc: 66, profile: "Baseline", constraintFlag: 0 },
@@ -75,7 +75,7 @@ export function getAVCCodec(profile: string, level: number) {
   return codec;
 }
 
-export function getMaxAVCLevel(resolution: Resolution, framerate: number) {
+export function getMaxAVCLevel(resolution: Schemas["Resolution"], framerate: number) {
   let { width, height } = resolution;
   let macroblocks = Math.ceil(width / 16) * Math.ceil(height / 16) * framerate;
   let level: keyof typeof levels | undefined = undefined;

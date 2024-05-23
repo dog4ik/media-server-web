@@ -1,4 +1,4 @@
-import { AudioTrack, TranscodePayload, VideoTrack } from "../serverApi";
+import { Schemas } from "../serverApi";
 import { commonAACProfile, getAACAudio } from "./audio/aac";
 import { getAC3Audio } from "./audio/ac3";
 import { getEAC3Audio } from "./audio/eac3";
@@ -10,6 +10,9 @@ export type Compatibility = {
   audio: MediaCapabilitiesDecodingInfo;
   combined: MediaCapabilitiesDecodingInfo;
 };
+
+type VideoTrack = Schemas["DetailedVideo"]["video_tracks"][number];
+type AudioTrack = Schemas["DetailedVideo"]["audio_tracks"][number];
 
 export async function isCompatible(video: VideoTrack, audio: AudioTrack) {
   let videoCodecs: string | undefined;
@@ -29,15 +32,12 @@ export async function isCompatible(video: VideoTrack, audio: AudioTrack) {
     audioCodecs = getAC3Audio();
   }
 
-  if (audio.codec == "eac3") {
+  if (typeof audio.codec == "object" && audio.codec.other == "eac3") {
     audioCodecs = getEAC3Audio();
   }
 
   let fullVideoMime = `video/mp4; codecs=${videoCodecs}`;
   let fullAudioMime = `audio/mp4; codecs=${audioCodecs}`;
-
-  console.log(videoCodecs);
-  console.log(audioCodecs);
 
   let audioConfig = {
     contentType: fullAudioMime,
@@ -61,7 +61,7 @@ export async function isCompatible(video: VideoTrack, audio: AudioTrack) {
   });
 }
 
-export async function checkCompatibility(configuration: {
+async function checkCompatibility(configuration: {
   video?: VideoConfiguration;
   audio?: AudioConfiguration;
 }) {
@@ -83,26 +83,25 @@ export async function checkCompatibility(configuration: {
     audioQuery,
     combinedQuery,
   ]);
-  console.log({ video, audio, combined });
   return { video, audio, combined };
 }
 
 export async function canPlayAfterTranscode(
-  payload: TranscodePayload["payload"],
+  resolution: Schemas["Resolution"],
   framerate: number,
+  videoCodec?: Schemas["VideoCodec"],
+  audioCodec?: Schemas["AudioCodec"],
 ) {
-  let videoCodec = payload.video_codec;
-  let audioCodec = payload.audio_codec;
   let videoSpec: string | undefined = undefined;
   let audioSpec: string | undefined = undefined;
   if (videoCodec == "h264") {
-    let level = getMaxAVCLevel(payload.resolution, framerate);
+    let level = getMaxAVCLevel(resolution, framerate);
     // Assume profile is main
     let profile = "Main";
     if (level) videoSpec = getAVCCodec(profile, level);
   }
   if (videoCodec == "hevc") {
-    let level = getMaxHEVCLevel(payload.resolution, framerate);
+    let level = getMaxHEVCLevel(resolution, framerate);
     // Assume profile is main 10
     let profile = "Main 10";
     videoSpec = getHevcVideo(profile, level);
@@ -115,12 +114,16 @@ export async function canPlayAfterTranscode(
     audioSpec = getAC3Audio();
   }
 
+  if (typeof audioCodec == "object" && audioCodec.other == "eac3") {
+    audioSpec = getEAC3Audio();
+  }
+
   let videoConfig: VideoConfiguration | undefined = undefined;
   let audioConfig: AudioConfiguration | undefined = undefined;
 
   if (videoSpec) {
     let fullVideoMime = `video/mp4; codecs=${videoSpec}`;
-    let { width, height } = payload.resolution;
+    let { width, height } = resolution;
     videoConfig = {
       bitrate: 200_000,
       contentType: fullVideoMime,
@@ -154,7 +157,6 @@ export async function canPlayAfterTranscode(
     audioQuery,
     combinedQuery,
   ]);
-  console.log({ video, audio, combined });
   return { video, audio, combined };
 }
 

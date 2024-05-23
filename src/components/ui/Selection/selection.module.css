@@ -1,0 +1,13 @@
+[popovertarget="menu"] {
+  anchor-name: --menu;
+}
+
+.menu {
+  position-anchor: --menu;
+  inset-area: bottom span-all;
+  position-try-options: --top;
+}
+
+@position-try --top {
+  inset-area: top span-all;
+}
