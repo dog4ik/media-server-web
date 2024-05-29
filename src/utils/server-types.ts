@@ -52,6 +52,14 @@ export type paths = {
     /** Delete all history for default user */
     delete: operations["clear_history"];
   };
+  "/api/history/suggest/movies": {
+    /** Suggest to continue watching up to 3 movies based on history */
+    get: operations["suggest_movies"];
+  };
+  "/api/history/suggest/shows": {
+    /** Suggest to continue watching up to 3 shows based on history */
+    get: operations["suggest_shows"];
+  };
   "/api/history/{id}": {
     /** Get history for specific video */
     get: operations["video_history"];
@@ -65,6 +73,7 @@ export type paths = {
     get: operations["local_episode_by_video_id"];
   };
   "/api/local_episode/{id}": {
+    /** Local episode metadata by local episode id */
     get: operations["local_episode"];
   };
   "/api/local_movie/by_video": {
@@ -72,9 +81,11 @@ export type paths = {
     get: operations["local_movie_by_video_id"];
   };
   "/api/local_movies": {
+    /** All local movies */
     get: operations["all_local_movies"];
   };
   "/api/local_shows": {
+    /** All local shows */
     get: operations["all_local_shows"];
   };
   "/api/log/latest": {
@@ -352,6 +363,10 @@ export type components = {
       poster?: components["schemas"]["MetadataImage"] | null;
       title: string;
     };
+    MovieHistory: {
+      history: components["schemas"]["DbHistory"];
+      movie: components["schemas"]["MovieMetadata"];
+    };
     MovieMetadata: {
       backdrop?: components["schemas"]["MetadataImage"] | null;
       metadata_id: string;
@@ -399,6 +414,12 @@ export type components = {
       scan_max_concurrency: number;
       show_folders: string[];
       tmdb_token?: string | null;
+    };
+    ShowHistory: {
+      episode: components["schemas"]["EpisodeMetadata"];
+      history: components["schemas"]["DbHistory"];
+      /** Format: int64 */
+      show_id: number;
     };
     ShowMetadata: {
       backdrop?: components["schemas"]["MetadataImage"] | null;
@@ -679,6 +700,28 @@ export type operations = {
       };
     };
   };
+  /** Suggest to continue watching up to 3 movies based on history */
+  suggest_movies: {
+    responses: {
+      /** @description Suggested movies */
+      200: {
+        content: {
+          "application/json": components["schemas"]["MovieHistory"][];
+        };
+      };
+    };
+  };
+  /** Suggest to continue watching up to 3 shows based on history */
+  suggest_shows: {
+    responses: {
+      /** @description Suggested shows */
+      200: {
+        content: {
+          "application/json": components["schemas"]["ShowHistory"][];
+        };
+      };
+    };
+  };
   /** Get history for specific video */
   video_history: {
     parameters: {
@@ -751,6 +794,7 @@ export type operations = {
       };
     };
   };
+  /** Local episode metadata by local episode id */
   local_episode: {
     parameters: {
       path: {
@@ -783,6 +827,7 @@ export type operations = {
       };
     };
   };
+  /** All local movies */
   all_local_movies: {
     responses: {
       /** @description All local movies */
@@ -793,6 +838,7 @@ export type operations = {
       };
     };
   };
+  /** All local shows */
   all_local_shows: {
     responses: {
       /** @description All local shows */
