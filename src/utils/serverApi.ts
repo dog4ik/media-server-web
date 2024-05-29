@@ -7,6 +7,16 @@ const currentProtocol = window.location.protocol;
 const currentHost = window.location.host;
 const currentBaseUrl = `${currentProtocol}//${currentHost}`;
 
+export function defaultTrack<T extends { is_default: boolean }>(tracks: T[]) {
+  return tracks.find((t) => t.is_default) ?? tracks[0];
+}
+
+export function formatCodec<T extends string | { other: string }>(
+  codec: T,
+): string {
+  return typeof codec == "object" ? codec.other : codec;
+}
+
 export const MEDIA_SERVER_URL: string =
   import.meta.env.VITE_MEDIA_SERVER_URL ?? currentBaseUrl;
 
@@ -33,7 +43,9 @@ const cacheMap: {
   [key in keyof paths]?: ClientMethod<paths, "get", Media>;
 } = {};
 
-export const server: typeof client = {
+export const server: typeof client & {
+  GET_NO_CACHE: ClientMethod<paths, "get", `${string}/${string}`>;
+} = {
   ...client,
   GET(path, ...rest) {
     let func = cacheMap[path];
@@ -45,14 +57,15 @@ export const server: typeof client = {
     }
     return func!(path, ...rest);
   },
+  GET_NO_CACHE: client.GET,
 };
 
 export type GetPaths = {
   [Pathname in keyof paths]: paths[Pathname] extends {
     [K in "get"]: any;
   }
-  ? Pathname
-  : never;
+    ? Pathname
+    : never;
 }[keyof paths];
 
 export async function revalidatePath(path: GetPaths) {

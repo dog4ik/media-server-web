@@ -8,9 +8,11 @@ import { fullUrl, Schemas, server } from "../utils/serverApi";
 import { useProvider } from "../utils/metadataProviders";
 import { NotFoundError } from "../utils/errors";
 import { useBackdrop } from "../context/BackdropContext";
+import DownloadTorrentModal from "../components/modals/TorrentDownload";
 
 export default function ShowPage() {
   let [id, provider] = useProvider();
+  let downloadModal: HTMLDialogElement;
 
   let show = createAsync(async () => {
     let show = await server.GET("/api/show/{id}", {
@@ -43,8 +45,8 @@ export default function ShowPage() {
       let localImage =
         showData.metadata_provider == "local"
           ? fullUrl("/api/show/{id}/backdrop", {
-            path: { id: +showData.metadata_id },
-          })
+              path: { id: +showData.metadata_id },
+            })
           : undefined;
       useBackdrop([localImage, showData.backdrop ?? undefined]);
     }
@@ -119,15 +121,29 @@ export default function ShowPage() {
     return undefined;
   });
 
+  let torrentQuery = () => {
+    if (!show()?.data) return undefined;
+    return show()!.data.title;
+  };
+
   return (
     <>
+      <Show when={torrentQuery() && show()?.data}>
+        <DownloadTorrentModal
+          metadata_id={show()!.data!.metadata_id}
+          metadata_provider={provider()}
+          query={torrentQuery()!}
+          content_type="show"
+          ref={downloadModal!}
+        />
+      </Show>
       <Show when={show()?.data}>
         {(data) => {
           let descriptionImage = () =>
             show()?.data.metadata_provider == "local"
               ? fullUrl("/api/show/{id}/poster", {
-                path: { id: +data().metadata_id },
-              })
+                  path: { id: +data().metadata_id },
+                })
               : undefined;
 
           return (
@@ -137,7 +153,11 @@ export default function ShowPage() {
               plot={data().plot}
               poster={data().poster}
               imageDirection="vertical"
-            />
+            >
+              <button class="btn" onClick={() => downloadModal.showModal()}>
+                Download
+              </button>
+            </Description>
           );
         }}
       </Show>

@@ -10,7 +10,7 @@ import FallbackImage from "../FallbackImage";
 type Props = {
   episode: Schemas["EpisodeMetadata"];
   url: string;
-  availableLocally: boolean;
+  availableLocally?: boolean;
   history?: Schemas["DbHistory"];
   onFixMetadata: () => void;
   onOptimize: () => void;
@@ -44,8 +44,8 @@ export default function EpisodeCard(props: Props) {
   let imageUrl =
     props.episode.metadata_provider == "local"
       ? fullUrl("/api/episode/{id}/poster", {
-        path: { id: +props.episode.metadata_id },
-      })
+          path: { id: +props.episode.metadata_id },
+        })
       : undefined;
 
   return (
@@ -80,7 +80,7 @@ export default function EpisodeCard(props: Props) {
         <Show when={props.history && props.episode.runtime}>
           <ProgressBar
             history={props.history!}
-            runtime={+props.episode.runtime!}
+            runtime={props.episode.runtime.secs}
           />
         </Show>
       </A>

@@ -1,8 +1,15 @@
-import { createAsync, useParams } from "@solidjs/router";
+import { createAsync, useLocation, useParams } from "@solidjs/router";
 import { Show, createEffect } from "solid-js";
 import Description from "../components/Description";
 import VersionSlider from "../components/VersionSlider";
-import { Schemas, fullUrl, revalidatePath, server } from "../utils/serverApi";
+import {
+  Schemas,
+  defaultTrack,
+  formatCodec,
+  fullUrl,
+  revalidatePath,
+  server,
+} from "../utils/serverApi";
 import { useNotifications } from "../context/NotificationContext";
 import { useProvider } from "../utils/metadataProviders";
 import ContentSectionContainer, {
@@ -125,7 +132,7 @@ export default function Episode() {
           variant.video_tracks.find((t) => t.is_default)!,
           variant.audio_tracks.find((t) => t.is_default)!,
         );
-        let href = `/watch/${video.data.id}?variant=${variant.id}`;
+        let href = `${watchUrl()}?variant=${variant.id}`;
         rows.push({
           custom: (
             <VariantMenuRow
@@ -202,6 +209,11 @@ export default function Episode() {
     return `${showData.title} S${pad(episodeData.season_number)}E${pad(episodeData.number)}`;
   };
 
+  let defaultVideo = () =>
+    video()?.data && defaultTrack(video()!.data!.video_tracks);
+  let defaultAudio = () =>
+    video()?.data && defaultTrack(video()!.data!.audio_tracks);
+
   let [contextMenu, setContextMenu] = createStore<Row[]>([
     { title: "Download", onClick: () => downloadModal?.showModal() },
     { title: "Transcode", onClick: () => transcodeModal?.showModal() },
@@ -209,6 +221,9 @@ export default function Episode() {
     { title: "Delete previews", onClick: deletePreviews },
     { title: "Watch variant", expanded: [] },
   ]);
+
+  let watchUrl = () =>
+    `/shows/${showId()}/${seasonNumber()}/${episodeNumber()}/watch`;
 
   return (
     <>
@@ -241,19 +256,26 @@ export default function Episode() {
                 plot={episode().plot}
                 poster={episode().poster}
                 imageDirection="horizontal"
-                additionalInfo={[]}
+                additionalInfo={[
+                  {
+                    info: `${show()?.data?.title}`,
+                    href: `/shows/${showId()}`,
+                  },
+                  {
+                    info: `Season ${episode().season_number}`,
+                    href: `/shows/${showId()}?season=${episode().season_number}`,
+                  },
+                  { info: `Episode ${episode().number}` },
+                ]}
               >
                 <div class="flex items-center gap-2 pt-4">
                   <Show when={video()?.response}>
-                    {(_) => {
-                      let videoId = video()!.data!.id;
-                      return (
-                        <PlayButton
-                          href={`/watch/${videoId}`}
-                          canPlay={videoCompatability()}
-                        />
-                      );
-                    }}
+                    {(_) => (
+                      <PlayButton
+                        href={watchUrl()}
+                        canPlay={videoCompatability()}
+                      />
+                    )}
                   </Show>
                   <MoreButton rows={contextMenu} />
                 </div>
@@ -268,11 +290,19 @@ export default function Episode() {
                 <div class="flex flex-wrap gap-20">
                   <Info
                     key="Resolution"
-                    value={`${data()!.video_tracks[0].resolution.width}x${data()!.video_tracks[0].resolution.height}`}
+                    value={`${defaultVideo()!.resolution.width}x${defaultVideo()!.resolution.height}`}
                   ></Info>
                   <Info
                     key="Framerate"
-                    value={`@${Math.round(data()!.video_tracks[0].framerate)}`}
+                    value={`@${Math.round(defaultVideo()!.framerate)}`}
+                  ></Info>
+                  <Info
+                    key="Video codec"
+                    value={`${formatCodec(defaultVideo()!.codec)}`}
+                  ></Info>
+                  <Info
+                    key="Audio codec"
+                    value={`${formatCodec(defaultAudio()!.codec)}`}
                   ></Info>
                 </div>
               </ContentSectionContainer>

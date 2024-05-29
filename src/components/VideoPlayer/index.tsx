@@ -245,7 +245,6 @@ export default function VideoPlayer(props: Props) {
     isScubbing = true;
     let rect = timelineRef.getBoundingClientRect();
     let offsetX = e.pageX - rect.left;
-    console.log(e.pageX);
     let percent = Math.min(Math.max(0, offsetX), rect.width) / rect.width;
     videoRef.currentTime = Math.min(
       percent * duration(),
@@ -355,7 +354,7 @@ export default function VideoPlayer(props: Props) {
     <div
       ref={videoContainerRef!}
       onMouseLeave={() => setShowControls(false)}
-      class={`relative flex max-h-screen items-center justify-center text-white ${showControls() ? "" : "cursor-none"}`}
+      class={`relative flex h-screen w-screen items-center justify-center text-white ${showControls() ? "" : "cursor-none"}`}
     >
       <video
         onClick={handleClick}
@@ -423,7 +422,10 @@ export default function VideoPlayer(props: Props) {
           <div ref={menuRef!} class="absolute bottom-16 right-5">
             <PlayerMenu
               onPlaybackSpeedChange={changePlaybackSpeed}
-              onSubtitlesChange={(subtitle) => setSelectedSubtitle(subtitle)}
+              onSubtitlesChange={(subtitle) => {
+                setShowCaptions(true);
+                setSelectedSubtitle(subtitle);
+              }}
               availableSubtitles={props.subtitles}
               currentPlaybackSpeed={playbackSpeed()}
             />
@@ -435,11 +437,9 @@ export default function VideoPlayer(props: Props) {
           shouldShowControls() ? "opacity-100" : "opacity-0"
         } transition-opacity duration-200`}
       >
-        <Show when={isFullScreen()}>
-          <div class="absolute left-5 top-5">
-            <span class="text-2xl">{props.title}</span>
-          </div>
-        </Show>
+        <div class="absolute left-5 top-5">
+          <span class="text-2xl">{props.title}</span>
+        </div>
         <div
           onMouseMove={() => {
             clearTimeout(showControlsTimeout);

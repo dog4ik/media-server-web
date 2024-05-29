@@ -1,6 +1,6 @@
 import { Route, RouteLoadFuncArgs, Router } from "@solidjs/router";
 import Home from "./pages/Home";
-import Watch from "./pages/Watch";
+import { WatchMovie, WatchShow } from "./pages/Watch";
 import Dashboard from "./pages/Dashboard";
 import Shows from "./pages/Shows";
 import Movies from "./pages/Movies";
@@ -35,8 +35,9 @@ function loadShow({ params, location }: RouteLoadFuncArgs) {
 function App() {
   return (
     <Router root={Layout}>
-      <Route path="/watch/" component={WatchLayout}>
-        <Route path="/:video_id" component={Watch} />
+      <Route path="/" component={WatchLayout}>
+        <Route path="shows/:id/:season/:episode/watch" component={WatchShow} />
+        <Route path="movies/:id/watch" component={WatchMovie} />
       </Route>
       <Route path="/" component={PageLayout}>
         <Route path="/" component={Home} />

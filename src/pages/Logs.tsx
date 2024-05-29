@@ -57,7 +57,9 @@ function FilterBar(props: FilterBarProps) {
 export default function Logs() {
   let [logs, { mutate: mutateLogs }] = createResource<LogMessage[]>(
     async () =>
-      await server.GET("/api/log/latest").then((r) => JSON.parse(r.data!)),
+      await server
+        .GET("/api/log/latest")
+        .then((r) => r.data! as unknown as LogMessage[]),
   );
   function handleProgressEvent(event: MessageEvent<string>) {
     let data: LogMessage = JSON.parse(event.data);
@@ -70,7 +72,7 @@ export default function Logs() {
     "TRACE",
   ]);
 
-  let sse = new EventSource(MEDIA_SERVER_URL + "/admin/log");
+  let sse = new EventSource(MEDIA_SERVER_URL + "/api/log");
 
   sse.addEventListener("message", handleProgressEvent);
   onCleanup(() => {

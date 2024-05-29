@@ -20,7 +20,7 @@ export default function ActionIcon(props: ActionIconProps) {
   return (
     <div
       ref={props.ref}
-      class="pointer-events-none absolute left-1/2 top-1/2 z-10 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-black opacity-0"
+      class="pointer-events-none absolute z-10 flex h-20 w-20 items-center justify-center rounded-full bg-black opacity-0"
     >
       <Switch>
         <Match when={props.action == "unpause"}>

@@ -40,7 +40,7 @@ export const SETTINGS: Settings = {
     long_name: "Show directories",
   },
   hw_accel: {
-    description: "Hardware acceleration",
+    description: "Enable ffmpeg hardware acceleration",
     long_name: "Hardware acceleration",
     name: "hw_accel",
   },

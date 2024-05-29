@@ -1,29 +1,49 @@
 import { For, ParentProps, Show } from "solid-js";
 import {} from "../../utils/serverApi";
 import FallbackImage from "../FallbackImage";
+import { A } from "@solidjs/router";
+
+type AdditionalInfo = {
+  info: string;
+  href?: string;
+};
 
 type Props = {
   poster?: string | null;
   localPoster: string | undefined;
   plot?: string | null;
   title: string;
-  additionalInfo?: string[] | null;
+  additionalInfo?: AdditionalInfo[];
   imageDirection?: "horizontal" | "vertical";
 };
 
-function Addition(props: { data: string[] }) {
+function Addition(props: { data: AdditionalInfo[] }) {
   return (
     <div class="flex items-center gap-1">
       <For each={props.data}>
         {(content, i) => {
           let isLast = i() == props.data.length - 1;
           return (
-            <>
-              <span class="text-sm">{content}</span>
-              <Show when={!isLast}>
-                <span>·</span>
-              </Show>
-            </>
+            <Show
+              when={content.href}
+              fallback={
+                <>
+                  <span class="text-sm">{content.info}</span>
+                  <Show when={!isLast}>
+                    <span>·</span>
+                  </Show>
+                </>
+              }
+            >
+              {(href) => (
+                <A href={href()}>
+                  <span class="text-base hover:underline">{content.info}</span>
+                  <Show when={!isLast}>
+                    <span>·</span>
+                  </Show>
+                </A>
+              )}
+            </Show>
           );
         }}
       </For>

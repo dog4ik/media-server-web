@@ -70,7 +70,13 @@ export default function DownloadTorrentModal(props: Props & ModalProps) {
     return result;
   });
   function handleDownload(magnet: string) {
-    notificator("warn", "Torrent downloads are not implemented, yet");
+    server
+      .POST("/api/torrent/download", {
+        body: { magnet, save_location: "." },
+      })
+      .then(() => {
+        notificator("success", "Started torrent download");
+      });
   }
   return (
     <Modal ref={props.ref}>

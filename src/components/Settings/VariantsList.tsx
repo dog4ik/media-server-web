@@ -1,9 +1,7 @@
 import { A, createAsync } from "@solidjs/router";
 import { Schemas, revalidatePath, server } from "../../utils/serverApi";
-import BlurImage from "../BlurImage";
 import { For } from "solid-js";
 import FallbackImage from "../FallbackImage";
-import ServerNotAvailable from "../../pages/ServerNotAvailable";
 import { ServerError } from "../../utils/errors";
 
 type VariantProps = {

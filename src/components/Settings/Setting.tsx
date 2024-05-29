@@ -1,10 +1,9 @@
-import { For, ParentProps, Show, createEffect, createSignal } from "solid-js";
+import { For, ParentProps, createSignal } from "solid-js";
 import Selection, { Option } from "../ui/Selection";
 import SectionSubTitle from "./SectionSubTitle";
 import { SETTINGS, Settings } from "../../utils/settingsDescriptors";
 import { Schemas } from "../../utils/serverApi";
 import { FiPlusCircle } from "solid-icons/fi";
-import { createStore } from "solid-js/store";
 
 type Props = {
   data: NonNullable<Settings[keyof Settings]>;
