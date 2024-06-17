@@ -1,9 +1,9 @@
 import { For, createEffect } from "solid-js";
 import LogRow from "./LogRow";
-import { LogMessage } from "../../utils/serverApi";
+import { Schemas } from "../../utils/serverApi";
 
 type Props = {
-  logs: LogMessage[];
+  logs: Schemas["JsonTracingEvent"][];
 };
 
 export default function LogWindow(props: Props) {

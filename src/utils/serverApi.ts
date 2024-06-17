@@ -3,10 +3,6 @@ import { cache, revalidate } from "@solidjs/router";
 import createClient, { ClientMethod, ParamsOption } from "openapi-fetch";
 import type { components, paths } from "./server-types";
 
-const currentProtocol = window.location.protocol;
-const currentHost = window.location.host;
-const currentBaseUrl = `${currentProtocol}//${currentHost}`;
-
 export function defaultTrack<T extends { is_default: boolean }>(tracks: T[]) {
   return tracks.find((t) => t.is_default) ?? tracks[0];
 }
@@ -17,6 +13,7 @@ export function formatCodec<T extends string | { other: string }>(
   return typeof codec == "object" ? codec.other : codec;
 }
 
+const currentBaseUrl = `${window.location.protocol}//${window.location.host}`;
 export const MEDIA_SERVER_URL: string =
   import.meta.env.VITE_MEDIA_SERVER_URL ?? currentBaseUrl;
 
@@ -27,15 +24,6 @@ const client = createClient<paths>({
 type Media = `${string}/${string}`;
 
 export type LogLevel = "INFO" | "ERROR" | "DEBUG" | "TRACE";
-
-export type LogMessage = {
-  fields: {
-    message: string;
-  };
-  level: LogLevel;
-  timestamp: string;
-  target: string;
-};
 
 export type Schemas = components["schemas"];
 
@@ -64,8 +52,8 @@ export type GetPaths = {
   [Pathname in keyof paths]: paths[Pathname] extends {
     [K in "get"]: any;
   }
-    ? Pathname
-    : never;
+  ? Pathname
+  : never;
 }[keyof paths];
 
 export async function revalidatePath(path: GetPaths) {

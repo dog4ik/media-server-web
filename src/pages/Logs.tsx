@@ -3,8 +3,8 @@ import LogWindow from "../components/Logs/LogWindow";
 import PageTitle from "../components/PageTitle";
 import {
   LogLevel,
-  LogMessage,
   MEDIA_SERVER_URL,
+  Schemas,
   server,
 } from "../utils/serverApi";
 
@@ -55,17 +55,14 @@ function FilterBar(props: FilterBarProps) {
 }
 
 export default function Logs() {
-  let [logs, { mutate: mutateLogs }] = createResource<LogMessage[]>(
-    async () =>
-      await server
-        .GET("/api/log/latest")
-        .then((r) => r.data! as unknown as LogMessage[]),
+  let [logs, { mutate: mutateLogs }] = createResource(
+    async () => await server.GET("/api/log/latest").then((d) => d.data),
   );
   function handleProgressEvent(event: MessageEvent<string>) {
-    let data: LogMessage = JSON.parse(event.data);
+    let data: Schemas["JsonTracingEvent"] = JSON.parse(event.data);
     mutateLogs([...logs()!, data]);
   }
-  let [filterState, setFilterState] = createSignal<LogLevel[]>([
+  let [filterState, setFilterState] = createSignal<string[]>([
     "INFO",
     "ERROR",
     "DEBUG",

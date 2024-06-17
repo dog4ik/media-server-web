@@ -230,6 +230,7 @@ export default function Episode() {
       <Show when={torrentQuery() && show()?.data}>
         <DownloadTorrentModal
           metadata_id={show()!.data!.metadata_id}
+          onClose={() => downloadModal!.close()}
           metadata_provider={provider()}
           query={torrentQuery()!}
           content_type="show"

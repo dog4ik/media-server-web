@@ -6,14 +6,14 @@ import MovieCard from "../components/Cards/MovieCard";
 import { createAsync } from "@solidjs/router";
 
 type ContinueWatchingProps = {
-  showHistory: Schemas["ShowHistory"][];
+  showHistory: Schemas["ShowSuggestion"][];
   movieHistory: Schemas["MovieHistory"][];
 };
 
 function ContinueWatchingSection(props: ContinueWatchingProps) {
   return (
     <>
-      <p class="text-3xl my-8">Continue watching</p>
+      <p class="my-8 text-3xl">Continue watching</p>
       <div class="flex items-center gap-4">
         <For each={props.showHistory}>
           {(show) => {
@@ -21,7 +21,7 @@ function ContinueWatchingSection(props: ContinueWatchingProps) {
             return (
               <EpisodeCard
                 episode={show.episode}
-                history={show.history}
+                history={show.history ?? undefined}
                 url={url}
                 onDelete={() => null}
                 onOptimize={() => null}
@@ -57,13 +57,17 @@ export default function Home() {
   });
   return (
     <div class="p-2">
-      <Show when={suggestions()}>
-        {(suggestions) => (
-          <ContinueWatchingSection
-            showHistory={suggestions().showSuggestions}
-            movieHistory={suggestions().movieSuggestions}
-          />
-        )}
+      <Show
+        when={
+          suggestions() &&
+          (suggestions()?.showSuggestions.length ||
+            suggestions()?.movieSuggestions)
+        }
+      >
+        <ContinueWatchingSection
+          showHistory={suggestions()!.showSuggestions}
+          movieHistory={suggestions()!.movieSuggestions}
+        />
       </Show>
       <button onClick={handleRefresh} class="rounded-xl bg-green-500 p-2">
         Refresh library

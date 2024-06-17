@@ -161,8 +161,16 @@ export type paths = {
     delete: operations["cancel_task"];
   };
   "/api/torrent/download": {
-    /** Start torrent download */
+    /** Download torrent */
     post: operations["download_torrent"];
+  };
+  "/api/torrent/parse_torrent_file": {
+    /** Parse .torrent file */
+    post: operations["parse_torrent_file"];
+  };
+  "/api/torrent/resolve_magnet_link": {
+    /** Resolve magnet link */
+    get: operations["resolve_magnet_link"];
   };
   "/api/torrent/search": {
     /** Search for torrent */
@@ -227,6 +235,7 @@ export type components = {
       database_path: string;
       ffmpeg_path?: string | null;
       ffprobe_path?: string | null;
+      log_path: string;
       resources_path: string;
       temp_path: string;
     };
@@ -322,6 +331,11 @@ export type components = {
       profile: string;
       resolution: components["schemas"]["Resolution"];
     };
+    DownloadContentHint: {
+      content_type: components["schemas"]["ContentType"];
+      metadata_id: string;
+      metadata_provider: components["schemas"]["MetadataProvider"];
+    };
     EpisodeMetadata: {
       metadata_id: string;
       metadata_provider: components["schemas"]["MetadataProvider"];
@@ -351,6 +365,15 @@ export type components = {
     };
     /** @enum {string} */
     H264Preset: "ultrafast" | "superfast" | "veryfast" | "faster" | "fast" | "medium" | "slow" | "slower" | "veryslow" | "placebo";
+    JsonTracingEvent: {
+      fields: {
+        [key: string]: unknown;
+      };
+      level: string;
+      name: string;
+      target: string;
+      timestamp: string;
+    };
     /** Format: uri */
     MetadataImage: string;
     /** @enum {string} */
@@ -385,6 +408,13 @@ export type components = {
     Resolution: {
       height: number;
       width: number;
+    };
+    ResolvedTorrentFile: {
+      /** Format: int64 */
+      offset: number;
+      path: string[];
+      /** Format: int64 */
+      size: number;
     };
     SeasonMetadata: {
       episodes: components["schemas"]["EpisodeMetadata"][];
@@ -433,6 +463,12 @@ export type components = {
       seasons?: number[] | null;
       title: string;
     };
+    ShowSuggestion: {
+      episode: components["schemas"]["EpisodeMetadata"];
+      history?: components["schemas"]["DbHistory"] | null;
+      /** Format: int64 */
+      show_id: number;
+    };
     SubtitlesCodec: (Record<string, unknown> | null) | string;
     Task: {
       cancelable: boolean;
@@ -479,15 +515,42 @@ export type components = {
       seeders: number;
       size: number;
     };
-    TorrentDownloadHint: {
-      content_type: components["schemas"]["ContentType"];
-      metadata_id: string;
-      metadata_provider: components["schemas"]["MetadataProvider"];
+    TorrentContent: OneOf<[{
+      show: components["schemas"]["TorrentShow"];
+    }, {
+      movie: components["schemas"]["TorrentMovie"][];
+    }]>;
+    TorrentContents: {
+      content?: components["schemas"]["TorrentContent"] | null;
+      files: components["schemas"]["ResolvedTorrentFile"][];
     };
     TorrentDownloadPayload: {
-      content_hint?: components["schemas"]["TorrentDownloadHint"] | null;
-      magnet: string;
+      content_hint?: components["schemas"]["DownloadContentHint"] | null;
+      magnet_link: string;
       save_location?: string | null;
+    };
+    TorrentEpisode: {
+      file_idx: number;
+      metadata: components["schemas"]["EpisodeMetadata"];
+    };
+    TorrentInfo: {
+      contents: components["schemas"]["TorrentContents"];
+      name: string;
+      /** Format: int32 */
+      piece_length: number;
+      pieces_amount: number;
+      /** Format: int64 */
+      total_size: number;
+    };
+    TorrentMovie: {
+      file_idx: number;
+      metadata: components["schemas"]["MovieMetadata"];
+    };
+    TorrentShow: {
+      seasons: {
+        [key: string]: components["schemas"]["TorrentEpisode"][];
+      };
+      show_metadata: components["schemas"]["ShowMetadata"];
     };
     TranscodePayload: {
       audio_codec?: components["schemas"]["AudioCodec"] | null;
@@ -717,7 +780,7 @@ export type operations = {
       /** @description Suggested shows */
       200: {
         content: {
-          "application/json": components["schemas"]["ShowHistory"][];
+          "application/json": components["schemas"]["ShowSuggestion"][];
         };
       };
     };
@@ -854,7 +917,7 @@ export type operations = {
     responses: {
       200: {
         content: {
-          "application/json": string;
+          "application/json": components["schemas"]["JsonTracingEvent"][];
         };
       };
     };
@@ -1252,7 +1315,7 @@ export type operations = {
       };
     };
   };
-  /** Start torrent download */
+  /** Download torrent */
   download_torrent: {
     requestBody: {
       content: {
@@ -1261,6 +1324,50 @@ export type operations = {
     };
     responses: {
       200: {
+        content: never;
+      };
+    };
+  };
+  /** Parse .torrent file */
+  parse_torrent_file: {
+    parameters: {
+      path: {
+        content_type: ("movie" | "show") | null;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["TorrentInfo"];
+        };
+      };
+      /** @description Failed to parse torrent file */
+      400: {
+        content: never;
+      };
+    };
+  };
+  /** Resolve magnet link */
+  resolve_magnet_link: {
+    parameters: {
+      query: {
+        magnet_link: string;
+        /** @description Content type */
+        content_type?: components["schemas"]["ContentType"] | null;
+        /** @description Metadata provider */
+        metadata_provider?: components["schemas"]["MetadataProvider"] | null;
+        /** @description Metadata id */
+        metadata_id?: string | null;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["TorrentInfo"];
+        };
+      };
+      /** @description Failed to parse magnet link */
+      400: {
         content: never;
       };
     };

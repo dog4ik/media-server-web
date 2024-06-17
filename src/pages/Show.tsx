@@ -123,13 +123,14 @@ export default function ShowPage() {
 
   let torrentQuery = () => {
     if (!show()?.data) return undefined;
-    return show()!.data.title;
+    return `${show()!.data.title} S${selectedSeason().toString().padStart(2, "0")}`;
   };
 
   return (
     <>
       <Show when={torrentQuery() && show()?.data}>
         <DownloadTorrentModal
+          onClose={() => downloadModal!.close()}
           metadata_id={show()!.data!.metadata_id}
           metadata_provider={provider()}
           query={torrentQuery()!}

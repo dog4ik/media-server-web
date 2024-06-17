@@ -49,7 +49,7 @@ function SearchContent(props: {
     <A
       onClick={props.onClick}
       href={`/${props.result.content_type}s/${props.result.metadata_id}?provider=${props.result.metadata_provider}`}
-      class="flex h-32 w-full items-center gap-2 text-start transition-colors hover:bg-white/10"
+      class="flex h-32 items-center gap-2 text-start transition-colors hover:bg-white/10"
     >
       <img
         class="h-full w-24 object-cover"
@@ -154,7 +154,7 @@ export default function Search() {
       <Show when={isOpen()}>
         <div
           ref={windowRef!}
-          class="absolute bottom-0 flex max-h-96 w-full translate-y-full flex-col overflow-hidden overflow-y-auto bg-transparent backdrop-blur-2xl"
+          class="absolute bottom-0 flex max-h-96 translate-y-full flex-col overflow-hidden overflow-y-auto bg-transparent backdrop-blur-2xl"
         >
           <Suspense fallback={<div>Loading...</div>}>
             <For each={searchResult()?.data}>
