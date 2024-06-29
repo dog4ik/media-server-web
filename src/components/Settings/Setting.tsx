@@ -1,9 +1,11 @@
-import { For, ParentProps, createSignal } from "solid-js";
+import { For, Match, ParentProps, Show, Switch, createSignal } from "solid-js";
 import Selection, { Option } from "../ui/Selection";
 import SectionSubTitle from "./SectionSubTitle";
 import { SETTINGS, Settings } from "../../utils/settingsDescriptors";
 import { Schemas } from "../../utils/serverApi";
-import { FiPlusCircle } from "solid-icons/fi";
+import { FiEdit2, FiPlusCircle, FiX } from "solid-icons/fi";
+import { FilePicker } from "../FilePicker";
+import Modal from "../modals/Modal";
 
 type Props = {
   data: NonNullable<Settings[keyof Settings]>;
@@ -19,7 +21,7 @@ type InputProps<T extends InputPropType> = {
   disabled?: boolean;
 };
 
-export function Input<T extends InputPropType>(props: InputProps<T>) {
+export function InferedInput<T extends InputPropType>(props: InputProps<T>) {
   if (typeof props.value == "string") {
     return (
       <input
@@ -78,7 +80,7 @@ export function Input<T extends InputPropType>(props: InputProps<T>) {
         <For each={[...Array(fieldsAmount())]}>
           {(_, idx) => (
             <div class="flex items-center justify-between">
-              <Input
+              <InferedInput
                 value={fields[idx()]}
                 onInput={(input) => onChange(idx(), input)}
                 placeholder={props.placeholder}
@@ -132,6 +134,109 @@ export function Toggle(props: ToggleProps) {
   );
 }
 
+type FileInputProps = {
+  value: string;
+  onChange: (val: string) => void;
+};
+
+function FileInput(props: FileInputProps) {
+  let [showModal, setShowModal] = createSignal(false);
+  let modal: HTMLDialogElement;
+  return (
+    <>
+      <Show when={showModal()}>
+        <Modal ref={modal!} onClose={() => setShowModal(false)}>
+          <FilePicker
+            onSubmit={(val) => {
+              props.onChange(val);
+              modal.close();
+            }}
+            disallowFiles
+            initialDir={props.value}
+          />
+        </Modal>
+      </Show>
+      <div class="flex items-center justify-between gap-2 rounded-xl bg-neutral-800 p-1">
+        <span>{props.value}</span>
+        <button
+          class="btn"
+          onClick={() => {
+            setShowModal(true);
+            modal.showModal();
+          }}
+        >
+          <FiEdit2 size={10} />
+        </button>
+      </div>
+    </>
+  );
+}
+
+type FileInputsProps = {
+  values: string[];
+  onChange: (val: string[]) => void;
+};
+
+function FileInputs(props: FileInputsProps) {
+  let [files, setFiles] = createSignal(props.values);
+  let [modalOpen, setModalOpen] = createSignal(false);
+  let modal: HTMLDialogElement;
+  function onChange(idx: number, data: string) {
+    let fields = [...files()];
+    fields[idx] = data;
+    setFiles(fields);
+    props.onChange(files());
+  }
+  function onRemove(idx: number) {
+    setFiles(files().filter((_, i) => i !== idx));
+    props.onChange(files());
+  }
+  function onAdd(val: string) {
+    let last = files().at(-1);
+    if (last !== "") {
+      let fields = [...files()];
+      fields.push(val);
+      setFiles(fields);
+    }
+    modal.close();
+    setModalOpen(false);
+    props.onChange(files());
+  }
+  return (
+    <>
+      <Show when={modalOpen()}>
+        <Modal ref={modal!} onClose={() => setModalOpen(false)}>
+          <FilePicker disallowFiles onSubmit={onAdd} />
+        </Modal>
+      </Show>
+      <div>
+        <For each={files()}>
+          {(file, idx) => (
+            <div class="flex items-center gap-2">
+              <FileInput
+                value={file}
+                onChange={(val) => onChange(idx(), val)}
+              />
+              <button onClick={() => onRemove(idx())}>
+                <FiX size={20} />
+              </button>
+            </div>
+          )}
+        </For>
+        <button
+          onClick={() => {
+            setModalOpen(true);
+            modal.showModal();
+          }}
+          class="flex h-12 w-full items-center justify-center rounded-xl bg-white/80"
+        >
+          <FiPlusCircle size={30} />
+        </button>
+      </div>
+    </>
+  );
+}
+
 export function Setting(props: Props & ParentProps) {
   return (
     <div class="flex flex-col gap-2">
@@ -152,15 +257,43 @@ type SmartSettingProps<T extends keyof typeof SETTINGS> = {
 export function SmartSetting<T extends keyof typeof SETTINGS>(
   props: SmartSettingProps<T>,
 ) {
+  let setting = SETTINGS[props.setting];
   return (
-    <Setting data={SETTINGS[props.setting]}>
-      <Input
-        onInput={(v) => props.set(props.setting, v)}
-        value={
-          props.updatedSettings[props.setting] ??
-          props.remoteSettings[props.setting]!
+    <Setting data={setting}>
+      <Switch
+        fallback={
+          <InferedInput
+            onInput={(v) => props.set(props.setting, v)}
+            value={
+              props.updatedSettings[props.setting] ??
+              props.remoteSettings[props.setting]!
+            }
+          />
         }
-      />
+      >
+        <Match when={setting.typeHint == "path"}>
+          <FileInput
+            onChange={(v) =>
+              props.set(props.setting, v as Schemas["FileConfigSchema"][T])
+            }
+            value={
+              (props.updatedSettings[props.setting] ??
+                props.remoteSettings[props.setting]!) as string
+            }
+          />
+        </Match>
+        <Match when={setting.typeHint == "pathArr"}>
+          <FileInputs
+            onChange={(v) =>
+              props.set(props.setting, v as Schemas["FileConfigSchema"][T])
+            }
+            values={
+              (props.updatedSettings[props.setting] ??
+                props.remoteSettings[props.setting]!) as string[]
+            }
+          />
+        </Match>
+      </Switch>
     </Setting>
   );
 }

@@ -2,10 +2,13 @@ import { Schemas } from "./serverApi";
 
 type Config = Schemas["FileConfigSchema"];
 
+type SettingTypeHint = "path" | "pathArr";
+
 type Variable<T extends keyof Config> = {
   description: string;
   name: T;
   long_name: string;
+  typeHint?: SettingTypeHint;
 };
 
 export type Settings = Omit<
@@ -23,6 +26,7 @@ export const SETTINGS: Settings = {
     description: "List of directories that contain movie files",
     name: "movie_folders",
     long_name: "Movie directories",
+    typeHint: "pathArr",
   },
   port: {
     description: "Server port",
@@ -38,6 +42,7 @@ export const SETTINGS: Settings = {
     description: "List of directories that contain show files",
     name: "show_folders",
     long_name: "Show directories",
+    typeHint: "pathArr",
   },
   hw_accel: {
     description: "Enable ffmpeg hardware acceleration",
