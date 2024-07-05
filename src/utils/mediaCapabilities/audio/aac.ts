@@ -5,6 +5,7 @@ const AAC_AUDIO_CODECS = {
   SSR: "mp4a.40.3",
   LTP: "mp4a.40.4",
   SBR: "mp4a.40.5",
+  "HE-AAC": "mp4a.40.5",
   Scalable: "mp4a.40.6",
   "TWIN VQ": "mp4a.40.7",
   CELP: "mp4a.40.8",
