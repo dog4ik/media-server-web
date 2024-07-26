@@ -1,45 +1,17 @@
-import { FiSearch } from "solid-icons/fi";
+import { FiSearch, FiX } from "solid-icons/fi";
 import {
   For,
+  Match,
   Show,
   Suspense,
-  createSignal,
+  Switch,
   onCleanup,
   onMount,
 } from "solid-js";
 import { Schemas, server } from "../../utils/serverApi";
-import { A, createAsync, useBeforeLeave, useNavigate } from "@solidjs/router";
+import { A, createAsync, useBeforeLeave } from "@solidjs/router";
 import ProviderLogo from "../generic/ProviderLogo";
-
-const DATA = [
-  {
-    title: "Halo",
-    poster:
-      "https://image.tmdb.org/t/p/w342/%2FhmHA5jqxN3ESIAGx0jAwV7TJhTQ.jpg",
-    plot: "Depicting an epic 26th-century conflict between humanity and an alien threat known as the Covenant, the series weaves deeply drawn personal stories with action, adventure and a richly imagined vision of the future.",
-    tmdb_id: 52814,
-  },
-  {
-    title: "Halo",
-    poster:
-      "https://image.tmdb.org/t/p/w342/%2F90jgxI5Co5f9lAaSGNcJthouhiS.jpg",
-    plot: "A lonely taxi driver takes drastic action to protect a customer from heartbreak.",
-    tmdb_id: 770523,
-  },
-  {
-    title: "Halo",
-    poster:
-      "https://image.tmdb.org/t/p/w342/%2FhPryt4BtO06cjCZWHw3scrVoYtx.jpg",
-    plot: "Rinko Kawauchi's exploration of the cadences of the everyday has begun to swing farther afield from her earlier photographs focusing on tender details of day-to-day living.",
-    tmdb_id: 978355,
-  },
-  {
-    title: "Halo",
-    poster: null,
-    plot: "Story of a little girl who is searching for her lost puppy in the streets of Bombay and the variety of people that she meets.",
-    tmdb_id: 305649,
-  },
-];
+import useDebounce from "../../utils/useDebounce";
 
 function SearchContent(props: {
   result: Schemas["MetadataSearchResult"];
@@ -74,48 +46,38 @@ function SearchContent(props: {
   );
 }
 
-export default function Search() {
-  let [input, setInput] = createSignal("");
-  let [defferedInput, setDefferedInput] = createSignal("");
-  let [isOpen, setIsOpen] = createSignal(false);
-  let navigate = useNavigate();
-
-  let timeout: ReturnType<typeof setTimeout> | null = null;
-
-  let searchResult = createAsync(() =>
-    server.GET("/api/search/content", {
-      params: { query: { search: defferedInput() } },
-    }),
+function SearchLoading() {
+  return (
+    <div class="flex h-full w-full flex-1 items-center justify-center">
+      <span class="loading loading-dots loading-md"></span>
+    </div>
   );
+}
 
-  function handleInput(val: string) {
-    setInput(val);
+export default function Search() {
+  let [input, deferredInput, setInput] = useDebounce(500, "");
 
-    if (timeout) clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      setDefferedInput(input());
-    }, 500);
-  }
+  let searchResult = createAsync(async () => {
+    if (!deferredInput()) return undefined;
+    return await server.GET("/api/search/content", {
+      params: { query: { search: deferredInput() } },
+    });
+  });
 
   let windowRef: HTMLDivElement;
   let inputRef: HTMLInputElement;
-
-  function onSumbit() {
-    if (input()) {
-      navigate(`/search?q=${encodeURIComponent(input())}`);
-    }
-  }
 
   function handleClick(e: MouseEvent) {
     let target = e.target as Element;
     if (windowRef?.contains(target) || inputRef.contains(target)) {
       e.preventDefault();
     } else {
-      setIsOpen(false);
+      windowRef.hidePopover();
     }
   }
 
   onMount(() => {
+    windowRef.hidePopover();
     document.addEventListener("click", handleClick);
   });
   onCleanup(() => {
@@ -123,48 +85,74 @@ export default function Search() {
   });
 
   useBeforeLeave(() => {
-    setIsOpen(false);
+    windowRef.hidePopover();
     inputRef.blur();
   });
 
   return (
     <div class="full relative flex h-full w-2/3 flex-col items-center gap-2">
       <form
-        class="w-full"
+        class="relative w-full"
+        style={`
+anchor-name: --search;
+`}
         onSubmit={(e) => {
           e.preventDefault();
-          onSumbit();
         }}
       >
-        <div class="input input-bordered flex w-full items-center gap-2">
+        <label class="input input-sm input-bordered flex items-center gap-2 text-black">
+          <FiSearch size={16} />
           <input
             ref={inputRef!}
-            onInput={(e) => handleInput(e.currentTarget.value)}
-            onFocus={() => setIsOpen(true)}
+            onInput={(e) => setInput(e.currentTarget.value)}
+            onFocus={() => windowRef.showPopover()}
             type="text"
-            class="w-full grow text-black"
-            placeholder="Search"
+            class="grow"
+            placeholder="Search shows and movies"
             value={input()}
           />
-          <button>
-            <FiSearch size={30} stroke="black" />
-          </button>
-        </div>
-      </form>
-      <Show when={isOpen()}>
-        <div
-          ref={windowRef!}
-          class="absolute bottom-0 flex max-h-96 translate-y-full flex-col overflow-hidden overflow-y-auto bg-transparent backdrop-blur-2xl"
+        </label>
+        <button
+          onClick={() => {
+            inputRef.focus();
+            setInput("");
+          }}
+          class="absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-stone-50 text-black transition-colors hover:bg-stone-300"
         >
-          <Suspense fallback={<div>Loading...</div>}>
-            <For each={searchResult()?.data}>
-              {(item) => (
-                <SearchContent result={item} onClick={() => setIsOpen(false)} />
-              )}
-            </For>
-          </Suspense>
-        </div>
-      </Show>
+          <FiX />
+        </button>
+      </form>
+      <div
+        ref={windowRef!}
+        class={`ml-0 mt-0 h-2/3 w-1/3 bg-transparent ${input() ? "text-white backdrop-blur-2xl" : "hidden"}`}
+        popover="manual"
+        style={`
+position-anchor: --search;
+inset-area: bottom;
+`}
+      >
+        <Show when={searchResult()?.data} fallback={<SearchLoading />}>
+          {(data) => (
+            <Switch>
+              <Match when={data().length > 0}>
+                <div class="flex-col overflow-y-auto">
+                  <For each={data()}>
+                    {(item) => (
+                      <SearchContent
+                        result={item}
+                        onClick={() => windowRef.hidePopover()}
+                      />
+                    )}
+                  </For>
+                </div>
+              </Match>
+              <Match when={data().length === 0}>
+                <div>No results</div>
+              </Match>
+            </Switch>
+          )}
+        </Show>
+      </div>
     </div>
   );
 }

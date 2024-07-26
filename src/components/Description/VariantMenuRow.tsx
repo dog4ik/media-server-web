@@ -1,6 +1,4 @@
-import { A, createAsync } from "@solidjs/router";
 import { Schemas } from "../../utils/serverApi";
-import { isCompatible } from "../../utils/mediaCapabilities/mediaCapabilities";
 
 type Props = {
   variant: Schemas["DetailedVariant"];
@@ -25,7 +23,6 @@ export default function VariantMenuRow(props: Props) {
     props.variant.audio_tracks[0];
   let bgColor = () => {
     let compatability = props.compatability;
-    console.log(compatability, "here");
     if (compatability) {
       return compatability.supported ? "bg-green-400" : "bg-red-500";
     }

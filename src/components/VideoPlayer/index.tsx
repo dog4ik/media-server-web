@@ -8,6 +8,9 @@ import Subtitles from "./Subtitles";
 import { createAsync } from "@solidjs/router";
 import PlayerMenu from "./PlayerMenu";
 import { Subtitle } from "../../pages/Watch";
+import { fullUrl } from "../../utils/serverApi";
+import Hls from "hls.js";
+import clsx from "clsx";
 
 function formatDuration(time: number) {
   let leadingZeroFormatter = new Intl.NumberFormat(undefined, {
@@ -33,12 +36,15 @@ type Props = {
   onHistoryUpdate: (time: number) => void;
   subtitles: Subtitle[];
   title: string;
-  previews?: { previewsSource: string; previewsAmount: number };
+  previews?: { videoId: number; previewsAmount: number };
+  streamingMethod: StreamingMethod;
 };
 
 const DEFAULT_VOLUME = 0.5;
 
 type PlaybackState = "playing" | "pause" | "buffering" | "error";
+
+export type StreamingMethod = "hls" | "progressive";
 
 export type DispatchedAction =
   | "pause"
@@ -50,6 +56,54 @@ export type DispatchedAction =
   | "seekleft";
 
 type VideoEventType = Parameters<JSX.EventHandler<HTMLVideoElement, Event>>[0];
+
+function initHls(videoElement: HTMLVideoElement, manifestUrl: string) {
+  var hls = new Hls({
+    enableWorker: true,
+    lowLatencyMode: true,
+    backBufferLength: 1,
+    frontBufferFlushThreshold: 20,
+  });
+  hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+    console.log(
+      "manifest loaded, found " + data.levels.length + " quality level",
+    );
+  });
+  hls.on(Hls.Events.BACK_BUFFER_REACHED, function (event, data) {
+    console.log("back buffer reached");
+  });
+  hls.on(Hls.Events.BUFFER_EOS, function (event, data) {
+    console.log("Buffer eos");
+  });
+  hls.on(Hls.Events.ERROR, function (event, data) {
+    if (data.details == "bufferStalledError") {
+      console.log("trying to recover bufferStalledError");
+      // video.currentTime = video.currentTime;
+    }
+    if (data.fatal) {
+      console.log(data);
+      switch (data.type) {
+        case Hls.ErrorTypes.MEDIA_ERROR:
+          console.log("fatal media error encountered, try to recover");
+          hls.recoverMediaError();
+          break;
+        case Hls.ErrorTypes.NETWORK_ERROR:
+          console.error("fatal network error encountered", data);
+          // All retries and media options have been exhausted.
+          // Immediately trying to restart loading could cause loop loading.
+          // Consider modifying loading policies to best fit your asset and network
+          // conditions (manifestLoadPolicy, playlistLoadPolicy, fragLoadPolicy).
+          break;
+        default:
+          // cannot recover
+          hls.destroy();
+          break;
+      }
+    }
+  });
+  hls.loadSource(manifestUrl);
+  hls.attachMedia(videoElement);
+}
 
 function getInitialVolume() {
   let localStorageVolume = localStorage.getItem("volume");
@@ -223,20 +277,22 @@ export default function VideoPlayer(props: Props) {
       lastSynced = curTime;
     }
   }
+
+  let pauseTimeout: ReturnType<typeof setTimeout>;
+  let pauseClicked = false;
   function handleClick() {
-    setTimeout(() => {
-      if (
-        isFullScreen() != (document.fullscreenElement == null) &&
-        !showMenu()
-      ) {
+    if (pauseClicked === false) {
+      pauseTimeout = setTimeout(() => {
         togglePlay();
-      } else {
-        return;
-      }
-    }, 200);
+        pauseClicked = false;
+      }, 200);
+    }
+    pauseClicked = true;
   }
 
   function handleDoubleClick() {
+    pauseClicked = false;
+    clearTimeout(pauseTimeout);
     toggleFullScreenMode();
   }
 
@@ -338,6 +394,12 @@ export default function VideoPlayer(props: Props) {
   }
 
   onMount(() => {
+    if (props.streamingMethod == "hls") {
+      initHls(videoRef, props.src);
+    }
+    if (props.streamingMethod == "progressive") {
+      videoRef.src = props.src;
+    }
     videoRef.volume = getInitialVolume();
     window.addEventListener("keydown", handleKeyboardPress);
     document.addEventListener("mouseup", handleMouseUp);
@@ -404,20 +466,21 @@ export default function VideoPlayer(props: Props) {
           props.onHistoryUpdate(e.currentTarget.currentTime);
         }}
         ref={videoRef!}
-        class={`${
-          isMetadataLoading() || isEnded() ? "hidden" : ""
-        } h-full w-full`}
-        src={props.src}
+        class={clsx(
+          "h-full w-full",
+          (isMetadataLoading() || isEnded()) && "hidden",
+        )}
         autoplay
+        draggable={false}
       >
-        Browser does not support video
+        Browser does not support videos
       </video>
       <ActionIcon ref={actionContainer!} action={dispatchedAction()} />
       <Show when={subs() !== undefined && showCaptions()}>
         <Subtitles time={Math.floor(time() * 1000)} raw_data={subs()!} />
       </Show>
       <Show when={showMenu()}>
-        {/* This "overlay" needet to prevent click on video that causes pause after closed menu */}
+        {/* This "overlay" exists to prevent click on video that causes pause after closed menu */}
         <div class="absolute bottom-0 left-0 right-0 top-0 h-full min-h-full w-full min-w-full">
           <div ref={menuRef!} class="absolute bottom-16 right-5">
             <PlayerMenu
@@ -461,17 +524,18 @@ export default function VideoPlayer(props: Props) {
           >
             <Show when={previewPosition() !== null && props.previews}>
               <Preview
-                src={
-                  props.previews!.previewsSource +
-                  "&number=" +
-                  Math.max(
-                    Math.round(
-                      (previewPosition()! / timelineRef!.offsetWidth) *
-                        props.previews!.previewsAmount,
+                src={fullUrl("/api/video/{id}/previews/{number}", {
+                  path: {
+                    id: props.previews!.videoId,
+                    number: Math.max(
+                      Math.round(
+                        (previewPosition()! / timelineRef!.offsetWidth) *
+                          props.previews!.previewsAmount,
+                      ),
+                      1,
                     ),
-                    1,
-                  )
-                }
+                  },
+                })}
                 X={previewPosition()!}
                 timelineWidth={timelineRef!.offsetWidth}
                 time={formatDuration(
@@ -538,7 +602,6 @@ export default function VideoPlayer(props: Props) {
                 class={`cursor-pointer ${showMenu() ? "" : ""}`}
                 onClick={() => {
                   setShowMenu(!showMenu());
-                  console.log("toggle", showMenu());
                 }}
               >
                 <FiSettings size={30} />

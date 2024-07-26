@@ -1,5 +1,10 @@
 import { A } from "@solidjs/router";
-import { Schemas, fullUrl } from "../../utils/serverApi";
+import {
+  Schemas,
+  fullUrl,
+  revalidatePath,
+  server,
+} from "../../utils/serverApi";
 import MoreButton, { Row } from "../ContextMenu/MoreButton";
 import { Show } from "solid-js";
 import { FiDownload } from "solid-icons/fi";
@@ -12,34 +17,87 @@ type Props = {
   url: string;
   availableLocally?: boolean;
   history?: Schemas["DbHistory"];
+  video?: Schemas["DetailedVideo"];
   onFixMetadata: () => void;
   onOptimize: () => void;
   onDelete: () => void;
 };
 
+function revalidateHistory() {
+    revalidatePath("/api/show/{id}/{season}");
+    revalidatePath("/api/history/suggest/shows");
+    revalidatePath("/api/history/suggest/movies");
+    revalidatePath("/api/history/{id}");
+    revalidatePath("/api/history");
+    revalidatePath("/api/video/{id}");
+    revalidatePath("/api/video/by_content");
+}
+
+async function markWatched(historyId: number, force: boolean) {
+  try {
+    if (force) {
+      await server.PUT("/api/history/{id}", {
+        body: { is_finished: true, time: 0 },
+        params: { path: { id: historyId } },
+      });
+    } else {
+      await server.DELETE("/api/history/{id}", {
+        params: { path: { id: historyId } },
+      });
+    }
+  } catch (_) {
+  } finally {
+    revalidateHistory()
+  }
+}
+
+async function markWatchedVideo(videoId: number, force: boolean) {
+  try {
+    if (force) {
+      await server.PUT("/api/video/{id}/history", {
+        body: { is_finished: true, time: 0 },
+        params: { path: { id: videoId } },
+      });
+    } else {
+      await server.DELETE("/api/video/{id}/history", {
+        params: { path: { id: videoId } },
+      });
+    }
+  } catch (_) {
+  } finally {
+    revalidateHistory();
+  }
+}
+
 export default function EpisodeCard(props: Props) {
-  let rows: Row[] = [
-    { title: "Row1" },
-    { title: "Row2" },
-    {
-      title: "Expanded",
-      expanded: [
-        { title: "ExpandedRow1" },
-        { title: "ExpandedRow2" },
-        {
-          title: "ExpandedExpanded",
-          expanded: [
-            {
-              title: "ExpandedExpanded1",
-            },
-            {
-              title: "ExpandedExpanded2",
-            },
-          ],
-        },
-      ],
-    },
-  ];
+  let rows = () => {
+    let rows: Row[] = [];
+    if (props.history) {
+      let historyId = props.history.id;
+      if (props.history.is_finished) {
+        rows.push({
+          title: "Mark as unwatched",
+          onClick: () => markWatched(historyId, false),
+        });
+      } else {
+        rows.push({
+          title: "Mark as watched",
+          onClick: () => markWatched(historyId, true),
+        });
+        rows.push({
+          title: "Mark as unwatched",
+          onClick: () => markWatched(historyId, false),
+        });
+      }
+    } else if (props.video) {
+      let videoId = props.video.id;
+      rows.push({
+        title: "Mark as watched",
+        onClick: () => markWatchedVideo(videoId, true),
+      });
+    }
+    return rows;
+  };
 
   let imageUrl =
     props.episode.metadata_provider == "local"
@@ -66,7 +124,10 @@ export default function EpisodeCard(props: Props) {
           )}
         </Show>
         <Show when={props.availableLocally}>
-          <div class="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-green-500">
+          <div
+            title="Available locally"
+            class="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-green-500"
+          >
             <FiDownload />
           </div>
         </Show>
@@ -80,7 +141,7 @@ export default function EpisodeCard(props: Props) {
         <Show when={props.history && props.episode.runtime}>
           <ProgressBar
             history={props.history!}
-            runtime={props.episode.runtime.secs}
+            runtime={props.episode.runtime!.secs}
           />
         </Show>
       </A>
@@ -91,7 +152,7 @@ export default function EpisodeCard(props: Props) {
           </span>
           <span class="pt-1 text-sm">Episode {props.episode.number}</span>
         </A>
-        <MoreButton rows={rows} />
+        <MoreButton rows={rows()} />
       </div>
     </div>
   );

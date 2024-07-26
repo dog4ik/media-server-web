@@ -120,10 +120,13 @@ export default function Step2(props: Props) {
   let file = (idx: number) => props.content.contents.files[idx];
 
   let otherFiles = createMemo(() => {
-    if (props.content.contents.content?.show) {
+    if (
+      props.content.contents.content &&
+      "show" in props.content.contents.content
+    ) {
       let allShows = Object.values(
         props.content.contents.content.show.seasons,
-      ).flatMap((d) => d.map((f) => f.file_idx));
+      ).flatMap((d) => d?.map((f) => f.file_idx));
       return props.content.contents.files
         .map((f, i) => ({ ...f, idx: i }))
         .filter((_, idx) => !allShows.includes(idx));
@@ -139,20 +142,38 @@ export default function Step2(props: Props) {
     return props.content.contents.files.map((f, i) => ({ ...f, idx: i }));
   });
 
+  let show = () => {
+    if (
+      props.content.contents.content &&
+      "show" in props.content.contents.content
+    ) {
+      return props.content.contents.content.show;
+    }
+  };
+
+  let movie = () => {
+    if (
+      props.content.contents.content &&
+      "movie" in props.content.contents.content
+    ) {
+      return props.content.contents.content.movie;
+    }
+  };
+
   return (
     <>
-      <Show when={props.content.contents.content?.show}>
+      <Show when={show()}>
         {(show) => (
           <For each={Object.entries(show().seasons)}>
             {([seasonNumber, season]) => (
               <SelectionSector
-                isSelected={season.every((ep) =>
+                isSelected={season!.every((ep) =>
                   selectedFiles().includes(ep.file_idx),
                 )}
                 title={`Season: ${seasonNumber}`}
                 onSelect={(force) =>
                   handleManySelect(
-                    season.map((ep) => ep.file_idx),
+                    season!.map((ep) => ep.file_idx),
                     force,
                   )
                 }
@@ -177,31 +198,33 @@ export default function Step2(props: Props) {
           </For>
         )}
       </Show>
-      <Show when={props.content.contents.content?.movie}>
-        <SelectionSector
-          title="Movie"
-          onSelect={(force) =>
-            handleManySelect(
-              props.content.contents.content!.movie!.map((f) => f.file_idx),
-              force,
-            )
-          }
-          isSelected={otherFiles().every((v) =>
-            selectedFiles().includes(v.idx),
-          )}
-        >
-          <For each={props.content.contents.content?.movie}>
-            {(movie) => (
-              <File
-                isSelected={selectedFiles().includes(movie.file_idx)}
-                title={file(movie.file_idx).path.at(-1)!}
-                onSelect={(force) => handleSelect(movie.file_idx, force)}
-                path={file(movie.file_idx).path.at(-1)!}
-                size={file(movie.file_idx).size}
-              />
+      <Show when={movie()}>
+        {(movie) => (
+          <SelectionSector
+            title="Movie"
+            onSelect={(force) =>
+              handleManySelect(
+                movie().map((f) => f.file_idx),
+                force,
+              )
+            }
+            isSelected={otherFiles().every((v) =>
+              selectedFiles().includes(v.idx),
             )}
-          </For>
-        </SelectionSector>
+          >
+            <For each={movie()}>
+              {(movie) => (
+                <File
+                  isSelected={selectedFiles().includes(movie.file_idx)}
+                  title={file(movie.file_idx).path.at(-1)!}
+                  onSelect={(force) => handleSelect(movie.file_idx, force)}
+                  path={file(movie.file_idx).path.at(-1)!}
+                  size={file(movie.file_idx).size}
+                />
+              )}
+            </For>
+          </SelectionSector>
+        )}
       </Show>
       <Show when={otherFiles().length}>
         <SelectionSector

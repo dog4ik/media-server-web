@@ -1,8 +1,17 @@
-import { createAsync, useLocation, useParams } from "@solidjs/router";
+import {
+  BeforeLeaveEventArgs,
+  createAsync,
+  useBeforeLeave,
+  useLocation,
+  useParams,
+} from "@solidjs/router";
 import { NotFoundError, ServerError } from "../utils/errors";
-import VideoPlayer from "../components/VideoPlayer";
-import { MEDIA_SERVER_URL, Schemas, fullUrl, server } from "../utils/serverApi";
-import { Show } from "solid-js";
+import VideoPlayer, { StreamingMethod } from "../components/VideoPlayer";
+import { Schemas, fullUrl, server } from "../utils/serverApi";
+import { onCleanup, Show } from "solid-js";
+import { Meta } from "@solidjs/meta";
+import { formatSE } from "../utils/formats";
+import Title from "../utils/Title";
 
 export type SubtitlesOrigin = "container" | "api" | "local" | "imported";
 
@@ -12,15 +21,23 @@ export type Subtitle = {
   language?: Schemas["DetailedSubtitleTrack"]["language"];
 };
 
-function videoUrl(videoId: number) {
+function streamUrl(streamId: string) {
+  return fullUrl("/api/transcode/{id}/manifest", { path: { id: streamId } });
+}
+
+function getUrl(videoId: number): { url: string; method: StreamingMethod } {
   let location = useLocation<{ variant: string }>();
   let query = location.query;
-
+  let streamId: string | undefined = query.stream_id;
+  if (streamId) {
+    return { url: streamUrl(streamId), method: "hls" };
+  }
   let variant: string | undefined = query.variant;
-  return fullUrl("/api/video/{id}/watch", {
+  let url = fullUrl("/api/video/{id}/watch", {
     query: variant ? { variant } : undefined,
     path: { id: videoId },
   });
+  return { url, method: "progressive" };
 }
 
 function parseShowParams() {
@@ -38,38 +55,114 @@ function parseMovieParams() {
 }
 
 type WatchProps = {
-  videoId: number;
+  url: string;
+  streamingMethod: StreamingMethod;
   title: string;
+  video: Schemas["DetailedVideo"];
 };
+
+function movieMediaSessionMetadata(movie: Schemas["MovieMetadata"]) {
+  let posterUrl = fullUrl("/api/movie/{id}/poster", {
+    path: { id: +movie.metadata_id },
+  });
+  let artwork: NonNullable<MediaMetadataInit["artwork"]> = [];
+  let moviePosterSize = "120x180";
+  artwork.push({
+    src: posterUrl,
+    sizes: moviePosterSize,
+    type: "image/jpeg",
+  });
+  if (movie.poster) {
+    artwork.push({
+      src: movie.poster,
+      sizes: moviePosterSize,
+      type: "image/jpeg",
+    });
+  }
+  return new MediaMetadata({
+    title: movie.title,
+    artwork: artwork,
+  });
+}
 
 export function WatchMovie() {
   let movieId = parseMovieParams();
   let movie = createAsync(async () => {
-    let movie = await server.GET("/api/movie/{id}", {
+    let movieQuery = await server.GET("/api/movie/{id}", {
       params: { query: { provider: "local" }, path: { id: movieId } },
     });
+    let videoQuery = await server.GET("/api/video/by_content", {
+      params: { query: { id: +movieId, content_type: "movie" } },
+    });
+    let [movie, video] = await Promise.all([movieQuery, videoQuery]);
+
     if (movie.error) {
       if (movie.error.kind == "NotFound")
         throw new NotFoundError("Movie is not found");
       throw new ServerError(movie.error.message);
     }
-    let video = await server.GET("/api/video/by_content", {
-      params: { query: { id: +movie.data.metadata_id, content_type: "movie" } },
-    });
+
     if (video.error) {
       throw new ServerError("Video is not found, consider refreshing library");
     }
-    return { video: video.data, movie: movie.data };
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.metadata = movieMediaSessionMetadata(movie.data);
+    }
+    return { video: video.data, movie: movie.data, stream };
   });
+  let stream = () => (movie() ? getUrl(movie()!.video.id) : undefined);
   return (
     <>
       <Show when={movie()}>
         {(data) => (
-          <Watch videoId={data().video.id} title={data().movie.title} />
+          <Watch
+            url={stream()!.url}
+            streamingMethod={stream()!.method}
+            video={data().video}
+            title={data().movie.title}
+          />
         )}
       </Show>
     </>
   );
+}
+
+async function showMediaSessionMetadata(
+  showId: string,
+  episode: Schemas["EpisodeMetadata"],
+) {
+  let show = await server
+    .GET("/api/show/{id}", {
+      params: {
+        query: { provider: "local" },
+        path: {
+          id: showId,
+        },
+      },
+    })
+    .then((res) => res.data);
+  let posterUrl = fullUrl("/api/episode/{id}/poster", {
+    path: { id: +episode.metadata_id },
+  });
+  let artwork: NonNullable<MediaMetadataInit["artwork"]> = [];
+  let episodePosterSize = "342x192";
+  artwork.push({
+    src: posterUrl,
+    sizes: episodePosterSize,
+    type: "image/jpeg",
+  });
+  if (episode.poster) {
+    artwork.push({
+      src: episode.poster,
+      sizes: episodePosterSize,
+      type: "image/jpeg",
+    });
+  }
+  return new MediaMetadata({
+    title: `S${formatSE(episode.season_number)}E${formatSE(episode.number)}: ${episode.title}`,
+    artist: show?.title,
+    artwork: artwork,
+  });
 }
 
 export function WatchShow() {
@@ -98,13 +191,34 @@ export function WatchShow() {
     if (video.error) {
       throw new ServerError("Video is not found, consider refreshing library");
     }
-    return { video: video.data, show: episode.data };
+
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.metadata = await showMediaSessionMetadata(
+        params.showId,
+        episode.data,
+      );
+    }
+    return { video: video.data, episode: episode.data };
   });
+
+  let stream = () => (episode() ? getUrl(episode()!.video.id) : undefined);
+
   return (
     <>
       <Show when={episode()}>
         {(data) => (
-          <Watch videoId={data().video.id} title={`${data().show.title}`} />
+          <>
+            <Title
+              text={`S${formatSE(data().episode.season_number)}E${formatSE(data().episode.number)}`}
+            />
+            <Meta property="og-image" content={data().episode.poster ?? ""} />
+            <Watch
+              video={data().video}
+              url={stream()!.url}
+              streamingMethod={stream()!.method}
+              title={`${data().episode.title}`}
+            />
+          </>
         )}
       </Show>
     </>
@@ -112,13 +226,6 @@ export function WatchShow() {
 }
 
 function Watch(props: WatchProps) {
-  let url = videoUrl(props.videoId);
-  let video = createAsync(async () => {
-    return await server.GET("/api/video/{id}", {
-      params: { path: { id: props.videoId } },
-    });
-  });
-
   function handleAudioError() {
     console.log("audio error encountered");
   }
@@ -126,19 +233,40 @@ function Watch(props: WatchProps) {
   function handleVideoError() {
     console.log("video error encountered");
   }
+  let link = props.url;
+  let streaming_method = props.streamingMethod;
+
+  async function handleUnload(_: BeforeUnloadEvent | BeforeLeaveEventArgs) {
+    if (streaming_method == "hls") {
+      let url = new URL(link);
+      let id = url.pathname.split("/").at(3);
+      if (id) {
+        await server.DELETE("/api/tasks/{id}", {
+          params: { path: { id } },
+          keepalive: true,
+        });
+      }
+    }
+  }
+
+  window.addEventListener("beforeunload", handleUnload);
+  useBeforeLeave(handleUnload);
+  onCleanup(() => {
+    window.removeEventListener("beforeunload", handleUnload);
+  });
 
   let subtitles = () => {
     let subtitles: Subtitle[] = [];
-    let data = video()?.data;
-    if (data) {
-      for (let i = 0; i < video()!.data!.subtitle_tracks.length; i++) {
-        let subtitleTrack = video()!.data!.subtitle_tracks[i];
+    let video = props.video;
+    if (video) {
+      for (let i = 0; i < video.subtitle_tracks.length; i++) {
+        let subtitleTrack = video.subtitle_tracks[i];
         subtitles.push({
           fetch: () =>
             server
               .GET("/api/video/{id}/pull_subtitle", {
                 params: {
-                  path: { id: data.id },
+                  path: { id: video.id },
                   query: { number: i },
                 },
                 parseAs: "text",
@@ -153,38 +281,34 @@ function Watch(props: WatchProps) {
   };
 
   function updateHistory(time: number) {
-    let totalDuration = video()?.data?.duration.secs;
+    let totalDuration = props.video.duration.secs;
     if (!totalDuration) return;
     let is_finished = (time / totalDuration) * 100 >= 90;
 
-    server.PUT("/api/history/{id}", {
+    server.PUT("/api/video/{id}/history", {
       body: { time: time, is_finished },
-      params: { path: { id: props.videoId } },
+      params: { path: { id: props.video.id } },
     });
   }
 
   return (
-    <Show when={video()?.data}>
-      {(data) => (
-        <VideoPlayer
-          initialTime={data().history?.time ?? 0}
-          onAudioError={handleAudioError}
-          onVideoError={handleVideoError}
-          onHistoryUpdate={(time) => updateHistory(time)}
-          subtitles={subtitles()}
-          src={url.toString()}
-          title={props.title}
-          previews={
-            data().previews_count > 0
-              ? {
-                  previewsAmount: data().previews_count,
-                  previewsSource:
-                    MEDIA_SERVER_URL + `/api/previews?id=${data().id}`,
-                }
-              : undefined
-          }
-        />
-      )}
-    </Show>
+    <VideoPlayer
+      streamingMethod={props.streamingMethod}
+      initialTime={props.video.history?.time ?? 0}
+      onAudioError={handleAudioError}
+      onVideoError={handleVideoError}
+      onHistoryUpdate={(time) => updateHistory(time)}
+      subtitles={subtitles()}
+      src={props.url}
+      title={props.title}
+      previews={
+        props.video.previews_count > 0
+          ? {
+              previewsAmount: props.video.previews_count,
+              videoId: props.video.id,
+            }
+          : undefined
+      }
+    />
   );
 }

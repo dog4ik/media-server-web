@@ -17,15 +17,15 @@ dialog {
 }
 
 dialog::backdrop {
-  transition: backdrop-filter 0.1s allow-discrete;
+  transition: backdrop-filter 0.5s allow-discrete;
 }
 
 dialog[open]::backdrop {
-  backdrop-filter: blur(8px);
+  backdrop-filter: brightness(40%);
 }
 
 @starting-style {
   dialog[open]::backdrop {
-    backdrop-filter: blur(0px);
+    backdrop-filter: brightness(100%);
   }
 }

@@ -1,5 +1,11 @@
 import { ParentProps } from "solid-js";
+import Title from "../utils/Title";
 
 export default function SettingsLayout(props: ParentProps) {
-  return <>{props.children}</>;
+  return (
+    <>
+      <Title text="Settings" />
+      {props.children}
+    </>
+  );
 }

@@ -1,8 +1,7 @@
 import { BiRegularMagnet } from "solid-icons/bi";
 import { formatSize } from "../../utils/formats";
-import { Schemas, server } from "../../utils/serverApi";
-import { createAsync } from "@solidjs/router";
-import { For, Show } from "solid-js";
+import { Schemas, } from "../../utils/serverApi";
+import { For, } from "solid-js";
 
 type TorrentResultProps = {
   result: Schemas["Torrent"];
@@ -33,7 +32,7 @@ function TorrentResult(props: TorrentResultProps) {
 
 export default function Step1(props: Props) {
   return (
-      <div class="overflow-x-auto text-white">
+      <div class="text-white h-fit">
         <table class="table">
           <thead>
             <tr class="text-white">

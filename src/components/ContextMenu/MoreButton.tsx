@@ -31,7 +31,7 @@ function RecirciveRow(props: { expanded: Row[]; title: string }) {
         style={`
 position-anchor: --${submenuId};
 inset-area: right span-bottom;
-position-try-options: inset-area(left span-bottom), inset-area(right span-top);
+position-try-options: inset-area(left span-bottom), inset-area(right span-top), inset-area(left span-top);
 `}
         popover
       >
@@ -74,7 +74,7 @@ anchor-name: --${menuId};
         style={`
 position-anchor: --${menuId};
 inset-area: right span-bottom;
-position-try-options: inset-area(left span-bottom), inset-area(top span-right);
+position-try-options: inset-area(left span-bottom), inset-area(top span-right), inset-area(left span-top);
 `}
         popover
       >

@@ -1,11 +1,13 @@
+import { A } from "@solidjs/router";
 import { FiX } from "solid-icons/fi";
-import { createSignal } from "solid-js";
-
-export type NotificationType = {
-  type: "success" | "warn" | "error";
-  id: string;
-  message: string;
-};
+import {
+  createSignal,
+  Match,
+  onMount,
+  ParentProps,
+  Show,
+  Switch,
+} from "solid-js";
 
 function useClose(cb: () => void, time: number) {
   let [shouldAnimateOut, setShouldAnimateOut] = createSignal(false);
@@ -18,35 +20,101 @@ function useClose(cb: () => void, time: number) {
   return [shouldAnimateOut, setClose] as const;
 }
 
-function notificationColor(type: NotificationType["type"]) {
-  if (type == "success") return "bg-green-500";
-  if (type == "warn") return "bg-yellow-500";
-  if (type == "error") return "bg-red-500";
-  return "bg-green-400";
+function HrefWrapper(props: ParentProps & { url?: string }) {
+  return (
+    <Switch fallback={<div>{props.children}</div>}>
+      <Match when={props.url}>
+        {(url) => <A href={url()}>{props.children}</A>}
+      </Match>
+    </Switch>
+  );
 }
 
+export type NotificationProps = {
+  message: string;
+  subTitle?: string;
+  contentUrl?: string;
+  poster?: string;
+  duration?: number;
+  onUndo?: () => void;
+};
+
+const TIMELINE_KEYFRAMES: Keyframe[] = [{ width: "100%" }, { width: "0%" }];
+
+const ANIMATION_DURATION = 5_000;
+
 export default function Notification(
-  props: NotificationType & { onClose: () => void },
+  props: NotificationProps & { onClose: () => void },
 ) {
   let [shouldAnimateOut, close] = useClose(props.onClose, 200);
-  let closeTimeout = setTimeout(() => close(), 5_000);
-  let color = notificationColor(props.type);
+  function handleHover() {
+    animation.pause();
+  }
+  function handleResume() {
+    animation.play();
+  }
+  let timeLine: HTMLDivElement;
+  let animation: Animation;
+  onMount(() => {
+    animation = timeLine.animate(
+      TIMELINE_KEYFRAMES,
+      props.duration ?? ANIMATION_DURATION,
+    );
+    animation.addEventListener("finish", close);
+  });
+
   return (
     <div
-      onMouseEnter={() => clearTimeout(closeTimeout)}
-      onMouseLeave={() => (closeTimeout = setTimeout(() => close(), 5_000))}
-      class={`w-fit transition-all duration-200 ${
+      onMouseEnter={handleHover}
+      onMouseLeave={handleResume}
+      class={`group relative w-full max-w-xl bg-stone-800 transition-all duration-200 ${
         shouldAnimateOut() ? "translate-x-full" : "animate-fade-in"
-      } flex items-center justify-between rounded-lg ${color}`}
+      } flex items-center overflow-hidden rounded-lg`}
     >
-      <p
-        title={props.message}
-        class="break-all px-2 font-semibold text-white sm:text-lg"
-      >
-        {props.message}
-      </p>
-      <div class="cursor-pointer p-2" onClick={() => close()}>
-        <FiX size={30} class="stroke-white" />
+      <div
+        class="absolute bottom-0 left-0 right-0 h-0.5 w-0 bg-white"
+        ref={timeLine!}
+      ></div>
+      <Show when={props.poster}>
+        <img
+          src={props.poster}
+          alt="Search content poster"
+          width={60}
+          height={90}
+          class="aspect-poster rounded-md object-cover"
+        />
+      </Show>
+      <div class="flex flex-col gap-1 px-2 py-4">
+        <p
+          title={props.message}
+          class="break-all font-semibold text-white sm:text-xl"
+        >
+          {props.message}
+        </p>
+        <Show when={props.subTitle}>
+          <p class="font-semibold text-white/70 sm:text-sm">{props.subTitle}</p>
+        </Show>
+        <div
+          class="absolute right-1 top-1 cursor-pointer p-1 opacity-0 transition-opacity group-hover:opacity-100"
+          onClick={() => close()}
+        >
+          <FiX size={25} class="stroke-white" />
+        </div>
+      </div>
+      <div class="flex flex-1 justify-center">
+        <Show when={props.onUndo}>
+          {(cb) => (
+            <button
+              onClick={() => {
+                cb()();
+                close();
+              }}
+              class="justify-self-end rounded-sm border border-stone-600 px-3 py-1 font-semibold text-white transition-colors hover:bg-stone-600 sm:text-sm"
+            >
+              Undo
+            </button>
+          )}
+        </Show>
       </div>
     </div>
   );

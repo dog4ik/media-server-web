@@ -63,3 +63,7 @@ export function formatSize(bytes: number) {
 
   return `${bytes} B`;
 }
+
+export function formatSE(number: number) {
+  return number.toString().padStart(2, "0");
+}

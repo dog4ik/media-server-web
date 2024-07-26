@@ -1,50 +1,33 @@
 import { A, useLocation } from "@solidjs/router";
-import {
-  For,
-  createSignal,
-  createMemo,
-  createEffect,
-  ErrorBoundary,
-} from "solid-js";
+import { For, ErrorBoundary } from "solid-js";
 import { StatusIndicator } from "./ServerStatusIndicator";
-import { FiArrowLeftCircle } from "solid-icons/fi";
+
+const ROUTES = [
+  ["Home", "/"],
+  ["Dashboard", "/dashboard"],
+  ["Shows", "/shows"],
+  ["Movies", "/movies"],
+  ["Torrent", "/torrent"],
+  ["Logs", "/logs"],
+  ["Settings", "/settings"],
+] as const;
 
 export default function SideBar() {
-  let routes = [
-    ["Home", "/"],
-    ["Dashboard", "/dashboard"],
-    ["Shows", "/shows"],
-    ["Movies", "/movies"],
-    ["Torrent", "/torrent"],
-    ["Logs", "/logs"],
-    ["Settings", "/settings"],
-  ];
-
   let location = useLocation();
-  const pathname = createMemo(() => location.pathname);
-  let [currentIndex, setCurrentIndex] = createSignal(-1);
 
-  let idx = routes.findIndex(([, route]) => {
-    if (pathname() == "/" && route == "/") {
-      return true;
-    } else if (route != "/") {
-      return pathname().startsWith(route);
-    }
-    return false;
-  });
-  setCurrentIndex(idx);
-
-  createEffect(() => {
-    let idx = routes.findIndex(([, route]) => {
-      if (pathname() == "/" && route == "/") {
-        return true;
-      } else if (route != "/") {
-        return pathname().startsWith(route);
-      }
-      return false;
-    });
-    setCurrentIndex(idx);
-  });
+  let currentIndex = () => {
+    return Math.max(
+      ROUTES.findIndex(([, route]) => {
+        if (location.pathname == "/" && route == "/") {
+          return true;
+        } else if (route != "/") {
+          return location.pathname.startsWith(route);
+        }
+        return false;
+      }),
+      0,
+    );
+  };
 
   return (
     <div class="z-10 flex flex-col items-center justify-between rounded-md p-2">
@@ -52,11 +35,11 @@ export default function SideBar() {
         <div
           class={`absolute left-0 right-0 z-10 w-full rounded-md bg-white transition-all duration-200`}
           style={{
-            height: `${100 / routes.length}%`,
-            top: `${(currentIndex() / routes.length) * 100}%`,
+            height: `${100 / ROUTES.length}%`,
+            top: `${(currentIndex() / ROUTES.length) * 100}%`,
           }}
         />
-        <For each={routes}>
+        <For each={ROUTES}>
           {([title, url], idx) => {
             let isActive = () => {
               return currentIndex() == idx();

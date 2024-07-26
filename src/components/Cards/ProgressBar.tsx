@@ -12,7 +12,6 @@ function progressBarPercent(history: Schemas["DbHistory"], runtime: number) {
 }
 
 export default function ProgressBar(props: Props) {
-  console.log(props);
   return (
     <div class="absolute bottom-0 left-0 right-0">
       <div

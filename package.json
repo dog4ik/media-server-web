@@ -10,25 +10,29 @@
     "openapi": "openapi-typescript http://localhost:6969/api-docs/openapi.json -o ./src/utils/server-types.ts -t"
   },
   "dependencies": {
-    "@solidjs/router": "^0.13.5",
+    "@solidjs/meta": "^0.29.4",
+    "@solidjs/router": "^0.14.1",
     "@tailwindcss/container-queries": "^0.1.1",
-    "@types/dom-view-transitions": "^1.0.4",
-    "hls.js": "^1.5.11",
-    "openapi-fetch": "^0.9.7",
+    "@types/dom-view-transitions": "^1.0.5",
+    "clsx": "^2.1.1",
+    "hls.js": "^1.5.13",
+    "openapi-fetch": "^0.10.2",
     "solid-icons": "^1.1.0",
-    "solid-js": "^1.8.17"
+    "solid-js": "^1.8.19",
+    "tailwind-merge": "^2.4.0",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@types/dom-navigation": "^1.0.3",
     "autoprefixer": "^10.4.19",
-    "daisyui": "^4.12.2",
-    "openapi-typescript": "^6.7.6",
-    "postcss": "^8.4.38",
-    "prettier": "^3.3.2",
+    "daisyui": "^4.12.10",
+    "openapi-typescript": "^7.1.0",
+    "postcss": "^8.4.40",
+    "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.5",
-    "tailwindcss": "^3.4.4",
-    "typescript": "^5.4.5",
-    "vite": "^5.3.1",
+    "tailwindcss": "^3.4.7",
+    "typescript": "^5.5.4",
+    "vite": "^5.3.5",
     "vite-plugin-solid": "^2.10.2"
   }
 }

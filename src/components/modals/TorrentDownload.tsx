@@ -12,7 +12,7 @@ type Props = {
 
 export default function DownloadTorrentModal(props: Props & ModalProps) {
   return (
-    <Modal ref={props.ref}>
+    <Modal size="xl" ref={props.ref}>
       <TorrentDownloadSteps
         content_hint={{
           content_type: props.content_type,

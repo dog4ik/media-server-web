@@ -5,39 +5,57 @@ import {
   createSignal,
   useContext,
 } from "solid-js";
-import Notification, { NotificationType } from "../components/Notification";
+import Notification, { NotificationProps } from "../components/Notification";
 
 type NotificationsContextType = ReturnType<typeof createNotificationsContext>;
+
+type NotificationType = NotificationProps & { id: string };
 
 export const NotificationsContext = createContext<NotificationsContextType>();
 
 export const useNotificationsContext = () => useContext(NotificationsContext)!;
 
 export function useNotifications() {
-  let [, { addNotification }] = useNotificationsContext();
-  return (type: NotificationType["type"], message: string) =>
-    addNotification(type, message);
+  let [_, { addSimpleNotification }] = useNotificationsContext();
+  return (message: string) => addSimpleNotification(message);
+}
+
+export function useRawNotifications() {
+  let [_, { addNotification }] = useNotificationsContext();
+  return (props: NotificationProps) => addNotification(props);
 }
 
 function createNotificationsContext() {
   let [notifications, setNotifications] = createSignal<NotificationType[]>([]);
 
   function removeNotification(id: string) {
-    setNotifications(notifications().filter((n) => n.id !== id));
+    setNotifications(notifications().filter((x) => x.id !== id));
   }
 
-  function addNotification(type: NotificationType["type"], message: string) {
+  function addSimpleNotification(message: string) {
     let newNotification: NotificationType = {
-      id: crypto.randomUUID(),
-      type,
       message,
+      id: crypto.randomUUID(),
+    };
+    setNotifications([...notifications(), newNotification]);
+  }
+
+  function addNotification(props: NotificationProps) {
+    let newNotification: NotificationType = {
+      ...props,
+      id: crypto.randomUUID(),
     };
     setNotifications([...notifications(), newNotification]);
   }
 
   return [
     { notifications },
-    { setNotifications, removeNotification, addNotification },
+    {
+      setNotifications,
+      removeNotification,
+      addSimpleNotification,
+      addNotification,
+    },
   ] as const;
 }
 
@@ -51,9 +69,12 @@ export default function NotificationsProvider(props: ParentProps) {
           {(item) => (
             <Notification
               onClose={() => removeNotification(item.id)}
-              type={item.type}
               message={item.message}
-              id={item.id}
+              poster={item.poster}
+              contentUrl={item.contentUrl}
+              subTitle={item.subTitle}
+              onUndo={item.onUndo}
+              duration={item.duration}
             />
           )}
         </For>

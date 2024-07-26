@@ -43,7 +43,6 @@ export default function PageLayout(props: ParentProps) {
   let gradientElement: HTMLDivElement;
   let [isLoaded, setIsLoaded] = createSignal(false);
 
-
   let location = useLocation();
 
   let animation = {
@@ -65,10 +64,8 @@ export default function PageLayout(props: ParentProps) {
 
   return (
     <>
-      <Show when={!location.pathname.startsWith("/watch")}>
-        <SideBar />
-        <NavBar />
-      </Show>
+      <SideBar />
+      <NavBar />
       <div ref={backdropElement!} class="absolute inset-0">
         <div class="relative h-full w-full">
           <Show when={!currentBackdrop()}>
@@ -83,21 +80,16 @@ export default function PageLayout(props: ParentProps) {
               ref={backdropElement!}
               onLoad={() => setIsLoaded(true)}
               src={currentBackdrop()}
-              class={`h-full w-full object-cover ${isLoaded() ? "block" : "hidden"
-                }`}
+              class={`h-full w-full object-cover ${
+                isLoaded() ? "block" : "hidden"
+              }`}
             />
           </Show>
-          <div class="absolute inset-0 bg-black/50" />
+          <div class="absolute inset-0 bg-black/80" />
         </div>
       </div>
       <main class="relative flex min-h-screen w-full flex-col overflow-y-scroll rounded-md pt-16 text-white">
-        <ErrorBoundary
-          fallback={(err, reset) => (
-            <ServerNotAvailable reset={reset} error={err} />
-          )}
-        >
-          {props.children}
-        </ErrorBoundary>
+        {props.children}
       </main>
     </>
   );

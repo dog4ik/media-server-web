@@ -28,10 +28,12 @@ export type LogLevel = "INFO" | "ERROR" | "DEBUG" | "TRACE";
 export type Schemas = components["schemas"];
 
 const cacheMap: {
+  // @ts-expect-error
   [key in keyof paths]?: ClientMethod<paths, "get", Media>;
 } = {};
 
 export const server: typeof client & {
+  // @ts-expect-error
   GET_NO_CACHE: ClientMethod<paths, "get", `${string}/${string}`>;
 } = {
   ...client,
@@ -52,8 +54,8 @@ export type GetPaths = {
   [Pathname in keyof paths]: paths[Pathname] extends {
     [K in "get"]: any;
   }
-  ? Pathname
-  : never;
+    ? Pathname
+    : never;
 }[keyof paths];
 
 export async function revalidatePath(path: GetPaths) {
@@ -72,7 +74,7 @@ export function fullUrl<T extends GetPaths>(
     }
     if (args && "path" in args && part.startsWith("{") && part.endsWith("}")) {
       let param = part.substring(1, part.length - 1) as keyof typeof args.path;
-      url.pathname += args.path[param];
+      url.pathname += args.path![param];
     } else {
       url.pathname += part;
     }
@@ -84,3 +86,4 @@ export function fullUrl<T extends GetPaths>(
   }
   return url.toString();
 }
+

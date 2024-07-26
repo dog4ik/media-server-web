@@ -38,6 +38,7 @@ export function TorrentDownloadSteps(props: Props) {
   let [currentStep, setCurrentStep] = createSignal(0);
   let [selectedMagnetLink, setSelectedMagnetLink] = createSignal<string>();
   let [selectedFiles, setSelectedFiles] = createSignal<number[]>([]);
+  let [outputLocation, setOutputLocation] = createSignal<string>("");
 
   let resolvedMagnetLink = createAsync(async () => {
     if (!selectedMagnetLink()) {
@@ -79,6 +80,8 @@ export function TorrentDownloadSteps(props: Props) {
     await server.POST("/api/torrent/download", {
       body: {
         magnet_link: selectedMagnetLink()!,
+        enabled_files: selectedFiles(),
+        save_location: outputLocation(),
         content_hint: props.content_hint,
       },
     });
@@ -86,19 +89,21 @@ export function TorrentDownloadSteps(props: Props) {
   }
 
   return (
-    <div class="flex w-full flex-col items-center">
-      <ul class="steps">
-        <li class={`step ${currentStep() >= 0 ? "step-accent" : ""}`}>
-          Select torrent
-        </li>
-        <li class={`step ${currentStep() >= 1 ? "step-accent" : ""}`}>
-          Choose files
-        </li>
-        <li class={`step ${currentStep() >= 2 ? "step-accent" : ""}`}>
-          Select save location
-        </li>
-      </ul>
-      <div class="w-full">
+    <div class="relative flex h-full w-full flex-col items-center">
+      <div class="pb-2">
+        <ul class="steps">
+          <li class={`step ${currentStep() >= 0 ? "step-accent" : ""}`}>
+            Select torrent
+          </li>
+          <li class={`step ${currentStep() >= 1 ? "step-accent" : ""}`}>
+            Choose files
+          </li>
+          <li class={`step ${currentStep() >= 2 ? "step-accent" : ""}`}>
+            Select save location
+          </li>
+        </ul>
+      </div>
+      <div class="w-full overflow-y-auto">
         <Switch fallback={<StepLoading currentStep={currentStep()} />}>
           <Match when={currentStep() === 0 && torrentSearch()?.data}>
             <Step1
@@ -118,12 +123,14 @@ export function TorrentDownloadSteps(props: Props) {
           <Match when={currentStep() === 2 && resolvedMagnetLink()?.data}>
             <Step3
               content={resolvedMagnetLink()!.data!}
+              output={outputLocation()}
+              onOutputSelect={setOutputLocation}
               selectedFiles={selectedFiles()}
             />
           </Match>
         </Switch>
       </div>
-      <div class="fixed bottom-5 right-5 space-x-4">
+      <div class="absolute bottom-5 right-5 space-x-4">
         <Show when={currentStep() !== 0}>
           <button onClick={() => changeStep(currentStep() - 1)} class="btn">
             Back

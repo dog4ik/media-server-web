@@ -70,9 +70,9 @@ export function TranscodeModal(props: Props & ModalProps) {
 
     if (
       stringCodec(defaultVideo().codec) ===
-      stringCodec(transcodePayload.video_codec) &&
+        stringCodec(transcodePayload.video_codec) &&
       stringCodec(defaultAudio().codec) ===
-      stringCodec(transcodePayload.audio_codec)
+        stringCodec(transcodePayload.audio_codec)
     ) {
       return { conflictIn: "source" } as const;
     }
@@ -113,16 +113,14 @@ export function TranscodeModal(props: Props & ModalProps) {
       })
       .then((r) => {
         if (r.error) {
-          notifiactor("error", `Failed to start transcode job`);
-        } else {
-          notifiactor("success", "Started transcode job");
+          notifiactor(`Failed to start transcode job`);
         }
       });
   }
 
   return (
     <Modal ref={props.ref}>
-      <div class="flex h-full flex-col items-center justify-center ">
+      <div class="flex h-full flex-col items-center justify-center">
         <AddVersion
           video={willPlay()?.video}
           selectedPayload={transcodePayload}
@@ -147,10 +145,10 @@ export function TranscodeModal(props: Props & ModalProps) {
               <div role="alert" class="alert alert-warning">
                 <FiAlertTriangle class="h-6 w-6 shrink-0 stroke-current" />
                 <span>
-                  Current configuration dublicates existing{" "}
+                  Current configuration duplicates{" "}
                   {r().conflictIn == "source"
-                    ? "source video"
-                    : `variant with id: ${r().variantId}`}
+                    ? "original video"
+                    : `existing variant with id: ${r().variantId}`}
                 </span>
               </div>
             )}

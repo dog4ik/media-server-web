@@ -76,7 +76,7 @@ export default function Description(props: Props & ParentProps) {
         <Show when={props.plot && props.plot.length > 0}>
           <p
             title={props.plot ?? undefined}
-            class={`${imageDirection == "horizontal" ? "line-clamp-2" : "line-clamp-5"} max-w-2xl animate-fade-in pt-8`}
+            class={`${imageDirection == "horizontal" ? "line-clamp-4" : "line-clamp-5"} max-w-5xl pt-8`}
           >
             {props.plot}
           </p>

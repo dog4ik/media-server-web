@@ -1,9 +1,16 @@
-import { MenuRow } from "../ContextMenu/Menu";
 import MoreButton, { Row } from "../ContextMenu/MoreButton";
-import { Show, createSignal } from "solid-js";
-import { Schemas, fullUrl } from "../../utils/serverApi";
+import { Show } from "solid-js";
+import {
+  Schemas,
+  fullUrl,
+  revalidatePath,
+  server,
+} from "../../utils/serverApi";
 import { A } from "@solidjs/router";
 import FallbackImage from "../FallbackImage";
+import useToggle from "../../utils/useToggle";
+import FixMetadata from "../FixMetadata";
+import { useNotifications } from "../../context/NotificationContext";
 
 function provider(provider: string): string {
   if (provider === "local") {
@@ -14,35 +21,38 @@ function provider(provider: string): string {
 
 export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
   let url = `/shows/${props.show.metadata_id}${provider(props.show.metadata_provider)}`;
+  let [fixModal, toggleFixModal] = useToggle(false);
+  let notificator = useNotifications();
   function handleDelete() {}
+  function handleFix() {
+    toggleFixModal(true);
+  }
 
-  let rows: Row[] = [
-    { title: "Row1" },
-    { title: "Row2" },
-    {
-      title: "Expanded",
-      expanded: [
-        { title: "ExpandedRow1" },
-        { title: "ExpandedRow2" },
-        {
-          custom: (
-            <div class="text-xl text-red-500">Hello from custom element</div>
-          ),
-        },
-        {
-          title: "ExpandedExpanded",
-          expanded: [
-            {
-              title: "ExpandedExpanded1",
-            },
-            {
-              title: "ExpandedExpanded2",
-            },
-          ],
-        },
-      ],
-    },
-  ];
+  function handleMetadataReset() {
+    if (props.show.metadata_provider !== "local") return;
+    server
+      .POST("/api/show/{show_id}/reset_metadata", {
+        params: { path: { show_id: +props.show.metadata_id } },
+      })
+      .then((res) => {
+        if (res.error) {
+          notificator("Failed to reset metadata");
+        } else {
+          notificator("Successfuly reseted metadata");
+        }
+      })
+      .finally(() => {
+        revalidatePath("/api/local_shows");
+      });
+  }
+
+  let rows: Row[] = [];
+  if (props.show.metadata_provider === "local") {
+    rows.push(
+      { title: "Fix metadata", onClick: handleFix },
+      { title: "Reset metadata", onClick: handleMetadataReset },
+    );
+  }
 
   let imageUrl =
     props.show.metadata_provider == "local"
@@ -53,6 +63,14 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
 
   return (
     <>
+      <Show when={fixModal()}>
+        <FixMetadata
+          contentType="show"
+          targetId={props.show.metadata_id}
+          initialSearch={props.show.title}
+          onClose={() => toggleFixModal(false)}
+        />
+      </Show>
       <div class="w-52">
         <A href={url} class="relative w-full">
           <FallbackImage

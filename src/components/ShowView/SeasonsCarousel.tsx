@@ -3,7 +3,7 @@ import { For, ParentProps, createEffect, createSignal } from "solid-js";
 
 type Props = {
   tabs: number[];
-  onClick: (idx: number) => void;
+  onChange: (idx: number) => void;
 };
 
 type ItemProps = {
@@ -46,13 +46,15 @@ export default function SeasonsCarousel(props: Props) {
   createEffect(() => {
     if (searchParams.season && +searchParams.season)
       setSelectedNumber(+searchParams.season);
+    else setSelectedNumber(initialSelection());
+    props.onChange(selectedNumber());
   });
 
   let [selectedNumber, setSelectedNumber] = createSignal(initialSelection());
   function handleClick(seasonNumber: number) {
     setSelectedNumber(seasonNumber);
     setSearchParams({ season: seasonNumber });
-    props.onClick(seasonNumber);
+    props.onChange(seasonNumber);
   }
   return (
     <div class="relative flex items-center @container">

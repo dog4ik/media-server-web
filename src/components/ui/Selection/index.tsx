@@ -32,7 +32,7 @@ export default function Selection(props: ParentProps & Props) {
   return (
     <div class="w-60">
       <button
-        class="w-full rounded-lg bg-white px-2 py-1 text-start text-black hover:bg-neutral-300"
+        class="w-full rounded-md bg-white px-2 py-1 text-start text-black hover:bg-neutral-300"
         style={`
 anchor-name: --${popoverId};
 `}
@@ -42,7 +42,7 @@ anchor-name: --${popoverId};
       </button>
       <ul
         id={popoverId}
-        class={`${popoverId} w-60 divide-y overflow-hidden rounded-lg`}
+        class={`${popoverId} w-60 translate-y-1 divide-y overflow-hidden rounded-md`}
         style={`
 position-anchor: --${popoverId};
 inset-area: bottom span-all;

@@ -1,9 +1,9 @@
 import { For, Show } from "solid-js";
-import { useNotifications } from "../context/NotificationContext";
 import { Schemas, server } from "../utils/serverApi";
 import EpisodeCard from "../components/Cards/EpisodeCard";
 import MovieCard from "../components/Cards/MovieCard";
 import { createAsync } from "@solidjs/router";
+import Title from "../utils/Title";
 
 type ContinueWatchingProps = {
   showHistory: Schemas["ShowSuggestion"][];
@@ -41,11 +41,6 @@ function ContinueWatchingSection(props: ContinueWatchingProps) {
 }
 
 export default function Home() {
-  let notificator = useNotifications();
-  async function handleRefresh() {
-    await server.POST("/api/scan");
-    notificator("success", "Refreshing library");
-  }
   let suggestions = createAsync(async () => {
     let showSuggestions = await server
       .GET("/api/history/suggest/shows")
@@ -56,22 +51,21 @@ export default function Home() {
     return { showSuggestions, movieSuggestions };
   });
   return (
-    <div class="p-2">
-      <Show
-        when={
-          suggestions() &&
-          (suggestions()?.showSuggestions.length ||
-            suggestions()?.movieSuggestions)
-        }
-      >
-        <ContinueWatchingSection
-          showHistory={suggestions()!.showSuggestions}
-          movieHistory={suggestions()!.movieSuggestions}
-        />
-      </Show>
-      <button onClick={handleRefresh} class="rounded-xl bg-green-500 p-2">
-        Refresh library
-      </button>
-    </div>
+    <>
+      <Title text="Home" />
+      <div class="p-2">
+        <Show
+          when={
+            suggestions()?.showSuggestions.length ||
+            suggestions()?.movieSuggestions.length
+          }
+        >
+          <ContinueWatchingSection
+            showHistory={suggestions()!.showSuggestions}
+            movieHistory={suggestions()!.movieSuggestions}
+          />
+        </Show>
+      </div>
+    </>
   );
 }

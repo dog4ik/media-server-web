@@ -4,6 +4,9 @@ export default {
   theme: {
     extend: {
       fontFamily: { sans: ["Inter", "system-ui"] },
+      aspectRatio: {
+        poster: "2 / 3",
+      },
       animation: {
         "fade-in": "fadein 0.5s ease-in-out",
         "fade-out": "fadeout 0.5s ease-in-out",
@@ -76,5 +79,9 @@ export default {
       },
     },
   },
-  plugins: [require("@tailwindcss/container-queries"), require("daisyui")],
+  plugins: [
+    require("@tailwindcss/container-queries"),
+    require("daisyui"),
+    require("tailwindcss-animate"),
+  ],
 };

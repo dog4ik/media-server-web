@@ -61,9 +61,9 @@ function LibrarySettings(props: Props) {
       server
         .PUT("/api/configuration", { body: settings })
         .then((r) => {
-          if (r.data) notificator("success", "Updated server configuration");
+          if (r.data) notificator("Updated server configuration");
           if (r.error)
-            notificator("error", "Failed to update server configuration");
+            notificator("Failed to update server configuration");
         })
         .finally(async () => {
           await revalidatePath("/api/configuration/schema");
@@ -89,8 +89,8 @@ function LibrarySettings(props: Props) {
     server
       .POST("/api/configuration/reset")
       .then((r) => {
-        if (r.data) notificator("success", "Configuration is resetted");
-        if (r.error) notificator("error", "Failed to reset configuration");
+        if (r.data) notificator("Restored default configuration");
+        if (r.error) notificator("Failed to reset configuration");
       })
       .finally(async () => {
         await revalidatePath("/api/configuration/schema");

@@ -1,14 +1,6 @@
 import { FiArrowRight } from "solid-icons/fi";
 import { ParentProps } from "solid-js";
 
-type WrapperProps = {
-  x: number;
-  y: number;
-  scroll?: boolean;
-  popoverId: string;
-  onClick?: () => void;
-};
-
 type RowProps = {
   onClick?: () => void;
 };
@@ -16,7 +8,7 @@ type RowProps = {
 export function MenuRow(props: RowProps & ParentProps) {
   return (
     <li
-      class="flex w-full cursor-pointer items-center rounded-md py-1 pl-2 hover:bg-neutral-700"
+      class="flex transition-colors w-full cursor-pointer items-center rounded-md py-1 pl-2 hover:bg-neutral-700"
       onClick={props.onClick}
     >
       <span class="pointer-events-none text-white">{props.children}</span>

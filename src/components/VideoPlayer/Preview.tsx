@@ -16,7 +16,7 @@ export default function Preview(props: PreviewProps) {
   };
   return (
     <div
-      class="pointer-events-none absolute bottom-14 hidden shrink-0 -translate-x-1/2 animate-fade-in flex-col items-center justify-center group-hover:flex"
+      class="pointer-events-none absolute bottom-14 hidden shrink-0 -translate-x-1/2 flex-col items-center justify-center group-hover:flex"
       style={{
         left: `${position()}px`,
         width: `${IMG_WIDTH}px`,

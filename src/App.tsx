@@ -1,4 +1,4 @@
-import { Route, RouteLoadFuncArgs, Router } from "@solidjs/router";
+import { Route, RoutePreloadFuncArgs, Router } from "@solidjs/router";
 import Home from "./pages/Home";
 import { WatchMovie, WatchShow } from "./pages/Watch";
 import Dashboard from "./pages/Dashboard";
@@ -15,17 +15,19 @@ import { server } from "./utils/serverApi";
 import Library from "./pages/Settings/Library";
 import General from "./pages/Settings/General";
 import Metadata from "./pages/Settings/Metadata";
+import History from "./pages/Settings/History";
 import SettingsLayout from "./layouts/SettingsLayout";
 import PageLayout from "./layouts/PageLayout";
 import WatchLayout from "./layouts/WatchLayout";
 import SearchPage from "./pages/Search";
 import NotFound from "./pages/NotFound";
+import TestPage from "./pages/TestPage";
 
 function loadShows() {
   return server.GET("/api/local_shows");
 }
 
-function loadShow({ params, location }: RouteLoadFuncArgs) {
+function loadShow({ params, location }: RoutePreloadFuncArgs) {
   let provider = (location.query.provider as "local") ?? "local";
   server.GET("/api/show/{id}", {
     params: { query: { provider }, path: { id: params.id } },
@@ -44,16 +46,18 @@ function App() {
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/movies" component={Movies} />
         <Route path="/movies/:id" component={Movie} />
-        <Route path="/shows" component={Shows} load={loadShows} />
-        <Route path="/shows/:id" component={Show} load={loadShow} />
+        <Route path="/shows" component={Shows} preload={loadShows} />
+        <Route path="/shows/:id" component={Show} preload={loadShow} />
         <Route path="/shows/:id/:season/:episode" component={Episode} />
         <Route path="/torrent" component={Torrent} />
         <Route path="/settings" component={Settings} />
         <Route path="/search" component={SearchPage} />
+        <Route path="/test" component={TestPage} />
         <Route path="/settings/*" component={SettingsLayout}>
           <Route path="/library" component={Library} />
           <Route path="/general" component={General} />
           <Route path="/metadata" component={Metadata} />
+          <Route path="/history" component={History} />
         </Route>
         <Route path="/logs" component={Logs} />
         <Route path="*" component={NotFound}></Route>

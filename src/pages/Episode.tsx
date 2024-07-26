@@ -1,9 +1,7 @@
-import { createAsync, useLocation, useParams } from "@solidjs/router";
+import { createAsync, useNavigate, useParams } from "@solidjs/router";
 import { Show, createEffect } from "solid-js";
 import Description from "../components/Description";
-import VersionSlider from "../components/VersionSlider";
 import {
-  Schemas,
   defaultTrack,
   formatCodec,
   fullUrl,
@@ -24,6 +22,8 @@ import { TranscodeModal } from "../components/modals/TranscodeModal";
 import { isCompatible } from "../utils/mediaCapabilities/mediaCapabilities";
 import VariantMenuRow from "../components/Description/VariantMenuRow";
 import { createStore } from "solid-js/store";
+import { formatSE } from "../utils/formats";
+import Title from "../utils/Title";
 
 function parseParams() {
   let params = useParams();
@@ -33,12 +33,9 @@ function parseParams() {
   return [() => +params.episode, () => +params.season] as const;
 }
 
-function pad(num: number) {
-  return num.toString().padStart(2, "0");
-}
-
 export default function Episode() {
   let notificator = useNotifications();
+  let navigator = useNavigate();
   let [episodeNumber, seasonNumber] = parseParams();
   let [showId, provider] = useProvider();
   let downloadModal: HTMLDialogElement;
@@ -75,11 +72,10 @@ export default function Episode() {
         .GET("/api/external_to_local/{id}", {
           params: {
             query: { provider: episode.metadata_provider },
-            path: { id: episode.metadata_id },
+            path: { id: showId() },
           },
         })
-        .then((r) => r.data?.show_id ?? undefined)
-        .catch(() => undefined);
+        .then((r) => r.data?.show_id ?? undefined);
     }
     return {
       ...episodeQuery,
@@ -143,8 +139,8 @@ export default function Episode() {
           ),
         });
       }
-      setContextMenu(4, {
-        title: "Watch Variant",
+      setContextMenu(5, {
+        title: `Watch variant (${rows.length})`,
         expanded: rows,
       });
     }
@@ -163,29 +159,16 @@ export default function Episode() {
       : undefined;
   });
 
-  let commitVariant = async (payload: Schemas["TranscodePayload"]) => {
-    let videoId = video()?.data?.id;
-    if (videoId) {
-      server
-        .POST("/api/video/{id}/transcode", {
-          params: { path: { id: +videoId } },
-          body: payload,
-        })
-        .then(() => notificator("success", "Created transcode job"))
-        .catch(() => notificator("error", "Failed to create transcode job"));
-    }
-  };
-
   let deletePreviews = async () => {
     return await server
       .DELETE("/api/video/{id}/previews", {
         params: { path: { id: +video()!.data!.id } },
       })
       .then(() => {
-        notificator("success", "Cleared previews");
+        notificator("Cleared previews");
       })
       .catch(() => {
-        notificator("error", "Failed to clear previews");
+        notificator("Failed to clear previews");
       })
       .finally(() => {
         revalidatePath("/api/video/by_content");
@@ -206,8 +189,19 @@ export default function Episode() {
     let showData = show()?.data;
     let episodeData = episode()?.data;
     if (!episodeData || !showData) return undefined;
-    return `${showData.title} S${pad(episodeData.season_number)}E${pad(episodeData.number)}`;
+    return `${showData.title} S${formatSE(episodeData.season_number)}E${formatSE(episodeData.number)}`;
   };
+
+  async function startLiveTranscoding() {
+    let videoId = video()?.data?.id;
+    if (!videoId) return;
+    let res = await server.POST("/api/video/{id}/stream_transcode", {
+      params: { path: { id: videoId } },
+    });
+    if (res.data) {
+      navigator(watchUrl() + `?stream_id=${res.data.id}`);
+    }
+  }
 
   let defaultVideo = () =>
     video()?.data && defaultTrack(video()!.data!.video_tracks);
@@ -217,16 +211,29 @@ export default function Episode() {
   let [contextMenu, setContextMenu] = createStore<Row[]>([
     { title: "Download", onClick: () => downloadModal?.showModal() },
     { title: "Transcode", onClick: () => transcodeModal?.showModal() },
+    { title: "Live transcode", onClick: startLiveTranscoding },
     { title: "Generate previews", onClick: generatePreviews },
     { title: "Delete previews", onClick: deletePreviews },
-    { title: "Watch variant", expanded: [] },
+    {
+      title: "Watch variant (0)",
+      expanded: [],
+    },
   ]);
 
-  let watchUrl = () =>
-    `/shows/${showId()}/${seasonNumber()}/${episodeNumber()}/watch`;
+  let watchUrl = () => {
+    let id = provider() == "local" ? +showId() : episode()?.local_id;
+    if (id) return `/shows/${id}/${seasonNumber()}/${episodeNumber()}/watch`;
+  };
 
   return (
     <>
+      <Title
+        text={
+          episode() && show()
+            ? `${show()?.data?.title} S${formatSE(episode()?.data.season_number!)}E${episode()?.data.number!}`
+            : ""
+        }
+      />
       <Show when={torrentQuery() && show()?.data}>
         <DownloadTorrentModal
           metadata_id={show()!.data!.metadata_id}
@@ -260,20 +267,20 @@ export default function Episode() {
                 additionalInfo={[
                   {
                     info: `${show()?.data?.title}`,
-                    href: `/shows/${showId()}`,
+                    href: `/shows/${showId()}?provider=${provider()}`,
                   },
                   {
                     info: `Season ${episode().season_number}`,
-                    href: `/shows/${showId()}?season=${episode().season_number}`,
+                    href: `/shows/${showId()}?season=${episode().season_number}&provider=${provider()}`,
                   },
                   { info: `Episode ${episode().number}` },
                 ]}
               >
                 <div class="flex items-center gap-2 pt-4">
-                  <Show when={video()?.response}>
+                  <Show when={video()?.data && watchUrl()}>
                     {(_) => (
                       <PlayButton
-                        href={watchUrl()}
+                        href={watchUrl()!}
                         canPlay={videoCompatability()}
                       />
                     )}
@@ -307,12 +314,6 @@ export default function Episode() {
                   ></Info>
                 </div>
               </ContentSectionContainer>
-              <VersionSlider
-                video={data()}
-                videoId={data().id}
-                variants={data().variants}
-                onCommit={commitVariant}
-              />
             </>
           )}
         </Show>

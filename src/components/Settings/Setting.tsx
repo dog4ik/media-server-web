@@ -3,9 +3,10 @@ import Selection, { Option } from "../ui/Selection";
 import SectionSubTitle from "./SectionSubTitle";
 import { SETTINGS, Settings } from "../../utils/settingsDescriptors";
 import { Schemas } from "../../utils/serverApi";
-import { FiEdit2, FiPlusCircle, FiX } from "solid-icons/fi";
+import { FiPlusCircle, FiX } from "solid-icons/fi";
 import { FilePicker } from "../FilePicker";
 import Modal from "../modals/Modal";
+import FileInput from "../ui/FileInput";
 
 type Props = {
   data: NonNullable<Settings[keyof Settings]>;
@@ -131,44 +132,6 @@ export function Toggle(props: ToggleProps) {
       class="toggle"
       checked={props.value}
     />
-  );
-}
-
-type FileInputProps = {
-  value: string;
-  onChange: (val: string) => void;
-};
-
-function FileInput(props: FileInputProps) {
-  let [showModal, setShowModal] = createSignal(false);
-  let modal: HTMLDialogElement;
-  return (
-    <>
-      <Show when={showModal()}>
-        <Modal ref={modal!} onClose={() => setShowModal(false)}>
-          <FilePicker
-            onSubmit={(val) => {
-              props.onChange(val);
-              modal.close();
-            }}
-            disallowFiles
-            initialDir={props.value}
-          />
-        </Modal>
-      </Show>
-      <div class="flex items-center justify-between gap-2 rounded-xl bg-neutral-800 p-1">
-        <span>{props.value}</span>
-        <button
-          class="btn"
-          onClick={() => {
-            setShowModal(true);
-            modal.showModal();
-          }}
-        >
-          <FiEdit2 size={10} />
-        </button>
-      </div>
-    </>
   );
 }
 
