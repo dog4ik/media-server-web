@@ -1,5 +1,12 @@
 import { FiMaximize, FiPause, FiPlay, FiSettings } from "solid-icons/fi";
-import { JSX, Show, createSignal, onCleanup, onMount } from "solid-js";
+import {
+  JSX,
+  ParentProps,
+  Show,
+  createSignal,
+  onCleanup,
+  onMount,
+} from "solid-js";
 import VolumeIcon from "./VolumeIcon";
 import Preview from "./Preview";
 import { FaSolidClosedCaptioning } from "solid-icons/fa";
@@ -35,7 +42,6 @@ type Props = {
   onAudioError: () => void;
   onHistoryUpdate: (time: number) => void;
   subtitles: Subtitle[];
-  title: string;
   previews?: { videoId: number; previewsAmount: number };
   streamingMethod: StreamingMethod;
 };
@@ -129,7 +135,7 @@ function saveVolume(volume: number) {
   localStorage.setItem("volume", volume.toString());
 }
 
-export default function VideoPlayer(props: Props) {
+export default function VideoPlayer(props: Props & ParentProps) {
   let audioFailed = false;
   let videoFailed = false;
 
@@ -500,9 +506,7 @@ export default function VideoPlayer(props: Props) {
           shouldShowControls() ? "opacity-100" : "opacity-0"
         } transition-opacity duration-200`}
       >
-        <div class="absolute left-5 top-5">
-          <span class="text-2xl">{props.title}</span>
-        </div>
+        <div class="bg-red-400 w-full h-full">{props.children}</div>
         <div
           onMouseMove={() => {
             clearTimeout(showControlsTimeout);

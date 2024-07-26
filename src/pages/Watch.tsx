@@ -1,4 +1,5 @@
 import {
+  A,
   BeforeLeaveEventArgs,
   createAsync,
   useBeforeLeave,
@@ -8,7 +9,7 @@ import {
 import { NotFoundError, ServerError } from "../utils/errors";
 import VideoPlayer, { StreamingMethod } from "../components/VideoPlayer";
 import { Schemas, fullUrl, server } from "../utils/serverApi";
-import { onCleanup, Show } from "solid-js";
+import { onCleanup, ParentProps, Show } from "solid-js";
 import { Meta } from "@solidjs/meta";
 import { formatSE } from "../utils/formats";
 import Title from "../utils/Title";
@@ -57,7 +58,6 @@ function parseMovieParams() {
 type WatchProps = {
   url: string;
   streamingMethod: StreamingMethod;
-  title: string;
   video: Schemas["DetailedVideo"];
 };
 
@@ -119,8 +119,13 @@ export function WatchMovie() {
             url={stream()!.url}
             streamingMethod={stream()!.method}
             video={data().video}
-            title={data().movie.title}
-          />
+          >
+            <div class="absolute left-5 top-5">
+              <A href={`/movies/${data().movie.metadata_id}`}>
+                <span class="text-2xl hover:underline">{data().movie.title}</span>
+              </A>
+            </div>
+          </Watch>
         )}
       </Show>
     </>
@@ -188,8 +193,14 @@ export function WatchShow() {
         query: { id: +episode.data.metadata_id, content_type: "show" },
       },
     });
+    let show = await server.GET("/api/show/{id}", {
+      params: { path: { id: params.showId }, query: { provider: "local" } },
+    });
     if (video.error) {
       throw new ServerError("Video is not found, consider refreshing library");
+    }
+    if (show.error) {
+      throw new ServerError("Show is not found");
     }
 
     if ("mediaSession" in navigator) {
@@ -198,11 +209,15 @@ export function WatchShow() {
         episode.data,
       );
     }
-    return { video: video.data, episode: episode.data };
+    return { video: video.data, episode: episode.data, show: show.data };
   });
 
   let stream = () => (episode() ? getUrl(episode()!.video.id) : undefined);
 
+  let showUrl = () => `/shows/${params.showId}`;
+  let seasonUrl = () => `/shows/${params.showId}/?season=${params.season}`;
+  let episodeUrl = () =>
+    `/shows/${params.showId}/${params.season}/${params.episode}`;
   return (
     <>
       <Show when={episode()}>
@@ -216,8 +231,28 @@ export function WatchShow() {
               video={data().video}
               url={stream()!.url}
               streamingMethod={stream()!.method}
-              title={`${data().episode.title}`}
-            />
+            >
+              <div class="absolute left-5 top-5 flex flex-col">
+                <span class="text-2xl">{data().episode.title}</span>
+                <div class="flex gap-2">
+                  <A href={showUrl()}>
+                    <span class="text-sm hover:underline">
+                      {data().show.title}
+                    </span>
+                  </A>
+                  <A href={seasonUrl()}>
+                    <span class="text-sm hover:underline">
+                      Season {data().episode.season_number}
+                    </span>
+                  </A>
+                  <A href={episodeUrl()}>
+                    <span class="text-sm hover:underline">
+                      Episode {data().episode.number}
+                    </span>
+                  </A>
+                </div>
+              </div>
+            </Watch>
           </>
         )}
       </Show>
@@ -225,7 +260,7 @@ export function WatchShow() {
   );
 }
 
-function Watch(props: WatchProps) {
+function Watch(props: WatchProps & ParentProps) {
   function handleAudioError() {
     console.log("audio error encountered");
   }
@@ -300,7 +335,6 @@ function Watch(props: WatchProps) {
       onHistoryUpdate={(time) => updateHistory(time)}
       subtitles={subtitles()}
       src={props.url}
-      title={props.title}
       previews={
         props.video.previews_count > 0
           ? {
@@ -309,6 +343,8 @@ function Watch(props: WatchProps) {
             }
           : undefined
       }
-    />
+    >
+      {props.children}
+    </VideoPlayer>
   );
 }
