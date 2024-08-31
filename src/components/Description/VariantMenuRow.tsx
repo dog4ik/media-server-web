@@ -1,9 +1,10 @@
+import { createAsync } from "@solidjs/router";
 import { Schemas } from "../../utils/serverApi";
+import { isCompatible } from "../../utils/mediaCapabilities/mediaCapabilities";
 
 type Props = {
   variant: Schemas["DetailedVariant"];
   href: string;
-  compatability: MediaCapabilitiesDecodingInfo;
 };
 
 function stringCodec<T extends string | { other: string }>(codec: T): string {
@@ -21,10 +22,13 @@ export default function VariantMenuRow(props: Props) {
   let defaultAudio = () =>
     props.variant.audio_tracks.find((t) => t.is_default) ??
     props.variant.audio_tracks[0];
+  let compatibility = createAsync(async () => {
+    return await isCompatible(defaultVideo(), defaultAudio());
+  });
   let bgColor = () => {
-    let compatability = props.compatability;
+    let compatability = compatibility();
     if (compatability) {
-      return compatability.supported ? "bg-green-400" : "bg-red-500";
+      return compatability.combined.supported ? "bg-green-400" : "bg-red-500";
     }
     return "";
   };

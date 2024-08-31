@@ -1,26 +1,29 @@
 import { Schemas } from "./serverApi";
 
-type Config = Schemas["FileConfigSchema"];
+type Config = Schemas["UtoipaConfigSchema"];
 
-type SettingTypeHint = "path" | "pathArr";
+type SettingTypeHint = "path" | "pathArr" | "secret";
 
-type Variable<T extends keyof Config> = {
+type Variable<T extends Config[number]["key"]> = {
   description: string;
   name: T;
   long_name: string;
   typeHint?: SettingTypeHint;
 };
 
-export type Settings = Omit<
-  { [K in keyof Required<Config>]: Variable<K> },
-  "resources" | "capabilities"
->;
+export type Settings = { [K in Config[number]["key"]]: Variable<K> };
 
 export const SETTINGS: Settings = {
-  h264_preset: {
-    description: "H264 codec preset",
-    name: "h264_preset",
-    long_name: "H264 Preset",
+  intro_min_duration: {
+    description:
+      "Mimimal intro duration in seconds. With very low values things like netflix logo will be considered as intro",
+    name: "intro_min_duration",
+    long_name: "Minimal intro duration",
+  },
+  intro_detection_ffmpeg_build: {
+    description: "Path to the FFmpeg build that supports Chromaprint",
+    name: "intro_detection_ffmpeg_build",
+    long_name: "FFmpeg build for intro detection",
   },
   movie_folders: {
     description: "List of directories that contain movie files",
@@ -32,11 +35,6 @@ export const SETTINGS: Settings = {
     description: "Server port",
     name: "port",
     long_name: "Port",
-  },
-  scan_max_concurrency: {
-    description: "I don't remember what it does",
-    name: "scan_max_concurrency",
-    long_name: "Max concurrency",
   },
   show_folders: {
     description: "List of directories that contain show files",
@@ -58,5 +56,17 @@ export const SETTINGS: Settings = {
     description: "Path to ffprobe binary",
     long_name: "Ffprobe path",
     name: "ffprobe_path",
+  },
+  tmdb_key: {
+    description: "API key for TMDB",
+    name: "tmdb_key",
+    long_name: "TMDB key",
+    typeHint: "secret",
+  },
+  tvdb_key: {
+    description: "API key for TVDB",
+    name: "tvdb_key",
+    long_name: "TVDB key",
+    typeHint: "secret",
   },
 } as const;

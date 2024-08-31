@@ -80,11 +80,11 @@ export default function Table() {
     let headings = getHeadings();
     setContent(generateContent(headings));
     onScroll();
-    container.addEventListener("scroll", onScroll);
+    container?.addEventListener("scroll", onScroll);
   });
 
   onCleanup(() => {
-    container.removeEventListener("scroll", onScroll);
+    container?.removeEventListener("scroll", onScroll);
   });
 
   return (

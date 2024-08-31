@@ -1,4 +1,4 @@
-import { Match, Show, Switch, createSignal } from "solid-js";
+import { Match, Show, Switch, createMemo, createSignal } from "solid-js";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
@@ -37,8 +37,8 @@ type Props = {
 export function TorrentDownloadSteps(props: Props) {
   let [currentStep, setCurrentStep] = createSignal(0);
   let [selectedMagnetLink, setSelectedMagnetLink] = createSignal<string>();
-  let [selectedFiles, setSelectedFiles] = createSignal<number[]>([]);
-  let [outputLocation, setOutputLocation] = createSignal<string>("");
+  let [selectedFiles, setSelectedFiles] = createSignal<boolean[]>([]);
+  let [outputLocation, setOutputLocation] = createSignal<string>();
 
   let resolvedMagnetLink = createAsync(async () => {
     if (!selectedMagnetLink()) {
@@ -76,11 +76,18 @@ export function TorrentDownloadSteps(props: Props) {
     setCurrentStep(newStep);
   }
 
+  let enabledFiles = createMemo(() =>
+    selectedFiles().reduce<number[]>((acc, enabled, idx) => {
+      if (enabled) acc.push(idx);
+      return acc;
+    }, []),
+  );
+
   async function handleFinish() {
     await server.POST("/api/torrent/download", {
       body: {
         magnet_link: selectedMagnetLink()!,
-        enabled_files: selectedFiles(),
+        enabled_files: enabledFiles(),
         save_location: outputLocation(),
         content_hint: props.content_hint,
       },
@@ -125,7 +132,7 @@ export function TorrentDownloadSteps(props: Props) {
               content={resolvedMagnetLink()!.data!}
               output={outputLocation()}
               onOutputSelect={setOutputLocation}
-              selectedFiles={selectedFiles()}
+              selectedFiles={enabledFiles()}
             />
           </Match>
         </Switch>
@@ -153,14 +160,14 @@ export function TorrentDownloadSteps(props: Props) {
             <button onClick={() => changeStep(currentStep() + 1)} class="btn">
               Selected{" "}
               {formatSize(
-                selectedFiles().reduce(
+                enabledFiles().reduce(
                   (acc, n) =>
                     acc + resolvedMagnetLink()!.data!.contents.files[n].size,
                   0,
                 ),
               )}{" "}
-              ({selectedFiles().length}{" "}
-              {selectedFiles().length == 1 ? "File" : "Files"})
+              ({enabledFiles().length}{" "}
+              {enabledFiles().length == 1 ? "File" : "Files"})
             </button>
           </Show>
         </Show>

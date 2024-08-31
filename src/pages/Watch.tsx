@@ -6,13 +6,14 @@ import {
   useLocation,
   useParams,
 } from "@solidjs/router";
-import { NotFoundError, ServerError } from "../utils/errors";
+import { NotFoundError, InternalServerError } from "../utils/errors";
 import VideoPlayer, { StreamingMethod } from "../components/VideoPlayer";
 import { Schemas, fullUrl, server } from "../utils/serverApi";
 import { onCleanup, ParentProps, Show } from "solid-js";
 import { Meta } from "@solidjs/meta";
 import { formatSE } from "../utils/formats";
 import Title from "../utils/Title";
+import { fetchEpisode, fetchMovie, fetchShow } from "@/utils/library";
 
 export type SubtitlesOrigin = "container" | "api" | "local" | "imported";
 
@@ -59,6 +60,7 @@ type WatchProps = {
   url: string;
   streamingMethod: StreamingMethod;
   video: Schemas["DetailedVideo"];
+  intro?: Schemas["Intro"];
 };
 
 function movieMediaSessionMetadata(movie: Schemas["MovieMetadata"]) {
@@ -88,27 +90,21 @@ function movieMediaSessionMetadata(movie: Schemas["MovieMetadata"]) {
 export function WatchMovie() {
   let movieId = parseMovieParams();
   let movie = createAsync(async () => {
-    let movieQuery = await server.GET("/api/movie/{id}", {
-      params: { query: { provider: "local" }, path: { id: movieId } },
-    });
-    let videoQuery = await server.GET("/api/video/by_content", {
+    let moviePromise = fetchMovie(movieId, "local");
+    let videoQuery = server.GET("/api/video/by_content", {
       params: { query: { id: +movieId, content_type: "movie" } },
     });
-    let [movie, video] = await Promise.all([movieQuery, videoQuery]);
-
-    if (movie.error) {
-      if (movie.error.kind == "NotFound")
-        throw new NotFoundError("Movie is not found");
-      throw new ServerError(movie.error.message);
-    }
+    let [movie, video] = await Promise.all([moviePromise, videoQuery]);
 
     if (video.error) {
-      throw new ServerError("Video is not found, consider refreshing library");
+      throw new InternalServerError(
+        "Video is not found, consider refreshing library",
+      );
     }
     if ("mediaSession" in navigator) {
-      navigator.mediaSession.metadata = movieMediaSessionMetadata(movie.data);
+      navigator.mediaSession.metadata = movieMediaSessionMetadata(movie);
     }
-    return { video: video.data, movie: movie.data, stream };
+    return { video: video.data, movie, stream };
   });
   let stream = () => (movie() ? getUrl(movie()!.video.id) : undefined);
   return (
@@ -122,7 +118,9 @@ export function WatchMovie() {
           >
             <div class="absolute left-5 top-5">
               <A href={`/movies/${data().movie.metadata_id}`}>
-                <span class="text-2xl hover:underline">{data().movie.title}</span>
+                <span class="text-2xl hover:underline">
+                  {data().movie.title}
+                </span>
               </A>
             </div>
           </Watch>
@@ -173,43 +171,30 @@ async function showMediaSessionMetadata(
 export function WatchShow() {
   let params = parseShowParams();
   let episode = createAsync(async () => {
-    let episode = await server.GET("/api/show/{id}/{season}/{episode}", {
-      params: {
-        query: { provider: "local" },
-        path: {
-          id: params.showId,
-          season: params.season,
-          episode: params.episode,
-        },
-      },
-    });
-    if (episode.error) {
-      if (episode.error.kind == "NotFound")
-        throw new NotFoundError("Episode is not found");
-      throw new ServerError(episode.error.message);
-    }
+    let episode = await fetchEpisode(
+      params.showId,
+      params.season,
+      params.episode,
+      "local",
+    );
     let video = await server.GET("/api/video/by_content", {
       params: {
-        query: { id: +episode.data.metadata_id, content_type: "show" },
+        query: { id: +episode.metadata_id, content_type: "show" },
       },
     });
-    let show = await server.GET("/api/show/{id}", {
-      params: { path: { id: params.showId }, query: { provider: "local" } },
-    });
+    let show = await fetchShow(params.showId, "local");
     if (video.error) {
-      throw new ServerError("Video is not found, consider refreshing library");
-    }
-    if (show.error) {
-      throw new ServerError("Show is not found");
+      throw new InternalServerError(
+        "Video is not found, consider refreshing library",
+      );
     }
 
     if ("mediaSession" in navigator) {
-      navigator.mediaSession.metadata = await showMediaSessionMetadata(
-        params.showId,
-        episode.data,
+      showMediaSessionMetadata(params.showId, episode).then(
+        (data) => (navigator.mediaSession.metadata = data),
       );
     }
-    return { video: video.data, episode: episode.data, show: show.data };
+    return { video: video.data, episode, show };
   });
 
   let stream = () => (episode() ? getUrl(episode()!.video.id) : undefined);
@@ -224,10 +209,11 @@ export function WatchShow() {
         {(data) => (
           <>
             <Title
-              text={`S${formatSE(data().episode.season_number)}E${formatSE(data().episode.number)}`}
+              text={`${data().show.title} S${formatSE(data().episode.season_number)}E${formatSE(data().episode.number)}`}
             />
             <Meta property="og-image" content={data().episode.poster ?? ""} />
             <Watch
+              intro={data().video.intro ?? undefined}
               video={data().video}
               url={stream()!.url}
               streamingMethod={stream()!.method}
@@ -328,6 +314,7 @@ function Watch(props: WatchProps & ParentProps) {
 
   return (
     <VideoPlayer
+      intro={props.intro}
       streamingMethod={props.streamingMethod}
       initialTime={props.video.history?.time ?? 0}
       onAudioError={handleAudioError}

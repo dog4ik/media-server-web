@@ -15,7 +15,7 @@ import Subtitles from "./Subtitles";
 import { createAsync } from "@solidjs/router";
 import PlayerMenu from "./PlayerMenu";
 import { Subtitle } from "../../pages/Watch";
-import { fullUrl } from "../../utils/serverApi";
+import { fullUrl, Schemas } from "../../utils/serverApi";
 import Hls from "hls.js";
 import clsx from "clsx";
 
@@ -44,6 +44,7 @@ type Props = {
   subtitles: Subtitle[];
   previews?: { videoId: number; previewsAmount: number };
   streamingMethod: StreamingMethod;
+  intro?: Schemas["Intro"];
 };
 
 const DEFAULT_VOLUME = 0.5;
@@ -485,6 +486,22 @@ export default function VideoPlayer(props: Props & ParentProps) {
       <Show when={subs() !== undefined && showCaptions()}>
         <Subtitles time={Math.floor(time() * 1000)} raw_data={subs()!} />
       </Show>
+      <Show
+        when={
+          props.intro &&
+          time() < props.intro.end_sec &&
+          time() > props.intro.start_sec
+        }
+      >
+        <div class="absolute bottom-20 right-20">
+          <button
+            class="btn bg-black/80 text-xl text-white hover:bg-black"
+            onClick={() => (videoRef.currentTime = props.intro!.end_sec)}
+          >
+            Skip intro
+          </button>
+        </div>
+      </Show>
       <Show when={showMenu()}>
         {/* This "overlay" exists to prevent click on video that causes pause after closed menu */}
         <div class="absolute bottom-0 left-0 right-0 top-0 h-full min-h-full w-full min-w-full">
@@ -506,7 +523,7 @@ export default function VideoPlayer(props: Props & ParentProps) {
           shouldShowControls() ? "opacity-100" : "opacity-0"
         } transition-opacity duration-200`}
       >
-        <div class="bg-red-400 w-full h-full">{props.children}</div>
+        <div class="h-full w-full bg-red-400">{props.children}</div>
         <div
           onMouseMove={() => {
             clearTimeout(showControlsTimeout);

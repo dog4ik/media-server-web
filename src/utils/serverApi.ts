@@ -86,4 +86,3 @@ export function fullUrl<T extends GetPaths>(
   }
   return url.toString();
 }
-

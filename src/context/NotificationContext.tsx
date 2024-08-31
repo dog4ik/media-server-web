@@ -5,6 +5,7 @@ import {
   createSignal,
   useContext,
 } from "solid-js";
+import { Media, posterList } from "@/utils/library";
 import Notification, { NotificationProps } from "../components/Notification";
 
 type NotificationsContextType = ReturnType<typeof createNotificationsContext>;
@@ -23,6 +24,19 @@ export function useNotifications() {
 export function useRawNotifications() {
   let [_, { addNotification }] = useNotificationsContext();
   return (props: NotificationProps) => addNotification(props);
+}
+
+export function useMediaNotifications() {
+  let [_, { addNotification }] = useNotificationsContext();
+  return (media: Media, message: string) => {
+    let props = {
+      poster: posterList(media).at(0),
+      subTitle: media.friendlyTitle(),
+      message: message,
+      contentUrl: media.url(),
+    };
+    addNotification(props);
+  };
 }
 
 function createNotificationsContext() {

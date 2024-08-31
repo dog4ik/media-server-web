@@ -1,6 +1,7 @@
 import { Match, ParentProps, Show, Switch } from "solid-js";
 import { TaskType } from "../../context/ServerStatusContext";
 import { formatSize } from "../../utils/formats";
+import { Schemas } from "../../utils/serverApi";
 
 type Status = "done" | "pending" | "error";
 
@@ -10,12 +11,13 @@ type RowProps = {
   task_type: TaskType["task"]["task_kind"];
   status: Status;
   percent?: number;
-  speed?: number;
+  speed?: Schemas["ProgressSpeed"];
   created: string;
   onCancel?: () => void;
 };
 
 export function TableRow(props: RowProps) {
+  props.speed;
   return (
     <tr>
       <td class="w-full max-w-0 py-4 pl-4 pr-3 text-sm font-medium text-gray-700 sm:w-auto sm:max-w-none sm:pl-6">
@@ -42,14 +44,22 @@ export function TableRow(props: RowProps) {
       </td>
       <td>
         <Show when={props.speed}>
-          {(speed) => (
-            <span class="block text-sm font-normal text-gray-700">
-              <Switch>
-                <Match when={props.task_type == "video"}>{speed()}x</Match>
-                <Match when={props.task_type == "torrent"}>{formatSize(speed())} / s</Match>
-              </Switch>
-            </span>
-          )}
+          {(speed) => {
+            return (
+              <span class="block text-sm font-normal text-gray-700">
+                <Switch>
+                  <Match when={"relativespeed" in speed()}>
+                    {/* @ts-expect-error */}
+                    {speed()["relativespeed"]}x
+                  </Match>
+                  <Match when={"bytespersec" in speed()}>
+                    {/* @ts-expect-error */}
+                    {formatSize(speed()["bytespersec"])} / s
+                  </Match>
+                </Switch>
+              </span>
+            );
+          }}
         </Show>
       </td>
       <td>
@@ -68,8 +78,8 @@ export function TableRow(props: RowProps) {
             when={props.status === "pending" && props.percent !== undefined}
           >
             <div class="relative">
-              <span class="absolute -top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/3 text-black">
-                {props.percent}%
+              <span class="absolute -top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/3 font-mono text-black">
+                {props.percent?.toFixed(2)}%
               </span>
               <progress
                 class="progress progress-success w-56"

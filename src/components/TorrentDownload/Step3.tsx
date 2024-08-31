@@ -1,11 +1,11 @@
-import { createSignal, For } from "solid-js";
+import { For } from "solid-js";
 import { Schemas } from "../../utils/serverApi";
 import { formatSize } from "../../utils/formats";
 import FileInput from "../ui/FileInput";
 
 type Props = {
   content: Schemas["TorrentInfo"];
-  output: string;
+  output?: string;
   selectedFiles: number[];
   onOutputSelect: (path: string) => void;
 };
@@ -59,7 +59,7 @@ export default function Step3(props: Props) {
       </table>
       <div>
         <span>Output location: </span>
-        <FileInput value={props.output} onChange={props.onOutputSelect} />
+        <FileInput value={props.output ?? ""} onChange={props.onOutputSelect} />
       </div>
     </div>
   );

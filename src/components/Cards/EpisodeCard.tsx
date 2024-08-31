@@ -11,9 +11,12 @@ import { FiDownload } from "solid-icons/fi";
 import { formatDuration, formatTimeBeforeRelease } from "../../utils/formats";
 import ProgressBar from "./ProgressBar";
 import FallbackImage from "../FallbackImage";
+import { MenuRow } from "../ContextMenu/Menu";
+import { ExtendedEpisode, posterList } from "@/utils/library";
+import { useMediaNotifications } from "@/context/NotificationContext";
 
 type Props = {
-  episode: Schemas["EpisodeMetadata"];
+  episode: ExtendedEpisode;
   url: string;
   availableLocally?: boolean;
   history?: Schemas["DbHistory"];
@@ -24,13 +27,13 @@ type Props = {
 };
 
 function revalidateHistory() {
-    revalidatePath("/api/show/{id}/{season}");
-    revalidatePath("/api/history/suggest/shows");
-    revalidatePath("/api/history/suggest/movies");
-    revalidatePath("/api/history/{id}");
-    revalidatePath("/api/history");
-    revalidatePath("/api/video/{id}");
-    revalidatePath("/api/video/by_content");
+  revalidatePath("/api/show/{id}/{season}");
+  revalidatePath("/api/history/suggest/shows");
+  revalidatePath("/api/history/suggest/movies");
+  revalidatePath("/api/history/{id}");
+  revalidatePath("/api/history");
+  revalidatePath("/api/video/{id}");
+  revalidatePath("/api/video/by_content");
 }
 
 async function markWatched(historyId: number, force: boolean) {
@@ -47,7 +50,7 @@ async function markWatched(historyId: number, force: boolean) {
     }
   } catch (_) {
   } finally {
-    revalidateHistory()
+    revalidateHistory();
   }
 }
 
@@ -70,41 +73,9 @@ async function markWatchedVideo(videoId: number, force: boolean) {
 }
 
 export default function EpisodeCard(props: Props) {
-  let rows = () => {
-    let rows: Row[] = [];
-    if (props.history) {
-      let historyId = props.history.id;
-      if (props.history.is_finished) {
-        rows.push({
-          title: "Mark as unwatched",
-          onClick: () => markWatched(historyId, false),
-        });
-      } else {
-        rows.push({
-          title: "Mark as watched",
-          onClick: () => markWatched(historyId, true),
-        });
-        rows.push({
-          title: "Mark as unwatched",
-          onClick: () => markWatched(historyId, false),
-        });
-      }
-    } else if (props.video) {
-      let videoId = props.video.id;
-      rows.push({
-        title: "Mark as watched",
-        onClick: () => markWatchedVideo(videoId, true),
-      });
-    }
-    return rows;
-  };
+  let notificator = useMediaNotifications();
 
-  let imageUrl =
-    props.episode.metadata_provider == "local"
-      ? fullUrl("/api/episode/{id}/poster", {
-          path: { id: +props.episode.metadata_id },
-        })
-      : undefined;
+  let notify = (message: string) => notificator(props.episode, message);
 
   return (
     <div class="flex w-80 cursor-pointer flex-col">
@@ -114,7 +85,7 @@ export default function EpisodeCard(props: Props) {
           width={320}
           height={178}
           class="aspect-video rounded-xl"
-          srcList={[imageUrl, props.episode.poster ?? undefined]}
+          srcList={posterList(props.episode)}
         />
         <Show when={props.episode.release_date}>
           {(date) => (
@@ -152,7 +123,45 @@ export default function EpisodeCard(props: Props) {
           </span>
           <span class="pt-1 text-sm">Episode {props.episode.number}</span>
         </A>
-        <MoreButton rows={rows()} />
+        <Show when={props.video || props.episode.metadata_provider === "local"}>
+          <MoreButton>
+            <Show
+              when={props.history}
+              fallback={
+                <MenuRow
+                  onClick={() =>
+                    markWatchedVideo(props.video!.id, true).then(() =>
+                      notify("Marked as watched"),
+                    )
+                  }
+                >
+                  Mark as watched
+                </MenuRow>
+              }
+            >
+              <Show when={!props.history?.is_finished}>
+                <MenuRow
+                  onClick={() =>
+                    markWatched(props.history!.id, true).then(() =>
+                      notify("Marked as watched"),
+                    )
+                  }
+                >
+                  Mark as watched
+                </MenuRow>
+              </Show>
+              <MenuRow
+                onClick={() =>
+                  markWatched(props.history!.id, false).then(() =>
+                    notify("Marked as unwatched"),
+                  )
+                }
+              >
+                Mark as unwatched
+              </MenuRow>
+            </Show>
+          </MoreButton>
+        </Show>
       </div>
     </div>
   );

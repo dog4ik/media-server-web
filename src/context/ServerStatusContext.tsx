@@ -10,7 +10,7 @@ import { useRawNotifications } from "./NotificationContext";
 import { server, revalidatePath } from "../utils/serverApi";
 import { createAsync } from "@solidjs/router";
 import { createStore } from "solid-js/store";
-import { ServerError } from "../utils/errors";
+import { InternalServerError } from "../utils/errors";
 import { NotificationProps } from "../components/Notification";
 import { formatSE } from "../utils/formats";
 
@@ -69,7 +69,8 @@ export function displayTask(metadata: TaskMetadata): DisplayTaskMetadata {
     let metadataId = metadata.metadata.metadata_id;
     let metadataProvider = metadata.metadata.metadata_provider;
     if (metadata.content_type == "episode") {
-      return `/shows/${metadataId}/${metadata.metadata.season_number}${metadata.metadata.number}?provider=${metadataProvider}`;
+      let show_id = metadata.showMetadata.metadata_id;
+      return `/shows/${show_id}/${metadata.metadata.season_number}/${metadata.metadata.number}?provider=${metadataProvider}`;
     }
     if (metadata.content_type == "show") {
       return `/shows/${metadataId}?provider=${metadataProvider}`;
@@ -92,7 +93,7 @@ export type TaskType = Schemas["Task"] & { metadata?: TaskMetadata };
 
 function notificationProps(
   task: Schemas["Task"]["task"],
-  status: Schemas["ProgressStatus"],
+  status: Schemas["ProgressStatus"]["progress_type"],
   data: TaskMetadata,
 ): NotificationProps {
   let display = displayTask(data);
@@ -130,9 +131,11 @@ function notificationProps(
   };
 }
 
-type Progress = {
+export type Speed = Schemas["ProgressSpeed"];
+
+export type Progress = {
   percent: number;
-  speed: number;
+  speed: Speed;
 };
 
 function createServerStatusContext(
@@ -143,7 +146,7 @@ function createServerStatusContext(
       let tasks = await server.GET("/api/tasks");
       if (tasks.error) {
         notificator({ message: "Failed to fetch server tasks" });
-        throw new ServerError();
+        throw new InternalServerError();
       }
       let videoPromises = tasks.data.map((task) => {
         if (task.task.task_kind === "video") {
@@ -213,6 +216,14 @@ function createServerStatusContext(
     },
     { initialValue: [] },
   );
+
+  let capabilities = createAsync(async () => {
+    let capabilities = await server
+      .GET("/api/configuration/capabilities")
+      .then((data) => data.data);
+    return capabilities;
+  });
+
   let [tasksProgress, setTasksProgress] = createStore<Record<string, Progress>>(
     {},
   );
@@ -282,21 +293,25 @@ function createServerStatusContext(
     let status = data.status;
 
     // task is new
-    if (data.status == "start") {
+    if (data.status.progress_type == "start") {
       tasksToNotify.push(data.task_id);
       revalidatePath("/api/tasks");
-      setTasksProgress(data.task_id, {
-        percent: data.percent,
-        speed: data.speed,
-      });
       return;
     }
 
     // task ended
-    if (status == "cancel" || status == "finish" || status == "error") {
+    if (
+      status.progress_type == "cancel" ||
+      status.progress_type == "finish" ||
+      status.progress_type == "error"
+    ) {
       let task = tasks.find((t) => t.id == data.task_id);
       if (task && task.metadata) {
-        let props = notificationProps(task.task, status, task.metadata);
+        let props = notificationProps(
+          task.task,
+          status.progress_type,
+          task.metadata,
+        );
         notificator(props);
       }
       setTasks(tasks.filter((t) => t.id !== data.task_id));
@@ -304,10 +319,15 @@ function createServerStatusContext(
       return;
     }
 
-    setTasksProgress(data.task_id, {
-      percent: data.percent,
-      speed: data.speed,
-    });
+    if (status.progress_type == "pending") {
+      if ("relativespeed" in status.speed!) {
+        status.speed.relativespeed;
+      }
+      setTasksProgress(data.task_id, {
+        percent: status.percent ?? undefined,
+        speed: status.speed ?? undefined,
+      });
+    }
   }
 
   let sse = new EventSource(fullUrl("/api/tasks/progress", {}));
@@ -328,6 +348,7 @@ function createServerStatusContext(
       getTaskWithProgress,
       isConnecting,
       isErrored,
+      capabilities,
     },
     { cancelTask, addWakeSubscriber, removeWakeSubscriber },
   ] as const;

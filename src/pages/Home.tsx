@@ -4,6 +4,7 @@ import EpisodeCard from "../components/Cards/EpisodeCard";
 import MovieCard from "../components/Cards/MovieCard";
 import { createAsync } from "@solidjs/router";
 import Title from "../utils/Title";
+import { extendEpisode } from "@/utils/library";
 
 type ContinueWatchingProps = {
   showHistory: Schemas["ShowSuggestion"][];
@@ -17,12 +18,12 @@ function ContinueWatchingSection(props: ContinueWatchingProps) {
       <div class="flex items-center gap-4">
         <For each={props.showHistory}>
           {(show) => {
-            let url = `shows/${show.show_id}/${show.episode.season_number}/${show.episode.number}`;
+            let episode = extendEpisode(show.episode, show.show_id.toString());
             return (
               <EpisodeCard
-                episode={show.episode}
+                episode={episode}
                 history={show.history ?? undefined}
-                url={url}
+                url={episode.url()}
                 onDelete={() => null}
                 onOptimize={() => null}
                 onFixMetadata={() => null}

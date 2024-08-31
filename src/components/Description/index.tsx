@@ -1,7 +1,8 @@
 import { For, ParentProps, Show } from "solid-js";
-import {} from "../../utils/serverApi";
+import { Schemas } from "../../utils/serverApi";
 import FallbackImage from "../FallbackImage";
 import { A } from "@solidjs/router";
+import ProgressBar from "../Cards/ProgressBar";
 
 type AdditionalInfo = {
   info: string;
@@ -13,6 +14,7 @@ type Props = {
   localPoster: string | undefined;
   plot?: string | null;
   title: string;
+  progress?: { history: Schemas["DbHistory"]; runtime: number };
   additionalInfo?: AdditionalInfo[];
   imageDirection?: "horizontal" | "vertical";
 };
@@ -52,21 +54,29 @@ function Addition(props: { data: AdditionalInfo[] }) {
 }
 
 export default function Description(props: Props & ParentProps) {
-  let imageDirection = props.imageDirection ?? "vertical";
+  let imageDirection = () => props.imageDirection ?? "vertical";
   return (
     <div class="flex w-full flex-col gap-8 md:flex-row">
       <div
-        class={`${imageDirection == "horizontal" ? "w-80" : "w-52"} shrink-0`}
+        class={`${imageDirection() == "horizontal" ? "w-80" : "w-52"} relative h-fit shrink-0 overflow-hidden rounded-xl`}
       >
         <FallbackImage
           alt="Description image"
-          width={imageDirection == "horizontal" ? 350 : 208}
+          width={imageDirection() == "horizontal" ? 350 : 208}
           class="rounded-xl"
-          height={imageDirection == "horizontal" ? 208 : 312}
+          height={imageDirection() == "horizontal" ? 208 : 312}
           srcList={[props.localPoster, props.poster ?? undefined]}
         />
+        <Show when={props.progress}>
+          {(progress) => (
+            <ProgressBar
+              history={progress().history}
+              runtime={progress().runtime}
+            />
+          )}
+        </Show>
       </div>
-      <div>
+      <div class="space-y-4">
         <div class="text-3xl">
           <span>{props.title}</span>
         </div>
@@ -76,7 +86,7 @@ export default function Description(props: Props & ParentProps) {
         <Show when={props.plot && props.plot.length > 0}>
           <p
             title={props.plot ?? undefined}
-            class={`${imageDirection == "horizontal" ? "line-clamp-4" : "line-clamp-5"} max-w-5xl pt-8`}
+            class={`${imageDirection() == "horizontal" ? "line-clamp-4" : "line-clamp-5"} max-w-5xl`}
           >
             {props.plot}
           </p>

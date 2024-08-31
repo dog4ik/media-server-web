@@ -1,10 +1,9 @@
-import { Schemas } from "./serverApi";
-
 export type ErrorType =
   | "database"
   | "server"
   | "notfound"
   | "unavailable"
+  | "parseparams"
   | "unknownprovider";
 
 export class BaseError extends Error {
@@ -21,7 +20,7 @@ export class DatabaseError extends BaseError {
   }
 }
 
-export class ServerError extends BaseError {
+export class InternalServerError extends BaseError {
   constructor(message?: string) {
     super("server", message);
   }
@@ -45,20 +44,40 @@ export class UnknownProviderError extends BaseError {
   }
 }
 
-export function throwAppError(appError: Schemas["AppError"]): never {
-  let kind = appError.kind;
-  let msg = appError.message;
-  if (kind == "NotFound") {
+export class ParseParamsError extends BaseError {
+  constructor(message?: string) {
+    super("parseparams", message);
+  }
+}
+
+type FetchResponse<T> =
+  | {
+      data: undefined;
+      error: { message: string };
+      response: Response;
+    }
+  | {
+      data: T;
+      error: undefined;
+      response: Response;
+    };
+
+export function throwResponseErrors<T>(
+  response: FetchResponse<T>,
+): NonNullable<T> | never {
+  if (response.data !== undefined && response.error == undefined) {
+    return response.data!;
+  }
+  let kind = response.response.status;
+  let msg = response.error!.message;
+  if (kind == 404) {
     throw new NotFoundError(msg);
   }
-  if (kind == "Duplicate") {
-    throw new ServerError(msg);
+  if (kind == 400) {
+    throw new InternalServerError(msg);
   }
-  if (kind == "BadRequest") {
-    throw new ServerError(msg);
+  if (kind == 500) {
+    throw new InternalServerError(msg);
   }
-  if (kind == "InternalError") {
-    throw new ServerError(msg);
-  }
-  throw new ServerError("unknown error");
+  throw new InternalServerError("unknown error");
 }

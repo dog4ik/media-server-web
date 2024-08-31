@@ -1,4 +1,4 @@
-import { For, createUniqueId } from "solid-js";
+import { For, ParentProps, createUniqueId } from "solid-js";
 import { FiMoreVertical } from "solid-icons/fi";
 import { ExpandRow, MenuRow } from "./Menu";
 import { JSX } from "solid-js";
@@ -16,11 +16,7 @@ export type Row =
       title: string;
     };
 
-type Props = {
-  rows: Row[];
-};
-
-function RecirciveRow(props: { expanded: Row[]; title: string }) {
+export function RecursiveRow(props: { title: string } & ParentProps) {
   let submenuId = createUniqueId();
   return (
     <li>
@@ -35,23 +31,13 @@ position-try-options: inset-area(left span-bottom), inset-area(right span-top), 
 `}
         popover
       >
-        <For each={props.expanded}>
-          {(row) => {
-            if ("expanded" in row) {
-              return <RecirciveRow expanded={row.expanded} title={row.title} />;
-            } else if ("custom" in row) {
-              return row.custom;
-            } else {
-              return <MenuRow onClick={row.onClick}>{row.title}</MenuRow>;
-            }
-          }}
-        </For>
+        {props.children}
       </ul>
     </li>
   );
 }
 
-export default function MoreButton(props: Props) {
+export default function MoreButton(props: ParentProps) {
   let menuRef: HTMLUListElement;
   let menuId = createUniqueId();
   return (
@@ -78,17 +64,7 @@ position-try-options: inset-area(left span-bottom), inset-area(top span-right), 
 `}
         popover
       >
-        <For each={props.rows}>
-          {(row) => {
-            if ("expanded" in row) {
-              return <RecirciveRow title={row.title} expanded={row.expanded} />;
-            } else if ("custom" in row) {
-              return row.custom;
-            } else {
-              return <MenuRow onClick={row.onClick}>{row.title}</MenuRow>;
-            }
-          }}
-        </For>
+        {props.children}
       </ul>
     </div>
   );

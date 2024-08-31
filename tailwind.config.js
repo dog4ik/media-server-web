@@ -82,6 +82,5 @@ export default {
   plugins: [
     require("@tailwindcss/container-queries"),
     require("daisyui"),
-    require("tailwindcss-animate"),
   ],
 };

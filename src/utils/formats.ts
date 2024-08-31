@@ -67,3 +67,7 @@ export function formatSize(bytes: number) {
 export function formatSE(number: number) {
   return number.toString().padStart(2, "0");
 }
+
+export function formatResolution(resolution: Schemas["Resolution"]) {
+  return `${resolution.width}x${resolution.height}`;
+}

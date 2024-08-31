@@ -1,13 +1,7 @@
 import { A } from "@solidjs/router";
+import clsx from "clsx";
 import { FiX } from "solid-icons/fi";
-import {
-  createSignal,
-  Match,
-  onMount,
-  ParentProps,
-  Show,
-  Switch,
-} from "solid-js";
+import { createSignal, onMount, ParentProps, Show } from "solid-js";
 
 function useClose(cb: () => void, time: number) {
   let [shouldAnimateOut, setShouldAnimateOut] = createSignal(false);
@@ -20,13 +14,18 @@ function useClose(cb: () => void, time: number) {
   return [shouldAnimateOut, setClose] as const;
 }
 
-function HrefWrapper(props: ParentProps & { url?: string }) {
+function HrefWrapper(props: ParentProps & { url?: string; class?: string }) {
   return (
-    <Switch fallback={<div>{props.children}</div>}>
-      <Match when={props.url}>
-        {(url) => <A href={url()}>{props.children}</A>}
-      </Match>
-    </Switch>
+    <Show
+      fallback={<span class={props.class}>{props.children}</span>}
+      when={props.url}
+    >
+      {(url) => (
+        <A class={clsx(props.class, "hover:underline")} href={url()}>
+          {props.children}
+        </A>
+      )}
+    </Show>
   );
 }
 
@@ -67,7 +66,7 @@ export default function Notification(
     <div
       onMouseEnter={handleHover}
       onMouseLeave={handleResume}
-      class={`group relative w-full max-w-xl bg-stone-800 transition-all duration-200 ${
+      class={`group relative w-96 max-w-xl bg-stone-800 transition-all duration-200 ${
         shouldAnimateOut() ? "translate-x-full" : "animate-fade-in"
       } flex items-center overflow-hidden rounded-lg`}
     >
@@ -87,12 +86,14 @@ export default function Notification(
       <div class="flex flex-col gap-1 px-2 py-4">
         <p
           title={props.message}
-          class="break-all font-semibold text-white sm:text-xl"
+          class="truncate break-all font-semibold text-white sm:text-xl"
         >
           {props.message}
         </p>
         <Show when={props.subTitle}>
-          <p class="font-semibold text-white/70 sm:text-sm">{props.subTitle}</p>
+          <HrefWrapper class="font-semibold text-white/70" url={props.contentUrl}>
+            {props.subTitle}
+          </HrefWrapper>
         </Show>
         <div
           class="absolute right-1 top-1 cursor-pointer p-1 opacity-0 transition-opacity group-hover:opacity-100"

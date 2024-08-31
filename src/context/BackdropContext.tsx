@@ -13,7 +13,7 @@ export const BackdropContext = createContext<BackdropContextType>();
 
 export const useBackdropContext = () => useContext(BackdropContext)!;
 
-export function useBackdrop(url: (string | undefined)[]) {
+export function setBackdrop(url: (string | undefined)[]) {
   let [{ currentBackdrop }, { changeBackdrop }] = useBackdropContext();
   changeBackdrop(url);
   return currentBackdrop();

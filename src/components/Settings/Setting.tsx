@@ -3,16 +3,22 @@ import Selection, { Option } from "../ui/Selection";
 import SectionSubTitle from "./SectionSubTitle";
 import { SETTINGS, Settings } from "../../utils/settingsDescriptors";
 import { Schemas } from "../../utils/serverApi";
-import { FiPlusCircle, FiX } from "solid-icons/fi";
+import { FiAlertTriangle, FiPlusCircle, FiX } from "solid-icons/fi";
 import { FilePicker } from "../FilePicker";
 import Modal from "../modals/Modal";
 import FileInput from "../ui/FileInput";
+import {
+  SettingsValuesObject,
+  useSettingsContext,
+} from "@/context/SettingsContext";
+import clsx from "clsx";
 
 type Props = {
-  data: NonNullable<Settings[keyof Settings]>;
+  data: Settings[keyof Settings];
+  remote: Schemas["UtoipaConfigSchema"][number];
 };
 
-type InputPropType = number | string | boolean | string[];
+export type InputPropType = number | string | boolean | string[];
 
 type InputProps<T extends InputPropType> = {
   onInput: (val: T) => void;
@@ -23,7 +29,7 @@ type InputProps<T extends InputPropType> = {
 };
 
 export function InferedInput<T extends InputPropType>(props: InputProps<T>) {
-  if (typeof props.value == "string") {
+  if (typeof props.value === "string") {
     return (
       <input
         type="text"
@@ -135,35 +141,47 @@ export function Toggle(props: ToggleProps) {
   );
 }
 
+type SecretInputProps = {
+  value: string;
+  onChange: (val: string) => void;
+};
+
+export function SecretInput(props: SecretInputProps) {
+  return (
+    <input
+      class="input input-bordered w-full max-w-xs text-black"
+      type="text"
+      value={props.value}
+      onChange={(e) => props.onChange(e.currentTarget.value)}
+    />
+  );
+}
+
 type FileInputsProps = {
   values: string[];
   onChange: (val: string[]) => void;
 };
 
 function FileInputs(props: FileInputsProps) {
-  let [files, setFiles] = createSignal(props.values);
+  let files = props.values;
   let [modalOpen, setModalOpen] = createSignal(false);
   let modal: HTMLDialogElement;
   function onChange(idx: number, data: string) {
-    let fields = [...files()];
-    fields[idx] = data;
-    setFiles(fields);
-    props.onChange(files());
+    files[idx] = data;
+    props.onChange(files);
   }
   function onRemove(idx: number) {
-    setFiles(files().filter((_, i) => i !== idx));
-    props.onChange(files());
+    files = files.filter((_, i) => i !== idx);
+    props.onChange(files);
   }
   function onAdd(val: string) {
-    let last = files().at(-1);
+    let last = files.at(-1);
     if (last !== "") {
-      let fields = [...files()];
-      fields.push(val);
-      setFiles(fields);
+      files.push(val);
     }
     modal.close();
     setModalOpen(false);
-    props.onChange(files());
+    props.onChange(files);
   }
   return (
     <>
@@ -173,7 +191,7 @@ function FileInputs(props: FileInputsProps) {
         </Modal>
       </Show>
       <div>
-        <For each={files()}>
+        <For each={props.values}>
           {(file, idx) => (
             <div class="flex items-center gap-2">
               <FileInput
@@ -201,58 +219,102 @@ function FileInputs(props: FileInputsProps) {
 }
 
 export function Setting(props: Props & ParentProps) {
+  let isBool = () =>
+    typeof (props.remote.default_value ?? props.remote.config_value) ===
+    "boolean";
   return (
-    <div class="flex flex-col gap-2">
+    <div class="flex max-w-xl flex-col gap-2 rounded-xl bg-black p-2">
       <SectionSubTitle name={props.data.long_name} />
-      {props.children}
-      <p>{props.data.description}</p>
+      <div
+        class={clsx(
+          "flex",
+          isBool() ? "items-center justify-between" : "flex-col justify-center",
+        )}
+      >
+        <p>{props.data.description}</p>
+        {props.children}
+      </div>
+      <Switch>
+        <Match when={props.remote.cli_value !== null}>
+          <div class="alert alert-warning">
+            <FiAlertTriangle size={20} />
+            <span>Setting is being overwritten by CLI argument</span>
+          </div>
+        </Match>
+        <Match when={props.remote.env_value !== null}>
+          <div class="alert alert-warning overflow-hidden">
+            <FiAlertTriangle size={20} />
+            <span>Setting is being overwritten by environment variable</span>
+          </div>
+        </Match>
+      </Switch>
     </div>
   );
 }
 
 type SmartSettingProps<T extends keyof typeof SETTINGS> = {
   setting: T;
-  remoteSettings: Schemas["FileConfigSchema"];
-  set: (key: T, value: Schemas["FileConfigSchema"][T]) => void;
-  updatedSettings: Partial<Schemas["FileConfigSchema"]>;
 };
 
 export function SmartSetting<T extends keyof typeof SETTINGS>(
   props: SmartSettingProps<T>,
 ) {
   let setting = SETTINGS[props.setting];
+  let { remoteSettings, changedSettings, change } = useSettingsContext();
+  if (
+    setting.typeHint === undefined &&
+    remoteSettings()[props.setting].default_value === null
+  ) {
+    throw Error("No type hint with nullable setting");
+  }
+
+  function handleUpdate(value: InputPropType) {
+    let defaultValue = remoteSettings()[props.setting];
+    change(props.setting, value as SettingsValuesObject[T]);
+    return defaultValue;
+  }
+
   return (
-    <Setting data={setting}>
+    <Setting data={setting} remote={remoteSettings()[props.setting]}>
       <Switch
         fallback={
           <InferedInput
-            onInput={(v) => props.set(props.setting, v)}
+            onInput={handleUpdate}
             value={
-              props.updatedSettings[props.setting] ??
-              props.remoteSettings[props.setting]!
+              changedSettings[props.setting] ??
+              remoteSettings()[props.setting].config_value ??
+              remoteSettings()[props.setting].default_value!
             }
           />
         }
       >
         <Match when={setting.typeHint == "path"}>
           <FileInput
-            onChange={(v) =>
-              props.set(props.setting, v as Schemas["FileConfigSchema"][T])
-            }
+            onChange={handleUpdate}
             value={
-              (props.updatedSettings[props.setting] ??
-                props.remoteSettings[props.setting]!) as string
+              (changedSettings[props.setting] ??
+                remoteSettings()[props.setting].config_value ??
+                remoteSettings()[props.setting].default_value) as string
             }
           />
         </Match>
         <Match when={setting.typeHint == "pathArr"}>
           <FileInputs
-            onChange={(v) =>
-              props.set(props.setting, v as Schemas["FileConfigSchema"][T])
-            }
+            onChange={handleUpdate}
             values={
-              (props.updatedSettings[props.setting] ??
-                props.remoteSettings[props.setting]!) as string[]
+              (changedSettings[props.setting] ??
+                remoteSettings()[props.setting].config_value ??
+                remoteSettings()[props.setting].default_value!) as string[]
+            }
+          />
+        </Match>
+        <Match when={setting.typeHint == "secret"}>
+          <SecretInput
+            onChange={handleUpdate}
+            value={
+              (changedSettings[props.setting] ??
+                remoteSettings()[props.setting].config_value ??
+                remoteSettings()[props.setting].default_value!) as string
             }
           />
         </Match>

@@ -30,8 +30,25 @@ export type paths = {
         };
         /** Server configuartion */
         get: operations["server_configuration"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
         /** Update server configuartion */
-        put: operations["update_server_configuration"];
+        patch: operations["update_server_configuration"];
+        trace?: never;
+    };
+    "/api/configuration/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Server capabalities */
+        get: operations["server_capabilities"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -68,23 +85,6 @@ export type paths = {
         put?: never;
         /** Reset server configuration to its defauts */
         post: operations["reset_server_configuration"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/configuration/schema": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Current server configuartion schema */
-        get: operations["server_configuration_schema"];
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -676,6 +676,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/show/{show_id}/{season}/detect_intros": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Detect intros for given season */
+        post: operations["detect_intros"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tasks": {
         parameters: {
             query?: never;
@@ -722,6 +739,23 @@ export type paths = {
         post?: never;
         /** Cancel task with provided id */
         delete: operations["cancel_task"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get list of all torrents */
+        get: operations["all_torrents"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -795,23 +829,6 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/torrents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get list of all torrents */
-        get: operations["all_torrents"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/transcode/{id}/manifest": {
         parameters: {
             query?: never;
@@ -853,7 +870,7 @@ export type paths = {
             path?: never;
             cookie?: never;
         };
-        /** Get all variants in the library */
+        /** Get all videos that have transcoded variants */
         get: operations["get_all_variants"];
         put?: never;
         post?: never;
@@ -1058,7 +1075,6 @@ export type webhooks = Record<string, never>;
 export type components = {
     schemas: {
         AppError: {
-            kind: components["schemas"]["AppErrorKind"];
             message: string;
         };
         /** @enum {string} */
@@ -1068,8 +1084,6 @@ export type components = {
             binary_path?: string | null;
             cache_path: string;
             database_path: string;
-            ffmpeg_path?: string | null;
-            ffprobe_path?: string | null;
             log_path: string;
             resources_path: string;
             temp_path: string;
@@ -1094,7 +1108,9 @@ export type components = {
             videos?: components["schemas"]["BrowseFile"] | null;
         };
         Capabilities: {
+            chromaprint_enabled: boolean;
             codecs: components["schemas"]["Codec"][];
+            ffmpeg_version: string;
         };
         Codec: {
             codec_type: components["schemas"]["CodecType"];
@@ -1105,6 +1121,14 @@ export type components = {
         };
         /** @enum {string} */
         CodecType: "audio" | "video" | "subtitle" | "data" | "attachment";
+        ConfigurationApplyError: {
+            key: string;
+            message: string;
+        };
+        ConfigurationApplyResult: {
+            errors: components["schemas"]["ConfigurationApplyError"][];
+            require_restart: boolean;
+        };
         /** @enum {string} */
         ContentType: "movie" | "show";
         CursoredHistory: {
@@ -1166,6 +1190,7 @@ export type components = {
             history?: components["schemas"]["DbHistory"] | null;
             /** Format: int64 */
             id: number;
+            intro?: components["schemas"]["Intro"] | null;
             path: string;
             previews_count: number;
             scan_date: string;
@@ -1206,20 +1231,12 @@ export type components = {
             id: string;
             provider: components["schemas"]["MetadataProvider"];
         };
-        /** @description Serializable config schema */
-        FileConfigSchema: {
-            ffmpeg_path: string;
-            ffprobe_path: string;
-            h264_preset: components["schemas"]["H264Preset"];
-            hw_accel: boolean;
-            movie_folders: string[];
-            /** Format: int32 */
-            port: number;
-            scan_max_concurrency: number;
-            show_folders: string[];
+        Intro: {
+            /** Format: int64 */
+            end_sec: number;
+            /** Format: int64 */
+            start_sec: number;
         };
-        /** @enum {string} */
-        H264Preset: "ultrafast" | "superfast" | "veryfast" | "faster" | "fast" | "medium" | "slow" | "slower" | "veryslow" | "placebo";
         JsonTracingEvent: {
             fields: {
                 [key: string]: unknown;
@@ -1256,15 +1273,38 @@ export type components = {
             title: string;
         };
         ProgressChunk: {
-            percent: number;
-            /** Format: float */
-            speed: number;
             status: components["schemas"]["ProgressStatus"];
             /** Format: uuid */
             task_id: string;
         };
-        /** @enum {string} */
-        ProgressStatus: "start" | "finish" | "pending" | "cancel" | "error" | "pause";
+        ProgressSpeed: {
+            bytespersec: number;
+        } | {
+            /** Format: float */
+            relativespeed: number;
+        };
+        ProgressStatus: {
+            /** @enum {string} */
+            progress_type: "start";
+        } | {
+            /** @enum {string} */
+            progress_type: "finish";
+        } | {
+            /** Format: float */
+            percent?: number | null;
+            /** @enum {string} */
+            progress_type: "pending";
+            speed?: components["schemas"]["ProgressSpeed"] | null;
+        } | {
+            /** @enum {string} */
+            progress_type: "cancel";
+        } | {
+            /** @enum {string} */
+            progress_type: "error";
+        } | {
+            /** @enum {string} */
+            progress_type: "pause";
+        };
         ProviderOrder: {
             order: string[];
             provider_type: components["schemas"]["ProviderType"];
@@ -1276,6 +1316,7 @@ export type components = {
             width: number;
         };
         ResolvedTorrentFile: {
+            enabled: boolean;
             /** Format: int64 */
             offset: number;
             path: string[];
@@ -1296,20 +1337,6 @@ export type components = {
             nanos: number;
             /** Format: int64 */
             secs: number;
-        };
-        ServerConfiguration: {
-            capabilities: components["schemas"]["Capabilities"];
-            ffmpeg_path?: string | null;
-            ffprobe_path?: string | null;
-            h264_preset: components["schemas"]["H264Preset"];
-            hw_accel: boolean;
-            movie_folders: string[];
-            /** Format: int32 */
-            port: number;
-            resources: components["schemas"]["AppResources"];
-            scan_max_concurrency: number;
-            show_folders: string[];
-            tmdb_token?: string | null;
         };
         ShowHistory: {
             episode: components["schemas"]["EpisodeMetadata"];
@@ -1382,7 +1409,6 @@ export type components = {
             files: components["schemas"]["ResolvedTorrentFile"][];
         };
         TorrentDownload: {
-            enabled_files: number[];
             /** Format: binary */
             info_hash: string;
             torrent_info: components["schemas"]["TorrentInfo"];
@@ -1412,7 +1438,7 @@ export type components = {
         };
         TorrentShow: {
             seasons: {
-                [key: string]: components["schemas"]["TorrentEpisode"][] | undefined;
+                [key: string]: components["schemas"]["TorrentEpisode"][];
             };
             show_metadata: components["schemas"]["ShowMetadata"];
         };
@@ -1427,16 +1453,99 @@ export type components = {
             /** Format: int64 */
             time: number;
         };
-        VariantSummary: {
-            /** Format: int64 */
-            content_id: number;
-            content_type: components["schemas"]["ContentType"];
-            poster?: string | null;
-            title: string;
-            variants: components["schemas"]["DetailedVariant"][];
-            /** Format: int64 */
-            video_id: number;
-        };
+        UtoipaConfigSchema: ({
+            /** Format: int32 */
+            cli_value: number | null;
+            /** Format: int32 */
+            config_value: number | null;
+            /** Format: int32 */
+            default_value: number;
+            /** Format: int32 */
+            env_value: number | null;
+            /** @enum {string} */
+            key: "port";
+            require_restart: boolean;
+        } | {
+            cli_value: string[] | null;
+            config_value: string[] | null;
+            default_value: string[];
+            env_value: string[] | null;
+            /** @enum {string} */
+            key: "show_folders";
+            require_restart: boolean;
+        } | {
+            cli_value: string[] | null;
+            config_value: string[] | null;
+            default_value: string[];
+            env_value: string[] | null;
+            /** @enum {string} */
+            key: "movie_folders";
+            require_restart: boolean;
+        } | {
+            cli_value: string | null;
+            config_value: string | null;
+            default_value: string | null;
+            env_value: string | null;
+            /** @enum {string} */
+            key: "tmdb_key";
+            require_restart: boolean;
+        } | {
+            cli_value: string | null;
+            config_value: string | null;
+            default_value: string | null;
+            env_value: string | null;
+            /** @enum {string} */
+            key: "tvdb_key";
+            require_restart: boolean;
+        } | {
+            cli_value: string | null;
+            config_value: string | null;
+            default_value: string;
+            env_value: string | null;
+            /** @enum {string} */
+            key: "ffmpeg_path";
+            require_restart: boolean;
+        } | {
+            cli_value: string | null;
+            config_value: string | null;
+            default_value: string;
+            env_value: string | null;
+            /** @enum {string} */
+            key: "ffprobe_path";
+            require_restart: boolean;
+        } | {
+            cli_value: boolean | null;
+            config_value: boolean | null;
+            default_value: boolean;
+            env_value: boolean | null;
+            /** @enum {string} */
+            key: "hw_accel";
+            require_restart: boolean;
+        } | {
+            /** @description Minimal intro duration from seconds */
+            cli_value: number | null;
+            /** @description Minimal intro duration from seconds */
+            config_value: number | null;
+            /** @description Minimal intro duration from seconds */
+            default_value: number;
+            /** @description Minimal intro duration from seconds */
+            env_value: number | null;
+            /** @enum {string} */
+            key: "intro_min_duration";
+            require_restart: boolean;
+        } | {
+            /** @description Path to FFmpeg build that supports chromparint */
+            cli_value: string | null;
+            /** @description Path to FFmpeg build that supports chromparint */
+            config_value: string | null;
+            /** @description Path to FFmpeg build that supports chromparint */
+            default_value: string;
+            /** @description Path to FFmpeg build that supports chromparint */
+            env_value: string | null;
+            /** @enum {string} */
+            key: "intro_detection_ffmpeg_build";
+            require_restart: boolean;
+        })[];
         VideoCodec: "hevc" | "h264" | {
             other: string;
         };
@@ -1505,7 +1614,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ServerConfiguration"];
+                    "application/json": components["schemas"]["UtoipaConfigSchema"];
                 };
             };
         };
@@ -1517,19 +1626,38 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
+        /** @description Key/value configuration pairs */
         requestBody: {
             content: {
-                "application/json": components["schemas"]["FileConfigSchema"];
+                "application/json": unknown;
             };
         };
         responses: {
-            /** @description Updated server configuration */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ServerConfiguration"];
+                    "application/json": components["schemas"]["ConfigurationApplyResult"];
+                };
+            };
+        };
+    };
+    server_capabilities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Capabilities"];
                 };
             };
         };
@@ -1587,33 +1715,11 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Updated server configuration */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["ServerConfiguration"];
-                };
-            };
-        };
-    };
-    server_configuration_schema: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FileConfigSchema"];
-                };
+                content?: never;
             };
         };
     };
@@ -2670,6 +2776,35 @@ export interface operations {
             };
         };
     };
+    detect_intros: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                show_id: number;
+                /** @description Season number */
+                season: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Show or season are not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     get_tasks: {
         parameters: {
             query?: never;
@@ -2742,6 +2877,25 @@ export interface operations {
             };
         };
     };
+    all_torrents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TorrentInfo"][];
+                };
+            };
+        };
+    };
     download_torrent: {
         parameters: {
             query?: never;
@@ -2756,6 +2910,12 @@ export interface operations {
         };
         responses: {
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -2847,25 +3007,6 @@ export interface operations {
             };
         };
     };
-    all_torrents: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TorrentDownload"][];
-                };
-            };
-        };
-    };
     transcode_stream_manifest: {
         parameters: {
             query?: never;
@@ -2947,13 +3088,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description All variants */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["VariantSummary"][];
+                    "application/json": components["schemas"]["DetailedVideo"][];
                 };
             };
         };

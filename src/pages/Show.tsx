@@ -1,47 +1,33 @@
 import { createEffect, createSignal, For, Show, Suspense } from "solid-js";
 import { createAsync, useLocation } from "@solidjs/router";
-import Description from "../components/Description";
-import SeasonsCarousel from "../components/ShowView/SeasonsCarousel";
-import EpisodeCard from "../components/Cards/EpisodeCard";
-import ElementsGrid from "../components/ElementsGrid";
+import Description from "@/components/Description";
+import SeasonsCarousel from "@/components/ShowView/SeasonsCarousel";
+import EpisodeCard from "@/components/Cards/EpisodeCard";
+import ElementsGrid from "@/components/ElementsGrid";
 import { fullUrl, Schemas, server } from "../utils/serverApi";
-import { useProvider } from "../utils/metadataProviders";
-import { useBackdrop } from "../context/BackdropContext";
-import DownloadTorrentModal from "../components/modals/TorrentDownload";
-import { Meta } from "@solidjs/meta";
-import Title from "../utils/Title";
+import { useProvider } from "@/utils/metadataProviders";
+import { setBackdrop } from "@/context/BackdropContext";
+import DownloadTorrentModal from "@/components/modals/TorrentDownload";
+import { fetchSeason, fetchShow } from "@/utils/library";
+import Title from "@/utils/Title";
+import Icon from "@/components/ui/Icon";
+import { FiDownload, FiSkipForward } from "solid-icons/fi";
+import { useServerStatus } from "@/context/ServerStatusContext";
 
 export default function ShowPage() {
   let [id, provider] = useProvider();
   let downloadModal: HTMLDialogElement;
 
+  let [{ capabilities }] = useServerStatus();
+
   let show = createAsync(async () => {
-    let show = await server
-      .GET("/api/show/{id}", {
-        params: {
-          path: { id: id() },
-          query: { provider: provider() },
-        },
-      })
-      .then((r) => r.data);
-    if (!show?.seasons?.includes(selectedSeason())) {
+    let show = await fetchShow(id(), provider());
+    if (!show) return undefined;
+
+    if (!show.seasons?.includes(selectedSeason())) {
       setSelectedSeason(show?.seasons?.at(0) || selectedSeason());
     }
-    let localId: number | undefined = undefined;
-    if (show && show?.metadata_provider !== "local") {
-      let localShowId = await server.GET("/api/external_to_local/{id}", {
-        params: {
-          path: { id: show.metadata_id },
-          query: { provider: show.metadata_provider },
-        },
-      });
-      if (localShowId.data?.show_id) {
-        localId = localShowId.data.show_id;
-      }
-    } else if (show) {
-      localId = +show.metadata_id;
-    }
-    if (!show) return undefined;
+    let localId = await show?.localId();
 
     return { ...show, localId };
   });
@@ -55,7 +41,7 @@ export default function ShowPage() {
               path: { id: +showData.metadata_id },
             })
           : undefined;
-      useBackdrop([localImage, showData.backdrop ?? undefined]);
+      setBackdrop([localImage, showData.backdrop ?? undefined]);
     }
   });
 
@@ -63,104 +49,93 @@ export default function ShowPage() {
   let [selectedSeason, setSelectedSeason] = createSignal<number>(seasonQuery);
 
   let season = createAsync(async () => {
-    let season = await server.GET("/api/show/{id}/{season}", {
-      params: {
-        query: { provider: provider() },
-        path: { id: id(), season: selectedSeason() },
-      },
-    });
-    return season;
+    return await fetchSeason(id(), selectedSeason(), provider());
   });
 
   let localSeason = createAsync(async () => {
     let localId = show()?.localId?.toString();
     if (!localId) return undefined;
-    let local_season = await server
-      .GET("/api/show/{id}/{season}", {
-        params: {
-          path: {
-            id: localId,
-            season: selectedSeason(),
-          },
-          query: {
-            provider: "local",
-          },
-        },
-      })
-      .then((d) => d.data);
-    if (local_season) {
-      let settled = await Promise.allSettled(
-        local_season.episodes.map((e) =>
-          server
-            .GET("/api/video/by_content", {
-              params: { query: { id: +e.metadata_id, content_type: "show" } },
-            })
-            .then((r) => r.data),
-        ),
-      );
-      let videos: (Schemas["DetailedVideo"] | undefined)[] = [];
-      for (let result of settled) {
-        if (result.status === "fulfilled" && result.value) {
-          videos.push(result.value);
-        } else {
-          console.warn("Could not get video for local episode");
-          videos.push(undefined);
-        }
-      }
-      return {
-        ...local_season,
-        episodes: local_season.episodes.map((ep, i) => {
-          return { ...ep, video: videos[i] };
-        }),
-      };
-    }
-    return undefined;
+    let local_season = await fetchSeason(localId, selectedSeason(), "local");
+    if (!local_season) return undefined;
+
+    let settled = await Promise.allSettled(
+      local_season.extended_episodes.map((e) => e.fetchVideo()),
+    );
+
+    let videos = settled.reduce(
+      (acc, n) => {
+        n.status === "fulfilled" ? acc.push(n.value) : acc.push(undefined);
+        return acc;
+      },
+      [] as (Schemas["DetailedVideo"] | undefined)[],
+    );
+
+    return {
+      ...local_season,
+      episodes: local_season.episodes.map((ep, i) => {
+        return { ...ep, video: videos[i] };
+      }),
+    };
   });
 
-  let torrentQuery = () => {
-    if (!show()) return undefined;
-    return `${show()!.title}`;
-  };
+  async function detectIntros() {
+    if (show()?.metadata_provider === "local") {
+      await server.POST("/api/show/{show_id}/{season}/detect_intros", {
+        params: { path: { season: selectedSeason(), show_id: +id() } },
+      });
+    }
+  }
 
   return (
     <>
       <Title text={show()?.title} />
       <Show when={show()}>
-        {(data) => <Meta property="og-image" content={data().poster ?? ""} />}
-      </Show>
-      <Show when={torrentQuery() && show()}>
-        <DownloadTorrentModal
-          onClose={() => downloadModal!.close()}
-          metadata_id={show()!.metadata_id}
-          metadata_provider={provider()}
-          query={torrentQuery()!}
-          content_type="show"
-          ref={downloadModal!}
-        />
-      </Show>
-      <Show when={show()}>
-        {(show) => {
-          let descriptionImage = () =>
-            show()?.metadata_provider == "local"
-              ? fullUrl("/api/show/{id}/poster", {
-                  path: { id: +show().metadata_id },
-                })
-              : undefined;
-
-          return (
+        {(show) => (
+          <>
+            <DownloadTorrentModal
+              onClose={() => downloadModal.close()}
+              metadata_id={show().metadata_id}
+              metadata_provider={provider()}
+              query={show().friendlyTitle()}
+              content_type="show"
+              ref={downloadModal!}
+            />
             <Description
               title={show().title}
-              localPoster={descriptionImage()}
+              localPoster={show().localPoster()}
               plot={show().plot}
               poster={show().poster}
               imageDirection="vertical"
+              additionalInfo={
+                show().release_date
+                  ? [{ info: show().release_date! }]
+                  : undefined
+              }
             >
-              <button class="btn" onClick={() => downloadModal.showModal()}>
-                Download
-              </button>
+              <div class="flex items-center gap-2">
+                <Icon
+                  tooltip="Download"
+                  onClick={() => downloadModal?.showModal()}
+                >
+                  <FiDownload size={30} />
+                </Icon>
+                <Show when={show().metadata_provider == "local"}>
+                  <Icon
+                    tooltip={
+                      capabilities()?.chromaprint_enabled
+                        ? `Detect intros for season ${selectedSeason()}`
+                        : "Intro detection is not supported by local ffmpeg build"
+                    }
+                    disabled={!capabilities()?.chromaprint_enabled}
+                    onClick={() => detectIntros()}
+                  >
+                    <FiSkipForward size={30} />
+                  </Icon>
+                </Show>
+              </div>
             </Description>
-          );
-        }}
+          </>
+        )}
       </Show>
       <Suspense>
         <Show when={show() && selectedSeason()}>
@@ -171,10 +146,10 @@ export default function ShowPage() {
         </Show>
       </Suspense>
       <Suspense>
-        <Show when={season()?.data}>
+        <Show when={season()}>
           {(seasonData) => (
             <ElementsGrid elementSize={320}>
-              <For each={seasonData().episodes}>
+              <For each={seasonData().extended_episodes}>
                 {(ep) => {
                   let local_ep = () =>
                     localSeason()?.episodes?.find(
@@ -184,7 +159,7 @@ export default function ShowPage() {
                     );
                   return (
                     <EpisodeCard
-                      url={`${selectedSeason()}/${ep.number}?provider=${ep.metadata_provider}`}
+                      url={ep.url()}
                       onFixMetadata={() => null}
                       onOptimize={() => null}
                       onDelete={() => null}

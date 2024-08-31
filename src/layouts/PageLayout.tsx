@@ -1,16 +1,8 @@
-import {
-  ErrorBoundary,
-  ParentProps,
-  Show,
-  createEffect,
-  createSignal,
-  onMount,
-} from "solid-js";
+import { ParentProps, Show, createEffect, createSignal } from "solid-js";
 import { useBackdropContext } from "../context/BackdropContext";
-import ServerNotAvailable from "../pages/ServerNotAvailable";
 import SideBar from "../components/SideBar";
-import { useLocation } from "@solidjs/router";
 import NavBar from "../components/NavBar";
+import GlobalErrorBoundary from "@/pages/GlobalErrorBoundary";
 
 function createHexPair() {
   let randomNumber = () => Math.floor(Math.random() * 256);
@@ -42,8 +34,6 @@ export default function PageLayout(props: ParentProps) {
   let backdropElement: HTMLImageElement;
   let gradientElement: HTMLDivElement;
   let [isLoaded, setIsLoaded] = createSignal(false);
-
-  let location = useLocation();
 
   let animation = {
     opacity: [0, 1],
@@ -89,7 +79,7 @@ export default function PageLayout(props: ParentProps) {
         </div>
       </div>
       <main class="relative flex min-h-screen w-full flex-col overflow-y-scroll rounded-md pt-16 text-white">
-        {props.children}
+        <GlobalErrorBoundary>{props.children}</GlobalErrorBoundary>
       </main>
     </>
   );

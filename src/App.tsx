@@ -12,9 +12,7 @@ import Settings from "./pages/Settings";
 import Logs from "./pages/Logs";
 import Layout from "./Layout";
 import { server } from "./utils/serverApi";
-import Library from "./pages/Settings/Library";
 import General from "./pages/Settings/General";
-import Metadata from "./pages/Settings/Metadata";
 import History from "./pages/Settings/History";
 import SettingsLayout from "./layouts/SettingsLayout";
 import PageLayout from "./layouts/PageLayout";
@@ -54,9 +52,7 @@ function App() {
         <Route path="/search" component={SearchPage} />
         <Route path="/test" component={TestPage} />
         <Route path="/settings/*" component={SettingsLayout}>
-          <Route path="/library" component={Library} />
           <Route path="/general" component={General} />
-          <Route path="/metadata" component={Metadata} />
           <Route path="/history" component={History} />
         </Route>
         <Route path="/logs" component={Logs} />

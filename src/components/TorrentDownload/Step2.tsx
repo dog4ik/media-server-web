@@ -1,11 +1,12 @@
-import { For, ParentProps, Show, createMemo, createSignal } from "solid-js";
+import { For, ParentProps, Show, createMemo } from "solid-js";
 import { Schemas } from "../../utils/serverApi";
 import ElementsGrid from "../ElementsGrid";
 import { formatSize } from "../../utils/formats";
+import { createStore } from "solid-js/store";
 
 type Props = {
   content: Schemas["TorrentInfo"];
-  onFileSelect: (files: number[]) => void;
+  onFileSelect: (files: boolean[]) => void;
 };
 
 type FileProps = {
@@ -93,30 +94,21 @@ function File(props: FileProps) {
 }
 
 export default function Step2(props: Props) {
-  let [selectedFiles, setSelectedFiles] = createSignal<number[]>([]);
+  let [selectedFiles, setSelectedFiles] = createStore<boolean[]>([]);
   function handleSelect(idx: number, force: boolean) {
-    if (force) {
-      setSelectedFiles([...selectedFiles(), idx]);
-    } else {
-      setSelectedFiles(selectedFiles().filter((i) => i != idx));
-    }
-    props.onFileSelect(selectedFiles());
+    setSelectedFiles(idx, force);
+    props.onFileSelect(selectedFiles);
   }
 
   function handleManySelect(idxes: number[], force: boolean) {
-    if (force) {
-      for (let idx of idxes) {
-        if (!selectedFiles().includes(idx)) {
-          setSelectedFiles([...selectedFiles(), idx]);
-        }
-      }
-    } else {
-      for (let idx of idxes) {
-        setSelectedFiles(selectedFiles().filter((i) => i != idx));
-      }
+    let values = [...selectedFiles];
+    for (let idx of idxes) {
+      values[idx] = force;
     }
-    props.onFileSelect(selectedFiles());
+    setSelectedFiles(values);
+    props.onFileSelect(selectedFiles);
   }
+
   let file = (idx: number) => props.content.contents.files[idx];
 
   let otherFiles = createMemo(() => {
@@ -167,9 +159,7 @@ export default function Step2(props: Props) {
           <For each={Object.entries(show().seasons)}>
             {([seasonNumber, season]) => (
               <SelectionSector
-                isSelected={season!.every((ep) =>
-                  selectedFiles().includes(ep.file_idx),
-                )}
+                isSelected={season!.every((ep) => selectedFiles[ep.file_idx])}
                 title={`Season: ${seasonNumber}`}
                 onSelect={(force) =>
                   handleManySelect(
@@ -185,7 +175,7 @@ export default function Step2(props: Props) {
                       subtitle={`Episode ${episode.metadata.number.toString().padStart(2, "0")}`}
                       path={file(episode.file_idx).path.at(-1)!}
                       poster={episode.metadata.poster ?? undefined}
-                      isSelected={selectedFiles().includes(episode.file_idx)}
+                      isSelected={selectedFiles[episode.file_idx]}
                       size={file(episode.file_idx).size}
                       onSelect={(force) =>
                         handleSelect(episode.file_idx, force)
@@ -208,14 +198,12 @@ export default function Step2(props: Props) {
                 force,
               )
             }
-            isSelected={otherFiles().every((v) =>
-              selectedFiles().includes(v.idx),
-            )}
+            isSelected={movie().every((v) => selectedFiles[v.file_idx])}
           >
             <For each={movie()}>
               {(movie) => (
                 <File
-                  isSelected={selectedFiles().includes(movie.file_idx)}
+                  isSelected={selectedFiles[movie.file_idx]}
                   title={file(movie.file_idx).path.at(-1)!}
                   onSelect={(force) => handleSelect(movie.file_idx, force)}
                   path={file(movie.file_idx).path.at(-1)!}
@@ -235,14 +223,12 @@ export default function Step2(props: Props) {
               force,
             )
           }
-          isSelected={otherFiles().every((v) =>
-            selectedFiles().includes(v.idx),
-          )}
+          isSelected={otherFiles().every((v) => selectedFiles[v.idx])}
         >
           <For each={otherFiles()}>
             {(file) => (
               <File
-                isSelected={selectedFiles().includes(file.idx)}
+                isSelected={selectedFiles[file.idx]}
                 title={file.path.at(-1)!}
                 onSelect={(force) => handleSelect(file.idx, force)}
                 path={file.path.at(-1)!}

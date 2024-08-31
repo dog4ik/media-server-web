@@ -1,16 +1,17 @@
 import { A, createAsync } from "@solidjs/router";
-import {
-  fullUrl,
-  revalidatePath,
-  Schemas,
-  server,
-} from "../../utils/serverApi";
+import { revalidatePath, Schemas, server } from "../../utils/serverApi";
 import { For, Match, Show, Switch } from "solid-js";
 import Showspense from "../../utils/Showspense";
 import ProgressBar from "../../components/Cards/ProgressBar";
 import { FiX } from "solid-icons/fi";
 import FallbackImage from "../../components/FallbackImage";
 import useInfiniteScroll from "../../utils/useInifiniteScroll";
+import {
+  extendMovie,
+  extendEpisode,
+  extendShow,
+  posterList,
+} from "@/utils/library";
 
 type DisplayEpisodeProps = {
   metadata: Schemas["VideoContentMetadata"] & { content_type: "episode" };
@@ -19,27 +20,16 @@ type DisplayEpisodeProps = {
 };
 
 function DisplayEpisode(props: DisplayEpisodeProps) {
-  let show = () => props.metadata.show;
-  let episode = () => props.metadata.episode;
-  let showUrl = () => {
-    return `/shows/${show().metadata_id}`;
-  };
-  let episodeUrl = () => {
-    return `${showUrl()}/${episode().season_number}/${episode().number}?provider=${show().metadata_provider}`;
-  };
+  let show = () => extendShow(props.metadata.show);
+  let episode = () =>
+    extendEpisode(props.metadata.episode, props.metadata.show.metadata_id);
   let seasonUrl = () => {
-    return `${showUrl()}?season=${episode().season_number}&provider=${show().metadata_provider}`;
+    return `/shows/${show().metadata_id}?season=${episode().season_number}&provider=${show().metadata_provider}`;
   };
-  let localImg = () =>
-    episode().metadata_provider == "local"
-      ? fullUrl("/api/episode/{id}/poster", {
-          path: { id: +episode().metadata_id },
-        })
-      : undefined;
   return (
     <div class="relative grid grid-cols-4 gap-2">
       <A
-        href={episodeUrl()}
+        href={episode().url()}
         class="relative aspect-video h-fit overflow-hidden rounded-xl"
       >
         <FallbackImage
@@ -47,18 +37,18 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
           height={192}
           alt="Episode poster"
           class="h-full w-full"
-          srcList={[localImg(), episode().poster ?? undefined]}
+          srcList={posterList(episode())}
         />
         <Show when={episode().runtime}>
           {(r) => <ProgressBar runtime={r().secs} history={props.history} />}
         </Show>
       </A>
       <div class="col-span-3 flex flex-col">
-        <A href={episodeUrl()}>
+        <A href={episode().url()}>
           <span class="text-2xl">{episode().title}</span>
         </A>
         <div class="flex items-center gap-2 text-sm">
-          <A href={showUrl()}>
+          <A href={show().url()}>
             <span class="hover:underline">{show().title}</span>
           </A>
           <span>-</span>
@@ -68,7 +58,7 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
             </span>
           </A>
           <span>-</span>
-          <A href={episodeUrl()}>
+          <A href={episode().url()}>
             <span class="hover:underline">Episode {episode().number}</span>
           </A>
         </div>
@@ -93,32 +83,43 @@ type DisplayMovieProps = {
 };
 
 function DisplayMovie(props: DisplayMovieProps) {
-  let movie = () => props.metadata.movie;
-  let movieUrl = () =>
-    `/movies/${movie().metadata_id}?provider=${movie().metadata_provider}`;
-  let localImg = () =>
-    movie().metadata_provider == "local"
-      ? fullUrl("/api/movie/{id}/poster", {
-          path: { id: +movie().metadata_id },
-        })
-      : undefined;
+  let movie = () => extendMovie(props.metadata.movie);
   return (
-    <div class="flex">
-      <A href={movieUrl()} class="relative aspect-poster">
+    <div class="relative grid grid-cols-4 gap-2">
+      <A
+        href={movie().url()}
+        class="relative aspect-poster h-fit overflow-hidden rounded-xl"
+      >
         <FallbackImage
-          width={60}
-          height={90}
+          width={100}
+          height={192}
           alt="Movie poster"
           class="h-full w-full"
-          srcList={[localImg(), movie().poster ?? undefined]}
+          srcList={posterList(movie())}
         />
         <Show when={movie().runtime}>
           {(r) => <ProgressBar runtime={r().secs} history={props.history} />}
         </Show>
       </A>
-      <div class="flex flex-col">
-        <span class="text-2xl">{props.metadata.movie.title}</span>
+      <div class="col-span-3 flex flex-col">
+        <A href={movie().url()}>
+          <span class="text-2xl">{movie().friendlyTitle()}</span>
+        </A>
+        <div class="flex items-center gap-2 text-sm">
+          <A href={movie().url()}>
+            <span class="hover:underline">{movie().friendlyTitle()}</span>
+          </A>
+        </div>
+        <p title={movie().plot ?? undefined} class="line-clamp-2">
+          {movie().plot}
+        </p>
       </div>
+      <button
+        class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-stone-100 hover:bg-stone-300/80"
+        onClick={props.onRemove}
+      >
+        <FiX size={20} />
+      </button>
     </div>
   );
 }

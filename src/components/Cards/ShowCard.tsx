@@ -1,4 +1,4 @@
-import MoreButton, { Row } from "../ContextMenu/MoreButton";
+import MoreButton from "../ContextMenu/MoreButton";
 import { Show } from "solid-js";
 import {
   Schemas,
@@ -11,6 +11,7 @@ import FallbackImage from "../FallbackImage";
 import useToggle from "../../utils/useToggle";
 import FixMetadata from "../FixMetadata";
 import { useNotifications } from "../../context/NotificationContext";
+import { MenuRow } from "../ContextMenu/Menu";
 
 function provider(provider: string): string {
   if (provider === "local") {
@@ -44,14 +45,6 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
       .finally(() => {
         revalidatePath("/api/local_shows");
       });
-  }
-
-  let rows: Row[] = [];
-  if (props.show.metadata_provider === "local") {
-    rows.push(
-      { title: "Fix metadata", onClick: handleFix },
-      { title: "Reset metadata", onClick: handleMetadataReset },
-    );
   }
 
   let imageUrl =
@@ -100,7 +93,12 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
               </div>
             </Show>
           </A>
-          <MoreButton rows={rows} />
+            <Show when={props.show.metadata_provider === "local"}>
+          <MoreButton>
+            <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
+            <MenuRow onClick={handleMetadataReset}>Reset Metadata</MenuRow>
+          </MoreButton>
+            </Show>
         </div>
       </div>
     </>
