@@ -90,7 +90,7 @@ export default function Search() {
   });
 
   return (
-    <div class="full relative flex h-full w-2/3 flex-col items-center gap-2">
+    <div class="relative flex h-full w-2/3 flex-col items-center gap-2">
       <form
         class="relative w-full"
         style={`
@@ -112,15 +112,17 @@ anchor-name: --search;
             value={input()}
           />
         </label>
-        <button
-          onClick={() => {
-            inputRef.focus();
-            setInput("");
-          }}
-          class="absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-stone-50 text-black transition-colors hover:bg-stone-300"
-        >
-          <FiX />
-        </button>
+        <Show when={input().length > 0}>
+          <button
+            onClick={() => {
+              inputRef.focus();
+              setInput("");
+            }}
+            class="absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-stone-50 text-black transition-colors hover:bg-stone-300"
+          >
+            <FiX />
+          </button>
+        </Show>
       </form>
       <div
         ref={windowRef!}
