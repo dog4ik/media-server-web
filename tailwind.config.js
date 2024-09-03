@@ -79,8 +79,8 @@ export default {
       },
     },
   },
-  plugins: [
-    require("@tailwindcss/container-queries"),
-    require("daisyui"),
-  ],
+  plugins: [require("@tailwindcss/container-queries"), require("daisyui")],
+  daisyui: {
+    themes: ["light"],
+  },
 };
