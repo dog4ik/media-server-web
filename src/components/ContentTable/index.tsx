@@ -88,7 +88,7 @@ export default function Table() {
   });
 
   return (
-    <div class="fixed bottom-0 right-4 top-0 z-10 flex h-screen w-80 items-start justify-center text-white">
+    <div class="fixed bottom-0 right-4 top-0 hidden 2xl:flex h-screen w-80 items-start justify-center text-white">
       <ol class="relative flex list-none flex-col pl-6 pr-6 pt-20">
         <For each={content()}>
           {(chapter) => (
