@@ -12,7 +12,7 @@ import { createAsync } from "@solidjs/router";
 import { createStore } from "solid-js/store";
 import { InternalServerError } from "../utils/errors";
 import { NotificationProps } from "../components/Notification";
-import { formatSE } from "../utils/formats";
+import { extendEpisode, extendMovie, extendShow, Media } from "@/utils/library";
 
 type ServerStatusType = ReturnType<typeof createServerStatusContext>;
 
@@ -35,58 +35,20 @@ export type TaskMetadata =
       metadata: Schemas["EpisodeMetadata"];
     };
 
-export type DisplayTaskMetadata = {
-  title: string;
-  poster?: string;
-  url: string;
-};
-
-export function displayTask(metadata: TaskMetadata): DisplayTaskMetadata {
-  let isLocal = metadata.metadata.metadata_provider === "local";
-  let poster = () => {
-    if (metadata.content_type == "episode") {
-      if (isLocal) {
-        return fullUrl("/api/show/{id}/poster", {
-          path: { id: +metadata.showMetadata.metadata_id },
-        });
-      }
-      return metadata.showMetadata.poster;
-    } else if (isLocal) {
-      let id = +metadata.metadata.metadata_id;
-      if (metadata.content_type == "show") {
-        return fullUrl("/api/show/{id}/poster", {
-          path: { id },
-        });
-      }
-      if (metadata.content_type == "movie") {
-        return fullUrl("/api/movie/{id}/poster", { path: { id } });
-      }
-    } else {
-      return metadata.metadata.poster;
-    }
-  };
-  let url = () => {
-    let metadataId = metadata.metadata.metadata_id;
-    let metadataProvider = metadata.metadata.metadata_provider;
-    if (metadata.content_type == "episode") {
-      let show_id = metadata.showMetadata.metadata_id;
-      return `/shows/${show_id}/${metadata.metadata.season_number}/${metadata.metadata.number}?provider=${metadataProvider}`;
-    }
-    if (metadata.content_type == "show") {
-      return `/shows/${metadataId}?provider=${metadataProvider}`;
-    }
-    if (metadata.content_type == "movie") {
-      return `/movies/${metadataId}?provider=${metadataProvider}`;
-    }
-    return "";
-  };
-  let title = () => {
-    if (metadata.content_type == "episode") {
-      return `${metadata.showMetadata.title} S${formatSE(metadata.metadata.season_number)}E${formatSE(metadata.metadata.number)}`;
-    }
-    return metadata.metadata.title;
-  };
-  return { title: title(), url: url(), poster: poster() ?? undefined };
+export function displayTask(metadata: TaskMetadata): Media {
+  if (metadata.content_type == "show") {
+    return extendShow(metadata.metadata);
+  }
+  if (metadata.content_type == "episode") {
+    let episode = extendEpisode(metadata.metadata, metadata.showMetadata.metadata_id);
+    let show = extendShow(metadata.showMetadata);
+    episode.poster = show.poster;
+    return episode;
+  }
+  if (metadata.content_type == "movie") {
+    return extendMovie(metadata.metadata);
+  }
+  throw Error("Unhandled content type");
 }
 
 export type TaskType = Schemas["Task"] & { metadata?: TaskMetadata };
@@ -125,9 +87,9 @@ function notificationProps(
   };
   return {
     message: message(),
-    subTitle: display.title,
+    subTitle: display.friendlyTitle(),
     poster: display.poster,
-    contentUrl: display.url,
+    contentUrl: display.url(),
   };
 }
 
