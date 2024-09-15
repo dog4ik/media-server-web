@@ -78,14 +78,7 @@ export function TranscodeModal(props: Props & ModalProps) {
     }
   };
 
-  function handleSubmit(
-    e: Event & {
-      submitter: HTMLElement;
-    } & {
-      currentTarget: HTMLFormElement;
-      target: Element;
-    },
-  ) {
+  function handleSubmit() {
     let filteredPayload: Schemas["TranscodePayload"] = {};
     if (
       defaultVideo().resolution.width !== transcodePayload.resolution.width ||
