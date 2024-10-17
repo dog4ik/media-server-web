@@ -45,8 +45,8 @@ anchor-name: --${popoverId};
         class={`${popoverId} w-60 translate-y-1 divide-y overflow-hidden rounded-md`}
         style={`
 position-anchor: --${popoverId};
-inset-area: bottom span-all;
-position-try-options: inset-area(top span-all);
+position-area: bottom span-all;
+position-try-fallbacks: filp-block;
 `}
         ref={menu!}
         onClick={() => menu.togglePopover(false)}

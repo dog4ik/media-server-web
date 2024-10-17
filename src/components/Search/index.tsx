@@ -130,7 +130,7 @@ anchor-name: --search;
         popover="manual"
         style={`
 position-anchor: --search;
-inset-area: bottom;
+position-area: bottom;
 `}
       >
         <Show when={searchResult()?.data} fallback={<SearchLoading />}>
