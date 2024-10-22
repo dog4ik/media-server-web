@@ -28,14 +28,14 @@ export type paths = {
             path?: never;
             cookie?: never;
         };
-        /** Server configuartion */
+        /** Server configuration */
         get: operations["server_configuration"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Update server configuartion */
+        /** Update server configuration */
         patch: operations["update_server_configuration"];
         trace?: never;
     };
@@ -83,7 +83,7 @@ export type paths = {
         };
         get?: never;
         put?: never;
-        /** Reset server configuration to its defauts */
+        /** Reset server configuration to its defaults */
         post: operations["reset_server_configuration"];
         delete?: never;
         options?: never;
@@ -3070,7 +3070,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Worker is not avialable */
+            /** @description Worker is not available */
             500: {
                 headers: {
                     [name: string]: unknown;

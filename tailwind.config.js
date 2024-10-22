@@ -13,7 +13,7 @@ export default {
         "push-in-fade-out": "push-in-fade-out 0.5s ease-in-out",
         blob: "blob 7s infinite",
         "slide-from-top": "slide-from-top 0.2s ease-in-out",
-        "slide-from-botttom": "slide-from-botttom 0.2s ease-in-out",
+        "slide-from-bottom": "slide-from-bottom 0.2s ease-in-out",
         "slide-from-left": "slide-from-left 0.2s ease-in-out",
         "slide-from-right": "slide-from-right 0.2s ease-in-out",
       },
@@ -41,7 +41,7 @@ export default {
             transform: "translate(-10px, 10px) scale(1)",
           },
           "100%": {
-            transform: "tranlate(0px, 0px) scale(1.2)",
+            transform: "translate(0px, 0px) scale(1.2)",
           },
         },
         "slide-from-top": {
@@ -52,7 +52,7 @@ export default {
             transform: "translateY(0%)",
           },
         },
-        "slide-from-botttom": {
+        "slide-from-bottom": {
           "0%": {
             transform: "translateY(100%)",
           },

@@ -28,7 +28,7 @@ type ErrorProps = {
 function ServerUnavailable(props: ErrorProps) {
   return (
     <div class="flex max-w-md flex-col items-center gap-5 rounded-md bg-black p-6">
-      <span class="text-xl">Server is not avialable</span>
+      <span class="text-xl">Server is not available</span>
       <p class="text-center">
         Make sure it's on and reachable by url:{" "}
         <a class="hover:underline" href={MEDIA_SERVER_URL}>

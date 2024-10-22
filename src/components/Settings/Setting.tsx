@@ -28,7 +28,7 @@ type InputProps<T extends InputPropType> = {
   disabled?: boolean;
 };
 
-export function InferedInput<T extends InputPropType>(props: InputProps<T>) {
+export function InferredInput<T extends InputPropType>(props: InputProps<T>) {
   if (typeof props.value === "string") {
     return (
       <input
@@ -87,7 +87,7 @@ export function InferedInput<T extends InputPropType>(props: InputProps<T>) {
         <For each={[...Array(fieldsAmount())]}>
           {(_, idx) => (
             <div class="flex items-center justify-between">
-              <InferedInput
+              <InferredInput
                 value={fields[idx()]}
                 onInput={(input) => onChange(idx(), input)}
                 placeholder={props.placeholder}
@@ -278,7 +278,7 @@ export function SmartSetting<T extends keyof typeof SETTINGS>(
     <Setting data={setting} remote={remoteSettings()[props.setting]}>
       <Switch
         fallback={
-          <InferedInput
+          <InferredInput
             onInput={handleUpdate}
             value={
               changedSettings[props.setting] ??

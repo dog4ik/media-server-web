@@ -76,7 +76,7 @@ export default function TestPage() {
         Test
       </button>
       <button class="btn" onClick={handleConfirm}>
-        Propmt Confirm
+        Prompt Confirm
       </button>
     </div>
   );

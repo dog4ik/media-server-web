@@ -5,7 +5,7 @@ import Showspense from "../../utils/Showspense";
 import ProgressBar from "../../components/Cards/ProgressBar";
 import { FiX } from "solid-icons/fi";
 import FallbackImage from "../../components/FallbackImage";
-import useInfiniteScroll from "../../utils/useInifiniteScroll";
+import useInfiniteScroll from "../../utils/useInfiniteScroll";
 import {
   extendMovie,
   extendEpisode,

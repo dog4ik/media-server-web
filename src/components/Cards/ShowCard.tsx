@@ -39,7 +39,7 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
         if (res.error) {
           notificator("Failed to reset metadata");
         } else {
-          notificator("Successfuly reseted metadata");
+          notificator("Successfully reset metadata");
         }
       })
       .finally(() => {

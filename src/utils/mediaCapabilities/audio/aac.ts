@@ -31,7 +31,7 @@ const AAC_AUDIO_CODECS = {
   LAYER2: "mp4a.40.33",
   LAYER3: "mp4a.40.34",
   DST: "mp4a.40.35",
-  ALS: "mp4a.40.36",
+  ALSO: "mp4a.40.36",
 } as const;
 
 export function getAACAudio(profile: string | keyof typeof AAC_AUDIO_CODECS) {

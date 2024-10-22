@@ -16,7 +16,7 @@ function StepLoading(props: StepLoadingProps) {
       <span class="text-2xl">
         <Switch>
           <Match when={props.currentStep == 0}>
-            Searching avaialable torrents
+            Searching available torrents
           </Match>
           <Match when={props.currentStep == 1}>
             Resolving selected torrent

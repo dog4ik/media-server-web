@@ -49,14 +49,14 @@ type Props = {
 export default function FixMetadata(props: Props) {
   let notificator = useNotifications();
   let dialog: HTMLDialogElement;
-  let [search, defferredSearch, setSearch] = useDebounce(
+  let [search, deferredSearch, setSearch] = useDebounce(
     500,
     props.initialSearch ?? "",
   );
 
   let searchResult = createAsync(async () => {
     return server.GET("/api/search/content", {
-      params: { query: { search: defferredSearch() } },
+      params: { query: { search: deferredSearch() } },
     });
   });
 

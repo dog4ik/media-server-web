@@ -22,13 +22,13 @@ export default function VariantMenuRow(props: Props) {
   let defaultAudio = () =>
     props.variant.audio_tracks.find((t) => t.is_default) ??
     props.variant.audio_tracks[0];
-  let compatibility = createAsync(async () => {
+  let checkCompatibility = createAsync(async () => {
     return await isCompatible(defaultVideo(), defaultAudio());
   });
   let bgColor = () => {
-    let compatability = compatibility();
-    if (compatability) {
-      return compatability.combined.supported ? "bg-green-400" : "bg-red-500";
+    let compatibility = checkCompatibility();
+    if (compatibility) {
+      return compatibility.combined.supported ? "bg-green-400" : "bg-red-500";
     }
     return "";
   };

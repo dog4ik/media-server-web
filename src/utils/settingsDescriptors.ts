@@ -16,7 +16,7 @@ export type Settings = { [K in Config[number]["key"]]: Variable<K> };
 export const SETTINGS: Settings = {
   intro_min_duration: {
     description:
-      "Mimimal intro duration in seconds. With very low values things like netflix logo will be considered as intro",
+      "Minimal intro duration in seconds. With very low values things like netflix logo will be considered as intro",
     name: "intro_min_duration",
     long_name: "Minimal intro duration",
   },

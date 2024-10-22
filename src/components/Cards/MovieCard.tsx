@@ -62,7 +62,7 @@ export default function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
         if (res.error) {
           notificator("Failed to reset metadata");
         } else {
-          notificator("Successfuly reseted metadata");
+          notificator("Successfully reset metadata");
         }
       })
       .finally(() => {

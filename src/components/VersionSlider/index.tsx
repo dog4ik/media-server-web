@@ -79,7 +79,7 @@ export default function VersionSlider(props: Props) {
     Schemas["Resolution"]
   >(defaultVideo().resolution);
 
-  async function checkCompatability() {
+  async function checkCompatibility() {
     return await canPlayAfterTranscode(
       selectedResolution(),
       defaultVideo().framerate,
@@ -95,7 +95,7 @@ export default function VersionSlider(props: Props) {
         : "?variant=" + props.variants[selectedVariantIdx()!].id
     }`;
 
-  checkCompatability().then((res) => setCanPlay(res));
+  checkCompatibility().then((res) => setCanPlay(res));
 
   return <div class="flex h-fit w-full flex-col gap-4 overflow-x-hidden"></div>;
 }

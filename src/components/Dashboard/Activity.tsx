@@ -30,7 +30,7 @@ export default function Activity() {
                     task.cancelable ? () => cancelTask(task.id) : undefined
                   }
                   poster={display?.poster}
-                  name={display?.title ?? task.id}
+                  name={display?.friendlyTitle() ?? task.id}
                   status="pending"
                   created="now"
                   percent={tasksProgress[task.id]?.percent}

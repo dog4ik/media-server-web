@@ -25,7 +25,7 @@ export default function VideoActions(props: Props) {
   let navigator = useNavigate();
   let transcodeModal: HTMLDialogElement;
 
-  let videoCompatability = createAsync(async () => {
+  let videoCompatibility = createAsync(async () => {
     let defaultVideo = defaultTrack(props.video.video_tracks);
     let defaultAudio = defaultTrack(props.video.audio_tracks);
     return await isCompatible(defaultVideo, defaultAudio);
@@ -70,7 +70,7 @@ export default function VideoActions(props: Props) {
     <>
       <TranscodeModal ref={transcodeModal!} video={props.video} />
       <Show when={props.watchUrl}>
-        {(url) => <PlayButton href={url()} canPlay={videoCompatability()} />}
+        {(url) => <PlayButton href={url()} canPlay={videoCompatibility()} />}
       </Show>
       <Show when={props.video!.previews_count === 0}>
         <Icon tooltip="Generate previews" onClick={generatePreviews}>

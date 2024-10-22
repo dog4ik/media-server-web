@@ -46,7 +46,7 @@ anchor-name: --${popoverId};
         style={`
 position-anchor: --${popoverId};
 position-area: bottom span-all;
-position-try-fallbacks: filp-block;
+position-try-fallbacks: flip-block;
 `}
         ref={menu!}
         onClick={() => menu.togglePopover(false)}
