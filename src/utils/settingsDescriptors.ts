@@ -69,4 +69,11 @@ export const SETTINGS: Settings = {
     long_name: "TVDB key",
     typeHint: "secret",
   },
+  web_ui_path: {
+    description:
+      "Path to Web Ui files, useful when Web UI located in different directory",
+    name: "web_ui_path",
+    long_name: "Web UI path",
+    typeHint: "path",
+  },
 } as const;

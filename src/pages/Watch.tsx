@@ -3,10 +3,10 @@ import {
   BeforeLeaveEventArgs,
   createAsync,
   useBeforeLeave,
-  useLocation,
   useParams,
+  useSearchParams,
 } from "@solidjs/router";
-import { NotFoundError, InternalServerError } from "../utils/errors";
+import { InternalServerError } from "../utils/errors";
 import VideoPlayer, { StreamingMethod } from "../components/VideoPlayer";
 import { Schemas, fullUrl, server } from "../utils/serverApi";
 import { onCleanup, ParentProps, Show } from "solid-js";
@@ -28,13 +28,12 @@ function streamUrl(streamId: string) {
 }
 
 function getUrl(videoId: number): { url: string; method: StreamingMethod } {
-  let location = useLocation<{ variant: string }>();
-  let query = location.query;
-  let streamId: string | undefined = query.stream_id;
+  let [params] = useSearchParams<{ stream_id: string; variant: string }>();
+  let streamId: string | undefined = params.stream_id;
   if (streamId) {
     return { url: streamUrl(streamId), method: "hls" };
   }
-  let variant: string | undefined = query.variant;
+  let variant: string | undefined = params.variant;
   let url = fullUrl("/api/video/{id}/watch", {
     query: variant ? { variant } : undefined,
     path: { id: videoId },
@@ -96,7 +95,7 @@ export function WatchMovie() {
     });
     let [movie, video] = await Promise.all([moviePromise, videoQuery]);
 
-    if (video.error) {
+    if (video.error !== undefined || !video.data) {
       throw new InternalServerError(
         "Video is not found, consider refreshing library",
       );
@@ -106,7 +105,7 @@ export function WatchMovie() {
     }
     return { video: video.data, movie, stream };
   });
-  let stream = () => (movie() ? getUrl(movie()!.video.id) : undefined);
+  let stream = () => (movie() ? getUrl(movie()!.video!.id) : undefined);
   return (
     <>
       <Show when={movie()}>
@@ -114,7 +113,7 @@ export function WatchMovie() {
           <Watch
             url={stream()!.url}
             streamingMethod={stream()!.method}
-            video={data().video}
+            video={data().video!}
           >
             <div class="absolute left-5 top-5">
               <A href={`/movies/${data().movie.metadata_id}`}>
@@ -183,7 +182,7 @@ export function WatchShow() {
       },
     });
     let show = await fetchShow(params.showId, "local");
-    if (video.error) {
+    if (video.error || !video.data) {
       throw new InternalServerError(
         "Video is not found, consider refreshing library",
       );

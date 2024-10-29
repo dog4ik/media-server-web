@@ -69,6 +69,7 @@ function GeneralSettings() {
         <SmartSetting setting="hw_accel" />
         <SmartSetting setting="ffmpeg_path" />
         <SmartSetting setting="ffprobe_path" />
+        <SmartSetting setting="web_ui_path" />
 
         <SectionTitle name="Secrets" />
         <SmartSetting setting="tmdb_key" />

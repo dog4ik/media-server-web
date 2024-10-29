@@ -298,6 +298,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/local_episode/{episode_id}/watch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Watch episode video */
+        get: operations["watch_episode"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/local_episode/{id}": {
         parameters: {
             query?: never;
@@ -324,6 +341,23 @@ export type paths = {
         };
         /** Get local movie metadata by video's id */
         get: operations["local_movie_by_video_id"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/local_movie/{movie_id}/watch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Watch movie video */
+        get: operations["watch_movie"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1534,16 +1568,28 @@ export type components = {
             key: "intro_min_duration";
             require_restart: boolean;
         } | {
-            /** @description Path to FFmpeg build that supports chromparint */
+            /** @description Path to FFmpeg build that supports chromparint audio fingerprinting */
             cli_value: string | null;
-            /** @description Path to FFmpeg build that supports chromparint */
+            /** @description Path to FFmpeg build that supports chromparint audio fingerprinting */
             config_value: string | null;
-            /** @description Path to FFmpeg build that supports chromparint */
+            /** @description Path to FFmpeg build that supports chromparint audio fingerprinting */
             default_value: string;
-            /** @description Path to FFmpeg build that supports chromparint */
+            /** @description Path to FFmpeg build that supports chromparint audio fingerprinting */
             env_value: string | null;
             /** @enum {string} */
             key: "intro_detection_ffmpeg_build";
+            require_restart: boolean;
+        } | {
+            /** @description Path to Web UI dist directory */
+            cli_value: string | null;
+            /** @description Path to Web UI dist directory */
+            config_value: string | null;
+            /** @description Path to Web UI dist directory */
+            default_value: string;
+            /** @description Path to Web UI dist directory */
+            env_value: string | null;
+            /** @enum {string} */
+            key: "web_ui_path";
             require_restart: boolean;
         })[];
         VideoCodec: "hevc" | "h264" | {
@@ -1735,14 +1781,11 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Poster bytes */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/octet-stream": string;
-                };
+                content?: never;
             };
             304: {
                 headers: {
@@ -2080,6 +2123,38 @@ export interface operations {
             };
         };
     };
+    watch_episode: {
+        parameters: {
+            query?: {
+                variant?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description episode id */
+                episode_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Video progressive download stream */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
     local_episode: {
         parameters: {
             query?: never;
@@ -2121,6 +2196,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MovieMetadata"];
+                };
+            };
+        };
+    };
+    watch_movie: {
+        parameters: {
+            query?: {
+                variant?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description movie id */
+                movie_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Movie video progressive download stream */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
                 };
             };
         };
@@ -2272,14 +2379,11 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Backdrop bytes */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/octet-stream": string;
-                };
+                content?: never;
             };
             304: {
                 headers: {
@@ -2309,14 +2413,11 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Poster bytes */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/octet-stream": string;
-                };
+                content?: never;
             };
             304: {
                 headers: {
@@ -2450,14 +2551,11 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Poster bytes */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/octet-stream": string;
-                };
+                content?: never;
             };
             304: {
                 headers: {
@@ -2544,14 +2642,11 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Response with image */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/octet-stream": string;
-                };
+                content?: never;
             };
             304: {
                 headers: {
@@ -2582,14 +2677,11 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Poster bytes */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/octet-stream": string;
-                };
+                content?: never;
             };
             304: {
                 headers: {
@@ -3448,13 +3540,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Video stream */
-            200: {
+            /** @description Video progressive download stream */
+            206: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/octet-stream": string;
+                    "video/x-matroska": string;
                 };
             };
             /** @description Video is not found */

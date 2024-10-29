@@ -40,7 +40,10 @@ export function displayTask(metadata: TaskMetadata): Media {
     return extendShow(metadata.metadata);
   }
   if (metadata.content_type == "episode") {
-    let episode = extendEpisode(metadata.metadata, metadata.showMetadata.metadata_id);
+    let episode = extendEpisode(
+      metadata.metadata,
+      metadata.showMetadata.metadata_id,
+    );
     let show = extendShow(metadata.showMetadata);
     episode.poster = show.poster;
     return episode;
@@ -106,7 +109,7 @@ function createServerStatusContext(
   let serverTasks = createAsync(
     async () => {
       let tasks = await server.GET("/api/tasks");
-      if (tasks.error) {
+      if (tasks.error || !tasks.data) {
         notificator({ message: "Failed to fetch server tasks" });
         throw new InternalServerError();
       }
