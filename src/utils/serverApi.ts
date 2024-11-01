@@ -1,4 +1,4 @@
-import { cache, revalidate } from "@solidjs/router";
+import { query, revalidate } from "@solidjs/router";
 
 import createClient, { ClientMethod, ParamsOption } from "openapi-fetch";
 import type { components, paths } from "./server-types";
@@ -40,7 +40,7 @@ export const server: typeof client & {
   GET(path, ...rest) {
     let func = cacheMap[path];
     if (func === undefined) {
-      func = cache((p, ...args) => {
+      func = query((p, ...args) => {
         return client.GET(p, ...args);
       }, path);
       cacheMap[path] = func;
