@@ -35,9 +35,6 @@ export default function Modal(props: ParentProps & ModalProps) {
         onMouseDown={(e) => e.stopPropagation()}
         class="relative h-full w-full rounded-xl p-4"
       >
-        <button onClick={() => dialog.close()} class="absolute right-5 top-5">
-          <FiX size={25} stroke="white" />
-        </button>
         {props.children}
       </div>
     </dialog>
