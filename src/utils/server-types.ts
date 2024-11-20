@@ -1114,12 +1114,16 @@ export type components = {
         /** @enum {string} */
         AppErrorKind: "InternalError" | "NotFound" | "Duplicate" | "BadRequest";
         AppResources: {
+            app_version: string;
             base_path: string;
             binary_path?: string | null;
             cache_path: string;
             database_path: string;
             log_path: string;
+            os: string;
+            os_version: string;
             resources_path: string;
+            start_time: string;
             temp_path: string;
         };
         AudioCodec: "aac" | "ac3" | {
@@ -1137,9 +1141,9 @@ export type components = {
         };
         BrowseRootDirs: {
             disks: components["schemas"]["BrowseFile"][];
-            home?: components["schemas"]["BrowseFile"] | null;
+            home?: null | components["schemas"]["BrowseFile"];
             root: components["schemas"]["BrowseFile"];
-            videos?: components["schemas"]["BrowseFile"] | null;
+            videos?: null | components["schemas"]["BrowseFile"];
         };
         Capabilities: {
             chromaprint_enabled: boolean;
@@ -1165,9 +1169,19 @@ export type components = {
         };
         /** @enum {string} */
         ContentType: "movie" | "show";
-        CursoredHistory: {
+        CursoredResponse_DbHistory: {
             cursor?: string | null;
-            data: components["schemas"]["DbHistory"][];
+            data: {
+                /** Format: int64 */
+                id: number;
+                is_finished: boolean;
+                /** Format: int64 */
+                time: number;
+                /** Format: date-time */
+                update_time: string;
+                /** Format: int64 */
+                video_id: number;
+            }[];
         };
         DbExternalId: {
             /** Format: int64 */
@@ -1221,10 +1235,10 @@ export type components = {
         DetailedVideo: {
             audio_tracks: components["schemas"]["DetailedAudioTrack"][];
             duration: components["schemas"]["SerdeDuration"];
-            history?: components["schemas"]["DbHistory"] | null;
+            history?: null | components["schemas"]["DbHistory"];
             /** Format: int64 */
             id: number;
-            intro?: components["schemas"]["Intro"] | null;
+            intro?: null | components["schemas"]["Intro"];
             path: string;
             previews_count: number;
             scan_date: string;
@@ -1255,9 +1269,9 @@ export type components = {
             metadata_provider: components["schemas"]["MetadataProvider"];
             number: number;
             plot?: string | null;
-            poster?: components["schemas"]["MetadataImage"] | null;
+            poster?: null | components["schemas"]["MetadataImage"];
             release_date?: string | null;
-            runtime?: components["schemas"]["SerdeDuration"] | null;
+            runtime?: null | components["schemas"]["SerdeDuration"];
             season_number: number;
             title: string;
         };
@@ -1289,7 +1303,7 @@ export type components = {
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
             plot?: string | null;
-            poster?: components["schemas"]["MetadataImage"] | null;
+            poster?: null | components["schemas"]["MetadataImage"];
             title: string;
         };
         MovieHistory: {
@@ -1297,13 +1311,13 @@ export type components = {
             movie: components["schemas"]["MovieMetadata"];
         };
         MovieMetadata: {
-            backdrop?: components["schemas"]["MetadataImage"] | null;
+            backdrop?: null | components["schemas"]["MetadataImage"];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
             plot?: string | null;
-            poster?: components["schemas"]["MetadataImage"] | null;
+            poster?: null | components["schemas"]["MetadataImage"];
             release_date?: string | null;
-            runtime?: components["schemas"]["SerdeDuration"] | null;
+            runtime?: null | components["schemas"]["SerdeDuration"];
             title: string;
         };
         ProgressChunk: {
@@ -1328,7 +1342,7 @@ export type components = {
             percent?: number | null;
             /** @enum {string} */
             progress_type: "pending";
-            speed?: components["schemas"]["ProgressSpeed"] | null;
+            speed?: null | components["schemas"]["ProgressSpeed"];
         } | {
             /** @enum {string} */
             progress_type: "cancel";
@@ -1363,7 +1377,7 @@ export type components = {
             metadata_provider: components["schemas"]["MetadataProvider"];
             number: number;
             plot?: string | null;
-            poster?: components["schemas"]["MetadataImage"] | null;
+            poster?: null | components["schemas"]["MetadataImage"];
             release_date?: string | null;
         };
         SerdeDuration: {
@@ -1379,12 +1393,12 @@ export type components = {
             show_id: number;
         };
         ShowMetadata: {
-            backdrop?: components["schemas"]["MetadataImage"] | null;
+            backdrop?: null | components["schemas"]["MetadataImage"];
             episodes_amount?: number | null;
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
             plot?: string | null;
-            poster?: components["schemas"]["MetadataImage"] | null;
+            poster?: null | components["schemas"]["MetadataImage"];
             release_date?: string | null;
             /** @description Array of available season numbers */
             seasons?: number[] | null;
@@ -1392,11 +1406,11 @@ export type components = {
         };
         ShowSuggestion: {
             episode: components["schemas"]["EpisodeMetadata"];
-            history?: components["schemas"]["DbHistory"] | null;
+            history?: null | components["schemas"]["DbHistory"];
             /** Format: int64 */
             show_id: number;
         };
-        SubtitlesCodec: Record<string, never> | Record<string, never> | Record<string, never> | string;
+        SubtitlesCodec: null | string;
         Task: {
             cancelable: boolean;
             /** Format: date-time */
@@ -1412,9 +1426,8 @@ export type components = {
             /** Format: int64 */
             video_id: number;
         } | {
-            content?: components["schemas"]["TorrentContent"] | null;
-            /** Format: binary */
-            info_hash: string;
+            content?: null | components["schemas"]["TorrentContent"];
+            info_hash: number[];
             /** @enum {string} */
             task_kind: "torrent";
         } | {
@@ -1439,16 +1452,15 @@ export type components = {
             movie: components["schemas"]["TorrentMovie"][];
         };
         TorrentContents: {
-            content?: components["schemas"]["TorrentContent"] | null;
+            content?: null | components["schemas"]["TorrentContent"];
             files: components["schemas"]["ResolvedTorrentFile"][];
         };
         TorrentDownload: {
-            /** Format: binary */
-            info_hash: string;
+            info_hash: number[];
             torrent_info: components["schemas"]["TorrentInfo"];
         };
         TorrentDownloadPayload: {
-            content_hint?: components["schemas"]["DownloadContentHint"] | null;
+            content_hint?: null | components["schemas"]["DownloadContentHint"];
             enabled_files?: number[] | null;
             magnet_link: string;
             save_location?: string | null;
@@ -1477,10 +1489,10 @@ export type components = {
             show_metadata: components["schemas"]["ShowMetadata"];
         };
         TranscodePayload: {
-            audio_codec?: components["schemas"]["AudioCodec"] | null;
+            audio_codec?: null | components["schemas"]["AudioCodec"];
             audio_track?: number | null;
-            resolution?: components["schemas"]["Resolution"] | null;
-            video_codec?: components["schemas"]["VideoCodec"] | null;
+            resolution?: null | components["schemas"]["Resolution"];
+            video_codec?: null | components["schemas"]["VideoCodec"];
         };
         UpdateHistoryPayload: {
             is_finished: boolean;
@@ -1489,29 +1501,29 @@ export type components = {
         };
         UtoipaConfigSchema: ({
             /** Format: int32 */
-            cli_value: number | null;
+            cli_value: number;
             /** Format: int32 */
-            config_value: number | null;
+            config_value: number;
             /** Format: int32 */
             default_value: number;
             /** Format: int32 */
-            env_value: number | null;
+            env_value: number;
             /** @enum {string} */
             key: "port";
             require_restart: boolean;
         } | {
-            cli_value: string[] | null;
-            config_value: string[] | null;
+            cli_value: string[];
+            config_value: string[];
             default_value: string[];
-            env_value: string[] | null;
+            env_value: string[];
             /** @enum {string} */
             key: "show_folders";
             require_restart: boolean;
         } | {
-            cli_value: string[] | null;
-            config_value: string[] | null;
+            cli_value: string[];
+            config_value: string[];
             default_value: string[];
-            env_value: string[] | null;
+            env_value: string[];
             /** @enum {string} */
             key: "movie_folders";
             require_restart: boolean;
@@ -1532,62 +1544,62 @@ export type components = {
             key: "tvdb_key";
             require_restart: boolean;
         } | {
-            cli_value: string | null;
-            config_value: string | null;
+            cli_value: string;
+            config_value: string;
             default_value: string;
-            env_value: string | null;
+            env_value: string;
             /** @enum {string} */
             key: "ffmpeg_path";
             require_restart: boolean;
         } | {
-            cli_value: string | null;
-            config_value: string | null;
+            cli_value: string;
+            config_value: string;
             default_value: string;
-            env_value: string | null;
+            env_value: string;
             /** @enum {string} */
             key: "ffprobe_path";
             require_restart: boolean;
         } | {
-            cli_value: boolean | null;
-            config_value: boolean | null;
+            cli_value: boolean;
+            config_value: boolean;
             default_value: boolean;
-            env_value: boolean | null;
+            env_value: boolean;
             /** @enum {string} */
             key: "hw_accel";
             require_restart: boolean;
         } | {
             /** @description Minimal intro duration from seconds */
-            cli_value: number | null;
+            cli_value: number;
             /** @description Minimal intro duration from seconds */
-            config_value: number | null;
+            config_value: number;
             /** @description Minimal intro duration from seconds */
             default_value: number;
             /** @description Minimal intro duration from seconds */
-            env_value: number | null;
+            env_value: number;
             /** @enum {string} */
             key: "intro_min_duration";
             require_restart: boolean;
         } | {
             /** @description Path to FFmpeg build that supports chromparint audio fingerprinting */
-            cli_value: string | null;
+            cli_value: string;
             /** @description Path to FFmpeg build that supports chromparint audio fingerprinting */
-            config_value: string | null;
+            config_value: string;
             /** @description Path to FFmpeg build that supports chromparint audio fingerprinting */
             default_value: string;
             /** @description Path to FFmpeg build that supports chromparint audio fingerprinting */
-            env_value: string | null;
+            env_value: string;
             /** @enum {string} */
             key: "intro_detection_ffmpeg_build";
             require_restart: boolean;
         } | {
             /** @description Path to Web UI dist directory */
-            cli_value: string | null;
+            cli_value: string;
             /** @description Path to Web UI dist directory */
-            config_value: string | null;
+            config_value: string;
             /** @description Path to Web UI dist directory */
             default_value: string;
             /** @description Path to Web UI dist directory */
-            env_value: string | null;
+            env_value: string;
             /** @enum {string} */
             key: "web_ui_path";
             require_restart: boolean;
@@ -1785,7 +1797,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "image/jpeg": unknown;
+                };
             };
             304: {
                 headers: {
@@ -1966,7 +1980,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CursoredHistory"];
+                    "application/json": components["schemas"]["CursoredResponse_DbHistory"];
                 };
             };
         };
@@ -2142,7 +2156,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "video/x-matroska": unknown;
+                };
             };
             /** @description Video is not found */
             404: {
@@ -2219,7 +2235,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "video/x-matroska": unknown;
+                };
             };
             /** @description Video is not found */
             404: {
@@ -2383,7 +2401,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "image/jpeg": unknown;
+                };
             };
             304: {
                 headers: {
@@ -2417,7 +2437,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "image/jpeg": unknown;
+                };
             };
             304: {
                 headers: {
@@ -2515,6 +2537,14 @@ export interface operations {
                 };
                 content?: never;
             };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
         };
     };
     search_content: {
@@ -2555,7 +2585,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "image/jpeg": unknown;
+                };
             };
             304: {
                 headers: {
@@ -2646,7 +2678,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "image/jpeg": unknown;
+                };
             };
             304: {
                 headers: {
@@ -2681,7 +2715,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "image/jpeg": unknown;
+                };
             };
             304: {
                 headers: {
@@ -2937,7 +2973,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/octet-stream": string;
+                    "application/octet-stream": number[];
                 };
             };
         };
@@ -3020,7 +3056,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                content_type: ("movie" | "show") | null;
+                content_type: null | ("movie" | "show");
             };
             cookie?: never;
         };
@@ -3048,9 +3084,9 @@ export interface operations {
             query: {
                 magnet_link: string;
                 /** @description Content type */
-                content_type?: components["schemas"]["ContentType"] | null;
+                content_type?: null | components["schemas"]["ContentType"];
                 /** @description Metadata provider */
-                metadata_provider?: components["schemas"]["MetadataProvider"] | null;
+                metadata_provider?: null | components["schemas"]["MetadataProvider"];
                 /** @description Metadata id */
                 metadata_id?: string | null;
             };
@@ -3397,7 +3433,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/octet-stream": string;
+                    "application/octet-stream": number[];
                 };
             };
             304: {
@@ -3546,7 +3582,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "video/x-matroska": string;
+                    "video/x-matroska": number[];
                 };
             };
             /** @description Video is not found */
