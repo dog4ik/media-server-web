@@ -6,7 +6,7 @@ import {
   revalidatePath,
   server,
 } from "../../utils/serverApi";
-import { For, Match, Show, Switch } from "solid-js";
+import { For, Match, Show, Suspense, Switch } from "solid-js";
 import { InternalServerError } from "../../utils/errors";
 import {
   ExtendedVideoContent,
@@ -137,6 +137,17 @@ function VideoTranscodedVariants(props: VariantProps) {
   );
 }
 
+function NoItemsDisplay() {
+  return (
+    <>
+      <p class="text-center text-2xl">No transcoded videos</p>
+      <p class="text-center">
+        Start transcoding videos and they will show up here
+      </p>
+    </>
+  );
+}
+
 export default function Variants() {
   let videos = createAsync(async () => {
     let variants = await server.GET("/api/variants");
@@ -168,33 +179,39 @@ export default function Variants() {
 
   return (
     <div class="flex flex-col gap-5">
-      <table class="table bg-black">
-        <thead>
-          <tr class="text-white">
-            {/*Poster*/}
-            <th>#</th>
-            {/*Name*/}
-            <th></th>
-            <th>Video codec</th>
-            <th>Resolution</th>
-            <th>Audio codec</th>
-            <th></th>
-            <th>Size</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <For each={videos()}>
-            {(video) => (
-              <VideoTranscodedVariants
-                onDelete={(variantId: string) => onDelete(video.id, variantId)}
-                video={video}
-                content={video.content!}
-              />
-            )}
-          </For>
-        </tbody>
-      </table>
+      <Suspense>
+        <Show fallback={<NoItemsDisplay />} when={videos()?.length! > 0}>
+          <table class="table bg-black">
+            <thead>
+              <tr class="text-white">
+                {/*Poster*/}
+                <th>#</th>
+                {/*Name*/}
+                <th></th>
+                <th>Video codec</th>
+                <th>Resolution</th>
+                <th>Audio codec</th>
+                <th></th>
+                <th>Size</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <For each={videos()}>
+                {(video) => (
+                  <VideoTranscodedVariants
+                    onDelete={(variantId: string) =>
+                      onDelete(video.id, variantId)
+                    }
+                    video={video}
+                    content={video.content!}
+                  />
+                )}
+              </For>
+            </tbody>
+          </table>
+        </Show>
+      </Suspense>
     </div>
   );
 }

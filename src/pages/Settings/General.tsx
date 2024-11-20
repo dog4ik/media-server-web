@@ -5,9 +5,8 @@ import { Schemas, revalidatePath, server } from "../../utils/serverApi";
 import Variants from "../../components/Settings/VariantsList";
 import { SmartSetting } from "../../components/Settings/Setting";
 import { Show } from "solid-js";
-import Table from "../../components/ContentTable";
 import { useNotifications } from "../../context/NotificationContext";
-import ProviderList from "../../components/Settings/ProviderList";
+// import ProviderList from "../../components/Settings/ProviderList";
 import SettingsProvider, {
   useSettingsContext,
 } from "@/context/SettingsContext";
@@ -22,7 +21,6 @@ export type SettingsObject = {
 
 function GeneralSettings() {
   let notificator = useNotifications();
-  let providers = createAsync(() => server.GET("/api/configuration/providers"));
 
   let { changedSettings, resetChangedSettings, apply } = useSettingsContext();
 
@@ -48,7 +46,8 @@ function GeneralSettings() {
   }
 
   return (
-    <div class="flex flex-col gap-8">
+    <div class="flex flex-col gap-8 divide-y p-5">
+      {/*
       <div>
         <SectionTitle name="Providers" />
         <SectionSubTitle name="Providers order" />
@@ -56,28 +55,39 @@ function GeneralSettings() {
           {(data) => <ProviderList providers={data()[0]} />}
         </Show>
       </div>
+      */}
       <div>
         <SectionTitle name="Library" />
         <SectionSubTitle name="Transcoded variants" />
         <Variants />
       </div>
-      <div class="flex flex-col gap-8">
+      <div>
         <SectionTitle name="Server" />
-        <SmartSetting setting="show_folders" />
-        <SmartSetting setting="movie_folders" />
-        <SmartSetting setting="port" />
-        <SmartSetting setting="hw_accel" />
-        <SmartSetting setting="ffmpeg_path" />
-        <SmartSetting setting="ffprobe_path" />
-        <SmartSetting setting="web_ui_path" />
+        <div class="divide-y divide-neutral-500">
+          <SmartSetting setting="show_folders" />
+          <SmartSetting setting="movie_folders" />
+          <SmartSetting setting="port" />
+          <SmartSetting setting="hw_accel" />
+          <SmartSetting setting="ffmpeg_path" />
+          <SmartSetting setting="ffprobe_path" />
+          <SmartSetting setting="web_ui_path" />
+        </div>
+      </div>
 
+      <div>
         <SectionTitle name="Secrets" />
-        <SmartSetting setting="tmdb_key" />
-        <SmartSetting setting="tvdb_key" />
+        <div class="divide-y divide-neutral-500">
+          <SmartSetting setting="tmdb_key" />
+          <SmartSetting setting="tvdb_key" />
+        </div>
+      </div>
 
+      <div>
         <SectionTitle name="Intro detection" />
+        <div class="divide-y divide-neutral-500">
           <SmartSetting setting="intro_min_duration" />
-        <SmartSetting setting="intro_detection_ffmpeg_build" />
+          <SmartSetting setting="intro_detection_ffmpeg_build" />
+        </div>
       </div>
       <Show when={changesAmount()}>
         {(amount) => (
@@ -119,7 +129,6 @@ export default function GeneralSettingsPage() {
           <SettingsProvider initialSettings={settings()}>
             <GeneralSettings />
           </SettingsProvider>
-          <Table />
         </div>
       )}
     </Show>

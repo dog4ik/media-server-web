@@ -190,10 +190,10 @@ function FileInputs(props: FileInputsProps) {
           <FilePicker disallowFiles onSubmit={onAdd} />
         </Modal>
       </Show>
-      <div>
+      <div class="space-y-3">
         <For each={props.values}>
           {(file, idx) => (
-            <div class="flex items-center gap-2">
+            <div class="flex items-center justify-between gap-2">
               <FileInput
                 value={file}
                 onChange={(val) => onChange(idx(), val)}
@@ -209,9 +209,9 @@ function FileInputs(props: FileInputsProps) {
             setModalOpen(true);
             modal.showModal();
           }}
-          class="flex h-12 w-full items-center justify-center rounded-xl bg-white/80"
+          class="flex h-12 w-full items-center justify-center rounded-xl bg-white/90"
         >
-          <FiPlusCircle size={30} />
+          <FiPlusCircle class="fill-black" size={30} />
         </button>
       </div>
     </>
@@ -223,11 +223,11 @@ export function Setting(props: Props & ParentProps) {
     typeof (props.remote.default_value ?? props.remote.config_value) ===
     "boolean";
   return (
-    <div class="flex max-w-xl flex-col gap-2 rounded-xl bg-black p-2">
+    <div class="flex max-w-xl flex-col gap-2 py-10">
       <SectionSubTitle name={props.data.long_name} />
       <div
         class={clsx(
-          "flex",
+          "flex gap-4",
           isBool() ? "items-center justify-between" : "flex-col justify-center",
         )}
       >
@@ -242,7 +242,7 @@ export function Setting(props: Props & ParentProps) {
           </div>
         </Match>
         <Match when={props.remote.env_value !== null}>
-          <div class="alert alert-warning overflow-hidden">
+          <div class="alert alert-warning p-3">
             <FiAlertTriangle size={20} />
             <span>Setting is being overwritten by environment variable</span>
           </div>

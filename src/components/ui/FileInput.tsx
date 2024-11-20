@@ -25,7 +25,7 @@ export default function FileInput(props: FileInputProps) {
           />
         </Modal>
       </Show>
-      <div class="flex items-center justify-between gap-2 rounded-xl bg-neutral-800 p-1">
+      <div class="flex items-center flex-1 justify-between gap-2 rounded-xl bg-neutral-800 p-1">
         <span>{props.value}</span>
         <button
           class="btn"
