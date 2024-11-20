@@ -9,8 +9,10 @@ export default function NavBar() {
   }
   let notificator = useNotifications();
   async function handleRefresh() {
-    await server.POST("/api/scan");
-    notificator("Refreshed library");
+    let scanResult = await server.POST("/api/scan");
+    if (scanResult.error) {
+      notificator(`Scan failed: ${scanResult.error.message}`);
+    }
     revalidatePath("/api/local_shows");
     revalidatePath("/api/local_movies");
   }

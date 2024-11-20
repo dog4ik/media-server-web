@@ -1,14 +1,11 @@
 import { A, useLocation } from "@solidjs/router";
-import { For, ErrorBoundary } from "solid-js";
-import { StatusIndicator } from "./ServerStatusIndicator";
+import { For } from "solid-js";
 
 const ROUTES = [
   ["Home", "/"],
   ["Dashboard", "/dashboard"],
   ["Shows", "/shows"],
   ["Movies", "/movies"],
-  ["Torrent", "/torrent"],
-  ["Logs", "/logs"],
   ["Settings", "/settings"],
 ] as const;
 
@@ -59,17 +56,6 @@ export default function SideBar() {
           }}
         </For>
       </nav>
-      <div class="flex items-center justify-center">
-        <ErrorBoundary
-          fallback={
-            <div class="flex items-center justify-center text-white">
-              <span class="text-center">No connection</span>
-            </div>
-          }
-        >
-          <StatusIndicator />
-        </ErrorBoundary>
-      </div>
     </div>
   );
 }
