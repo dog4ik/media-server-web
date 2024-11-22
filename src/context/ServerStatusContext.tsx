@@ -161,6 +161,9 @@ function createServerStatusContext(
         }
         let toNotifyIdx = tasksToNotify.indexOf(task.id);
         if (!!~toNotifyIdx) {
+          if (task.task.task_kind == "scan") {
+            notificator({ message: "Scanning library" });
+          }
           if (metadata) {
             let props = notificationProps(task.task, "start", metadata);
             if (task.cancelable) {
@@ -271,6 +274,9 @@ function createServerStatusContext(
       status.progress_type == "error"
     ) {
       let task = tasks.find((t) => t.id == data.task_id);
+      if (task?.task.task_kind == "scan") {
+        notificator({ message: "Finished library scan" });
+      }
       if (task && task.metadata) {
         let props = notificationProps(
           task.task,

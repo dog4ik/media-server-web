@@ -19,22 +19,36 @@ export default function Activity() {
       <Show when={tasks?.length > 0}>
         <TasksTable>
           <For each={tasks}>
-            {(task) => {
-              let display = task.metadata
-                ? displayTask(task.metadata)
-                : undefined;
+            {(t) => {
+              let display = () => {
+                if (t.task.task_kind == "scan") {
+                  return {
+                    poster: undefined,
+                    title: "Library scan",
+                  };
+                }
+                if (t.metadata) {
+                  let display = displayTask(t.metadata);
+                  return {
+                    poster: display.poster,
+                    title: display.friendlyTitle(),
+                  };
+                }
+                return {
+                  poster: undefined,
+                  title: t.id,
+                };
+              };
               return (
                 <TableRow
-                  task_type={task.task.task_kind}
-                  onCancel={
-                    task.cancelable ? () => cancelTask(task.id) : undefined
-                  }
-                  poster={display?.poster}
-                  name={display?.friendlyTitle() ?? task.id}
+                  task_type={t.task.task_kind}
+                  onCancel={t.cancelable ? () => cancelTask(t.id) : undefined}
+                  poster={display().poster}
+                  name={display().title}
                   status="pending"
                   created="now"
-                  percent={tasksProgress[task.id]?.percent}
-                  speed={tasksProgress[task.id]?.speed}
+                  percent={tasksProgress[t.id]?.percent}
+                  speed={tasksProgress[t.id]?.speed}
                 />
               );
             }}
