@@ -76,4 +76,14 @@ export const SETTINGS: Settings = {
     long_name: "Web UI path",
     typeHint: "path",
   },
+  upnp_enabled: {
+    description: "Enable ssdp discover and upnp service",
+    name: "upnp_enabled",
+    long_name: "Enable upnp",
+  },
+  upnp_ttl: {
+    description: "Time to live duration of ssdp packet in the local network",
+    name: "upnp_ttl",
+    long_name: "SSDP ttl",
+  }
 } as const;

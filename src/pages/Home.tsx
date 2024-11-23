@@ -4,7 +4,8 @@ import EpisodeCard from "../components/Cards/EpisodeCard";
 import MovieCard from "../components/Cards/MovieCard";
 import { createAsync } from "@solidjs/router";
 import Title from "../utils/Title";
-import { extendEpisode } from "@/utils/library";
+import { extendEpisode, extendShow } from "@/utils/library";
+import ShowCard from "@/components/Cards/ShowCard";
 
 type ContinueWatchingProps = {
   showHistory: Schemas["ShowSuggestion"][];
@@ -41,6 +42,46 @@ function ContinueWatchingSection(props: ContinueWatchingProps) {
   );
 }
 
+type TrendingShowsProps = {
+  shows: Schemas["ShowMetadata"][];
+};
+
+function TrendingShows(props: TrendingShowsProps) {
+  return (
+    <>
+      <p class="my-8 text-3xl">Trending shows</p>
+      <div class="flex gap-4 overflow-x-auto">
+        <For each={props.shows}>
+          {(show) => {
+            return <ShowCard show={show} />;
+          }}
+        </For>
+      </div>
+    </>
+  );
+}
+
+type TrendingMoviesProps = {
+  movies: Schemas["ShowMetadata"][];
+};
+
+function TrendingMovies(props: TrendingMoviesProps) {
+  return (
+    <>
+      <p class="my-8 text-3xl">Trending movies</p>
+      <div>
+        <div class="flex gap-4 overflow-auto">
+          <For each={props.movies}>
+            {(movie) => {
+              return <MovieCard movie={movie} />;
+            }}
+          </For>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export default function Home() {
   let suggestions = createAsync(async () => {
     let showSuggestions = await server
@@ -51,6 +92,15 @@ export default function Home() {
       .then((d) => d.data ?? []);
     return { showSuggestions, movieSuggestions };
   });
+
+  let trendingShows = createAsync(() =>
+    server.GET("/api/search/trending_shows").then((d) => d.data ?? []),
+  );
+
+  let trendingMovies = createAsync(() =>
+    server.GET("/api/search/trending_movies").then((d) => d.data ?? []),
+  );
+
   return (
     <>
       <Title text="Home" />
@@ -65,6 +115,12 @@ export default function Home() {
             showHistory={suggestions()!.showSuggestions}
             movieHistory={suggestions()!.movieSuggestions}
           />
+        </Show>
+        <Show when={trendingShows()}>
+          {(shows) => <TrendingShows shows={shows()} />}
+        </Show>
+        <Show when={trendingMovies()}>
+          {(movies) => <TrendingMovies movies={movies()} />}
         </Show>
       </div>
     </>

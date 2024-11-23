@@ -14,13 +14,15 @@
     "@solidjs/router": "^0.15.1",
     "@tailwindcss/container-queries": "^0.1.1",
     "@types/dom-view-transitions": "^1.0.5",
+    "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "hls.js": "^1.5.17",
     "neverthrow": "^8.1.1",
     "openapi-fetch": "^0.13.0",
     "solid-icons": "^1.1.0",
     "solid-js": "^1.9.3",
-    "tailwind-merge": "^2.5.4"
+    "tailwind-merge": "^2.5.4",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@types/dom-navigation": "^1.0.4",

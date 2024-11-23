@@ -34,13 +34,13 @@ export function formatTimeBeforeRelease(input: string) {
   let rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 
   if (days < 1) {
-    return captilazie(rtf.format(hours, "hour"));
+    return capitalize(rtf.format(hours, "hour"));
   } else {
-    return captilazie(rtf.format(days, "day"));
+    return capitalize(rtf.format(days, "day"));
   }
 }
 
-function captilazie(str: string) {
+export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 

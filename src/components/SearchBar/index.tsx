@@ -1,15 +1,13 @@
 import { FiSearch, FiX } from "solid-icons/fi";
-import {
-  For,
-  Match,
-  Show,
-  Suspense,
-  Switch,
-  onCleanup,
-  onMount,
-} from "solid-js";
+import { For, Match, Show, Switch, onCleanup, onMount } from "solid-js";
 import { Schemas, server } from "../../utils/serverApi";
-import { A, createAsync, useBeforeLeave } from "@solidjs/router";
+import {
+  A,
+  createAsync,
+  useBeforeLeave,
+  useLocation,
+  useNavigate,
+} from "@solidjs/router";
 import ProviderLogo from "../generic/ProviderLogo";
 import useDebounce from "../../utils/useDebounce";
 
@@ -21,13 +19,13 @@ function SearchContent(props: {
     <A
       onClick={props.onClick}
       href={`/${props.result.content_type}s/${props.result.metadata_id}?provider=${props.result.metadata_provider}`}
-      class="flex h-32 items-center gap-2 text-start transition-colors hover:bg-white/10"
+      class="flex h-40 items-center gap-2 px-2 text-start transition-colors hover:bg-white/10"
     >
       <img
-        class="h-full w-24 object-cover"
+        class="h-5/6 w-24 object-cover"
         src={props.result.poster ?? "/empty_image.svg"}
       />
-      <div class="flex w-2/3 flex-col gap-2">
+      <div class="flex w-2/3 flex-1 flex-col gap-2">
         <div class="flex items-center justify-between">
           <span class="truncate text-xl">{props.result.title}</span>
           <div class="h-6 w-10">
@@ -54,8 +52,9 @@ function SearchLoading() {
   );
 }
 
-export default function Search() {
+export default function SearchBar() {
   let [input, deferredInput, setInput] = useDebounce(500, "");
+  let navigator = useNavigate();
 
   let searchResult = createAsync(async () => {
     if (!deferredInput()) return undefined;
@@ -76,6 +75,10 @@ export default function Search() {
     }
   }
 
+  function handleSubmit() {
+    navigator(`/search?query=${input()}`);
+  }
+
   onMount(() => {
     windowRef.hidePopover();
     document.addEventListener("click", handleClick);
@@ -90,14 +93,12 @@ export default function Search() {
   });
 
   return (
-    <div class="relative flex h-full w-2/3 flex-col items-center gap-2">
+    <div class="relative w-2/3 items-center gap-2">
       <form
         class="relative w-full"
-        style={`
-anchor-name: --search;
-`}
         onSubmit={(e) => {
           e.preventDefault();
+          handleSubmit();
         }}
       >
         <label class="input input-sm input-bordered flex items-center gap-2 text-black">
@@ -106,6 +107,11 @@ anchor-name: --search;
             ref={inputRef!}
             onInput={(e) => setInput(e.currentTarget.value)}
             onFocus={() => windowRef.showPopover()}
+            onKeyPress={(e) => {
+              if (e.key == "Enter") {
+                handleSubmit();
+              }
+            }}
             type="text"
             class="grow"
             placeholder="Search shows and movies"
@@ -126,12 +132,8 @@ anchor-name: --search;
       </form>
       <div
         ref={windowRef!}
-        class={`ml-0 mt-0 h-2/3 w-1/3 bg-transparent ${input() ? "text-white backdrop-blur-2xl" : "hidden"}`}
+        class={`m-0 h-2/3 w-2/3 translate-y-16 bg-transparent open:absolute ${input() ? "text-white backdrop-blur-2xl" : "hidden"}`}
         popover="manual"
-        style={`
-position-anchor: --search;
-position-area: bottom;
-`}
       >
         <Show when={searchResult()?.data} fallback={<SearchLoading />}>
           {(data) => (

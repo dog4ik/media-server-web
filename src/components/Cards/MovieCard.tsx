@@ -24,28 +24,6 @@ export default function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
   let url = `/movies/${props.movie.metadata_id}${provider(props.movie.metadata_provider)}`;
   function handleDelete() {}
 
-  let rows: Row[] = [
-    { title: "Row1" },
-    { title: "Row2" },
-    {
-      title: "Expanded",
-      expanded: [
-        { title: "ExpandedRow1" },
-        { title: "ExpandedRow2" },
-        {
-          title: "ExpandedExpanded",
-          expanded: [
-            {
-              title: "ExpandedExpanded1",
-            },
-            {
-              title: "ExpandedExpanded2",
-            },
-          ],
-        },
-      ],
-    },
-  ];
   let [fixModal, toggleFixModal] = useToggle(false);
   let notificator = useNotifications();
   function handleFix() {
@@ -79,20 +57,12 @@ export default function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
 
   return (
     <>
-      <Show when={fixModal()}>
-        <FixMetadata
-          contentType="movie"
-          targetId={props.movie.metadata_id}
-          initialSearch={props.movie.title}
-          onClose={() => toggleFixModal(false)}
-        />
-      </Show>
-      <div class="w-52">
+      <div class="flex-none w-52">
         <A href={url} class="relative w-full">
           <FallbackImage
             alt="Movie poster"
             srcList={[localUrl, props.movie.poster ?? undefined]}
-            class="rounded-xl"
+            class="rounded-xl w-full"
             width={208}
             height={312}
           />

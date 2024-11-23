@@ -6,7 +6,7 @@ import Variants from "../../components/Settings/VariantsList";
 import { SmartSetting } from "../../components/Settings/Setting";
 import { Show } from "solid-js";
 import { useNotifications } from "../../context/NotificationContext";
-// import ProviderList from "../../components/Settings/ProviderList";
+import ProviderOrdering from "../../components/Settings/ProviderList";
 import SettingsProvider, {
   useSettingsContext,
 } from "@/context/SettingsContext";
@@ -30,6 +30,13 @@ function GeneralSettings() {
     resetChangedSettings();
   }
 
+  async function fetchProviders() {
+    let providers = await server.GET("/api/configuration/providers");
+    return providers.data;
+  }
+
+  let providers = createAsync(fetchProviders);
+
   async function restoreConfiguration() {
     let confirmed = await promptConfirm("Do you want to reset configuration?");
     if (confirmed) {
@@ -47,15 +54,13 @@ function GeneralSettings() {
 
   return (
     <div class="flex flex-col gap-8 divide-y p-5">
-      {/*
       <div>
         <SectionTitle name="Providers" />
         <SectionSubTitle name="Providers order" />
-        <Show when={providers()?.data}>
-          {(data) => <ProviderList providers={data()[0]} />}
+        <Show when={providers()}>
+          {(data) => <ProviderOrdering providers={data()} />}
         </Show>
       </div>
-      */}
       <div>
         <SectionTitle name="Library" />
         <SectionSubTitle name="Transcoded variants" />
@@ -67,6 +72,8 @@ function GeneralSettings() {
           <SmartSetting setting="show_folders" />
           <SmartSetting setting="movie_folders" />
           <SmartSetting setting="port" />
+          <SmartSetting setting="upnp_enabled" />
+          <SmartSetting setting="upnp_ttl" />
           <SmartSetting setting="hw_accel" />
           <SmartSetting setting="ffmpeg_path" />
           <SmartSetting setting="ffprobe_path" />

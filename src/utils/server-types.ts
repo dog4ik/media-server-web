@@ -63,8 +63,8 @@ export type paths = {
             path?: never;
             cookie?: never;
         };
-        /** Update providers order */
-        get: operations["providers_order"];
+        /** Get providers order */
+        get: operations["get_providers_order"];
         /** Update providers order */
         put: operations["order_providers"];
         post?: never;
@@ -563,6 +563,40 @@ export type paths = {
         };
         /** Search for content. Allows to search for all types of content at once */
         get: operations["search_content"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search/trending_movies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get trending movies */
+        get: operations["get_trending_movies"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search/trending_shows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get trending shows */
+        get: operations["get_trending_shows"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1603,6 +1637,42 @@ export type components = {
             /** @enum {string} */
             key: "web_ui_path";
             require_restart: boolean;
+        } | {
+            /** @description Enabled upnp */
+            cli_value: boolean;
+            /** @description Enabled upnp */
+            config_value: boolean;
+            /** @description Enabled upnp */
+            default_value: boolean;
+            /** @description Enabled upnp */
+            env_value: boolean;
+            /** @enum {string} */
+            key: "upnp_enabled";
+            require_restart: boolean;
+        } | {
+            /**
+             * Format: int32
+             * @description Ssdp packet ttl
+             */
+            cli_value: number;
+            /**
+             * Format: int32
+             * @description Ssdp packet ttl
+             */
+            config_value: number;
+            /**
+             * Format: int32
+             * @description Ssdp packet ttl
+             */
+            default_value: number;
+            /**
+             * Format: int32
+             * @description Ssdp packet ttl
+             */
+            env_value: number;
+            /** @enum {string} */
+            key: "upnp_ttl";
+            require_restart: boolean;
         })[];
         VideoCodec: "hevc" | "h264" | {
             other: string;
@@ -1720,7 +1790,7 @@ export interface operations {
             };
         };
     };
-    providers_order: {
+    get_providers_order: {
         parameters: {
             query?: never;
             header?: never;
@@ -2565,6 +2635,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MetadataSearchResult"][];
+                };
+            };
+        };
+    };
+    get_trending_movies: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of trending shows */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShowMetadata"][];
+                };
+            };
+        };
+    };
+    get_trending_shows: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of trending movies */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShowMetadata"][];
                 };
             };
         };

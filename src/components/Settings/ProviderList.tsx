@@ -1,9 +1,24 @@
 import { For, createSignal } from "solid-js";
 import { Schemas } from "../../utils/serverApi";
 import { FiArrowDown, FiArrowUp } from "solid-icons/fi";
+import clsx from "clsx";
+import { capitalize } from "@/utils/formats";
 
 type Props = {
-  providers: Schemas["ProviderOrder"];
+  providers: {
+    provider_type: Schemas["ProviderType"];
+    order: string[];
+  }[];
+};
+
+type ProviderListProps = {
+  order: string[];
+};
+
+type SelectionHeaderProps = {
+  selected: boolean;
+  name: Schemas["ProviderType"];
+  onSelect: (name: Schemas["ProviderType"]) => void;
 };
 
 function swap<T>(firstIdx: number, secondIndex: number, a: T[]) {
@@ -14,8 +29,47 @@ function swap<T>(firstIdx: number, secondIndex: number, a: T[]) {
   return array;
 }
 
-export default function ProviderList(props: Props) {
-  let [order, setOrder] = createSignal(props.providers.order);
+function SelectionHeader(props: SelectionHeaderProps) {
+  return (
+    <button
+      class={clsx(
+        props.selected ? "bg-white text-black" : "bg-neutral-700",
+        "rounded-md p-2",
+      )}
+      onClick={() => props.onSelect(props.name)}
+    >
+      {capitalize(props.name)}
+    </button>
+  );
+}
+
+export default function ProviderOrdering(props: Props) {
+  let [selection, setSelection] =
+    createSignal<Schemas["ProviderType"]>("movie");
+  let currentOrder = () => {
+    return props.providers.find((p) => p.provider_type == selection())!.order;
+  };
+
+  return (
+    <div class="flex flex-col gap-2">
+      <div class="flex gap-2">
+        <For each={props.providers}>
+          {(provider) => (
+            <SelectionHeader
+              onSelect={setSelection}
+              selected={selection() == provider.provider_type}
+              name={provider.provider_type}
+            />
+          )}
+        </For>
+      </div>
+      <ProviderList order={currentOrder()} />
+    </div>
+  );
+}
+
+function ProviderList(props: ProviderListProps) {
+  let [order, setOrder] = createSignal(props.order);
   function handleUp(idx: number) {
     if (idx > 0) {
       setOrder(swap(idx, idx - 1, order()));

@@ -37,7 +37,6 @@ export default function FallbackImage(props: Props) {
   });
 
   return (
-    <div>
       <Show
         when={currentImage()}
         fallback={
@@ -56,6 +55,5 @@ export default function FallbackImage(props: Props) {
           />
         )}
       </Show>
-    </div>
   );
 }

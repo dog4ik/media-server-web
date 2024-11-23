@@ -1,11 +1,15 @@
 import { useNotifications } from "../../context/NotificationContext";
 import { FiArrowLeftCircle, FiRefreshCcw } from "solid-icons/fi";
-import Search from "../Search";
+import SearchBar from "../SearchBar";
 import { revalidatePath, server } from "../../utils/serverApi";
 
 export default function NavBar() {
   function back() {
     window.navigation.back();
+    //let back = pathBack();
+    //if (back) {
+    //  navigator(back);
+    //}
   }
   let notificator = useNotifications();
   async function handleRefresh() {
@@ -21,9 +25,9 @@ export default function NavBar() {
       <nav class="flex flex-1 items-center justify-between text-sm font-semibold">
         <div class="flex w-2/3 items-center gap-3">
           <button onClick={back}>
-            <FiArrowLeftCircle stroke="white" size={40} />
+            <FiArrowLeftCircle size={40} />
           </button>
-          <Search />
+          <SearchBar />
         </div>
         <ul class="mr-10 flex items-center space-x-4 self-end">
           <button

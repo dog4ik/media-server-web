@@ -64,7 +64,7 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
           onClose={() => toggleFixModal(false)}
         />
       </Show>
-      <div class="w-52">
+      <div class="flex-none w-52">
         <A href={url} class="relative w-full">
           <FallbackImage
             alt="Show poster"
