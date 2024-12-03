@@ -4,11 +4,9 @@
 $ npm install # or pnpm install or yarn install
 ```
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+Set `VITE_MEDIA_SERVER_URL` environment variable to the server url
 
-## Available Scripts
-
-In the project directory, you can run:
+In the project directory, run:
 
 ### `npm run dev`
 
@@ -21,7 +19,6 @@ Web UI for [Media Server](https://github.com/dog4ik/media-server)
 
 ### Features
 
-- [x] Compatibility detection
 - [x] Settings
 - [x] Video player
 - [x] Task management
