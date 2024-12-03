@@ -56,15 +56,14 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
 
   return (
     <>
-      <Show when={fixModal()}>
-        <FixMetadata
-          contentType="show"
-          targetId={props.show.metadata_id}
-          initialSearch={props.show.title}
-          onClose={() => toggleFixModal(false)}
-        />
-      </Show>
-      <div class="flex-none w-52">
+      <FixMetadata
+        open={fixModal()}
+        contentType="show"
+        targetId={props.show.metadata_id}
+        initialSearch={props.show.title}
+        onClose={() => toggleFixModal(false)}
+      />
+      <div class="w-52 flex-none">
         <A href={url} class="relative w-full">
           <FallbackImage
             alt="Show poster"
@@ -93,12 +92,12 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
               </div>
             </Show>
           </A>
-            <Show when={props.show.metadata_provider === "local"}>
-          <MoreButton>
-            <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
-            <MenuRow onClick={handleMetadataReset}>Reset Metadata</MenuRow>
-          </MoreButton>
-            </Show>
+          <Show when={props.show.metadata_provider === "local"}>
+            <MoreButton>
+              <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
+              <MenuRow onClick={handleMetadataReset}>Reset Metadata</MenuRow>
+            </MoreButton>
+          </Show>
         </div>
       </div>
     </>

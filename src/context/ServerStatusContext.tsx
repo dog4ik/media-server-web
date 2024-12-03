@@ -12,7 +12,13 @@ import { createAsync } from "@solidjs/router";
 import { createStore } from "solid-js/store";
 import { InternalServerError } from "../utils/errors";
 import { NotificationProps } from "../components/Notification";
-import { extendEpisode, extendMovie, extendShow, Media } from "@/utils/library";
+import {
+  extendEpisode,
+  extendMovie,
+  extendShow,
+  Media,
+  Video,
+} from "@/utils/library";
 
 type ServerStatusType = ReturnType<typeof createServerStatusContext>;
 
@@ -57,7 +63,7 @@ export function displayTask(metadata: TaskMetadata): Media {
 export type TaskType = Schemas["Task"] & { metadata?: TaskMetadata };
 
 function notificationProps(
-  task: Schemas["Task"]["task"],
+  task: Schemas["Task"]["kind"],
   status: Schemas["ProgressStatus"]["progress_type"],
   data: TaskMetadata,
 ): NotificationProps {
@@ -71,13 +77,13 @@ function notificationProps(
     else if (status == "error") msg += "Errored";
     msg += " ";
     if (task.task_kind == "video") {
-      if (task.task_type.task_kind == "previews") {
+      if (task.kind == "previews") {
         msg += "previews";
-      } else if (task.task_type.task_kind == "subtitles") {
+      } else if (task.kind == "subtitles") {
         msg += "subtitles";
-      } else if (task.task_type.task_kind == "transcode") {
+      } else if (task.kind == "transcode") {
         msg += "transcode";
-      } else if (task.task_type.task_kind == "livetranscode") {
+      } else if (task.kind == "livetranscode") {
         msg += "live transcode";
       }
     } else if (task.task_kind == "scan") {
@@ -114,12 +120,10 @@ function createServerStatusContext(
         throw new InternalServerError();
       }
       let videoPromises = tasks.data.map((task) => {
-        if (task.task.task_kind === "video") {
-          return server
-            .GET("/api/video/{id}/metadata", {
-              params: { path: { id: task.task.video_id } },
-            })
-            .then((r) => r.data);
+        if (task.kind.task_kind === "video") {
+          return Video.fetch(task.kind.video_id)
+            .then((v) => v?.fetchMetadata())
+            .then((m) => m?.data);
         }
       });
       let settledVideoMetadata = await Promise.allSettled(videoPromises);
@@ -128,7 +132,7 @@ function createServerStatusContext(
       for (let i = 0; i < tasks.data.length; ++i) {
         let metadata: TaskMetadata | undefined = undefined;
         let task = tasks.data[i];
-        if (task.task.task_kind == "video") {
+        if (task.kind.task_kind == "video") {
           let settledMetadata = settledVideoMetadata[videoMetadataIdx];
           videoMetadataIdx += 1;
           if (settledMetadata.status == "fulfilled" && settledMetadata.value) {
@@ -145,27 +149,27 @@ function createServerStatusContext(
             }
           }
         }
-        if (task.task.task_kind == "torrent" && task.task.content) {
-          if ("show" in task.task.content) {
+        if (task.kind.task_kind == "torrent" && task.kind.content) {
+          if ("show" in task.kind.content) {
             metadata = {
               content_type: "show",
-              metadata: task.task.content.show.show_metadata,
+              metadata: task.kind.content.show.show_metadata,
             };
           }
-          if ("movie" in task.task.content) {
+          if ("movie" in task.kind.content) {
             metadata = {
               content_type: "movie",
-              metadata: task.task.content.movie[0].metadata,
+              metadata: task.kind.content.movie[0].metadata,
             };
           }
         }
         let toNotifyIdx = tasksToNotify.indexOf(task.id);
         if (!!~toNotifyIdx) {
-          if (task.task.task_kind == "scan") {
+          if (task.kind.task_kind == "scan") {
             notificator({ message: "Scanning library" });
           }
           if (metadata) {
-            let props = notificationProps(task.task, "start", metadata);
+            let props = notificationProps(task.kind, "start", metadata);
             if (task.cancelable) {
               props.onUndo = () => {
                 server.DELETE("/api/tasks/{id}", {
@@ -256,7 +260,7 @@ function createServerStatusContext(
     setIsConnecting(false);
   }
 
-  async function onProgressEvent(event: MessageEvent<string>) {
+  function onProgressEvent(event: MessageEvent<string>) {
     let data = JSON.parse(event.data) as Schemas["ProgressChunk"];
     let status = data.status;
 
@@ -274,12 +278,12 @@ function createServerStatusContext(
       status.progress_type == "error"
     ) {
       let task = tasks.find((t) => t.id == data.task_id);
-      if (task?.task.task_kind == "scan") {
+      if (task?.kind.task_kind == "scan") {
         notificator({ message: "Finished library scan" });
       }
       if (task && task.metadata) {
         let props = notificationProps(
-          task.task,
+          task.kind,
           status.progress_type,
           task.metadata,
         );

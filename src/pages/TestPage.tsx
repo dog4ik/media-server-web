@@ -23,7 +23,7 @@ export default function TestPage() {
   let episode = createAsync(async () => {
     let episode = await fetchEpisode("2", 1, 2);
     let video = await episode?.fetchVideo();
-    console.log("video id", video?.id);
+    console.log("video id", video?.details.id);
     return episode;
   });
   let video = createAsync(async () => {

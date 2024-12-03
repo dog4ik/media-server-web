@@ -96,7 +96,7 @@ function ErrorDisplay(err: Error, reset: () => void) {
   return (
     <ErrorLayout>
       <div class="flex flex-col">
-        <span>Hello from stupid unhandled error boundary</span>
+        <span>Unhandled error boundary</span>
         <span>Error: {err.message}</span>
         <button onClick={reset} class="btn">
           Reset

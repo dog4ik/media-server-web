@@ -1,28 +1,36 @@
 import { A, createAsync } from "@solidjs/router";
 import {
   Schemas,
-  defaultTrack,
   formatCodec,
   revalidatePath,
   server,
 } from "../../utils/serverApi";
-import { For, Match, Show, Suspense, Switch } from "solid-js";
+import { createSignal, For, Match, Show, Suspense, Switch } from "solid-js";
 import { InternalServerError } from "../../utils/errors";
 import {
+  defaultTrack,
   ExtendedVideoContent,
   extendEpisode,
   fetchVideoContent,
   posterList,
 } from "@/utils/library";
 import { formatResolution, formatSize } from "@/utils/formats";
-import clsx from "clsx";
 import { FiTrash } from "solid-icons/fi";
 import FallbackImage from "../FallbackImage";
 import { isCompatible } from "@/utils/mediaCapabilities/mediaCapabilities";
 import promptConfirm from "../modals/ConfirmationModal";
+import {
+  Table,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableHeader,
+  TableCell,
+} from "@/ui/table";
 
 type TableRowProps = {
   title: string;
+  idx: number;
   url: string;
   posterList: string[];
   audio: Schemas["DetailedAudioTrack"];
@@ -57,45 +65,45 @@ function CanPlayMark(props: PlayMarkProps) {
   );
 }
 
-function TableRow(props: TableRowProps) {
+function Row(props: TableRowProps) {
   return (
-    <tr class={clsx(props.onDelete || "bg-neutral-800")}>
-      <th>
+    <TableRow>
+      <TableCell>{props.idx + 1}</TableCell>
+      <TableCell>
         <FallbackImage
           srcList={props.posterList}
           alt="Content poster"
-          class="aspect-poster"
+          class="aspect-poster inline"
           width={60}
           height={90}
         />
-      </th>
-      <th>
-        <A class="hover:underline" href={props.url}>
+        <A class="pl-2 hover:underline" href={props.url}>
           {props.title}
         </A>
-      </th>
-      <td>{formatCodec(props.video.codec)}</td>
-      <td>{formatResolution(props.video.resolution)}</td>
-      <td>{formatCodec(props.audio.codec)}</td>
-      <td>
+      </TableCell>
+      <TableCell>{formatCodec(props.video.codec)}</TableCell>
+      <TableCell>{formatResolution(props.video.resolution)}</TableCell>
+      <TableCell>{formatCodec(props.audio.codec)}</TableCell>
+      <TableCell>
         <CanPlayMark audio={props.audio} video={props.video} />
-      </td>
-      <td>{formatSize(props.size)}</td>
-      <td>
+      </TableCell>
+      <TableCell>{formatSize(props.size)}</TableCell>
+      <TableCell>
         <button
           class="rounded-md p-2 transition-colors hover:bg-red-500"
           onClick={props.onDelete}
         >
           <FiTrash size={20} />
         </button>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }
 
 type VariantProps = {
   video: Schemas["DetailedVideo"];
   content: ExtendedVideoContent;
+  idx: number;
   onDelete: (id: string) => void;
 };
 
@@ -121,17 +129,22 @@ function VideoTranscodedVariants(props: VariantProps) {
   return (
     <>
       <For each={props.video.variants}>
-        {(variant) => (
-          <TableRow
-            title={title()}
-            url={url()}
-            posterList={posterList(props.content)}
-            audio={defaultTrack(variant.audio_tracks)}
-            video={defaultTrack(variant.video_tracks)}
-            size={variant.size}
-            onDelete={() => props.onDelete(variant.id)}
-          />
-        )}
+        {(variant, idx) => {
+          return (
+            <>
+              <Row
+                idx={props.idx + idx()}
+                title={title()}
+                url={url()}
+                posterList={posterList(props.content)}
+                audio={defaultTrack(variant.audio_tracks)}
+                video={defaultTrack(variant.video_tracks)}
+                size={variant.size}
+                onDelete={() => props.onDelete(variant.id)}
+              />
+            </>
+          );
+        }}
       </For>
     </>
   );
@@ -181,25 +194,23 @@ export default function Variants() {
     <div class="flex flex-col gap-5">
       <Suspense>
         <Show fallback={<NoItemsDisplay />} when={videos()?.length! > 0}>
-          <table class="table bg-black">
-            <thead>
-              <tr class="text-white">
-                {/*Poster*/}
-                <th>#</th>
-                {/*Name*/}
-                <th></th>
-                <th>Video codec</th>
-                <th>Resolution</th>
-                <th>Audio codec</th>
-                <th></th>
-                <th>Size</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table class="border">
+            <TableHeader>
+              <TableRow>
+                <TableHead>#</TableHead>
+                <TableHead>Video Codec</TableHead>
+                <TableHead>Resolution</TableHead>
+                <TableHead>Audio Codec</TableHead>
+                <TableHead>Can play</TableHead>
+                <TableHead>Size</TableHead>
+                <TableHead class="text-right"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               <For each={videos()}>
-                {(video) => (
+                {(video, idx) => (
                   <VideoTranscodedVariants
+                    idx={idx()}
                     onDelete={(variantId: string) =>
                       onDelete(video.id, variantId)
                     }
@@ -208,8 +219,8 @@ export default function Variants() {
                   />
                 )}
               </For>
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </Show>
       </Suspense>
     </div>

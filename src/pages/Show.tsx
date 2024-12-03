@@ -16,7 +16,7 @@ import { useServerStatus } from "@/context/ServerStatusContext";
 
 export default function ShowPage() {
   let [id, provider] = useProvider();
-  let downloadModal: HTMLDialogElement;
+  let [downloadModal, setDownloadModal] = createSignal(false);
 
   let [{ capabilities }] = useServerStatus();
 
@@ -64,7 +64,9 @@ export default function ShowPage() {
 
     let videos = settled.reduce(
       (acc, n) => {
-        n.status === "fulfilled" ? acc.push(n.value) : acc.push(undefined);
+        n.status === "fulfilled"
+          ? acc.push(n.value?.details)
+          : acc.push(undefined);
         return acc;
       },
       [] as (Schemas["DetailedVideo"] | undefined)[],
@@ -93,12 +95,12 @@ export default function ShowPage() {
         {(show) => (
           <>
             <DownloadTorrentModal
-              onClose={() => downloadModal.close()}
+              open={downloadModal()}
+              onClose={() => setDownloadModal(false)}
               metadata_id={show().metadata_id}
               metadata_provider={provider()}
               query={show().friendlyTitle()}
               content_type="show"
-              ref={downloadModal!}
             />
             <Description
               title={show().title}
@@ -113,10 +115,7 @@ export default function ShowPage() {
               }
             >
               <div class="flex items-center gap-2">
-                <Icon
-                  tooltip="Download"
-                  onClick={() => downloadModal?.showModal()}
-                >
+                <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
                   <FiDownload size={30} />
                 </Icon>
                 <Show when={show().metadata_provider == "local"}>

@@ -1,3 +1,12 @@
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+} from "@/ui/alert-dialog";
+import { Button } from "@/ui/button";
+import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
 
 /**
@@ -6,61 +15,54 @@ import { render } from "solid-js/web";
 export default function promptConfirm(
   prompt = "Are you sure?",
 ): Promise<boolean> {
-  let dialogRef: HTMLDialogElement;
   let { promise, resolve } = Promise.withResolvers<boolean>();
+  let [showModal, setShowModal] = createSignal(true);
 
   function handleReset() {
-    dialogRef.close();
+    resolve(false);
+    setShowModal(false);
   }
 
   function handleConfirm() {
-    dialogRef.close("continue");
+    setShowModal(false);
+    resolve(true);
   }
 
   function onClose() {
-    if (dialogRef.returnValue === "continue") {
-      resolve(true);
-    } else {
-      resolve(false);
-    }
-
-    // wait for animation to finish
-    setTimeout(() => dialogRef.remove(), 500);
+    resolve(false);
   }
 
   render(
     () => (
-      <dialog
-        onClose={onClose}
-        class="h-40 w-80 rounded-md bg-black p-3 text-white"
-        ref={dialogRef!}
+      <AlertDialog
+        open={showModal()}
+        onOpenChange={(opened) => !opened && onClose()}
       >
-        <form
-          class="flex h-full flex-col justify-between"
-          method="dialog"
-          onReset={handleReset}
-          onSubmit={handleConfirm}
-        >
-          <span class="text-2xl">Confirm action</span>
-          <p>{prompt}</p>
-          <div class="flex flex-row-reverse items-center justify-between gap-2">
-            <button
-              class="btn transition-colors hover:border-red-500 hover:bg-red-500 hover:text-white"
-              type="submit"
-            >
-              Yes
-            </button>
-            <button class="btn" type="reset">
-              Cancel
-            </button>
-          </div>
-        </form>
-      </dialog>
+        <AlertDialogContent>
+          <AlertDialogHeader class="text-2xl">Confirm action</AlertDialogHeader>
+          <AlertDialogDescription>{prompt}</AlertDialogDescription>
+          <form
+            onReset={(e) => {
+              e.preventDefault();
+              handleReset();
+            }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleConfirm();
+            }}
+          >
+            <AlertDialogFooter>
+              <Button type="reset" variant={"destructive"}>
+                Cancel
+              </Button>
+              <Button type="submit">Yes</Button>
+            </AlertDialogFooter>
+          </form>
+        </AlertDialogContent>
+      </AlertDialog>
     ),
     document.body,
   );
-
-  dialogRef!.showModal();
 
   return promise;
 }

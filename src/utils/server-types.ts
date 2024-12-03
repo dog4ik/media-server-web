@@ -1193,347 +1193,7 @@ export type components = {
         };
         /** @enum {string} */
         CodecType: "audio" | "video" | "subtitle" | "data" | "attachment";
-        ConfigurationApplyError: {
-            key: string;
-            message: string;
-        };
-        ConfigurationApplyResult: {
-            errors: components["schemas"]["ConfigurationApplyError"][];
-            require_restart: boolean;
-        };
-        /** @enum {string} */
-        ContentType: "movie" | "show";
-        CursoredResponse_DbHistory: {
-            cursor?: string | null;
-            data: {
-                /** Format: int64 */
-                id: number;
-                is_finished: boolean;
-                /** Format: int64 */
-                time: number;
-                /** Format: date-time */
-                update_time: string;
-                /** Format: int64 */
-                video_id: number;
-            }[];
-        };
-        DbExternalId: {
-            /** Format: int64 */
-            episode_id?: number | null;
-            /** Format: int64 */
-            id: number;
-            /** Format: int64 */
-            is_prime: number;
-            metadata_id: string;
-            metadata_provider: string;
-            /** Format: int64 */
-            movie_id?: number | null;
-            /** Format: int64 */
-            season_id?: number | null;
-            /** Format: int64 */
-            show_id?: number | null;
-        };
-        DbHistory: {
-            /** Format: int64 */
-            id: number;
-            is_finished: boolean;
-            /** Format: int64 */
-            time: number;
-            /** Format: date-time */
-            update_time: string;
-            /** Format: int64 */
-            video_id: number;
-        };
-        DetailedAudioTrack: {
-            /** Format: int32 */
-            channels: number;
-            codec: components["schemas"]["AudioCodec"];
-            is_default: boolean;
-            profile?: string | null;
-            sample_rate: string;
-        };
-        DetailedSubtitleTrack: {
-            codec: components["schemas"]["SubtitlesCodec"];
-            is_default: boolean;
-            language?: string | null;
-        };
-        DetailedVariant: {
-            audio_tracks: components["schemas"]["DetailedAudioTrack"][];
-            duration: components["schemas"]["SerdeDuration"];
-            id: string;
-            path: string;
-            /** Format: int64 */
-            size: number;
-            video_tracks: components["schemas"]["DetailedVideoTrack"][];
-        };
-        DetailedVideo: {
-            audio_tracks: components["schemas"]["DetailedAudioTrack"][];
-            duration: components["schemas"]["SerdeDuration"];
-            history?: null | components["schemas"]["DbHistory"];
-            /** Format: int64 */
-            id: number;
-            intro?: null | components["schemas"]["Intro"];
-            path: string;
-            previews_count: number;
-            scan_date: string;
-            /** Format: int64 */
-            size: number;
-            subtitle_tracks: components["schemas"]["DetailedSubtitleTrack"][];
-            variants: components["schemas"]["DetailedVariant"][];
-            video_tracks: components["schemas"]["DetailedVideoTrack"][];
-        };
-        DetailedVideoTrack: {
-            bitrate: number;
-            codec: components["schemas"]["VideoCodec"];
-            /** Format: double */
-            framerate: number;
-            is_default: boolean;
-            /** Format: int32 */
-            level: number;
-            profile: string;
-            resolution: components["schemas"]["Resolution"];
-        };
-        DownloadContentHint: {
-            content_type: components["schemas"]["ContentType"];
-            metadata_id: string;
-            metadata_provider: components["schemas"]["MetadataProvider"];
-        };
-        EpisodeMetadata: {
-            metadata_id: string;
-            metadata_provider: components["schemas"]["MetadataProvider"];
-            number: number;
-            plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
-            release_date?: string | null;
-            runtime?: null | components["schemas"]["SerdeDuration"];
-            season_number: number;
-            title: string;
-        };
-        ExternalIdMetadata: {
-            id: string;
-            provider: components["schemas"]["MetadataProvider"];
-        };
-        Intro: {
-            /** Format: int64 */
-            end_sec: number;
-            /** Format: int64 */
-            start_sec: number;
-        };
-        JsonTracingEvent: {
-            fields: {
-                [key: string]: unknown;
-            };
-            level: string;
-            name: string;
-            target: string;
-            timestamp: string;
-        };
-        /** Format: uri */
-        MetadataImage: string;
-        /** @enum {string} */
-        MetadataProvider: "local" | "tmdb" | "tvdb" | "imdb";
-        MetadataSearchResult: {
-            content_type: components["schemas"]["ContentType"];
-            metadata_id: string;
-            metadata_provider: components["schemas"]["MetadataProvider"];
-            plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
-            title: string;
-        };
-        MovieHistory: {
-            history: components["schemas"]["DbHistory"];
-            movie: components["schemas"]["MovieMetadata"];
-        };
-        MovieMetadata: {
-            backdrop?: null | components["schemas"]["MetadataImage"];
-            metadata_id: string;
-            metadata_provider: components["schemas"]["MetadataProvider"];
-            plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
-            release_date?: string | null;
-            runtime?: null | components["schemas"]["SerdeDuration"];
-            title: string;
-        };
-        ProgressChunk: {
-            status: components["schemas"]["ProgressStatus"];
-            /** Format: uuid */
-            task_id: string;
-        };
-        ProgressSpeed: {
-            bytespersec: number;
-        } | {
-            /** Format: float */
-            relativespeed: number;
-        };
-        ProgressStatus: {
-            /** @enum {string} */
-            progress_type: "start";
-        } | {
-            /** @enum {string} */
-            progress_type: "finish";
-        } | {
-            /** Format: float */
-            percent?: number | null;
-            /** @enum {string} */
-            progress_type: "pending";
-            speed?: null | components["schemas"]["ProgressSpeed"];
-        } | {
-            /** @enum {string} */
-            progress_type: "cancel";
-        } | {
-            /** @enum {string} */
-            progress_type: "error";
-        } | {
-            /** @enum {string} */
-            progress_type: "pause";
-        };
-        ProviderOrder: {
-            order: string[];
-            provider_type: components["schemas"]["ProviderType"];
-        };
-        /** @enum {string} */
-        ProviderType: "discover" | "movie" | "show" | "torrent";
-        Resolution: {
-            height: number;
-            width: number;
-        };
-        ResolvedTorrentFile: {
-            enabled: boolean;
-            /** Format: int64 */
-            offset: number;
-            path: string[];
-            /** Format: int64 */
-            size: number;
-        };
-        SeasonMetadata: {
-            episodes: components["schemas"]["EpisodeMetadata"][];
-            metadata_id: string;
-            metadata_provider: components["schemas"]["MetadataProvider"];
-            number: number;
-            plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
-            release_date?: string | null;
-        };
-        SerdeDuration: {
-            /** Format: int32 */
-            nanos: number;
-            /** Format: int64 */
-            secs: number;
-        };
-        ShowHistory: {
-            episode: components["schemas"]["EpisodeMetadata"];
-            history: components["schemas"]["DbHistory"];
-            /** Format: int64 */
-            show_id: number;
-        };
-        ShowMetadata: {
-            backdrop?: null | components["schemas"]["MetadataImage"];
-            episodes_amount?: number | null;
-            metadata_id: string;
-            metadata_provider: components["schemas"]["MetadataProvider"];
-            plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
-            release_date?: string | null;
-            /** @description Array of available season numbers */
-            seasons?: number[] | null;
-            title: string;
-        };
-        ShowSuggestion: {
-            episode: components["schemas"]["EpisodeMetadata"];
-            history?: null | components["schemas"]["DbHistory"];
-            /** Format: int64 */
-            show_id: number;
-        };
-        SubtitlesCodec: null | string;
-        Task: {
-            cancelable: boolean;
-            /** Format: date-time */
-            created: string;
-            /** Format: uuid */
-            id: string;
-            task: components["schemas"]["TaskKind"];
-        };
-        TaskKind: {
-            /** @enum {string} */
-            task_kind: "video";
-            task_type: components["schemas"]["VideoTaskType"];
-            /** Format: int64 */
-            video_id: number;
-        } | {
-            content?: null | components["schemas"]["TorrentContent"];
-            info_hash: number[];
-            /** @enum {string} */
-            task_kind: "torrent";
-        } | {
-            /** @enum {string} */
-            task_kind: "scan";
-        };
-        Torrent: {
-            author?: string | null;
-            /** Format: date-time */
-            created: string;
-            imdb_id: string;
-            leechers: number;
-            /** Format: uri */
-            magnet: string;
-            name: string;
-            seeders: number;
-            size: number;
-        };
-        TorrentContent: {
-            show: components["schemas"]["TorrentShow"];
-        } | {
-            movie: components["schemas"]["TorrentMovie"][];
-        };
-        TorrentContents: {
-            content?: null | components["schemas"]["TorrentContent"];
-            files: components["schemas"]["ResolvedTorrentFile"][];
-        };
-        TorrentDownload: {
-            info_hash: number[];
-            torrent_info: components["schemas"]["TorrentInfo"];
-        };
-        TorrentDownloadPayload: {
-            content_hint?: null | components["schemas"]["DownloadContentHint"];
-            enabled_files?: number[] | null;
-            magnet_link: string;
-            save_location?: string | null;
-        };
-        TorrentEpisode: {
-            file_idx: number;
-            metadata: components["schemas"]["EpisodeMetadata"];
-        };
-        TorrentInfo: {
-            contents: components["schemas"]["TorrentContents"];
-            name: string;
-            /** Format: int32 */
-            piece_length: number;
-            pieces_amount: number;
-            /** Format: int64 */
-            total_size: number;
-        };
-        TorrentMovie: {
-            file_idx: number;
-            metadata: components["schemas"]["MovieMetadata"];
-        };
-        TorrentShow: {
-            seasons: {
-                [key: string]: components["schemas"]["TorrentEpisode"][];
-            };
-            show_metadata: components["schemas"]["ShowMetadata"];
-        };
-        TranscodePayload: {
-            audio_codec?: null | components["schemas"]["AudioCodec"];
-            audio_track?: number | null;
-            resolution?: null | components["schemas"]["Resolution"];
-            video_codec?: null | components["schemas"]["VideoCodec"];
-        };
-        UpdateHistoryPayload: {
-            is_finished: boolean;
-            /** Format: int64 */
-            time: number;
-        };
-        UtoipaConfigSchema: ({
+        ConfigSchema: ({
             /** Format: int32 */
             cli_value: number;
             /** Format: int32 */
@@ -1673,7 +1333,364 @@ export type components = {
             /** @enum {string} */
             key: "upnp_ttl";
             require_restart: boolean;
+        } | {
+            /** @description Metadata language */
+            cli_value: components["schemas"]["Language"];
+            /** @description Metadata language */
+            config_value: components["schemas"]["Language"];
+            /** @description Metadata language */
+            default_value: components["schemas"]["Language"];
+            /** @description Metadata language */
+            env_value: components["schemas"]["Language"];
+            /** @enum {string} */
+            key: "metadata_language";
+            require_restart: boolean;
         })[];
+        ConfigurationApplyError: {
+            key: string;
+            message: string;
+        };
+        ConfigurationApplyResult: {
+            errors: components["schemas"]["ConfigurationApplyError"][];
+            require_restart: boolean;
+        };
+        /** @enum {string} */
+        ContentType: "movie" | "show";
+        CursoredResponse_DbHistory: {
+            cursor?: string | null;
+            data: {
+                /** Format: int64 */
+                id: number;
+                is_finished: boolean;
+                /** Format: int64 */
+                time: number;
+                /** Format: date-time */
+                update_time: string;
+                /** Format: int64 */
+                video_id: number;
+            }[];
+        };
+        DbExternalId: {
+            /** Format: int64 */
+            episode_id?: number | null;
+            /** Format: int64 */
+            id: number;
+            /** Format: int64 */
+            is_prime: number;
+            metadata_id: string;
+            metadata_provider: string;
+            /** Format: int64 */
+            movie_id?: number | null;
+            /** Format: int64 */
+            season_id?: number | null;
+            /** Format: int64 */
+            show_id?: number | null;
+        };
+        DbHistory: {
+            /** Format: int64 */
+            id: number;
+            is_finished: boolean;
+            /** Format: int64 */
+            time: number;
+            /** Format: date-time */
+            update_time: string;
+            /** Format: int64 */
+            video_id: number;
+        };
+        DetailedAudioTrack: {
+            /** Format: int32 */
+            channels: number;
+            codec: components["schemas"]["AudioCodec"];
+            is_default: boolean;
+            profile?: string | null;
+            sample_rate: string;
+        };
+        DetailedSubtitleTrack: {
+            codec: components["schemas"]["SubtitlesCodec"];
+            is_default: boolean;
+            language?: string | null;
+        };
+        DetailedVariant: {
+            audio_tracks: components["schemas"]["DetailedAudioTrack"][];
+            duration: components["schemas"]["SerdeDuration"];
+            id: string;
+            path: string;
+            /** Format: int64 */
+            size: number;
+            video_tracks: components["schemas"]["DetailedVideoTrack"][];
+        };
+        DetailedVideo: {
+            audio_tracks: components["schemas"]["DetailedAudioTrack"][];
+            duration: components["schemas"]["SerdeDuration"];
+            history?: null | components["schemas"]["DbHistory"];
+            /** Format: int64 */
+            id: number;
+            intro?: null | components["schemas"]["Intro"];
+            path: string;
+            previews_count: number;
+            scan_date: string;
+            /** Format: int64 */
+            size: number;
+            subtitle_tracks: components["schemas"]["DetailedSubtitleTrack"][];
+            variants: components["schemas"]["DetailedVariant"][];
+            video_tracks: components["schemas"]["DetailedVideoTrack"][];
+        };
+        DetailedVideoTrack: {
+            bitrate: number;
+            codec: components["schemas"]["VideoCodec"];
+            /** Format: double */
+            framerate: number;
+            is_default: boolean;
+            /** Format: int32 */
+            level: number;
+            profile: string;
+            resolution: components["schemas"]["Resolution"];
+        };
+        DownloadContentHint: {
+            content_type: components["schemas"]["ContentType"];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+        };
+        EpisodeMetadata: {
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            number: number;
+            plot?: string | null;
+            poster?: null | components["schemas"]["MetadataImage"];
+            release_date?: string | null;
+            runtime?: null | components["schemas"]["SerdeDuration"];
+            season_number: number;
+            title: string;
+        };
+        ExternalIdMetadata: {
+            id: string;
+            provider: components["schemas"]["MetadataProvider"];
+        };
+        Intro: {
+            /** Format: int64 */
+            end_sec: number;
+            /** Format: int64 */
+            start_sec: number;
+        };
+        JsonTracingEvent: {
+            fields: {
+                [key: string]: unknown;
+            };
+            level: string;
+            name: string;
+            target: string;
+            timestamp: string;
+        };
+        /** @enum {string} */
+        Language: "en" | "es" | "de" | "fr" | "ru" | "ja";
+        /** Format: uri */
+        MetadataImage: string;
+        /** @enum {string} */
+        MetadataProvider: "local" | "tmdb" | "tvdb" | "imdb";
+        MetadataSearchResult: {
+            content_type: components["schemas"]["ContentType"];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            plot?: string | null;
+            poster?: null | components["schemas"]["MetadataImage"];
+            title: string;
+        };
+        MovieHistory: {
+            history: components["schemas"]["DbHistory"];
+            movie: components["schemas"]["MovieMetadata"];
+        };
+        MovieMetadata: {
+            backdrop?: null | components["schemas"]["MetadataImage"];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            plot?: string | null;
+            poster?: null | components["schemas"]["MetadataImage"];
+            release_date?: string | null;
+            runtime?: null | components["schemas"]["SerdeDuration"];
+            title: string;
+        };
+        PendingTorrent: {
+            info_hash: number[];
+            torrent_info: components["schemas"]["TorrentInfo"];
+        };
+        ProgressChunk: {
+            status: components["schemas"]["ProgressStatus"];
+            /** Format: uuid */
+            task_id: string;
+        };
+        ProgressSpeed: {
+            bytes: number;
+            /** @enum {string} */
+            speed_type: "bytespersec";
+        } | {
+            /** Format: float */
+            speed: number;
+            /** @enum {string} */
+            speed_type: "relativespeed";
+        };
+        ProgressStatus: {
+            /** @enum {string} */
+            progress_type: "start";
+        } | {
+            /** @enum {string} */
+            progress_type: "finish";
+        } | {
+            /** Format: float */
+            percent?: number | null;
+            /** @enum {string} */
+            progress_type: "pending";
+            speed?: null | components["schemas"]["ProgressSpeed"];
+        } | {
+            /** @enum {string} */
+            progress_type: "cancel";
+        } | {
+            /** @enum {string} */
+            progress_type: "error";
+        } | {
+            /** @enum {string} */
+            progress_type: "pause";
+        };
+        ProviderOrder: {
+            order: string[];
+            provider_type: components["schemas"]["ProviderType"];
+        };
+        /** @enum {string} */
+        ProviderType: "discover" | "movie" | "show" | "torrent";
+        Resolution: {
+            height: number;
+            width: number;
+        };
+        ResolvedTorrentFile: {
+            enabled: boolean;
+            /** Format: int64 */
+            offset: number;
+            path: string[];
+            /** Format: int64 */
+            size: number;
+        };
+        SeasonMetadata: {
+            episodes: components["schemas"]["EpisodeMetadata"][];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            number: number;
+            plot?: string | null;
+            poster?: null | components["schemas"]["MetadataImage"];
+            release_date?: string | null;
+        };
+        SerdeDuration: {
+            /** Format: int32 */
+            nanos: number;
+            /** Format: int64 */
+            secs: number;
+        };
+        ShowHistory: {
+            episode: components["schemas"]["EpisodeMetadata"];
+            history: components["schemas"]["DbHistory"];
+            /** Format: int64 */
+            show_id: number;
+        };
+        ShowMetadata: {
+            backdrop?: null | components["schemas"]["MetadataImage"];
+            episodes_amount?: number | null;
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            plot?: string | null;
+            poster?: null | components["schemas"]["MetadataImage"];
+            release_date?: string | null;
+            /** @description Array of available season numbers */
+            seasons?: number[] | null;
+            title: string;
+        };
+        ShowSuggestion: {
+            episode: components["schemas"]["EpisodeMetadata"];
+            history?: null | components["schemas"]["DbHistory"];
+            /** Format: int64 */
+            show_id: number;
+        };
+        SubtitlesCodec: null | string;
+        Task: {
+            cancelable: boolean;
+            /** Format: date-time */
+            created: string;
+            /** Format: uuid */
+            id: string;
+            kind: components["schemas"]["TaskKind"];
+        };
+        TaskKind: (components["schemas"]["VideoTask"] & {
+            /** @enum {string} */
+            task_kind: "video";
+        }) | (components["schemas"]["TorrentTask"] & {
+            /** @enum {string} */
+            task_kind: "torrent";
+        }) | {
+            /** @enum {string} */
+            task_kind: "scan";
+        };
+        Torrent: {
+            author?: string | null;
+            /** Format: date-time */
+            created: string;
+            imdb_id: string;
+            leechers: number;
+            /** Format: uri */
+            magnet: string;
+            name: string;
+            seeders: number;
+            size: number;
+        };
+        TorrentContent: {
+            show: components["schemas"]["TorrentShow"];
+        } | {
+            movie: components["schemas"]["TorrentMovie"][];
+        };
+        TorrentContents: {
+            content?: null | components["schemas"]["TorrentContent"];
+            files: components["schemas"]["ResolvedTorrentFile"][];
+        };
+        TorrentDownloadPayload: {
+            content_hint?: null | components["schemas"]["DownloadContentHint"];
+            enabled_files?: number[] | null;
+            magnet_link: string;
+            save_location?: string | null;
+        };
+        TorrentEpisode: {
+            file_idx: number;
+            metadata: components["schemas"]["EpisodeMetadata"];
+        };
+        TorrentInfo: {
+            contents: components["schemas"]["TorrentContents"];
+            name: string;
+            /** Format: int32 */
+            piece_length: number;
+            pieces_amount: number;
+            /** Format: int64 */
+            total_size: number;
+        };
+        TorrentMovie: {
+            file_idx: number;
+            metadata: components["schemas"]["MovieMetadata"];
+        };
+        TorrentShow: {
+            seasons: {
+                [key: string]: components["schemas"]["TorrentEpisode"][];
+            };
+            show_metadata: components["schemas"]["ShowMetadata"];
+        };
+        TorrentTask: {
+            content?: null | components["schemas"]["TorrentContent"];
+            info_hash: number[];
+        };
+        TranscodePayload: {
+            audio_codec?: null | components["schemas"]["AudioCodec"];
+            audio_track?: number | null;
+            resolution?: null | components["schemas"]["Resolution"];
+            video_codec?: null | components["schemas"]["VideoCodec"];
+        };
+        UpdateHistoryPayload: {
+            is_finished: boolean;
+            /** Format: int64 */
+            time: number;
+        };
         VideoCodec: "hevc" | "h264" | {
             other: string;
         };
@@ -1687,19 +1704,13 @@ export type components = {
             content_type: "movie";
             movie: components["schemas"]["MovieMetadata"];
         };
-        VideoTaskType: {
-            /** @enum {string} */
-            task_kind: "transcode";
-        } | {
-            /** @enum {string} */
-            task_kind: "livetranscode";
-        } | {
-            /** @enum {string} */
-            task_kind: "previews";
-        } | {
-            /** @enum {string} */
-            task_kind: "subtitles";
+        VideoTask: {
+            kind: components["schemas"]["VideoTaskKind"];
+            /** Format: int64 */
+            video_id: number;
         };
+        /** @enum {string} */
+        VideoTaskKind: "transcode" | "livetranscode" | "previews" | "subtitles";
     };
     responses: never;
     parameters: never;
@@ -1742,7 +1753,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UtoipaConfigSchema"];
+                    "application/json": components["schemas"]["ConfigSchema"];
                 };
             };
         };
@@ -1868,7 +1879,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "image/jpeg": unknown;
+                    "image/*": unknown;
                 };
             };
             304: {
@@ -2472,7 +2483,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "image/jpeg": unknown;
+                    "image/*": unknown;
                 };
             };
             304: {
@@ -2508,7 +2519,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "image/jpeg": unknown;
+                    "image/*": unknown;
                 };
             };
             304: {
@@ -2654,7 +2665,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ShowMetadata"][];
+                    "application/json": components["schemas"]["MovieMetadata"][];
                 };
             };
         };
@@ -2696,7 +2707,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "image/jpeg": unknown;
+                    "image/*": unknown;
                 };
             };
             304: {
@@ -2789,7 +2800,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "image/jpeg": unknown;
+                    "image/*": unknown;
                 };
             };
             304: {
@@ -2826,7 +2837,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "image/jpeg": unknown;
+                    "image/*": unknown;
                 };
             };
             304: {

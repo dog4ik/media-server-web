@@ -2,60 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
-body,
-html,
-#root {
-  background-color: black;
-  overflow: hidden;
-}
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --radius: 0.5rem;
+  }
 
-* {
-  scroll-behavior: smooth;
-  min-width: 0;
-}
-
-::view-transition-old(*),
-::view-transition-new(*) {
-  mix-blend-mode: normal;
-  animation: none;
-  display: block;
-}
-
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 200ms;
-  mix-blend-mode: normal;
-  display: block;
-}
-
-::view-transition-old(description-img),
-::view-transition-new(description-img) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-
-::view-transition-old(description-title),
-::view-transition-new(description-title) {
-  mix-blend-mode: normal;
-  animation: none;
-  transition-property: transform;
-  z-index: 10;
-}
-
-::view-transition-old(description-title) {
-  display: none;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
+  [data-kb-theme="dark"] {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --radius: 0.5rem;
   }
 }
 
-::view-transition-image-pair(root) {
-  isolation: isolate;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
-
 /* Scroll bar */
 
 ::-webkit-scrollbar {

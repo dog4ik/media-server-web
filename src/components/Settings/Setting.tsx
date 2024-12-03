@@ -8,14 +8,37 @@ import { FilePicker } from "../FilePicker";
 import Modal from "../modals/Modal";
 import FileInput from "../ui/FileInput";
 import {
+  SwitchControl,
+  SwitchThumb,
+  Switch as SwitchToggle,
+} from "@/ui/switch";
+import {
   SettingsValuesObject,
   useSettingsContext,
 } from "@/context/SettingsContext";
 import clsx from "clsx";
+import { TextField, TextFieldRoot } from "@/ui/textfield";
+import {
+  NumberField,
+  NumberFieldDecrementTrigger,
+  NumberFieldGroup,
+  NumberFieldIncrementTrigger,
+  NumberFieldInput,
+} from "@/ui/number-field";
+import { Alert, AlertDescription, AlertTitle } from "@/ui/alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/ui/dialog";
+import { Button } from "@/ui/button";
 
 type Props = {
   data: Settings[keyof Settings];
-  remote: Schemas["UtoipaConfigSchema"][number];
+  remote: Schemas["ConfigSchema"][number];
 };
 
 export type InputPropType = number | string | boolean | string[];
@@ -31,36 +54,41 @@ type InputProps<T extends InputPropType> = {
 export function InferredInput<T extends InputPropType>(props: InputProps<T>) {
   if (typeof props.value === "string") {
     return (
-      <input
-        type="text"
-        value={props.value}
-        disabled={props.disabled}
-        placeholder={props.placeholder}
-        onInput={(e) => props.onInput(e.currentTarget.value as T)}
-        class="input input-bordered w-full max-w-xs text-black"
-      />
+      <TextFieldRoot class="w-full max-w-xs">
+        <TextField
+          value={props.value}
+          disabled={props.disabled}
+          placeholder={props.placeholder}
+          onInput={(e) => props.onInput(e.currentTarget.value as T)}
+        />
+      </TextFieldRoot>
     );
   }
   if (typeof props.value == "number") {
     return (
-      <input
-        type="number"
-        value={props.value}
-        disabled={props.disabled}
-        placeholder={props.placeholder}
-        onInput={(e) => props.onInput(e.currentTarget.valueAsNumber as T)}
-        class="input input-bordered w-full max-w-xs text-black"
-      />
+      <NumberField defaultValue={props.value} disabled={props.disabled}>
+        <NumberFieldGroup>
+          <NumberFieldDecrementTrigger aria-label="Decrement" />
+          <NumberFieldInput
+            onInput={(e) => props.onInput(e.currentTarget.valueAsNumber as T)}
+          />
+          <NumberFieldIncrementTrigger aria-label="Increment" />
+        </NumberFieldGroup>
+      </NumberField>
     );
   }
   if (typeof props.value == "boolean") {
+    console.log("rendering bool");
     return (
-      <input
-        type="checkbox"
+      <SwitchToggle
         class="toggle"
-        onChange={(e) => props.onInput(e.currentTarget.checked as T)}
+        onChange={(e) => props.onInput(e as T)}
         checked={props.value}
-      />
+      >
+        <SwitchControl>
+          <SwitchThumb />
+        </SwitchControl>
+      </SwitchToggle>
     );
   }
   if (Array.isArray(props.value)) {
@@ -130,30 +158,21 @@ type ToggleProps = {
   onChange: (val: boolean) => void;
 };
 
-export function Toggle(props: ToggleProps) {
-  return (
-    <input
-      type="checkbox"
-      onChange={(e) => props.onChange(e.currentTarget.checked)}
-      class="toggle"
-      checked={props.value}
-    />
-  );
-}
-
 type SecretInputProps = {
   value: string;
+  placeholder?: string;
   onChange: (val: string) => void;
 };
 
 export function SecretInput(props: SecretInputProps) {
   return (
-    <input
-      class="input input-bordered w-full max-w-xs text-black"
-      type="text"
-      value={props.value}
-      onChange={(e) => props.onChange(e.currentTarget.value)}
-    />
+    <TextFieldRoot onChange={(s) => props.onChange(s)}>
+      <TextField
+        value={props.value}
+        type="password"
+        placeholder={props.placeholder}
+      />
+    </TextFieldRoot>
   );
 }
 
@@ -165,7 +184,6 @@ type FileInputsProps = {
 function FileInputs(props: FileInputsProps) {
   let files = props.values;
   let [modalOpen, setModalOpen] = createSignal(false);
-  let modal: HTMLDialogElement;
   function onChange(idx: number, data: string) {
     files[idx] = data;
     props.onChange(files);
@@ -179,40 +197,42 @@ function FileInputs(props: FileInputsProps) {
     if (last !== "") {
       files.push(val);
     }
-    modal.close();
     setModalOpen(false);
     props.onChange(files);
   }
   return (
     <>
-      <Show when={modalOpen()}>
-        <Modal ref={modal!} onClose={() => setModalOpen(false)}>
+      <Dialog onOpenChange={setModalOpen} open={modalOpen()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Select directory</DialogTitle>
+          </DialogHeader>
           <FilePicker disallowFiles onSubmit={onAdd} />
-        </Modal>
-      </Show>
+        </DialogContent>
+      </Dialog>
       <div class="space-y-3">
         <For each={props.values}>
           {(file, idx) => (
             <div class="flex items-center justify-between gap-2">
               <FileInput
+                title="Select directory"
                 value={file}
                 onChange={(val) => onChange(idx(), val)}
               />
-              <button onClick={() => onRemove(idx())}>
+              <Button variant={"destructive"} onClick={() => onRemove(idx())}>
                 <FiX size={20} />
-              </button>
+              </Button>
             </div>
           )}
         </For>
-        <button
+        <Button
           onClick={() => {
             setModalOpen(true);
-            modal.showModal();
           }}
-          class="flex h-12 w-full items-center justify-center rounded-xl bg-white/90"
+          class="w-full"
         >
-          <FiPlusCircle class="fill-black" size={30} />
-        </button>
+          <FiPlusCircle size={30} />
+        </Button>
       </div>
     </>
   );
@@ -236,16 +256,22 @@ export function Setting(props: Props & ParentProps) {
       </div>
       <Switch>
         <Match when={props.remote.cli_value !== null}>
-          <div class="alert alert-warning">
+          <Alert>
             <FiAlertTriangle size={20} />
-            <span>Setting is being overwritten by CLI argument</span>
-          </div>
+            <AlertTitle>Warning</AlertTitle>
+            <AlertDescription>
+              Setting is being overwritten by CLI argument
+            </AlertDescription>
+          </Alert>
         </Match>
         <Match when={props.remote.env_value !== null}>
-          <div class="alert alert-warning p-3">
+          <Alert>
             <FiAlertTriangle size={20} />
-            <span>Setting is being overwritten by environment variable</span>
-          </div>
+            <AlertTitle>Warning</AlertTitle>
+            <AlertDescription>
+              Setting is being overwritten by environment variable
+            </AlertDescription>
+          </Alert>
         </Match>
       </Switch>
     </div>
@@ -290,6 +316,8 @@ export function SmartSetting<T extends keyof typeof SETTINGS>(
       >
         <Match when={setting.typeHint == "path"}>
           <FileInput
+            title="Select file"
+            description=""
             onChange={handleUpdate}
             value={
               (changedSettings[props.setting] ??

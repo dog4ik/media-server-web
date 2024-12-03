@@ -5,6 +5,8 @@ import Step3 from "./Step3";
 import { createAsync } from "@solidjs/router";
 import { Schemas, server } from "../../utils/serverApi";
 import { formatSize } from "../../utils/formats";
+import { Steps } from "@/ui/steps";
+import { Button } from "@/ui/button";
 
 type StepLoadingProps = {
   currentStep: number;
@@ -96,21 +98,12 @@ export function TorrentDownloadSteps(props: Props) {
   }
 
   return (
-    <div class="relative flex h-full w-full flex-col items-center">
-      <div class="pb-2">
-        <ul class="steps">
-          <li class={`step ${currentStep() >= 0 ? "step-accent" : ""}`}>
-            Select torrent
-          </li>
-          <li class={`step ${currentStep() >= 1 ? "step-accent" : ""}`}>
-            Choose files
-          </li>
-          <li class={`step ${currentStep() >= 2 ? "step-accent" : ""}`}>
-            Select save location
-          </li>
-        </ul>
-      </div>
-      <div class="w-full overflow-y-auto">
+    <div class="relative flex w-full flex-col items-center">
+      <Steps
+        current={currentStep()}
+        steps={["Select torrent", "Select files", "Select output location"]}
+      />
+      <div class="max-h-96 w-full flex-1 overflow-y-auto">
         <Switch fallback={<StepLoading currentStep={currentStep()} />}>
           <Match when={currentStep() === 0 && torrentSearch()?.data}>
             <Step1
@@ -152,12 +145,12 @@ export function TorrentDownloadSteps(props: Props) {
           <Show
             when={selectedFiles().length}
             fallback={
-              <button class="btn bg-white opacity-100">
+              <Button disabled class="opacity-100">
                 Select at least 1 file to continue
-              </button>
+              </Button>
             }
           >
-            <button onClick={() => changeStep(currentStep() + 1)} class="btn">
+            <Button onClick={() => changeStep(currentStep() + 1)} class="btn">
               Selected{" "}
               {formatSize(
                 enabledFiles().reduce(
@@ -168,13 +161,11 @@ export function TorrentDownloadSteps(props: Props) {
               )}{" "}
               ({enabledFiles().length}{" "}
               {enabledFiles().length == 1 ? "File" : "Files"})
-            </button>
+            </Button>
           </Show>
         </Show>
         <Show when={currentStep() === 2}>
-          <button onClick={handleFinish} class="btn">
-            Finish
-          </button>
+          <Button onClick={handleFinish}>Finish</Button>
         </Show>
       </div>
     </div>

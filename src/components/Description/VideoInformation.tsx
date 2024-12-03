@@ -1,16 +1,17 @@
 import { createMemo } from "solid-js";
-import { defaultTrack, formatCodec, Schemas } from "../../utils/serverApi";
+import { formatCodec } from "../../utils/serverApi";
 import ContentSectionContainer, {
   Info,
 } from "../generic/ContentSectionContainer";
+import { Video } from "@/utils/library";
 
 type Props = {
-  video: Schemas["DetailedVideo"];
+  video: Video;
 };
 
 export default function VideoInformation(props: Props) {
-  let defaultVideo = createMemo(() => defaultTrack(props.video.video_tracks));
-  let defaultAudio = createMemo(() => defaultTrack(props.video.audio_tracks));
+  let defaultVideo = createMemo(() => props.video.defaultVideo());
+  let defaultAudio = createMemo(() => props.video.defaultAudio());
   return (
     <ContentSectionContainer title="Video configuration">
       <div class="flex flex-wrap gap-20">

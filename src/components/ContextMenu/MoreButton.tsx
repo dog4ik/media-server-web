@@ -38,7 +38,7 @@ position-try: position-area(left span-bottom), position-area(right span-top), po
 }
 
 export default function MoreButton(props: ParentProps) {
-  let menuRef: HTMLUListElement;
+  let menuRef: HTMLUListElement = {} as any;
   let menuId = createUniqueId();
   return (
     <div>

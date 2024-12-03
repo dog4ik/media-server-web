@@ -192,7 +192,7 @@ export default function History() {
       .then((d) => d.data);
   }
 
-  let observable: HTMLDivElement;
+  let observable: HTMLDivElement = {} as any;
 
   let [history, { isLoading, reachedEnd }] = useInfiniteScroll(
     fetchHistory,

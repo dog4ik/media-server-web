@@ -27,7 +27,7 @@ export function Option(props: OptionProps & ParentProps) {
 export default function Selection(props: ParentProps & Props) {
   let popoverId = createUniqueId();
 
-  let menu: HTMLUListElement;
+  let menu: HTMLUListElement = {} as any;
 
   return (
     <div class="w-60">

@@ -8,6 +8,8 @@ import {
   FiVideo,
 } from "solid-icons/fi";
 import { createSignal, For, Match, Show, Switch } from "solid-js";
+import { TextFieldRoot, TextField } from "@/ui/textfield";
+import { Button } from "@/ui/button";
 
 type FileType = "file" | "directory" | "disk" | "home" | "videos";
 
@@ -47,7 +49,7 @@ function FileRow(props: FileRowProps) {
     <button
       disabled={props.disabled}
       onClick={() => !props.disabled && props.onClick()}
-      class={`flex items-center gap-2 p-2 ${props.disabled ? "text-neutral-400" : "text-white"}`}
+      class={`flex items-center gap-2 truncate p-2 ${props.disabled ? "text-neutral-400" : "text-white"}`}
       title={props.title}
     >
       <div>
@@ -132,30 +134,30 @@ export function FilePicker(props: Props) {
   }
 
   return (
-    <div class="w-fit space-y-2 bg-neutral-900 p-2">
+    <div class="w-full space-y-2 rounded-md border bg-background p-2">
       <div class="flex">
-        <input
-          onChange={(e) => {
-            let value = e.currentTarget.value;
-            let file = makeFile(value);
-            setSelectedOutput(file);
-            setSelectedDir(file);
-          }}
-          value={selectedOutput()?.path ?? ""}
-          class="input w-full text-black"
-        />
-        <button
+        <TextFieldRoot class="w-full">
+          <TextField
+            onInput={(e) => {
+              let value = e.currentTarget.value;
+              let file = makeFile(value);
+              setSelectedOutput(file);
+              setSelectedDir(file);
+            }}
+            value={selectedOutput()?.path ?? ""}
+          />
+        </TextFieldRoot>
+        <Button
           onClick={() => props.onSubmit(selectedOutput()!.path)}
-          disabled={!selectedOutput()}
-          class="btn disabled:bg-neutral-400 disabled:text-black"
+          disabled={!selectedOutput()?.path}
         >
           Submit
-        </button>
+        </Button>
       </div>
       <Show when={locations()}>
         {(locations) => (
-          <div class="grid h-96 max-w-xl grid-cols-3 grid-rows-1">
-            <div class="col-span-1 flex h-full flex-col">
+          <div class="flex h-96 w-full justify-between divide-x">
+            <div class="basis-1/3 overflow-x-hidden">
               <Show when={locations().home}>
                 {(home) => (
                   <FileRow
@@ -193,7 +195,7 @@ export function FilePicker(props: Props) {
                 )}
               </For>
             </div>
-            <div class="col-span-2 flex h-full flex-col overflow-auto">
+            <div class="w-[800px] flex-grow overflow-x-hidden">
               <Show when={selectedDir()}>
                 {(prev) => (
                   <FileRow

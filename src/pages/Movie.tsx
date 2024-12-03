@@ -1,4 +1,4 @@
-import { createEffect, Show } from "solid-js";
+import { createEffect, createSignal, Show } from "solid-js";
 import { fullUrl } from "@/utils/serverApi";
 import Description from "@/components/Description";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
@@ -14,7 +14,7 @@ import { fetchMovie } from "@/utils/library";
 
 export default function Movie() {
   let [movieId, provider] = useProvider();
-  let downloadModal: HTMLDialogElement;
+  let [downloadModal, setDownloadModal] = createSignal(false);
 
   let movie = createAsync(async () => {
     let movie = await fetchMovie(movieId(), provider());
@@ -52,8 +52,9 @@ export default function Movie() {
         {(movie) => (
           <>
             <DownloadTorrentModal
+              open={downloadModal()}
               metadata_id={movie().metadata_id}
-              onClose={() => downloadModal?.close()}
+              onClose={() => setDownloadModal(false)}
               metadata_provider={provider()}
               query={movie().friendlyTitle()}
               content_type="movie"
@@ -64,10 +65,10 @@ export default function Movie() {
                 title={movie().title}
                 localPoster={movie().localPoster()}
                 progress={
-                  video()?.history
+                  video()?.details.history
                     ? {
-                        history: video()!.history!,
-                        runtime: video()!.duration.secs,
+                        history: video()!.details.history!,
+                        runtime: video()!.details.duration.secs,
                       }
                     : undefined
                 }
@@ -86,7 +87,7 @@ export default function Movie() {
                     fallback={
                       <Icon
                         tooltip="Download"
-                        onClick={() => downloadModal?.showModal()}
+                        onClick={() => setDownloadModal(false)}
                       >
                         <FiDownload size={30} />
                       </Icon>
@@ -96,7 +97,7 @@ export default function Movie() {
                       <VideoActions video={video()} watchUrl={watchUrl()}>
                         <Icon
                           tooltip="Download"
-                          onClick={() => downloadModal?.showModal()}
+                          onClick={() => setDownloadModal(true)}
                         >
                           <FiDownload size={30} />
                         </Icon>

@@ -1,6 +1,6 @@
 import { Schemas } from "./serverApi";
 
-type Config = Schemas["UtoipaConfigSchema"];
+type Config = Schemas["ConfigSchema"];
 
 type SettingTypeHint = "path" | "pathArr" | "secret";
 
@@ -51,11 +51,13 @@ export const SETTINGS: Settings = {
     description: "Path to ffmpeg binary",
     long_name: "Ffmpeg path",
     name: "ffmpeg_path",
+    typeHint: "path",
   },
   ffprobe_path: {
     description: "Path to ffprobe binary",
     long_name: "Ffprobe path",
     name: "ffprobe_path",
+    typeHint: "path",
   },
   tmdb_key: {
     description: "API key for TMDB",
@@ -85,5 +87,10 @@ export const SETTINGS: Settings = {
     description: "Time to live duration of ssdp packet in the local network",
     name: "upnp_ttl",
     long_name: "SSDP ttl",
-  }
+  },
+  metadata_language: {
+    description: "Language to fetch metadata in",
+    name: "metadata_language",
+    long_name: "Metadata language",
+  },
 } as const;

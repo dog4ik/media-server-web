@@ -1,8 +1,25 @@
-import { For, Match, ParentProps, Show, Switch } from "solid-js";
+import { createSignal, For, Match, ParentProps, Show, Switch } from "solid-js";
 import { createStore } from "solid-js/store";
-import Selection, { Option } from "../../components/ui/Selection";
 import { Schemas } from "../../utils/serverApi";
-import { FiFeather, FiZap, FiZapOff } from "solid-icons/fi";
+import { FiCheck, FiFeather, FiZap, FiZapOff } from "solid-icons/fi";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/ui/card";
+import { Button } from "@/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/ui/select";
+import { Video } from "@/utils/library";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
 
 type Resolution = Schemas["Resolution"];
 type ResolutionString = `${number}x${number}`;
@@ -14,7 +31,7 @@ type Props = {
   onVideoChange: (payload: VideoCodec) => void;
   onResolutionChange: (payload: Resolution) => void;
   selectedPayload: Schemas["TranscodePayload"];
-  originalVideo: Schemas["DetailedVideo"];
+  originalVideo: Video;
   video?: MediaCapabilitiesDecodingInfo;
   audio?: MediaCapabilitiesDecodingInfo;
 };
@@ -51,30 +68,37 @@ function ResolutionSelection(
   props: SelectionProps<Schemas["Resolution"]> & ResolutionSelectionProps,
 ) {
   let maxResolutionString = serializeResolution(props.maxResolution);
+  let [resolution, setResolution] = createSignal(
+    serializeResolution(props.maxResolution),
+  );
+  let opts = resolutionOptions
+    .filter(
+      (o) =>
+        o.width <= props.maxResolution.width &&
+        o.height <= props.maxResolution.height,
+    )
+    .map(serializeResolution);
+  function onChange(res: ResolutionString | null) {
+    let resolution = res || maxResolutionString;
+    props.onChange(deserializeResolution(resolution));
+    setResolution(resolution);
+  }
   return (
     <div>
-      <label for="resolution-selection">Choose a resolution:</label>
-      <Selection value={serializeResolution(props.currentValue)}>
-        <Option
-          onClick={() =>
-            props.onChange(deserializeResolution(maxResolutionString))
-          }
-        >
-          Unchanged: {maxResolutionString}
-        </Option>
-        <For
-          each={resolutionOptions.filter(
-            (o) =>
-              o.width <= props.maxResolution.width &&
-              o.height <= props.maxResolution.height,
-          )}
-        >
-          {(r) => {
-            let str = serializeResolution(r);
-            return <Option onClick={() => props.onChange(r)}>{str}</Option>;
-          }}
-        </For>
-      </Selection>
+      <Select
+        options={Array.from(new Set([maxResolutionString, ...opts]))}
+        value={resolution()}
+        defaultValue={maxResolutionString}
+        onChange={onChange}
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
+        )}
+      >
+        <SelectTrigger>
+          <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
+        </SelectTrigger>
+        <SelectContent />
+      </Select>
     </div>
   );
 }
@@ -97,7 +121,8 @@ function AudioSelection(
     return defaultAudio;
   };
 
-  function onChange(codec: string) {
+  function onChange(oCodec: string | null) {
+    let codec = oCodec || defaultAudioCodec();
     if (audioCodecOptions.includes(codec as ExcludeOther<AudioCodec>)) {
       props.onChange(codec as AudioCodec);
     } else {
@@ -112,15 +137,22 @@ function AudioSelection(
 
   return (
     <div>
-      <label for="audio-selection">Choose an audio codec:</label>
-      <Selection value={currentValue()}>
-        <Option onClick={() => onChange(defaultAudioCodec())}>
-          Unchanged: {defaultAudioCodec()}
-        </Option>
-        <For each={audioCodecOptions}>
-          {(c) => <Option onClick={() => onChange(c)}>{c}</Option>}
-        </For>
-      </Selection>
+      <Select
+        options={Array.from(
+          new Set([defaultAudioCodec(), ...audioCodecOptions]),
+        )}
+        value={currentValue()}
+        defaultValue={defaultAudioCodec()}
+        onChange={onChange}
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
+        )}
+      >
+        <SelectTrigger>
+          <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
+        </SelectTrigger>
+        <SelectContent />
+      </Select>
     </div>
   );
 }
@@ -143,7 +175,8 @@ function VideoSelection(
     return defaultVideo;
   };
 
-  function onChange(codec: string) {
+  function onChange(oCodec: string | null) {
+    let codec = oCodec || defaultVideoCodec();
     if (videoCodecOptions.includes(codec as ExcludeOther<VideoCodec>)) {
       props.onChange(codec as VideoCodec);
     } else {
@@ -158,24 +191,24 @@ function VideoSelection(
 
   return (
     <div>
-      <label for="video-selection">Choose a video codec:</label>
-      <Selection value={currentValue()}>
-        <Option onClick={() => onChange(defaultVideoCodec())}>
-          Unchanged: {defaultVideoCodec()}
-        </Option>
-        <For each={videoCodecOptions}>
-          {(c) => {
-            return <Option onClick={() => onChange(c)}>{c}</Option>;
-          }}
-        </For>
-      </Selection>
+      <Select
+        options={Array.from(
+          new Set([defaultVideoCodec(), ...videoCodecOptions]),
+        )}
+        value={currentValue()}
+        onChange={onChange}
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
+        )}
+      >
+        <SelectTrigger>
+          <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
+        </SelectTrigger>
+        <SelectContent />
+      </Select>
     </div>
   );
 }
-
-type ColumnProps = {
-  capabilities?: MediaCapabilitiesDecodingInfo;
-};
 
 export function capabilitiesBg(capabilities?: MediaCapabilitiesDecodingInfo) {
   if (!capabilities) {
@@ -188,129 +221,142 @@ export function capabilitiesBg(capabilities?: MediaCapabilitiesDecodingInfo) {
   }
 }
 
-export function Column(props: ColumnProps & ParentProps) {
-  return (
-    <div
-      class={`flex flex-col justify-center gap-5 rounded-lg p-6 ${capabilitiesBg(props.capabilities)}`}
-    >
-      {props.children}
-    </div>
-  );
-}
-
 function SmoothStats(props: { capabilities: MediaCapabilitiesDecodingInfo }) {
   return (
-    <>
+    <div class="flex w-full items-center justify-center gap-8">
+      <Show
+        when={props.capabilities.supported}
+        fallback={
+          <Tooltip>
+            <TooltipTrigger>
+              <FiCheck class="h-6 w-6 shrink-0 stroke-red-500" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Not supported</p>
+            </TooltipContent>
+          </Tooltip>
+        }
+      >
+        <Tooltip>
+          <TooltipTrigger>
+            <FiCheck class="h-6 w-6 shrink-0 stroke-green-500" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Supported</p>
+          </TooltipContent>
+        </Tooltip>
+      </Show>
       <Show
         when={props.capabilities.smooth}
         fallback={
-          <div role="alert" class="alert alert-warning">
-            <FiFeather class="h-6 w-6 shrink-0 stroke-current" />
-            <span>Not smooth</span>
-          </div>
+          <Tooltip>
+            <TooltipTrigger>
+              <FiFeather class="h-6 w-6 shrink-0 stroke-red-500" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Not smooth</p>
+            </TooltipContent>
+          </Tooltip>
         }
       >
-        <div role="alert" class="alert alert-info">
-          <FiFeather class="h-6 w-6 shrink-0 stroke-current" />
-          <span>Smooth and easy</span>
-        </div>
+        <Tooltip>
+          <TooltipTrigger>
+            <FiFeather class="h-6 w-6 shrink-0 stroke-green-500" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Smooth and easy</p>
+          </TooltipContent>
+        </Tooltip>
       </Show>
       <Show
         when={props.capabilities.powerEfficient}
         fallback={
-          <div role="alert" class="alert alert-warning">
-            <FiZapOff class="h-6 w-6 shrink-0 stroke-current" />
-            <span>Not power efficient</span>
-          </div>
+          <Tooltip>
+            <TooltipTrigger>
+              <FiZapOff class="h-6 w-6 shrink-0 stroke-red-500" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Not power effecient</p>
+            </TooltipContent>
+          </Tooltip>
         }
       >
-        <div role="alert" class="alert alert-info">
-          <FiZap class="h-6 w-6 shrink-0 stroke-current" />
-          <span>Power efficient</span>
-        </div>
+        <Tooltip>
+          <TooltipTrigger>
+            <FiZapOff class="h-6 w-6 shrink-0 stroke-green-500" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Power effecient</p>
+          </TooltipContent>
+        </Tooltip>
       </Show>
-    </>
+    </div>
   );
 }
 
 export default function AddVersion(props: Props) {
-  let originalResolution = () => props.originalVideo.video_tracks[0].resolution;
-  let originalAudio = () =>
-    props.originalVideo.audio_tracks.find((t) => t.is_default) ??
-    props.originalVideo.audio_tracks[0];
-  let originalVideo = () =>
-    props.originalVideo.video_tracks.find((t) => t.is_default) ??
-    props.originalVideo.video_tracks[0];
+  let originalResolution = () => props.originalVideo.defaultVideo().resolution;
+  let originalAudio = () => props.originalVideo.defaultAudio();
+  let originalVideo = () => props.originalVideo.defaultVideo();
 
   return (
-    <div class="flex flex-col">
-      <div class="grid grid-cols-2 gap-4">
-        <Column capabilities={props.video}>
-          <ResolutionSelection
-            onChange={(s) => props.onResolutionChange(s)}
-            maxResolution={originalResolution()}
-            currentValue={
-              props.selectedPayload.resolution ?? originalResolution()
-            }
-          />
-          <VideoSelection
-            onChange={(s) => props.onVideoChange(s)}
-            defaultVideo={originalVideo().codec}
-            currentValue={
-              props.selectedPayload.video_codec ?? originalVideo().codec
-            }
-          />
-          <Show
-            when={props.video}
-            fallback={
-              <span>Can't figure out if configuration can be played</span>
-            }
-          >
-            {(v) => (
-              <Show when={v().supported}>
-                <span>
-                  Selected video configuration is supported and will play in
-                  this browser
-                </span>
-                <SmoothStats capabilities={v()} />
-              </Show>
-            )}
-          </Show>
-        </Column>
-        <Column capabilities={props.audio}>
-          <AudioSelection
-            onChange={(s) => props.onAudioChange(s)}
-            defaultAudio={originalAudio().codec}
-            currentValue={
-              props.selectedPayload.audio_codec ?? originalAudio().codec
-            }
-          />
-          <Show
-            when={props.audio}
-            fallback={<span>Can't figure out if audio can be played</span>}
-          >
-            {(a) => (
-              <>
-                <Show
-                  fallback={
-                    <span>
-                      Selected audio configuration is not supported in this
-                      browser
-                    </span>
-                  }
-                  when={a().supported}
-                >
-                  <span>
-                    Selected audio configuration is supported and will play in
-                    this browser
-                  </span>
-                  <SmoothStats capabilities={a()} />
-                </Show>
-              </>
-            )}
-          </Show>
-        </Column>
-      </div>
+    <div class="flex flex-wrap justify-center gap-4">
+      <CardAddVersion
+        title="Video codec"
+        description="Select desired video preset"
+        capabilities={props.video}
+      >
+        <ResolutionSelection
+          onChange={(s) => props.onResolutionChange(s)}
+          maxResolution={originalResolution()}
+          currentValue={
+            props.selectedPayload.resolution ?? originalResolution()
+          }
+        />
+        <VideoSelection
+          onChange={(s) => props.onVideoChange(s)}
+          defaultVideo={originalVideo().codec}
+          currentValue={
+            props.selectedPayload.video_codec ?? originalVideo().codec
+          }
+        />
+      </CardAddVersion>
+      <CardAddVersion
+        title="Audio codec"
+        description="Select desired audio preset"
+        capabilities={props.audio}
+      >
+        <AudioSelection
+          onChange={(s) => props.onAudioChange(s)}
+          defaultAudio={originalAudio().codec}
+          currentValue={
+            props.selectedPayload.audio_codec ?? originalAudio().codec
+          }
+        />
+      </CardAddVersion>
     </div>
+  );
+}
+
+type CardAddVersionProps = {
+  title: string;
+  description: string;
+  capabilities?: MediaCapabilitiesDecodingInfo;
+};
+
+export function CardAddVersion(props: CardAddVersionProps & ParentProps) {
+  return (
+    <Card class="w-[380px]">
+      <CardHeader>
+        <CardTitle>{props.title}</CardTitle>
+        <CardDescription>{props.description}</CardDescription>
+      </CardHeader>
+      <CardContent class="grid gap-4">{props.children}</CardContent>
+      <CardFooter>
+        <Show when={props.capabilities}>
+          {(capabilities) => <SmoothStats capabilities={capabilities()} />}
+        </Show>
+      </CardFooter>
+    </Card>
   );
 }

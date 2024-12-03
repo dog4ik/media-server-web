@@ -1,9 +1,11 @@
-import { Schemas } from "../utils/serverApi";
+import { Schemas } from "@/utils/serverApi";
 import { For, ParentProps } from "solid-js";
-import { server } from "../utils/serverApi";
+import { server } from "@/utils/serverApi";
 import { createAsync } from "@solidjs/router";
 import { FiFile, FiFolder } from "solid-icons/fi";
-import { formatSize } from "../utils/formats";
+import { formatSize } from "@/utils/formats";
+import StatusHeader from "./StatusHeader";
+import { Button } from "@/ui/button";
 
 type TorrentDownloadProps = {
   info: Schemas["TorrentInfo"];
@@ -122,6 +124,10 @@ export default function Torrent() {
   return (
     <>
       <div class="h-full w-full">
+        <StatusHeader downloading={1} seeding={0} />
+        <Button variant={"outline"} onClick={() => console.log("hello")}>
+          Hello
+        </Button>
         <For each={downloads()}>
           {(download) => <TorrentDownload info={download} />}
         </For>

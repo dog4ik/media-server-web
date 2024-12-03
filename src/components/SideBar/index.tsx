@@ -4,9 +4,11 @@ import { For } from "solid-js";
 const ROUTES = [
   ["Home", "/"],
   ["Dashboard", "/dashboard"],
+  ["Torrent", "/torrent"],
   ["Shows", "/shows"],
   ["Movies", "/movies"],
   ["Settings", "/settings"],
+  ["History", "/history"],
 ] as const;
 
 export default function SideBar() {

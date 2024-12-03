@@ -1,5 +1,5 @@
 import { createAsync, useParams } from "@solidjs/router";
-import { Show, createEffect } from "solid-js";
+import { Show, createEffect, createSignal } from "solid-js";
 import Description from "@/components/Description";
 import { fullUrl } from "@/utils/serverApi";
 import { useProvider } from "@/utils/metadataProviders";
@@ -25,7 +25,7 @@ function parseParams() {
 export default function Episode() {
   let [episodeNumber, seasonNumber] = parseParams();
   let [showId, provider] = useProvider();
-  let downloadModal: HTMLDialogElement;
+  let [torrentModal, setTorrentModal] = createSignal(false);
 
   let data = createAsync(async () => {
     let episodePromise = fetchEpisode(
@@ -85,16 +85,14 @@ export default function Episode() {
   return (
     <>
       <Title text={pageTitle()} />
-      <Show when={torrentQuery() && data()}>
-        <DownloadTorrentModal
-          metadata_id={data()!.show!.metadata_id}
-          onClose={() => downloadModal!.close()}
-          metadata_provider={provider()}
-          query={torrentQuery()!}
-          content_type="show"
-          ref={downloadModal!}
-        />
-      </Show>
+      <DownloadTorrentModal
+        open={torrentModal()}
+        metadata_id={data()!.show!.metadata_id}
+        onClose={() => setTorrentModal(false)}
+        metadata_provider={provider()}
+        query={torrentQuery()!}
+        content_type="show"
+      />
       <div class="space-y-5 p-4">
         <Show when={data()?.episode}>
           {(episode) => {
@@ -103,10 +101,10 @@ export default function Episode() {
                 title={episode().title}
                 localPoster={episode().localPoster()}
                 progress={
-                  video()?.history
+                  video()?.details.history
                     ? {
-                        history: video()!.history!,
-                        runtime: video()!.duration.secs,
+                        history: video()!.details.history!,
+                        runtime: video()!.details.duration.secs,
                       }
                     : undefined
                 }
@@ -134,7 +132,7 @@ export default function Episode() {
                     fallback={
                       <Icon
                         tooltip="Download"
-                        onClick={() => downloadModal?.showModal()}
+                        onClick={() => setTorrentModal(true)}
                       >
                         <FiDownload size={30} />
                       </Icon>
@@ -144,7 +142,7 @@ export default function Episode() {
                       <VideoActions video={video()} watchUrl={watchUrl()}>
                         <Icon
                           tooltip="Download"
-                          onClick={() => downloadModal?.showModal()}
+                          onClick={() => setTorrentModal(true)}
                         >
                           <FiDownload size={30} />
                         </Icon>

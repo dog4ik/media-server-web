@@ -11,7 +11,7 @@ type Props = {
 
 export default function BlurImage(props: Props) {
   let [isLoaded, setIsLoaded] = createSignal(false);
-  let imgRef: HTMLImageElement;
+  let imgRef: HTMLImageElement = {} as any;
   onMount(() => {
     setIsLoaded(imgRef.complete);
   });

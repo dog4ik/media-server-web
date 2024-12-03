@@ -7,7 +7,7 @@ type Props = {
 };
 
 export default function LogWindow(props: Props) {
-  let windowRef: HTMLDivElement;
+  let windowRef: HTMLDivElement = {} as any;
   createEffect(() => {
     if (props.logs) {
       windowRef.scrollTo({ top: windowRef.scrollHeight });

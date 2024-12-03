@@ -52,7 +52,7 @@ export default function Notification(
   function handleResume() {
     animation.play();
   }
-  let timeLine: HTMLDivElement;
+  let timeLine: HTMLDivElement = {} as any;
   let animation: Animation;
   onMount(() => {
     animation = timeLine.animate(

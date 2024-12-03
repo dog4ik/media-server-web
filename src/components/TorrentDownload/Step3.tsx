@@ -59,7 +59,11 @@ export default function Step3(props: Props) {
       </table>
       <div>
         <span>Output location: </span>
-        <FileInput value={props.output ?? ""} onChange={props.onOutputSelect} />
+        <FileInput
+          title="Select torrent output location"
+          value={props.output ?? ""}
+          onChange={props.onOutputSelect}
+        />
       </div>
     </div>
   );

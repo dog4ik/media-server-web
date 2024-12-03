@@ -167,12 +167,12 @@ export default function VideoPlayer(props: Props & ParentProps) {
     }
   }
 
-  let videoRef: HTMLVideoElement;
-  let videoContainerRef: HTMLDivElement;
-  let timelineRef: HTMLDivElement;
-  let menuRef: HTMLDivElement;
-  let menuBtnRef: HTMLButtonElement;
-  let actionContainer: HTMLDivElement;
+  let videoRef: HTMLVideoElement = {} as any;
+  let videoContainerRef: HTMLDivElement = {} as any;
+  let timelineRef: HTMLDivElement = {} as any;
+  let menuRef: HTMLDivElement = {} as any;
+  let menuBtnRef: HTMLButtonElement = {} as any;
+  let actionContainer: HTMLDivElement = {} as any;
 
   let showControlsTimeout: ReturnType<typeof setTimeout>;
   let [previewPosition, setPreviewPosition] = createSignal<number | null>(null);

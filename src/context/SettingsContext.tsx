@@ -12,8 +12,8 @@ export type SettingsErrorObject = {
 };
 
 export type SettingsObject = {
-  [K in Schemas["UtoipaConfigSchema"][number]["key"]]: Extract<
-    Schemas["UtoipaConfigSchema"][number],
+  [K in Schemas["ConfigSchema"][number]["key"]]: Extract<
+    Schemas["ConfigSchema"][number],
     { key: K }
   >;
 };

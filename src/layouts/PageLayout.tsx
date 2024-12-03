@@ -15,8 +15,8 @@ const OPTIONS = {
 
 export default function PageLayout(props: ParentProps) {
   let [{ currentBackdrop }] = useBackdropContext();
-  let backdropElement: HTMLImageElement;
-  let gradientElement: HTMLDivElement;
+  let backdropElement: HTMLImageElement = {} as any;
+  let gradientElement: HTMLDivElement = {} as any;
   let [isLoaded, setIsLoaded] = createSignal(false);
 
   createEffect(() => {
@@ -50,7 +50,7 @@ export default function PageLayout(props: ParentProps) {
               }`}
             />
           </Show>
-          <div class="absolute inset-0 bg-gray-900/90" />
+          <div class="absolute inset-0 bg-background/90" />
         </div>
       </div>
       <main class="relative flex min-h-screen w-full flex-col overflow-y-scroll rounded-md pt-16 text-white">

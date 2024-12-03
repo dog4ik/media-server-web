@@ -4,7 +4,7 @@ import {
 } from "../../context/ServerStatusContext";
 import { For, Show } from "solid-js";
 import PageTitle from "../PageTitle";
-import TasksTable, { TableRow } from "../ui/TasksTable";
+import TasksTable, { Row } from "../ui/TasksTable";
 
 export default function Activity() {
   let [{ tasks, tasksProgress }, { cancelTask }] = useServerStatus();
@@ -21,7 +21,7 @@ export default function Activity() {
           <For each={tasks}>
             {(t) => {
               let display = () => {
-                if (t.task.task_kind == "scan") {
+                if (t.kind.task_kind == "scan") {
                   return {
                     poster: undefined,
                     title: "Library scan",
@@ -31,6 +31,7 @@ export default function Activity() {
                   let display = displayTask(t.metadata);
                   return {
                     poster: display.poster,
+                    url: display.url(),
                     title: display.friendlyTitle(),
                   };
                 }
@@ -40,11 +41,12 @@ export default function Activity() {
                 };
               };
               return (
-                <TableRow
-                  task_type={t.task.task_kind}
+                <Row
+                  task_type={t.kind.task_kind}
                   onCancel={t.cancelable ? () => cancelTask(t.id) : undefined}
                   poster={display().poster}
                   name={display().title}
+                  url={display().url}
                   status="pending"
                   created="now"
                   percent={tasksProgress[t.id]?.percent}

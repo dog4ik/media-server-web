@@ -1,41 +1,58 @@
 import { createSignal, Show } from "solid-js";
-import Modal from "../modals/Modal";
 import { FilePicker } from "../FilePicker";
 import { FiEdit2 } from "solid-icons/fi";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/ui/dialog";
+import { Button } from "@/ui/button";
 
 type FileInputProps = {
   value: string;
+  title: string;
+  description?: string;
   onChange: (val: string) => void;
 };
 
 export default function FileInput(props: FileInputProps) {
   let [showModal, setShowModal] = createSignal(false);
-  let modal: HTMLDialogElement;
   return (
     <>
       <Show when={showModal()}>
-        <Modal ref={modal!} onClose={() => setShowModal(false)}>
-          <FilePicker
-            onSubmit={(val) => {
-              props.onChange(val);
-              modal.close();
-            }}
-            disallowFiles
-            initialDir={props.value}
-          />
-        </Modal>
+        <Dialog onOpenChange={setShowModal} open={showModal()}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{props.title}</DialogTitle>
+              <Show when={props.description}>
+                {(description) => (
+                  <DialogDescription>{description()}</DialogDescription>
+                )}
+              </Show>
+            </DialogHeader>
+            <FilePicker
+              onSubmit={(val) => {
+                props.onChange(val);
+                setShowModal(false);
+              }}
+              disallowFiles
+              initialDir={props.value}
+            />
+          </DialogContent>
+        </Dialog>
       </Show>
-      <div class="flex items-center flex-1 justify-between gap-2 rounded-xl bg-neutral-800 p-1">
+      <div class="flex h-9 flex-1 items-center justify-between gap-2 rounded-md border bg-background py-1 pl-3 text-sm">
         <span>{props.value}</span>
-        <button
-          class="btn"
+        <Button
+          variant={"ghost"}
           onClick={() => {
             setShowModal(true);
-            modal.showModal();
           }}
         >
-          <FiEdit2 size={10} />
-        </button>
+          <FiEdit2 />
+        </Button>
       </div>
     </>
   );

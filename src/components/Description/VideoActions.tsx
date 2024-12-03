@@ -1,41 +1,30 @@
-import { FiDownload, FiImage, FiLoader, FiPlay } from "solid-icons/fi";
-import {
-  defaultTrack,
-  revalidatePath,
-  Schemas,
-  server,
-} from "../../utils/serverApi";
+import { FiImage, FiLoader, FiPlay } from "solid-icons/fi";
+import { revalidatePath, server } from "../../utils/serverApi";
 import Icon from "../ui/Icon";
-import { For, ParentProps, Show } from "solid-js";
+import { createSignal, For, ParentProps, Show } from "solid-js";
 import MoreButton, { RecursiveRow } from "../ContextMenu/MoreButton";
 import VariantMenuRow from "./VariantMenuRow";
 import PlayButton from "./PlayButton";
-import { createAsync, useNavigate } from "@solidjs/router";
-import { isCompatible } from "../../utils/mediaCapabilities/mediaCapabilities";
+import { useNavigate } from "@solidjs/router";
 import { useNotifications } from "../../context/NotificationContext";
 import { TranscodeModal } from "../modals/TranscodeModal";
+import { Video } from "@/utils/library";
 
 type Props = {
-  video: Schemas["DetailedVideo"];
+  video: Video;
   watchUrl?: string;
 } & ParentProps;
 
 export default function VideoActions(props: Props) {
   let notificator = useNotifications();
   let navigator = useNavigate();
-  let transcodeModal: HTMLDialogElement;
+  let [transcodeOpen, setTranscodeOpen] = createSignal(false);
 
-  let videoCompatibility = createAsync(async () => {
-    let defaultVideo = defaultTrack(props.video.video_tracks);
-    let defaultAudio = defaultTrack(props.video.audio_tracks);
-    return await isCompatible(defaultVideo, defaultAudio);
-  });
+  let videoCompatibility = props.video.videoCompatibility();
 
-  let deletePreviews = async () => {
-    return await server
-      .DELETE("/api/video/{id}/previews", {
-        params: { path: { id: +props.video!.id } },
-      })
+  let deletePreviews = () => {
+    props.video
+      .deletePreviews()
       .then(() => {
         notificator("Cleared previews");
       })
@@ -48,18 +37,14 @@ export default function VideoActions(props: Props) {
   };
 
   let generatePreviews = async () => {
-    return server
-      .POST("/api/video/{id}/previews", {
-        params: { path: { id: +props.video!.id } },
-      })
-      .finally(() => {
-        revalidatePath("/api/video/by_content");
-      });
+    props.video.generatePreviews().finally(() => {
+      revalidatePath("/api/video/by_content");
+    });
   };
 
   async function startLiveTranscoding() {
     let res = await server.POST("/api/video/{id}/stream_transcode", {
-      params: { path: { id: props.video.id } },
+      params: { path: { id: props.video.details.id } },
     });
     if (res.data) {
       navigator(props.watchUrl + `?stream_id=${res.data.id}`);
@@ -68,31 +53,35 @@ export default function VideoActions(props: Props) {
 
   return (
     <>
-      <TranscodeModal ref={transcodeModal!} video={props.video} />
+      <TranscodeModal
+        isOpen={transcodeOpen()}
+        onClose={() => setTranscodeOpen(false)}
+        video={props.video}
+      />
       <Show when={props.watchUrl}>
         {(url) => <PlayButton href={url()} canPlay={videoCompatibility()} />}
       </Show>
-      <Show when={props.video!.previews_count === 0}>
+      <Show when={props.video.details.previews_count === 0}>
         <Icon tooltip="Generate previews" onClick={generatePreviews}>
           <FiImage size={30} />
         </Icon>
-        <Show when={props.video!.previews_count > 0}>
+        <Show when={props.video.details.previews_count > 0}>
           <Icon tooltip="Remove previews" onClick={deletePreviews}>
             <FiImage size={30} />
           </Icon>
         </Show>
       </Show>
-      <Icon tooltip={"Transcode"} onClick={() => transcodeModal.showModal()}>
+      <Icon tooltip={"Transcode"} onClick={() => setTranscodeOpen(true)}>
         <FiLoader size={30} />
       </Icon>
       <Icon tooltip={"Live transcode"} onClick={startLiveTranscoding}>
         <FiPlay size={30} />
       </Icon>
       {props.children}
-      <Show when={props.video.variants.length > 0}>
+      <Show when={props.video.details.variants.length > 0}>
         <MoreButton>
           <RecursiveRow title="Watch variant">
-            <For each={props.video.variants}>
+            <For each={props.video.details.variants}>
               {(variant) => {
                 let href = `${props.watchUrl}?variant=${variant.id}`;
                 return <VariantMenuRow variant={variant} href={href} />;

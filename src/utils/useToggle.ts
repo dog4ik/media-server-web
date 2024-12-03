@@ -9,5 +9,5 @@ export default function useToggle(initialValue: boolean = false) {
       setValue(!value());
     }
   };
-  return [value, setter];
+  return [value, setter] as const;
 }

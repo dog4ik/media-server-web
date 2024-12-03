@@ -7,14 +7,12 @@ import Movies from "./pages/Movies";
 import Movie from "./pages/Movie";
 import Show from "./pages/Show";
 import Episode from "./pages/Episode";
-import Torrent from "./pages/Torrent";
+import Torrent from "./pages/Torrent/v0Torrent";
 import Settings from "./pages/Settings";
 import Logs from "./pages/Logs";
 import Layout from "./Layout";
 import { server } from "./utils/serverApi";
-import General from "./pages/Settings/General";
 import History from "./pages/Settings/History";
-import SettingsLayout from "./layouts/SettingsLayout";
 import PageLayout from "./layouts/PageLayout";
 import WatchLayout from "./layouts/WatchLayout";
 import SearchPage from "./pages/Search";
@@ -27,7 +25,7 @@ function loadShows() {
 
 function loadShow({ params, location }: RoutePreloadFuncArgs) {
   let provider = (location.query.provider as "local") ?? "local";
-  server.GET("/api/show/{id}", {
+  return server.GET("/api/show/{id}", {
     params: { query: { provider }, path: { id: params.id } },
   });
 }
@@ -51,10 +49,8 @@ function App() {
         <Route path="/settings" component={Settings} />
         <Route path="/search" component={SearchPage} />
         <Route path="/test" component={TestPage} />
-        <Route path="/settings/*" component={SettingsLayout}>
-          <Route path="/general" component={General} />
-          <Route path="/history" component={History} />
-        </Route>
+        <Route path="/settings" component={Settings} />
+        <Route path="/history" component={History} />
         <Route path="/logs" component={Logs} />
         <Route path="*" component={NotFound}></Route>
       </Route>

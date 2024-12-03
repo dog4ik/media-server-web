@@ -1,9 +1,17 @@
-import { For, Show, onMount } from "solid-js";
+import { For, Show } from "solid-js";
 import { Schemas, revalidatePath, server } from "../../utils/serverApi";
 import useDebounce from "../../utils/useDebounce";
-import Modal from "../modals/Modal";
 import { createAsync } from "@solidjs/router";
 import { useNotifications } from "../../context/NotificationContext";
+import ProviderLogo from "../generic/ProviderLogo";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/ui/dialog";
+import { TextField, TextFieldRoot } from "@/ui/textfield";
 
 type SearchResultProps = {
   metadata: Schemas["MetadataSearchResult"];
@@ -14,7 +22,7 @@ function SearchResult(props: SearchResultProps) {
   return (
     <button
       onClick={props.onClick}
-      class="bg-card hover:bg-card/80 group relative overflow-hidden rounded-lg transition-colors"
+      class="group relative overflow-hidden rounded-lg bg-card transition-colors hover:bg-card/80"
     >
       <div class="grid grid-cols-[120px_1fr] gap-4 p-4 md:p-6">
         <img
@@ -30,9 +38,12 @@ function SearchResult(props: SearchResultProps) {
               {props.metadata.title}
             </h3>
           </div>
-          <p class="text-muted-foreground line-clamp-2 text-left text-sm">
+          <p class="line-clamp-2 text-left text-sm text-muted-foreground">
             {props.metadata.plot}
           </p>
+          <div class="h-10 w-10">
+            <ProviderLogo provider={props.metadata.metadata_provider} />
+          </div>
         </div>
       </div>
     </button>
@@ -41,14 +52,14 @@ function SearchResult(props: SearchResultProps) {
 
 type Props = {
   initialSearch?: string;
+  open: boolean;
   targetId: string;
   contentType: Schemas["ContentType"];
-  onClose?: () => void;
+  onClose: () => void;
 };
 
 export default function FixMetadata(props: Props) {
   let notificator = useNotifications();
-  let dialog: HTMLDialogElement;
   let [search, deferredSearch, setSearch] = useDebounce(
     500,
     props.initialSearch ?? "",
@@ -83,24 +94,30 @@ export default function FixMetadata(props: Props) {
           revalidatePath("/api/local_movies");
         }
       });
-    dialog.close();
     props.onClose && props.onClose();
   }
 
-  onMount(() => dialog.showModal());
-
   return (
-    <Modal size="xl" onClose={props.onClose} ref={dialog!}>
-      <div>
-        <div>
-          <input
-            class="input input-md text-black"
+    <Dialog
+      onOpenChange={(isClosed) => isClosed || props.onClose()}
+      open={props.open}
+    >
+      <DialogContent class="flex h-3/4 w-2/3 flex-col">
+        <DialogHeader>
+          <DialogTitle>Edit metadata</DialogTitle>
+          <DialogDescription>
+            Select correct metadata from the list below
+          </DialogDescription>
+        </DialogHeader>
+
+        <TextFieldRoot>
+          <TextField
             onInput={(e) => setSearch(e.currentTarget.value)}
             value={search()}
             placeholder={props.initialSearch}
           />
-        </div>
-        <div>
+        </TextFieldRoot>
+        <div class="flex-1 overflow-auto">
           <Show when={searchResult()?.data}>
             {(results) => (
               <For
@@ -122,7 +139,7 @@ export default function FixMetadata(props: Props) {
             )}
           </Show>
         </div>
-      </div>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 }

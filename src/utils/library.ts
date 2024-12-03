@@ -1,9 +1,14 @@
 import { NotificationProps } from "@/components/Notification";
 import { useRawNotifications } from "@/context/NotificationContext";
 import { formatSE } from "./formats";
-import { defaultTrack, fullUrl, Schemas, server } from "./serverApi";
+import { fullUrl, Schemas, server } from "./serverApi";
 import { createAsync } from "@solidjs/router";
 import { throwResponseErrors } from "./errors";
+import { isCompatible } from "./mediaCapabilities/mediaCapabilities";
+
+export function defaultTrack<T extends { is_default: boolean }>(tracks: T[]) {
+  return tracks.find((t) => t.is_default) ?? tracks[0];
+}
 
 async function externalToLocal<T extends Media>(content: T) {
   return await server
@@ -40,7 +45,7 @@ export interface Media {
 export type ExtendedMovie = Schemas["MovieMetadata"] &
   Media & {
     localId(): Promise<number | undefined>;
-    fetchVideo(): Promise<Schemas["DetailedVideo"] | undefined>;
+    fetchVideo(): Promise<Video | undefined>;
   };
 
 export async function fetchMovie(
@@ -83,7 +88,7 @@ export function extendMovie(movie: Schemas["MovieMetadata"]): ExtendedMovie {
           .GET("/api/video/by_content", {
             params: { query: { content_type: "movie", id: +this.metadata_id } },
           })
-          .then((res) => res.data);
+          .then((res) => (res.data ? new Video(res.data) : undefined));
         return metadata;
       }
     },
@@ -208,7 +213,7 @@ export function extendSeason(
 
 export type ExtendedEpisode = Schemas["EpisodeMetadata"] &
   Media & {
-    fetchVideo(): Promise<Schemas["DetailedVideo"] | undefined>;
+    fetchVideo(): Promise<Video | undefined>;
     /**
      * Show aware notificator
      */
@@ -264,7 +269,7 @@ export function extendEpisode(
           .GET("/api/video/by_content", {
             params: { query: { content_type: "show", id: +this.metadata_id } },
           })
-          .then((res) => res.data);
+          .then((res) => (res.data ? new Video(res.data) : undefined));
         return metadata;
       }
     },
@@ -382,7 +387,7 @@ export class Content<T extends Media> {
 }
 
 export class Video {
-  constructor(public video: Schemas["DetailedVideo"]) {}
+  constructor(public details: Schemas["DetailedVideo"]) {}
 
   /**
    Create solidjs async signal
@@ -403,14 +408,14 @@ export class Video {
   }
 
   async refetch() {
-    let newVideo = await Video.fetch(this.video.id);
+    let newVideo = await Video.fetch(this.details.id);
     if (newVideo) {
-      this.video = newVideo.video;
+      this.details = newVideo.details;
     }
   }
 
   private params() {
-    return { path: { id: this.video.id } };
+    return { path: { id: this.details.id } };
   }
 
   async transcode(payload: Schemas["TranscodePayload"]) {
@@ -421,7 +426,7 @@ export class Video {
   }
 
   async generatePreviews() {
-    if (this.video.previews_count === 0) {
+    if (this.details.previews_count === 0) {
       await server.POST("/api/video/{id}/previews", {
         params: this.params(),
       });
@@ -429,7 +434,7 @@ export class Video {
   }
 
   async deletePreviews() {
-    if (this.video.previews_count !== 0) {
+    if (this.details.previews_count !== 0) {
       await server.DELETE("/api/video/{id}/previews", {
         params: this.params(),
       });
@@ -445,10 +450,22 @@ export class Video {
   }
 
   defaultAudio() {
-    return defaultTrack(this.video.audio_tracks);
+    return defaultTrack(this.details.audio_tracks);
   }
 
   defaultVideo() {
-    return defaultTrack(this.video.video_tracks);
+    return defaultTrack(this.details.video_tracks);
+  }
+
+  videoCompatibility() {
+    return createAsync(async () => {
+      return await isCompatible(this.defaultVideo(), this.defaultAudio());
+    });
+  }
+
+  fetchMetadata() {
+    return server.GET("/api/video/{id}/metadata", {
+      params: { path: { id: this.details.id } },
+    });
   }
 }

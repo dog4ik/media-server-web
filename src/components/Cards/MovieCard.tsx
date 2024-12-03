@@ -9,9 +9,9 @@ import {
 } from "../../utils/serverApi";
 import { MenuRow } from "../ContextMenu/Menu";
 import { useNotifications } from "../../context/NotificationContext";
+import useToggle from "../../utils/useToggle";
 import { Show } from "solid-js";
 import FixMetadata from "../FixMetadata";
-import useToggle from "../../utils/useToggle";
 
 function provider(provider: string): string {
   if (provider === "local") {
@@ -57,21 +57,26 @@ export default function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
 
   return (
     <>
-      <div class="flex-none w-52">
+      <FixMetadata
+        open={fixModal()}
+        contentType="movie"
+        targetId={props.movie.metadata_id}
+        initialSearch={props.movie.title}
+        onClose={() => toggleFixModal(false)}
+      />
+      <div class="w-52 max-w-52 flex-none">
         <A href={url} class="relative w-full">
           <FallbackImage
             alt="Movie poster"
             srcList={[localUrl, props.movie.poster ?? undefined]}
-            class="rounded-xl w-full"
+            class="aspect-poster w-full rounded-xl"
             width={208}
             height={312}
           />
         </A>
         <div class="flex items-center justify-between">
-          <A href={url}>
-            <div class="truncate text-lg">
-              <span>{props.movie.title}</span>
-            </div>
+          <A class="truncate text-lg" href={url}>
+            {props.movie.title}
           </A>
           <MoreButton>
             <MenuRow onClick={handleFix}>Fix metadata</MenuRow>

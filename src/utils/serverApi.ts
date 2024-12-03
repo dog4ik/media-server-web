@@ -3,10 +3,6 @@ import { query, revalidate } from "@solidjs/router";
 import createClient, { ClientMethod, ParamsOption } from "openapi-fetch";
 import type { components, paths } from "./server-types";
 
-export function defaultTrack<T extends { is_default: boolean }>(tracks: T[]) {
-  return tracks.find((t) => t.is_default) ?? tracks[0];
-}
-
 export function formatCodec<T extends string | { other: string }>(
   codec: T,
 ): string {

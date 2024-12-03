@@ -2,6 +2,7 @@ import { useNotifications } from "../../context/NotificationContext";
 import { FiArrowLeftCircle, FiRefreshCcw } from "solid-icons/fi";
 import SearchBar from "../SearchBar";
 import { revalidatePath, server } from "../../utils/serverApi";
+import { Button } from "@/ui/button";
 
 export default function NavBar() {
   function back() {
@@ -21,7 +22,7 @@ export default function NavBar() {
     revalidatePath("/api/local_movies");
   }
   return (
-    <header class="dark:border-gray-850 fixed top-0 z-10 flex h-12 w-full shrink-0 items-center bg-black/30 px-4 py-8 text-white">
+    <header class="fixed top-0 z-10 flex h-12 w-full shrink-0 items-center bg-black/30 px-4 py-8 text-white">
       <nav class="flex flex-1 items-center justify-between text-sm font-semibold">
         <div class="flex w-2/3 items-center gap-3">
           <button onClick={back}>
@@ -30,13 +31,13 @@ export default function NavBar() {
           <SearchBar />
         </div>
         <ul class="mr-10 flex items-center space-x-4 self-end">
-          <button
+          <Button
             onClick={handleRefresh}
             class="btn tooltip tooltip-bottom"
             data-tip="Refresh Library"
           >
             <FiRefreshCcw size={20} />
-          </button>
+          </Button>
         </ul>
       </nav>
     </header>
