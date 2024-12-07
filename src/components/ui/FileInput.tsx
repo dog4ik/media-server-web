@@ -21,28 +21,26 @@ export default function FileInput(props: FileInputProps) {
   let [showModal, setShowModal] = createSignal(false);
   return (
     <>
-      <Show when={showModal()}>
-        <Dialog onOpenChange={setShowModal} open={showModal()}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{props.title}</DialogTitle>
-              <Show when={props.description}>
-                {(description) => (
-                  <DialogDescription>{description()}</DialogDescription>
-                )}
-              </Show>
-            </DialogHeader>
-            <FilePicker
-              onSubmit={(val) => {
-                props.onChange(val);
-                setShowModal(false);
-              }}
-              disallowFiles
-              initialDir={props.value}
-            />
-          </DialogContent>
-        </Dialog>
-      </Show>
+      <Dialog onOpenChange={setShowModal} open={showModal()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{props.title}</DialogTitle>
+            <Show when={props.description}>
+              {(description) => (
+                <DialogDescription>{description()}</DialogDescription>
+              )}
+            </Show>
+          </DialogHeader>
+          <FilePicker
+            onSubmit={(val) => {
+              props.onChange(val);
+              setShowModal(false);
+            }}
+            disallowFiles
+            initialDir={props.value}
+          />
+        </DialogContent>
+      </Dialog>
       <div class="flex h-9 flex-1 items-center justify-between gap-2 rounded-md border bg-background py-1 pl-3 text-sm">
         <span>{props.value}</span>
         <Button
