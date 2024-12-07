@@ -66,6 +66,7 @@ export default function FixMetadata(props: Props) {
   );
 
   let searchResult = createAsync(async () => {
+    if (!props.open) return undefined;
     return server.GET("/api/search/content", {
       params: { query: { search: deferredSearch() } },
     });
