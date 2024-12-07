@@ -1,3 +1,4 @@
+import { Button } from "@/ui/button";
 import {
   NotFoundError,
   ParseParamsError,
@@ -36,9 +37,9 @@ function ServerUnavailable(props: ErrorProps) {
         </a>
       </p>
       <FiWifiOff size={50} />
-      <button class="btn" onClick={props.onReset}>
+      <Button onClick={props.onReset}>
         Try again
-      </button>
+      </Button>
     </div>
   );
 }
