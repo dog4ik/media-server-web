@@ -99,9 +99,9 @@ function ErrorDisplay(err: Error, reset: () => void) {
       <div class="flex flex-col">
         <span>Unhandled error boundary</span>
         <span>Error: {err.message}</span>
-        <button onClick={reset} class="btn">
+        <Button onClick={reset} class="btn">
           Reset
-        </button>
+        </Button>
       </div>
     </ErrorLayout>
   );
@@ -124,9 +124,9 @@ function GenericError(props: GenericErrorProps) {
       <Show when={props.icon}>{props.icon}</Show>
       <Show when={props.retry}>
         {(retry) => (
-          <button class="btn" onClick={retry}>
+          <Button class="btn" onClick={retry}>
             Try again
-          </button>
+          </Button>
         )}
       </Show>
     </div>

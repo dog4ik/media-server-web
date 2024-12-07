@@ -110,9 +110,9 @@ function GeneralSettings() {
           </div>
         )}
       </Show>
-      <button onClick={restoreConfiguration} class="btn btn-error">
+      <Button variant={"destructive"} onClick={restoreConfiguration}>
         Restore default configuration
-      </button>
+      </Button>
     </div>
   );
 }
