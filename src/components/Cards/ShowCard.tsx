@@ -73,7 +73,10 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
             height={312}
           />
           <Show when={props.show.episodes_amount}>
-            <div class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center rounded-xl rounded-r-none rounded-t-none bg-white">
+            <div
+              title={`${props.show.episodes_amount} ${props.show.episodes_amount == 1 ? "episode" : "episodes"}`}
+              class="absolute top-0 flex h-8 w-8 items-center justify-center rounded-xl bg-white"
+            >
               <span class="text-sm font-semibold text-black">
                 {props.show.episodes_amount}
               </span>
