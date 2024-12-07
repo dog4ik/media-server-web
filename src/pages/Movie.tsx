@@ -87,7 +87,7 @@ export default function Movie() {
                     fallback={
                       <Icon
                         tooltip="Download"
-                        onClick={() => setDownloadModal(false)}
+                        onClick={() => setDownloadModal(true)}
                       >
                         <FiDownload size={30} />
                       </Icon>
