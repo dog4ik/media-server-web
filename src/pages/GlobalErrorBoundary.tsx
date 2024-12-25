@@ -26,7 +26,7 @@ type ErrorProps = {
   onReset: () => void;
 };
 
-function ServerUnavailable(props: ErrorProps) {
+function ServerUnavailable() {
   return (
     <div class="flex max-w-md flex-col items-center gap-5 rounded-md bg-black p-6">
       <span class="text-xl">Server is not available</span>
@@ -37,9 +37,7 @@ function ServerUnavailable(props: ErrorProps) {
         </a>
       </p>
       <FiWifiOff size={50} />
-      <Button onClick={props.onReset}>
-        Try again
-      </Button>
+      <Button onClick={() => window.location.reload()}>Try again</Button>
     </div>
   );
 }
@@ -55,7 +53,7 @@ function ErrorDisplay(err: Error, reset: () => void) {
   if (err instanceof TypeError && err.message == "Failed to fetch") {
     return (
       <ErrorLayout>
-        <ServerUnavailable onReset={reset} />
+        <ServerUnavailable />
       </ErrorLayout>
     );
   }
