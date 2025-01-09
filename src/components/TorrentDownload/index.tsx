@@ -86,7 +86,7 @@ export function TorrentDownloadSteps(props: Props) {
   );
 
   async function handleFinish() {
-    await server.POST("/api/torrent/download", {
+    await server.POST("/api/torrent/open", {
       body: {
         magnet_link: selectedMagnetLink()!,
         enabled_files: enabledFiles(),

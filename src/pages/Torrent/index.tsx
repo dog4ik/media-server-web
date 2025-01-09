@@ -1,137 +1,474 @@
-import { Schemas } from "@/utils/serverApi";
-import { For, ParentProps } from "solid-js";
-import { server } from "@/utils/serverApi";
-import { createAsync } from "@solidjs/router";
-import { FiFile, FiFolder } from "solid-icons/fi";
-import { formatSize } from "@/utils/formats";
-import StatusHeader from "./StatusHeader";
+import { createSignal, For, Show } from "solid-js";
 import { Button } from "@/ui/button";
+import { Progress } from "@/ui/progress";
+import { Badge } from "@/ui/badge";
 
-type TorrentDownloadProps = {
-  info: Schemas["TorrentInfo"];
+import { capitalize, formatSize, hexHash } from "@/utils/formats";
+
+import Trash from "lucide-solid/icons/trash";
+import Play from "lucide-solid/icons/play";
+import Pause from "lucide-solid/icons/pause";
+import ChevronUp from "lucide-solid/icons/chevron-up";
+import ChevronDown from "lucide-solid/icons/chevron-down";
+
+import { fullUrl, revalidatePath, Schemas, server } from "@/utils/serverApi";
+import { AddTorrentModal } from "./AddTorrentModal";
+import { throwResponseErrors } from "@/utils/errors";
+import { createStore, produce } from "solid-js/store";
+import clsx from "clsx";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/ui/select";
+import { PeersList } from "./PeerList";
+import { TrackerList } from "./TrackerList";
+
+type TorrentStatus = Schemas["DownloadState"];
+
+type FilterType = TorrentStatus | "all";
+
+type TorrentFileProps = {
+  idx: number;
+  size: number;
+  path: string;
+  percent: number;
+  priority: Schemas["Priority"];
+  onPriorityUpdate: (newPriority: Schemas["Priority"]) => void;
 };
 
-type FileProps = {
-  file: Schemas["ResolvedTorrentFile"];
-};
-
-function File(props: FileProps) {
-  let iconSize = 10;
+function TorrentFile(props: TorrentFileProps) {
   return (
-    <li>
-      <div class="flex items-center justify-between">
-        <FiFile size={iconSize} />
-        <span>{props.file.path}</span>
-        <span>{formatSize(props.file.size)}</span>
+    <div class="flex items-center space-x-2">
+      <div class="flex-grow">
+        <p class="text-sm font-medium">{props.path}</p>
+        <div class="flex items-center space-x-2">
+          <Progress value={props.percent} class="h-2 flex-grow" />
+          <span class="font-mono text-xs text-muted-foreground">
+            {props.percent.toFixed(1)}%
+          </span>
+        </div>
       </div>
-    </li>
-  );
-}
-
-type MapFileTree = {
-  [key: string]: MapFileTree | number;
-};
-
-function mapFileTree(files: Schemas["ResolvedTorrentFile"][]): MapFileTree {
-  if (files.length == 1) {
-    return { "/": 0 };
-  }
-
-  let tree: MapFileTree = {};
-
-  for (let i = 0; i < files.length; ++i) {
-    let file = files[i];
-    let current = tree;
-
-    file.path.forEach((part, index) => {
-      if (index === file.path.length - 1) {
-        // Last part, it's a file
-        current[part] = i;
-      } else {
-        // It's a directory
-        if (!current[part]) {
-          current[part] = {};
-        }
-        current = current[part] as MapFileTree;
-      }
-    });
-  }
-
-  return tree;
-}
-
-type DirectoryProps = {
-  files: Schemas["ResolvedTorrentFile"][];
-  tree: MapFileTree;
-};
-
-function Directory(props: DirectoryProps) {
-  return (
-    <li>
-      <div class="flex items-center justify-between">
-        <For each={Object.keys(props.tree)}>
-          {(key) => {
-            let value = props.tree[key];
-            if (typeof value == "number") {
-              let file = props.files[value];
-              return (
-                <>
-                  <FiFile size={20} />
-                  <span>{file.path}</span>
-                  <span>{formatSize(file.size)}</span>
-                </>
-              );
-            } else {
-              return (
-                <>
-                  <FiFolder size={20} />
-                  <span>{key}</span>
-                  <ul class="menu menu-xs w-full rounded-lg bg-base-200">
-                    <Directory files={props.files} tree={value} />
-                  </ul>
-                </>
-              );
-            }
-          }}
-        </For>
-      </div>
-    </li>
-  );
-}
-
-function TorrentDownload(props: TorrentDownloadProps) {
-  let tree = mapFileTree(props.info.contents.files);
-  console.log("tree: ", tree);
-  return (
-    <div class="flex flex-col justify-between rounded-md bg-white text-black">
-      <span>{props.info.name}</span>
-      <div class="flex flex-col">
-        <span>Files</span>
-        <ul class="menu menu-xs w-full rounded-lg bg-base-200">
-          <Directory tree={tree} files={props.info.contents.files} />
-        </ul>
-      </div>
+      <div class="text-xs text-muted-foreground">{formatSize(props.size)}</div>
+      <Select
+        options={["disabled", "low", "medium", "high"]}
+        defaultValue={props.priority}
+        value={props.priority}
+        placeholder="Select priority"
+        onChange={(p) => props.onPriorityUpdate(p ?? "disabled")}
+        itemComponent={(p) => (
+          <SelectItem item={p.item}>{capitalize(p.item.rawValue)}</SelectItem>
+        )}
+      >
+        <SelectTrigger class="w-[100px]">
+          <SelectValue class="text-white">
+            {capitalize(props.priority)}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent />
+      </Select>
     </div>
   );
 }
 
-export default function Torrent() {
-  let downloads = createAsync(async () => {
-    let torrents = await server.GET("/api/torrent/all").then((d) => d.data);
-    return torrents;
-  });
+function FilterButton<T extends FilterType>(props: {
+  filter: T;
+  onClick: (filter: T) => void;
+  currentFilter: FilterType;
+}) {
+  return (
+    <Button
+      variant={props.currentFilter == props.filter ? undefined : "outline"}
+      onClick={() => props.onClick(props.filter)}
+    >
+      {capitalize(props.filter)}
+    </Button>
+  );
+}
+
+type TorrentProps = {
+  onRemove: (hash: string) => void;
+  isExpanded: boolean;
+  hash: string;
+  name: string;
+  id: string;
+  percent: number;
+  downloadSpeed: number;
+  uploadSpeed: number;
+  size: number;
+  peers: Schemas["StatePeer"][];
+  trackers: Schemas["StateTracker"][];
+  status: Schemas["DownloadState"];
+  files: Schemas["StateFile"][];
+  pieces: boolean[];
+  onExpand: (id: string) => void;
+};
+
+function Torrent(props: TorrentProps) {
+  function handlePriorityUpdate(idx: number, priority: Schemas["Priority"]) {
+    server.POST("/api/torrent/{info_hash}/file_priority", {
+      params: { path: { info_hash: props.hash } },
+      body: {
+        file: idx,
+        priority,
+      },
+    });
+  }
+
+  function fileProgress(file: Schemas["StateFile"]) {
+    let length = file.end_piece - file.start_piece + 1;
+    let have = props.pieces
+      .slice(file.start_piece, file.end_piece + 1)
+      .reduce((acc, n) => (n ? acc + 1 : acc), 0);
+    return (have / length) * 100;
+  }
 
   return (
-    <>
-      <div class="h-full w-full">
-        <StatusHeader downloading={1} seeding={0} />
-        <Button variant={"outline"} onClick={() => console.log("hello")}>
-          Hello
-        </Button>
-        <For each={downloads()}>
-          {(download) => <TorrentDownload info={download} />}
+    <div class="border-b last:border-b-0">
+      <div
+        class="flex cursor-pointer items-center justify-between p-4"
+        onClick={() => props.onExpand(props.id)}
+      >
+        <div class="flex-grow">
+          <div class="mb-2 flex items-center justify-between">
+            <h3 class="font-semibold">{props.name}</h3>
+            <Badge
+              class={clsx(
+                "text-white",
+                props.status == "pending" && "bg-green-500",
+                props.status == "seeding" && "bg-sky-500",
+                props.status == "paused" && "bg-neutral-500",
+              )}
+            >
+              {props.status}
+            </Badge>
+          </div>
+          <Progress value={props.percent} class="h-2" />
+        </div>
+        <Show when={props.isExpanded} fallback={<ChevronDown class="ml-2" />}>
+          <ChevronUp class="ml-2" />
+        </Show>
+      </div>
+      <Show when={props.isExpanded}>
+        <div class="bg-muted p-4">
+          <div class="mb-4 grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm text-muted-foreground">Download Speed</p>
+              <p class="font-medium">{formatSize(props.downloadSpeed)} /s</p>
+            </div>
+            <div>
+              <p class="text-sm text-muted-foreground">Upload Speed</p>
+              <p class="font-medium">{formatSize(props.uploadSpeed)} /s</p>
+            </div>
+            <div>
+              <p class="text-sm text-muted-foreground">Peers</p>
+              <p class="font-medium">{props.peers.length}</p>
+            </div>
+            <div>
+              <p class="text-sm text-muted-foreground">Size</p>
+              <p class="font-medium">{formatSize(props.size)}</p>
+            </div>
+          </div>
+          <div class="flex space-x-2">
+            <Show
+              when={props.status == "paused"}
+              fallback={
+                <Button size="sm">
+                  <Pause class="mr-2 h-4 w-4" /> Pause
+                </Button>
+              }
+            >
+              <Button size="sm">
+                <Play class="mr-2 h-4 w-4" /> Resume
+              </Button>
+            </Show>
+            <Button
+              onClick={() => props.onRemove(props.hash)}
+              size="sm"
+              variant="destructive"
+            >
+              <Trash class="mr-2 h-4 w-4" /> Remove
+            </Button>
+          </div>
+          <div class="space-y-2">
+            <h4 class="font-semibold">Files</h4>
+            <For each={props.files}>
+              {(file) => (
+                <TorrentFile
+                  priority={file.priority}
+                  size={file.size}
+                  path={file.path.join("/")}
+                  onPriorityUpdate={(priority) =>
+                    handlePriorityUpdate(file.index, priority)
+                  }
+                  idx={file.index}
+                  percent={fileProgress(file)}
+                />
+              )}
+            </For>
+          </div>
+          <div class="space-y-2">
+            <h4 class="font-semibold">Peers</h4>
+            <PeersList peers={props.peers} />
+          </div>
+          <div class="space-y-2">
+            <h4 class="font-semibold">Trackers</h4>
+            <TrackerList trackers={props.trackers} />
+          </div>
+        </div>
+      </Show>
+    </div>
+  );
+}
+
+class TorrentUpdates {
+  socket: EventSource;
+  private handlersMap: Map<string, (v: Schemas["TorrentProgress"]) => void>;
+  constructor() {
+    let socket = new EventSource(fullUrl("/api/torrent/updates", {}));
+    socket.addEventListener("message", this._onMessage.bind(this));
+    this.handlersMap = new Map();
+    this.socket = socket;
+  }
+
+  private _onMessage(msg: MessageEvent<string>) {
+    let message: Schemas["TorrentProgress"] = JSON.parse(msg.data);
+    let hash = hexHash(message.torrent_hash);
+    let handler = this.handlersMap.get(hash);
+    if (handler) {
+      handler(message);
+    }
+  }
+
+  setTorrentHandler(
+    hash: string,
+    handler: (progress: Schemas["TorrentProgress"]) => void,
+  ) {
+    this.handlersMap.set(hash, handler);
+  }
+}
+
+export default function BitTorrentClient() {
+  let [torrents, setTorrents] = createStore<Schemas["TorrentState"][]>([]);
+  let [filter, setFilter] = createSignal<TorrentStatus | "all">("all");
+  let [expandedTorrent, setExpandedTorrent] = createSignal<string | null>(null);
+
+  let torrentUpdates = new TorrentUpdates();
+
+  torrentUpdates.socket.addEventListener("open", async () => {
+    console.log("Opened torrents progress connection");
+    await server
+      .GET("/api/torrent/all")
+      .then(throwResponseErrors)
+      .then(setTorrents);
+    Object.values(torrents).forEach((t) => {
+      torrentUpdates.setTorrentHandler(t.info_hash, (chunk) => {
+        if (chunk.type == "start") {
+          server
+            .GET("/api/torrent/{info_hash}/state", {
+              params: { path: { info_hash: hexHash(chunk.torrent_hash) } },
+            })
+            .then((p) => p.data && setTorrents([...torrents, p.data]));
+          return;
+        }
+        if (chunk.type == "delete") {
+          setTorrents((t) =>
+            t.filter((t) => t.info_hash != hexHash(chunk.torrent_hash)),
+          );
+          return;
+        }
+        // Skip all ticks before the fresh state
+        if (t.tick_num >= chunk.tick_num) {
+          console.warn(
+            `Skipping progress chunk from the past: expected ${t.tick_num + 1}, got ${chunk.tick_num}`,
+          );
+          return;
+        }
+        if (t.tick_num + 1 != chunk.tick_num) {
+          // We missied progress tick
+          console.warn(
+            `Detected missed progress tick: expected ${t.tick_num + 1}, got ${chunk.tick_num}`,
+          );
+        }
+        let idx = torrents.findIndex(
+          (t) => t.info_hash == hexHash(chunk.torrent_hash),
+        );
+        setTorrents(
+          idx,
+          produce((updated) => {
+            for (let state of chunk.changes) {
+              if (state.type == "peerstatechange") {
+                const changeType = state.change.peer_change.change_type;
+                if (changeType == "connect") {
+                  updated.peers.push({
+                    addr: state.change.ip,
+                    in_status: { choked: true, interested: false },
+                    out_status: { choked: true, interested: false },
+                    download_speed: 0,
+                    upload_speed: 0,
+                    uploaded: 0,
+                    downloaded: 0,
+                    interested_amount: 0,
+                    pending_blocks_amount: 0,
+                    client_name: "",
+                  });
+                } else {
+                  let idx = updated.peers.findIndex(
+                    (p) => p.addr == state.change.ip,
+                  );
+                  let peer = updated.peers[idx];
+
+                  if (changeType == "ininterested") {
+                    peer.in_status.interested = state.change.peer_change.value;
+                  }
+                  if (changeType == "inchoke") {
+                    peer.in_status.choked = state.change.peer_change.value;
+                  }
+                  if (changeType == "outinterested") {
+                    peer.out_status.interested = state.change.peer_change.value;
+                  }
+                  if (changeType == "outchoke") {
+                    peer.out_status.choked = state.change.peer_change.value;
+                  }
+                  if (changeType == "disconnect") {
+                    updated.peers.splice(idx, 1);
+                  }
+                }
+              }
+
+              if (state.type == "finishedpiece") {
+                let piece = state.change;
+                updated.downloaded_pieces[piece] = true;
+              }
+
+              if (state.type == "trackerannounce") {
+                let url = state.change;
+                let tracker = updated.trackers.find((t) => t.url == url);
+                if (!tracker) {
+                  console.warn(
+                    `Tracker with url ${url} is missing in tracker list`,
+                  );
+                }
+                // todo: last announced at
+              }
+
+              if (state.type == "downloadstatechange") {
+                let newState = state.change;
+                updated.state = newState;
+              }
+
+              if (state.type == "fileprioritychange") {
+                let { file_idx, priority } = state.change;
+                let file = updated.files.find((f) => f.index == file_idx);
+                if (!file) {
+                  console.warn(`File with index ${file_idx} is missing`);
+                } else {
+                  file.priority = priority;
+                }
+              }
+            }
+
+            for (let peer of chunk.peers) {
+              let toUpdate = updated.peers.find((p) => p.addr == peer.ip);
+              if (toUpdate) {
+                toUpdate.upload_speed = peer.upload_speed;
+                toUpdate.uploaded = peer.uploaded;
+                toUpdate.download_speed = peer.download_speed;
+                toUpdate.downloaded = peer.downloaded;
+                toUpdate.interested_amount = peer.interested_amount;
+                toUpdate.pending_blocks_amount = peer.pending_blocks_amount;
+              } else {
+                console.warn(`Peer with ip ${peer.ip} is missing`);
+              }
+            }
+
+            updated.percent = chunk.percent;
+            updated.tick_num = chunk.tick_num;
+          }),
+        );
+      });
+    });
+  });
+
+  torrentUpdates.socket.addEventListener("error", (e) => {
+    console.log("error", e);
+  });
+
+  let filteredTorrents = () =>
+    filter() === "all"
+      ? torrents
+      : torrents.filter((t) => t.state === filter());
+
+  let toggleExpand = (id: string) => {
+    setExpandedTorrent((prev) => (prev === id ? null : id));
+  };
+
+  let downloadSpeed = (peers: Schemas["StatePeer"][]) =>
+    peers.reduce((acc, peer) => acc + peer.download_speed, 0);
+
+  let uploadSpeed = (peers: Schemas["StatePeer"][]) =>
+    peers.reduce((acc, peer) => acc + peer.upload_speed, 0);
+
+  function handleRemove(info_hash: string) {
+    server.DELETE("/api/torrent/{info_hash}", {
+      params: { path: { info_hash } },
+    });
+    revalidatePath("/api/torrent/all");
+  }
+
+  return (
+    <div class="container mx-auto min-h-screen bg-background p-4">
+      <h1 class="mb-6 text-3xl font-bold">BitTorrent Client</h1>
+      <div class="mb-4 flex space-x-2">
+        <FilterButton
+          filter="all"
+          currentFilter={filter()}
+          onClick={setFilter}
+        />
+        <FilterButton
+          filter="pending"
+          currentFilter={filter()}
+          onClick={setFilter}
+        />
+        <FilterButton
+          filter="seeding"
+          currentFilter={filter()}
+          onClick={setFilter}
+        />
+        <FilterButton
+          filter="paused"
+          currentFilter={filter()}
+          onClick={setFilter}
+        />
+      </div>
+      <div class="mb-4 flex space-x-2">
+        <AddTorrentModal />
+      </div>
+      <div class="h-[calc(100vh-200px)] overflow-y-auto rounded-md border">
+        <For each={filteredTorrents()}>
+          {(torrent) => (
+            <Torrent
+              pieces={torrent.downloaded_pieces}
+              onRemove={handleRemove}
+              hash={torrent.info_hash}
+              percent={torrent.percent}
+              isExpanded={expandedTorrent() == torrent.info_hash}
+              size={torrent.total_size}
+              id={torrent.info_hash}
+              name={torrent.name}
+              peers={torrent.peers}
+              trackers={torrent.trackers}
+              onExpand={toggleExpand}
+              status={torrent.state}
+              downloadSpeed={downloadSpeed(torrent.peers)}
+              uploadSpeed={uploadSpeed(torrent.peers)}
+              files={torrent.files}
+            />
+          )}
         </For>
       </div>
-    </>
+    </div>
   );
 }

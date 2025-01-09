@@ -1,11 +1,9 @@
-import { For, Match, ParentProps, Show, Switch, createSignal } from "solid-js";
-import Selection, { Option } from "../ui/Selection";
+import { For, Match, ParentProps, Switch, createSignal } from "solid-js";
 import SectionSubTitle from "./SectionSubTitle";
 import { SETTINGS, Settings } from "../../utils/settingsDescriptors";
 import { Schemas } from "../../utils/serverApi";
 import { FiAlertTriangle, FiPlusCircle, FiX } from "solid-icons/fi";
 import { FilePicker } from "../FilePicker";
-import Modal from "../modals/Modal";
 import FileInput from "../ui/FileInput";
 import {
   SwitchControl,
@@ -26,14 +24,7 @@ import {
   NumberFieldInput,
 } from "@/ui/number-field";
 import { Alert, AlertDescription, AlertTitle } from "@/ui/alert";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
 import { Button } from "@/ui/button";
 
 type Props = {
@@ -142,16 +133,6 @@ type SelectProps<T extends string | number> = {
   value: string;
   onChange: (val: T) => void;
 };
-
-export function Select<T extends string | number>(props: SelectProps<T>) {
-  return (
-    <Selection value={props.value}>
-      <For each={props.options}>
-        {(o) => <Option onClick={() => props.onChange(o)}>{o}</Option>}
-      </For>
-    </Selection>
-  );
-}
 
 type ToggleProps = {
   value: boolean;

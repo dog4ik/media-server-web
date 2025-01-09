@@ -46,7 +46,6 @@ export default function TestPage() {
   };
 
   async function handleConfirm() {
-    console.log("stated handling confirm");
     let result = await promptConfirm("True or false?");
     if (result === true) {
       console.log("user pressed ok");

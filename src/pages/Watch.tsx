@@ -7,7 +7,10 @@ import {
   useSearchParams,
 } from "@solidjs/router";
 import { InternalServerError } from "../utils/errors";
-import VideoPlayer, { StreamingMethod } from "../components/VideoPlayer";
+import VideoPlayer, {
+  NextVideo,
+  StreamingMethod,
+} from "../components/VideoPlayer";
 import { Schemas, fullUrl, server } from "../utils/serverApi";
 import { onCleanup, ParentProps, Show } from "solid-js";
 import { Meta } from "@solidjs/meta";
@@ -44,15 +47,15 @@ function getUrl(videoId: number): { url: string; method: StreamingMethod } {
 function parseShowParams() {
   let params = useParams();
   return {
-    showId: params.id,
-    season: +params.season,
-    episode: +params.episode,
+    showId: () => params.id,
+    season: () => +params.season,
+    episode: () => +params.episode,
   };
 }
 
 function parseMovieParams() {
   let params = useParams();
-  return params.id;
+  return () => params.id;
 }
 
 type WatchProps = {
@@ -60,6 +63,7 @@ type WatchProps = {
   streamingMethod: StreamingMethod;
   video: Schemas["DetailedVideo"];
   intro?: Schemas["Intro"];
+  next?: NextVideo;
 };
 
 function movieMediaSessionMetadata(movie: Schemas["MovieMetadata"]) {
@@ -89,9 +93,9 @@ function movieMediaSessionMetadata(movie: Schemas["MovieMetadata"]) {
 export function WatchMovie() {
   let movieId = parseMovieParams();
   let movie = createAsync(async () => {
-    let moviePromise = fetchMovie(movieId, "local");
+    let moviePromise = fetchMovie(movieId(), "local");
     let videoQuery = server.GET("/api/video/by_content", {
-      params: { query: { id: +movieId, content_type: "movie" } },
+      params: { query: { id: +movieId(), content_type: "movie" } },
     });
     let [movie, video] = await Promise.all([moviePromise, videoQuery]);
 
@@ -171,9 +175,9 @@ export function WatchShow() {
   let params = parseShowParams();
   let episode = createAsync(async () => {
     let episode = await fetchEpisode(
-      params.showId,
-      params.season,
-      params.episode,
+      params.showId(),
+      params.season(),
+      params.episode(),
       "local",
     );
     let video = await server.GET("/api/video/by_content", {
@@ -181,7 +185,7 @@ export function WatchShow() {
         query: { id: +episode.metadata_id, content_type: "show" },
       },
     });
-    let show = await fetchShow(params.showId, "local");
+    let show = await fetchShow(params.showId(), "local");
     if (video.error || !video.data) {
       throw new InternalServerError(
         "Video is not found, consider refreshing library",
@@ -189,7 +193,7 @@ export function WatchShow() {
     }
 
     if ("mediaSession" in navigator) {
-      showMediaSessionMetadata(params.showId, episode).then(
+      showMediaSessionMetadata(params.showId(), episode).then(
         (data) => (navigator.mediaSession.metadata = data),
       );
     }
@@ -198,10 +202,24 @@ export function WatchShow() {
 
   let stream = () => (episode() ? getUrl(episode()!.video.id) : undefined);
 
-  let showUrl = () => `/shows/${params.showId}`;
-  let seasonUrl = () => `/shows/${params.showId}/?season=${params.season}`;
-  let episodeUrl = () =>
-    `/shows/${params.showId}/${params.season}/${params.episode}`;
+  let showUrl = () => `/shows/${params.showId()}`;
+  let seasonUrl = () => `/shows/${params.showId()}/?season=${params.season()}`;
+  let episodeUrl = (number: number) =>
+    `/shows/${params.showId()}/${params.season()}/${number}`;
+
+  let nextEpisode = createAsync<NextVideo | undefined>(async () => {
+    try {
+      let next = await fetchEpisode(
+        params.showId(),
+        params.season(),
+        params.episode() + 1,
+      );
+      return {
+        url: `${episodeUrl(next.number)}/watch`,
+        nextTitle: `S${formatSE(next.season_number)}E${formatSE(next.number)}`,
+      };
+    } catch {}
+  });
   return (
     <>
       <Show when={episode()}>
@@ -213,6 +231,7 @@ export function WatchShow() {
             <Meta property="og-image" content={data().episode.poster ?? ""} />
             <Watch
               intro={data().video.intro ?? undefined}
+              next={nextEpisode()}
               video={data().video}
               url={stream()!.url}
               streamingMethod={stream()!.method}
@@ -230,7 +249,7 @@ export function WatchShow() {
                       Season {data().episode.season_number}
                     </span>
                   </A>
-                  <A href={episodeUrl()}>
+                  <A href={episodeUrl(params.episode())}>
                     <span class="text-sm hover:underline">
                       Episode {data().episode.number}
                     </span>
@@ -261,10 +280,11 @@ function Watch(props: WatchProps & ParentProps) {
       let url = new URL(link);
       let id = url.pathname.split("/").at(3);
       if (id) {
-        await server.DELETE("/api/tasks/{id}", {
-          params: { path: { id } },
-          keepalive: true,
-        });
+        throw Error("Unimplemented: Live transcode cancellation");
+        //await server.DELETE("/api/tasks/{id}", {
+        //  params: { path: { id } },
+        //  keepalive: true,
+        //});
       }
     }
   }
@@ -314,6 +334,7 @@ function Watch(props: WatchProps & ParentProps) {
   return (
     <VideoPlayer
       intro={props.intro}
+      nextVideo={props.next}
       streamingMethod={props.streamingMethod}
       initialTime={props.video.history?.time ?? 0}
       onAudioError={handleAudioError}

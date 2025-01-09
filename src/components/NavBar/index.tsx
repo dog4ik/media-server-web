@@ -31,11 +31,7 @@ export default function NavBar() {
           <SearchBar />
         </div>
         <ul class="mr-10 flex items-center space-x-4 self-end">
-          <Button
-            onClick={handleRefresh}
-            class="btn tooltip tooltip-bottom"
-            data-tip="Refresh Library"
-          >
+          <Button onClick={handleRefresh} data-tip="Refresh Library">
             <FiRefreshCcw size={20} />
           </Button>
         </ul>

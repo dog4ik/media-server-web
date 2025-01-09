@@ -3,6 +3,7 @@ import {
   JSX,
   ParentProps,
   Show,
+  createContext,
   createSignal,
   onCleanup,
   onMount,
@@ -18,6 +19,7 @@ import { Subtitle } from "../../pages/Watch";
 import { fullUrl, Schemas } from "../../utils/serverApi";
 import Hls from "hls.js";
 import clsx from "clsx";
+import { Button } from "@/ui/button";
 
 function formatDuration(time: number) {
   let leadingZeroFormatter = new Intl.NumberFormat(undefined, {
@@ -35,6 +37,11 @@ function formatDuration(time: number) {
   }
 }
 
+export type NextVideo = {
+  nextTitle: string;
+  url: string;
+};
+
 type Props = {
   initialTime: number;
   src: string;
@@ -45,6 +52,7 @@ type Props = {
   previews?: { videoId: number; previewsAmount: number };
   streamingMethod: StreamingMethod;
   intro?: Schemas["Intro"];
+  nextVideo?: NextVideo;
 };
 
 const DEFAULT_VOLUME = 0.5;
@@ -426,6 +434,7 @@ export default function VideoPlayer(props: Props & ParentProps) {
       class={`relative flex h-screen w-screen items-center justify-center text-white ${showControls() ? "" : "cursor-none"}`}
     >
       <video
+        src={props.src}
         onClick={handleClick}
         onPlay={() => {
           setIsPaused(false);
@@ -486,38 +495,52 @@ export default function VideoPlayer(props: Props & ParentProps) {
       <Show when={subs() !== undefined && showCaptions()}>
         <Subtitles time={Math.floor(time() * 1000)} raw_data={subs()!} />
       </Show>
-      <Show
-        when={
-          props.intro &&
-          time() < props.intro.end_sec &&
-          time() > props.intro.start_sec
-        }
-      >
-        <div class="absolute bottom-20 right-20">
-          <button
-            class="btn bg-black/80 text-xl text-white hover:bg-black"
+      <div class="absolute bottom-20 right-20">
+        <Show
+          when={
+            props.intro &&
+            time() < props.intro.end_sec &&
+            time() > props.intro.start_sec
+          }
+        >
+          <Button
+            class="bg-black/80 py-5 text-lg hover:bg-black"
             onClick={() => (videoRef.currentTime = props.intro!.end_sec)}
           >
             Skip intro
-          </button>
+          </Button>
+        </Show>
+        <Show when={props.nextVideo}>
+          {(next) => (
+            <Show when={time() / duration() > 0.9}>
+              <Button
+                as="a"
+                href={next().url}
+                variant={"outline"}
+                class="bg-black/80 py-5 text-lg hover:bg-black"
+              >
+                Next: {next().nextTitle}
+              </Button>
+            </Show>
+          )}
+        </Show>
+      </div>
+      {/* This "overlay" exists to prevent click on video that causes pause after closed menu */}
+      <div
+        class={`${showMenu() ? "absolute" : "hidden"} bottom-0 left-0 right-0 top-0 h-full min-h-full w-full min-w-full`}
+      >
+        <div ref={menuRef!} class="absolute bottom-16 right-5">
+          <PlayerMenu
+            onPlaybackSpeedChange={changePlaybackSpeed}
+            onSubtitlesChange={(subtitle) => {
+              setShowCaptions(true);
+              setSelectedSubtitle(subtitle);
+            }}
+            availableSubtitles={props.subtitles}
+            currentPlaybackSpeed={playbackSpeed()}
+          />
         </div>
-      </Show>
-      <Show when={showMenu()}>
-        {/* This "overlay" exists to prevent click on video that causes pause after closed menu */}
-        <div class="absolute bottom-0 left-0 right-0 top-0 h-full min-h-full w-full min-w-full">
-          <div ref={menuRef!} class="absolute bottom-16 right-5">
-            <PlayerMenu
-              onPlaybackSpeedChange={changePlaybackSpeed}
-              onSubtitlesChange={(subtitle) => {
-                setShowCaptions(true);
-                setSelectedSubtitle(subtitle);
-              }}
-              availableSubtitles={props.subtitles}
-              currentPlaybackSpeed={playbackSpeed()}
-            />
-          </div>
-        </div>
-      </Show>
+      </div>
       <div
         class={`${
           shouldShowControls() ? "opacity-100" : "opacity-0"

@@ -417,23 +417,6 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/mock_progress": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create fake task and progress. For debug purposes only */
-        post: operations["mock_progress"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/movie/{id}": {
         parameters: {
             query?: never;
@@ -761,7 +744,7 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/tasks": {
+    "/api/tasks/previews": {
         parameters: {
             query?: never;
             header?: never;
@@ -769,10 +752,27 @@ export type paths = {
             cookie?: never;
         };
         /** Get all running tasks */
-        get: operations["get_tasks"];
+        get: operations["previews_tasks"];
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tasks/previews/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Cancel task with provided id */
+        delete: operations["cancel_previews_task"];
         options?: never;
         head?: never;
         patch?: never;
@@ -795,7 +795,24 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/tasks/{id}": {
+    "/api/tasks/transcode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all running transcode tasks */
+        get: operations["transcode_tasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tasks/transcode/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -806,7 +823,7 @@ export type paths = {
         put?: never;
         post?: never;
         /** Cancel task with provided id */
-        delete: operations["cancel_task"];
+        delete: operations["cancel_transcode_task"];
         options?: never;
         head?: never;
         patch?: never;
@@ -829,7 +846,7 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/torrent/download": {
+    "/api/torrent/open": {
         parameters: {
             query?: never;
             header?: never;
@@ -838,8 +855,42 @@ export type paths = {
         };
         get?: never;
         put?: never;
-        /** Download torrent */
-        post: operations["download_torrent"];
+        /** Open torrent using magnet link */
+        post: operations["open_torrent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/open_torrent_file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Open .torrent file */
+        post: operations["open_torrent_file"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/output_location": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Torrent default output location */
+        get: operations["output_location"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -897,6 +948,74 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/torrent/updates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** SSE stream of torrent updates */
+        get: operations["updates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/{info_hash}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove torrent by its info hash */
+        delete: operations["delete_torrent"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/{info_hash}/file_priority": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set file priority */
+        post: operations["set_file_priority"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/{info_hash}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get fresh full torrent state */
+        get: operations["torrent_state"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/transcode/{id}/manifest": {
         parameters: {
             query?: never;
@@ -940,6 +1059,23 @@ export type paths = {
         };
         /** Get all videos that have transcoded variants */
         get: operations["get_all_variants"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Server version */
+        get: operations["server_version"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1451,6 +1587,15 @@ export type components = {
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
         };
+        DownloadProgress: {
+            changes: components["schemas"]["StateChange"][];
+            peers: components["schemas"]["PeerDownloadStats"][];
+            /** Format: float */
+            percent: number;
+            tick_num: number;
+        };
+        /** @enum {string} */
+        DownloadState: "paused" | "pending" | "seeding";
         EpisodeMetadata: {
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
@@ -1509,26 +1654,181 @@ export type components = {
             runtime?: null | components["schemas"]["SerdeDuration"];
             title: string;
         };
+        Notification: components["schemas"]["TaskProgress"] & {
+            /**
+             * Format: uuid
+             * @description This is used to cancel activity
+             */
+            activity_id: string;
+        };
+        PeerDownloadStats: {
+            /** Format: int64 */
+            download_speed: number;
+            /** Format: int64 */
+            downloaded: number;
+            interested_amount: number;
+            ip: string;
+            pending_blocks_amount: number;
+            /** Format: int64 */
+            upload_speed: number;
+            /** Format: int64 */
+            uploaded: number;
+        };
+        PeerStateChange: {
+            /** @enum {string} */
+            change_type: "connect";
+        } | {
+            /** @enum {string} */
+            change_type: "disconnect";
+        } | {
+            /** @enum {string} */
+            change_type: "inchoke";
+            value: boolean;
+        } | {
+            /** @enum {string} */
+            change_type: "outchoke";
+            value: boolean;
+        } | {
+            /** @enum {string} */
+            change_type: "ininterested";
+            value: boolean;
+        } | {
+            /** @enum {string} */
+            change_type: "outinterested";
+            value: boolean;
+        };
         PendingTorrent: {
             info_hash: number[];
             torrent_info: components["schemas"]["TorrentInfo"];
         };
-        ProgressChunk: {
-            status: components["schemas"]["ProgressStatus"];
-            /** Format: uuid */
-            task_id: string;
+        /** @enum {string} */
+        Priority: "disabled" | "low" | "medium" | "high";
+        PriorityPayload: {
+            file: number;
+            priority: components["schemas"]["Priority"];
         };
-        ProgressSpeed: {
-            bytes: number;
+        Progress: {
             /** @enum {string} */
-            speed_type: "bytespersec";
+            type: "start";
+        } | (components["schemas"]["DownloadProgress"] & {
+            /** @enum {string} */
+            type: "pending";
+        }) | {
+            /** @enum {string} */
+            type: "delete";
+        };
+        ProgressChunk_LibraryScanTask: components["schemas"]["TupleUnit"] & {
+            status: components["schemas"]["ProgressStatus_Vec"];
+        };
+        ProgressChunk_PendingTorrent: components["schemas"]["TorrentTask"] & {
+            status: components["schemas"]["ProgressStatus_CompactTorrentProgress"];
+        };
+        ProgressChunk_PreviewsJob: components["schemas"]["VideoTask"] & {
+            status: components["schemas"]["ProgressStatus_VideoProgress"];
+        };
+        ProgressChunk_TranscodeJob: components["schemas"]["VideoTask"] & {
+            status: components["schemas"]["ProgressStatus_VideoProgress"];
+        };
+        ProgressChunk_WatchTask: components["schemas"]["TupleUnit"] & {
+            status: components["schemas"]["ProgressStatus_TupleUnit"];
+        };
+        ProgressStatus_CompactTorrentProgress: {
+            /** @enum {string} */
+            progress_type: "start";
         } | {
-            /** Format: float */
-            speed: number;
             /** @enum {string} */
-            speed_type: "relativespeed";
+            progress_type: "finish";
+        } | {
+            progress: {
+                /** Format: int64 */
+                download_speed: number;
+                peers_amount: number;
+                /** Format: float */
+                percent: number;
+            };
+            /** @enum {string} */
+            progress_type: "pending";
+        } | {
+            /** @enum {string} */
+            progress_type: "cancel";
+        } | {
+            message?: string | null;
+            /** @enum {string} */
+            progress_type: "error";
+        } | {
+            /** @enum {string} */
+            progress_type: "pause";
         };
-        ProgressStatus: {
+        ProgressStatus_TupleUnit: {
+            /** @enum {string} */
+            progress_type: "start";
+        } | {
+            /** @enum {string} */
+            progress_type: "finish";
+        } | {
+            /** @default null */
+            progress: unknown;
+            /** @enum {string} */
+            progress_type: "pending";
+        } | {
+            /** @enum {string} */
+            progress_type: "cancel";
+        } | {
+            message?: string | null;
+            /** @enum {string} */
+            progress_type: "error";
+        } | {
+            /** @enum {string} */
+            progress_type: "pause";
+        };
+        ProgressStatus_Vec: {
+            /** @enum {string} */
+            progress_type: "start";
+        } | {
+            /** @enum {string} */
+            progress_type: "finish";
+        } | {
+            progress: string[];
+            /** @enum {string} */
+            progress_type: "pending";
+        } | {
+            /** @enum {string} */
+            progress_type: "cancel";
+        } | {
+            message?: string | null;
+            /** @enum {string} */
+            progress_type: "error";
+        } | {
+            /** @enum {string} */
+            progress_type: "pause";
+        };
+        ProgressStatus_VideoProgress: {
+            /** @enum {string} */
+            progress_type: "start";
+        } | {
+            /** @enum {string} */
+            progress_type: "finish";
+        } | {
+            progress: {
+                /** Format: float */
+                percent: number;
+                /** Format: float */
+                relative_speed: number;
+            };
+            /** @enum {string} */
+            progress_type: "pending";
+        } | {
+            /** @enum {string} */
+            progress_type: "cancel";
+        } | {
+            message?: string | null;
+            /** @enum {string} */
+            progress_type: "error";
+        } | {
+            /** @enum {string} */
+            progress_type: "pause";
+        };
+        ProgressStatus_f32: {
             /** @enum {string} */
             progress_type: "start";
         } | {
@@ -1536,14 +1836,14 @@ export type components = {
             progress_type: "finish";
         } | {
             /** Format: float */
-            percent?: number | null;
+            progress: number;
             /** @enum {string} */
             progress_type: "pending";
-            speed?: null | components["schemas"]["ProgressSpeed"];
         } | {
             /** @enum {string} */
             progress_type: "cancel";
         } | {
+            message?: string | null;
             /** @enum {string} */
             progress_type: "error";
         } | {
@@ -1561,10 +1861,10 @@ export type components = {
             width: number;
         };
         ResolvedTorrentFile: {
-            enabled: boolean;
             /** Format: int64 */
             offset: number;
             path: string[];
+            priority: components["schemas"]["Priority"];
             /** Format: int64 */
             size: number;
         };
@@ -1607,24 +1907,113 @@ export type components = {
             /** Format: int64 */
             show_id: number;
         };
+        StateChange: {
+            change: {
+                ip: string;
+                peer_change: components["schemas"]["PeerStateChange"];
+            };
+            /** @enum {string} */
+            type: "peerstatechange";
+        } | {
+            change: number;
+            /** @enum {string} */
+            type: "finishedpiece";
+        } | {
+            change: components["schemas"]["DownloadState"];
+            /** @enum {string} */
+            type: "downloadstatechange";
+        } | {
+            change: string;
+            /** @enum {string} */
+            type: "trackerannounce";
+        } | {
+            change: {
+                file_idx: number;
+                priority: components["schemas"]["Priority"];
+            };
+            /** @enum {string} */
+            type: "fileprioritychange";
+        };
+        StateFile: {
+            end_piece: number;
+            index: number;
+            path: string[];
+            priority: components["schemas"]["Priority"];
+            /** Format: int64 */
+            size: number;
+            start_piece: number;
+        };
+        StatePeer: {
+            addr: string;
+            client_name: string;
+            /** Format: int64 */
+            download_speed: number;
+            /** Format: int64 */
+            downloaded: number;
+            in_status: components["schemas"]["Status"];
+            interested_amount: number;
+            out_status: components["schemas"]["Status"];
+            pending_blocks_amount: number;
+            /** Format: int64 */
+            upload_speed: number;
+            /** Format: int64 */
+            uploaded: number;
+        };
+        StateTracker: components["schemas"]["TrackerStatus"] & {
+            announce_interval: components["schemas"]["SerdeDuration"];
+            url: string;
+        };
+        Status: {
+            choked: boolean;
+            interested: boolean;
+        };
         SubtitlesCodec: null | string;
-        Task: {
+        TaskProgress: (components["schemas"]["ProgressChunk_WatchTask"] & {
+            /** @enum {string} */
+            task_type: "watchsession";
+        }) | (components["schemas"]["ProgressChunk_TranscodeJob"] & {
+            /** @enum {string} */
+            task_type: "transcode";
+        }) | (components["schemas"]["ProgressChunk_PreviewsJob"] & {
+            /** @enum {string} */
+            task_type: "previews";
+        }) | (components["schemas"]["ProgressChunk_PendingTorrent"] & {
+            /** @enum {string} */
+            task_type: "torrent";
+        }) | (components["schemas"]["ProgressChunk_LibraryScanTask"] & {
+            /** @enum {string} */
+            task_type: "libraryscan";
+        });
+        Task_PreviewsJob: {
             cancelable: boolean;
             /** Format: date-time */
             created: string;
             /** Format: uuid */
             id: string;
-            kind: components["schemas"]["TaskKind"];
+            kind: {
+                output_path: string[];
+                source_path: string[];
+                /** Format: int64 */
+                video_id: number;
+            };
+            latest_progress: components["schemas"]["ProgressChunk_PreviewsJob"];
         };
-        TaskKind: (components["schemas"]["VideoTask"] & {
-            /** @enum {string} */
-            task_kind: "video";
-        }) | (components["schemas"]["TorrentTask"] & {
-            /** @enum {string} */
-            task_kind: "torrent";
-        }) | {
-            /** @enum {string} */
-            task_kind: "scan";
+        Task_TranscodeJob: {
+            cancelable: boolean;
+            /** Format: date-time */
+            created: string;
+            /** Format: uuid */
+            id: string;
+            kind: {
+                configuration: components["schemas"]["TranscodeConfiguration"];
+                hw_accel: boolean;
+                output_path: string[];
+                payload: components["schemas"]["TranscodePayload"];
+                source_path: string[];
+                /** Format: int64 */
+                video_id: number;
+            };
+            latest_progress: components["schemas"]["ProgressChunk_TranscodeJob"];
         };
         Torrent: {
             author?: string | null;
@@ -1670,15 +2059,59 @@ export type components = {
             file_idx: number;
             metadata: components["schemas"]["MovieMetadata"];
         };
+        TorrentProgress: components["schemas"]["Progress"] & {
+            torrent_hash: number[];
+        };
         TorrentShow: {
             seasons: {
                 [key: string]: components["schemas"]["TorrentEpisode"][];
             };
             show_metadata: components["schemas"]["ShowMetadata"];
         };
+        TorrentState: {
+            downloaded_pieces: boolean[];
+            files: components["schemas"]["StateFile"][];
+            info_hash: string;
+            name: string;
+            peers: components["schemas"]["StatePeer"][];
+            pending_pieces: number[];
+            /** Format: float */
+            percent: number;
+            state: components["schemas"]["DownloadState"];
+            tick_num: number;
+            total_pieces: number;
+            /** Format: int64 */
+            total_size: number;
+            trackers: components["schemas"]["StateTracker"][];
+        };
         TorrentTask: {
-            content?: null | components["schemas"]["TorrentContent"];
-            info_hash: number[];
+            /** @description Hex encoded info hash */
+            info_hash: string;
+        };
+        TrackerStatus: {
+            /** @enum {string} */
+            status: "working";
+        } | {
+            /** @enum {string} */
+            status: "notcontacted";
+        } | {
+            message: string;
+            /** @enum {string} */
+            status: "error";
+        };
+        TranscodeConfiguration: {
+            audio_codec: components["schemas"]["AudioCodec"];
+            resolution: components["schemas"]["Resolution"];
+            video_codec: components["schemas"]["VideoCodec"];
+        };
+        TranscodeJob: {
+            configuration: components["schemas"]["TranscodeConfiguration"];
+            hw_accel: boolean;
+            output_path: string[];
+            payload: components["schemas"]["TranscodePayload"];
+            source_path: string[];
+            /** Format: int64 */
+            video_id: number;
         };
         TranscodePayload: {
             audio_codec?: null | components["schemas"]["AudioCodec"];
@@ -1686,6 +2119,8 @@ export type components = {
             resolution?: null | components["schemas"]["Resolution"];
             video_codec?: null | components["schemas"]["VideoCodec"];
         };
+        /** @default null */
+        TupleUnit: unknown;
         UpdateHistoryPayload: {
             is_finished: boolean;
             /** Format: int64 */
@@ -2390,25 +2825,6 @@ export interface operations {
             };
         };
     };
-    mock_progress: {
-        parameters: {
-            query: {
-                id: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     get_movie: {
         parameters: {
             query: {
@@ -3054,7 +3470,7 @@ export interface operations {
             };
         };
     };
-    get_tasks: {
+    previews_tasks: {
         parameters: {
             query?: never;
             header?: never;
@@ -3068,8 +3484,41 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Task"][];
+                    "application/json": {
+                        cancelable: boolean;
+                        /** Format: date-time */
+                        created: string;
+                        /** Format: uuid */
+                        id: string;
+                        kind: {
+                            output_path: string[];
+                            source_path: string[];
+                            /** Format: int64 */
+                            video_id: number;
+                        };
+                        latest_progress: components["schemas"]["ProgressChunk_PreviewsJob"];
+                    }[];
                 };
+            };
+        };
+    };
+    cancel_previews_task: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Task id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Task can't be canceled or it is not found */
             400: {
@@ -3099,7 +3548,42 @@ export interface operations {
             };
         };
     };
-    cancel_task: {
+    transcode_tasks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        cancelable: boolean;
+                        /** Format: date-time */
+                        created: string;
+                        /** Format: uuid */
+                        id: string;
+                        kind: {
+                            configuration: components["schemas"]["TranscodeConfiguration"];
+                            hw_accel: boolean;
+                            output_path: string[];
+                            payload: components["schemas"]["TranscodePayload"];
+                            source_path: string[];
+                            /** Format: int64 */
+                            video_id: number;
+                        };
+                        latest_progress: components["schemas"]["ProgressChunk_TranscodeJob"];
+                    }[];
+                };
+            };
+        };
+    };
+    cancel_transcode_task: {
         parameters: {
             query?: never;
             header?: never;
@@ -3140,12 +3624,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TorrentInfo"][];
+                    "application/json": components["schemas"]["TorrentState"][];
                 };
             };
         };
     };
-    download_torrent: {
+    open_torrent: {
         parameters: {
             query?: never;
             header?: never;
@@ -3158,17 +3642,78 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Torrent is added */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Magnet link is incorrect */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Failed to add torrent */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    open_torrent_file: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    save_location?: string | null;
+                    torrent_file: number[];
+                };
+            };
+        };
+        responses: {
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
+            /** @description Failed to parse/open torrent file */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    output_location: {
+        parameters: {
+            query: {
+                content_type: "movie" | "show";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
             };
         };
     };
@@ -3181,7 +3726,14 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    save_location?: string | null;
+                    torrent_file: number[];
+                };
+            };
+        };
         responses: {
             200: {
                 headers: {
@@ -3204,12 +3756,13 @@ export interface operations {
         parameters: {
             query: {
                 magnet_link: string;
+                hint?: null | components["schemas"]["DownloadContentHint"];
                 /** @description Content type */
-                content_type?: null | components["schemas"]["ContentType"];
+                content_type?: components["schemas"]["ContentType"];
                 /** @description Metadata provider */
-                metadata_provider?: null | components["schemas"]["MetadataProvider"];
+                metadata_provider?: components["schemas"]["MetadataProvider"];
                 /** @description Metadata id */
-                metadata_id?: string | null;
+                metadata_id?: string;
             };
             header?: never;
             path?: never;
@@ -3253,6 +3806,105 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Torrent"][];
                 };
+            };
+        };
+    };
+    updates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": number[];
+                };
+            };
+        };
+    };
+    delete_torrent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Hex encoded info_hash of the torrent */
+                info_hash: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Torrent is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    set_file_priority: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Hex encoded info_hash of the torrent */
+                info_hash: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriorityPayload"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    torrent_state: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Hex encoded info_hash of the torrent */
+                info_hash: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TorrentState"];
+                };
+            };
+            /** @description Torrent not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -3343,6 +3995,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DetailedVideo"][];
+                };
+            };
+        };
+    };
+    server_version: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
                 };
             };
         };
@@ -3625,7 +4296,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Task"];
+                    "application/json": components["schemas"]["Task_TranscodeJob"];
                 };
             };
             /** @description Video is not found */

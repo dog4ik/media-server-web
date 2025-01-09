@@ -1,16 +1,8 @@
-import {
-  ParentProps,
-  createContext,
-  createSignal,
-  onCleanup,
-  useContext,
-} from "solid-js";
-import { fullUrl, Schemas } from "../utils/serverApi";
+import { ParentProps, createContext, createSignal, useContext } from "solid-js";
+import { Schemas } from "../utils/serverApi";
 import { useRawNotifications } from "./NotificationContext";
-import { server, revalidatePath } from "../utils/serverApi";
+import { server } from "../utils/serverApi";
 import { createAsync } from "@solidjs/router";
-import { createStore } from "solid-js/store";
-import { InternalServerError } from "../utils/errors";
 import { NotificationProps } from "../components/Notification";
 import {
   extendEpisode,
@@ -19,6 +11,7 @@ import {
   Media,
   Video,
 } from "@/utils/library";
+import { ServerStatus } from "@/utils/serverStatus";
 
 type ServerStatusType = ReturnType<typeof createServerStatusContext>;
 
@@ -60,135 +53,81 @@ export function displayTask(metadata: TaskMetadata): Media {
   throw Error("Unhandled content type");
 }
 
-export type TaskType = Schemas["Task"] & { metadata?: TaskMetadata };
-
 function notificationProps(
-  task: Schemas["Task"]["kind"],
-  status: Schemas["ProgressStatus"]["progress_type"],
-  data: TaskMetadata,
+  content: Media,
+  taskStatus: Schemas["Notification"]["status"]["progress_type"],
+  type: Schemas["Notification"]["task_type"],
+  undoId?: string,
 ): NotificationProps {
-  let display = displayTask(data);
-  let message = () => {
-    let msg = "";
-    if (status == "start") msg += "Created";
-    else if (status == "finish") msg += "Finished";
-    else if (status == "pause") msg += "Paused";
-    else if (status == "cancel") msg += "Canceled";
-    else if (status == "error") msg += "Errored";
-    msg += " ";
-    if (task.task_kind == "video") {
-      if (task.kind == "previews") {
-        msg += "previews";
-      } else if (task.kind == "subtitles") {
-        msg += "subtitles";
-      } else if (task.kind == "transcode") {
-        msg += "transcode";
-      } else if (task.kind == "livetranscode") {
-        msg += "live transcode";
-      }
-    } else if (task.task_kind == "scan") {
-      msg += "library scan";
-    } else if (task.task_kind == "torrent") {
-      msg += "torrent";
+  let status = () => {
+    if (taskStatus == "start") {
+      return "Started";
     }
-    msg += " task";
-    return msg;
+    if (taskStatus == "finish") {
+      return "Finished";
+    }
+    if (taskStatus == "error") {
+      return "Errored";
+    }
+    if (taskStatus == "cancel") {
+      return "Canceled";
+    }
+    if (taskStatus == "pending") {
+      return "Pending";
+    }
+    if (taskStatus == "pause") {
+      return "Paused";
+    }
   };
+
+  let taskType = () => {
+    if (type == "libraryscan") {
+      return "library scan";
+    }
+    if (type == "transcode" || type == "previews") {
+      return "video task";
+    }
+    if (type == "torrent") {
+      return "torrent task";
+    }
+    if (type == "watchsession") {
+      return "watching";
+    }
+  };
+
+  let onUndo = () => {
+    if (!undoId) {
+      return;
+    }
+    if (taskStatus != "start") return;
+    if (type == "previews") {
+      return () =>
+        server.DELETE("/api/tasks/previews/{id}", {
+          params: { path: { id: undoId } },
+        });
+    }
+    if (type == "transcode") {
+      return () =>
+        server.DELETE("/api/tasks/transcode/{id}", {
+          params: { path: { id: undoId } },
+        });
+    }
+  };
+
+  let message = `${status()} ${taskType()}`;
+
   return {
-    message: message(),
-    subTitle: display.friendlyTitle(),
-    poster: display.poster,
-    contentUrl: display.url(),
+    message,
+    poster: content.localPoster(),
+    subTitle: content.friendlyTitle(),
+    onUndo: onUndo(),
+    contentUrl: content.url(),
   };
 }
-
-export type Speed = Schemas["ProgressSpeed"];
-
-export type Progress = {
-  percent: number;
-  speed: Speed;
-};
 
 function createServerStatusContext(
   notificator: ReturnType<typeof useRawNotifications>,
 ) {
-  let serverTasks = createAsync(
-    async () => {
-      let tasks = await server.GET("/api/tasks");
-      if (tasks.error || !tasks.data) {
-        notificator({ message: "Failed to fetch server tasks" });
-        throw new InternalServerError();
-      }
-      let videoPromises = tasks.data.map((task) => {
-        if (task.kind.task_kind === "video") {
-          return Video.fetch(task.kind.video_id)
-            .then((v) => v?.fetchMetadata())
-            .then((m) => m?.data);
-        }
-      });
-      let settledVideoMetadata = await Promise.allSettled(videoPromises);
-      let result: TaskType[] = [];
-      let videoMetadataIdx = 0;
-      for (let i = 0; i < tasks.data.length; ++i) {
-        let metadata: TaskMetadata | undefined = undefined;
-        let task = tasks.data[i];
-        if (task.kind.task_kind == "video") {
-          let settledMetadata = settledVideoMetadata[videoMetadataIdx];
-          videoMetadataIdx += 1;
-          if (settledMetadata.status == "fulfilled" && settledMetadata.value) {
-            let value = settledMetadata.value;
-            if (value.content_type == "movie") {
-              metadata = { content_type: "movie", metadata: value.movie };
-            }
-            if (value.content_type == "episode") {
-              metadata = {
-                content_type: "episode",
-                showMetadata: value.show,
-                metadata: value.episode,
-              };
-            }
-          }
-        }
-        if (task.kind.task_kind == "torrent" && task.kind.content) {
-          if ("show" in task.kind.content) {
-            metadata = {
-              content_type: "show",
-              metadata: task.kind.content.show.show_metadata,
-            };
-          }
-          if ("movie" in task.kind.content) {
-            metadata = {
-              content_type: "movie",
-              metadata: task.kind.content.movie[0].metadata,
-            };
-          }
-        }
-        let toNotifyIdx = tasksToNotify.indexOf(task.id);
-        if (!!~toNotifyIdx) {
-          if (task.kind.task_kind == "scan") {
-            notificator({ message: "Scanning library" });
-          }
-          if (metadata) {
-            let props = notificationProps(task.kind, "start", metadata);
-            if (task.cancelable) {
-              props.onUndo = () => {
-                server.DELETE("/api/tasks/{id}", {
-                  params: { path: { id: task.id } },
-                });
-              };
-            }
-            notificator(props);
-          }
-          tasksToNotify.splice(toNotifyIdx, 1);
-        }
-        result.push({ ...task, metadata });
-      }
-      setTasks(result);
-      return result;
-    },
-    { initialValue: [] },
-  );
-
   let capabilities = createAsync(async () => {
     let capabilities = await server
       .GET("/api/configuration/capabilities")
@@ -196,55 +135,8 @@ function createServerStatusContext(
     return capabilities;
   });
 
-  let [tasksProgress, setTasksProgress] = createStore<Record<string, Progress>>(
-    {},
-  );
-  let [tasks, setTasks] = createStore<TaskType[]>([]);
-  let tasksToNotify: string[] = [];
   let [isConnecting, setIsConnecting] = createSignal(true);
   let [isErrored, setIsErrored] = createSignal(false);
-  let wakeSubscribers: Map<string, () => void> = new Map();
-
-  function addWakeSubscriber(cb: () => void) {
-    let uuid = crypto.randomUUID();
-    wakeSubscribers.set(uuid, cb);
-    return uuid;
-  }
-
-  function removeWakeSubscriber(id: string) {
-    return wakeSubscribers.delete(id);
-  }
-
-  function getTaskWithProgress(task_id: string) {
-    let task = serverTasks().find((task) => task.id == task_id);
-
-    if (task) {
-      return { ...task, progress: tasksProgress[task_id] };
-    } else {
-      return undefined;
-    }
-  }
-
-  function cleanupProgress() {
-    let cleanProgress: Record<string, Progress> = {};
-    for (let task of serverTasks()) {
-      let taskProgress = tasksProgress[task.id];
-      if (taskProgress === undefined) {
-        continue;
-      }
-      cleanProgress[task.id] = taskProgress;
-    }
-    setTasksProgress(cleanProgress);
-  }
-
-  async function cancelTask(task_id: string) {
-    await server
-      .DELETE("/api/tasks/{id}", { params: { path: { id: task_id } } })
-      .then(() => {
-        revalidatePath("/api/tasks");
-        cleanupProgress();
-      });
-  }
 
   function onOpen() {
     for (let cb of wakeSubscribers.values()) {
@@ -260,72 +152,76 @@ function createServerStatusContext(
     setIsConnecting(false);
   }
 
-  function onProgressEvent(event: MessageEvent<string>) {
-    let data = JSON.parse(event.data) as Schemas["ProgressChunk"];
-    let status = data.status;
+  let serverStatus = new ServerStatus();
 
-    // task is new
-    if (data.status.progress_type == "start") {
-      tasksToNotify.push(data.task_id);
-      revalidatePath("/api/tasks");
+  let wakeSubscribers: Map<string, () => void> = new Map();
+
+  function addWakeSubscriber(cb: () => void) {
+    let uuid = crypto.randomUUID();
+    wakeSubscribers.set(uuid, cb);
+    return uuid;
+  }
+
+  function removeWakeSubscriber(id: string) {
+    return wakeSubscribers.delete(id);
+  }
+
+  async function handleVideoProgress(
+    progress: Schemas["Notification"] & { video_id: number },
+  ) {
+    let progressType = progress.status.progress_type;
+    if (progressType == "pending") {
+      return;
+    }
+    let video = await Video.fetch(progress.video_id);
+    if (video == undefined) {
       return;
     }
 
-    // task ended
-    if (
-      status.progress_type == "cancel" ||
-      status.progress_type == "finish" ||
-      status.progress_type == "error"
-    ) {
-      let task = tasks.find((t) => t.id == data.task_id);
-      if (task?.kind.task_kind == "scan") {
-        notificator({ message: "Finished library scan" });
-      }
-      if (task && task.metadata) {
-        let props = notificationProps(
-          task.kind,
-          status.progress_type,
-          task.metadata,
-        );
-        notificator(props);
-      }
-      setTasks(tasks.filter((t) => t.id !== data.task_id));
-      cleanupProgress();
-      return;
+    let metadata = await video.fetchMetadata().then((d) => d.data);
+    if (metadata?.content_type == "movie") {
+      let movie = extendMovie(metadata.movie);
+      notificator(
+        notificationProps(
+          movie,
+          progress.status.progress_type,
+          progress.task_type,
+          progress.activity_id,
+        ),
+      );
     }
-
-    if (status.progress_type == "pending") {
-      if ("relativespeed" in status.speed!) {
-        status.speed.relativespeed;
-      }
-      setTasksProgress(data.task_id, {
-        percent: status.percent ?? undefined,
-        speed: status.speed ?? undefined,
-      });
+    if (metadata?.content_type == "episode") {
+      let episode = extendEpisode(metadata.episode, metadata.show.metadata_id);
+      notificator(
+        notificationProps(
+          episode,
+          progress.status.progress_type,
+          progress.task_type,
+          progress.activity_id,
+        ),
+      );
     }
   }
 
-  let sse = new EventSource(fullUrl("/api/tasks/progress", {}));
-  sse.addEventListener("message", onProgressEvent);
-  sse.addEventListener("open", onOpen);
-  sse.addEventListener("error", onError);
-  onCleanup(() => {
-    sse.removeEventListener("message", onProgressEvent);
-    sse.removeEventListener("open", onOpen);
-    sse.removeEventListener("error", onError);
-    sse.close();
+  serverStatus.addProgressHandler("transcode", handleVideoProgress);
+  serverStatus.addProgressHandler("previews", handleVideoProgress);
+  serverStatus.addProgressHandler("libraryscan", (progress) => {
+    if (progress.status.progress_type == "start") {
+      notificator({ message: "Started library scan" });
+    }
+    if (progress.status.progress_type == "finish") {
+      notificator({ message: "Finished library scan" });
+    }
   });
 
   return [
     {
-      tasks,
-      tasksProgress,
-      getTaskWithProgress,
       isConnecting,
       isErrored,
       capabilities,
+      serverStatus,
     },
-    { cancelTask, addWakeSubscriber, removeWakeSubscriber },
+    { addWakeSubscriber, removeWakeSubscriber },
   ] as const;
 }
 

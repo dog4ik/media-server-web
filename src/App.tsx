@@ -7,7 +7,7 @@ import Movies from "./pages/Movies";
 import Movie from "./pages/Movie";
 import Show from "./pages/Show";
 import Episode from "./pages/Episode";
-import Torrent from "./pages/Torrent/v0Torrent";
+import Torrent from "./pages/Torrent";
 import Settings from "./pages/Settings";
 import Logs from "./pages/Logs";
 import Layout from "./Layout";

@@ -40,7 +40,6 @@ export default function useInfiniteScroll<T extends InfiniteScroll>(
       }
       setIsLoading(false);
     });
-
   }
   const options: IntersectionObserverInit = {
     root: null,
@@ -52,5 +51,13 @@ export default function useInfiniteScroll<T extends InfiniteScroll>(
   onMount(() => {
     observer.observe(observeTarget());
   });
-  return [() => history.data as T["data"], { isLoading, reachedEnd }] as const;
+
+  function removeIdx(idx: number) {
+    setHistory("data", (items) => items.filter((_, i) => i !== idx));
+  }
+
+  return [
+    () => history.data as T["data"],
+    { isLoading, reachedEnd, removeIdx },
+  ] as const;
 }

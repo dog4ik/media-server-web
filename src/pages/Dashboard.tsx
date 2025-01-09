@@ -1,4 +1,4 @@
-import Activity from "../components/Dashboard/Activity";
+import Activity from "../components/Dashboard";
 import Title from "../utils/Title";
 
 export default function Dashboard() {

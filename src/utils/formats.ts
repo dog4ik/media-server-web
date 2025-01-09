@@ -71,3 +71,19 @@ export function formatSE(number: number) {
 export function formatResolution(resolution: Schemas["Resolution"]) {
   return `${resolution.width}x${resolution.height}`;
 }
+
+export function formatCodec<T extends string | { other: string }>(
+  codec: T,
+): string {
+  if (typeof codec == "object") {
+    return codec.other;
+  } else {
+    return codec;
+  }
+}
+
+export function hexHash(hash: number[]) {
+  return hash
+    .reduce((acc, n) => acc + n.toString(16).padStart(2, "0"), "")
+    .padEnd(40, "0");
+}
