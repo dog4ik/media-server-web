@@ -7,6 +7,9 @@ module.exports = {
   },
   prefix: "",
   theme: {
+    fontFamily: {
+      sans: ['"Rubik"'],
+    },
     container: {
       center: true,
       padding: "2rem",
