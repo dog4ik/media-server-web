@@ -326,7 +326,8 @@ export type paths = {
         get: operations["local_episode"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete episode from library. WARN: It will actually delete video files */
+        delete: operations["delete_episode"];
         options?: never;
         head?: never;
         patch?: never;
@@ -344,6 +345,23 @@ export type paths = {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/local_movie/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete movie from library. WARN: It will actually delete video files */
+        delete: operations["delete_movie"];
         options?: never;
         head?: never;
         patch?: never;
@@ -378,6 +396,40 @@ export type paths = {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/local_season/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete season from library. WARN: It will actually delete video files */
+        delete: operations["delete_season"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/local_show/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete show from library. WARN: It will actually delete video files */
+        delete: operations["delete_show"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2710,6 +2762,26 @@ export interface operations {
             };
         };
     };
+    delete_episode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Episode id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     local_movie_by_video_id: {
         parameters: {
             query: {
@@ -2729,6 +2801,26 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["MovieMetadata"];
                 };
+            };
+        };
+    };
+    delete_movie: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Movie id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -2783,6 +2875,46 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["MovieMetadata"][];
                 };
+            };
+        };
+    };
+    delete_season: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Season id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    delete_show: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

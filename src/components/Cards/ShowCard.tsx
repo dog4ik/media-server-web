@@ -12,6 +12,7 @@ import useToggle from "../../utils/useToggle";
 import FixMetadata from "../FixMetadata";
 import { useNotifications } from "../../context/NotificationContext";
 import { MenuRow } from "../ContextMenu/Menu";
+import promptConfirm from "../modals/ConfirmationModal";
 
 function provider(provider: string): string {
   if (provider === "local") {
@@ -20,11 +21,21 @@ function provider(provider: string): string {
   return `?provider=${provider}`;
 }
 
+async function deleteShow(id: number, name: string) {
+  try {
+    if (await promptConfirm(`Are you sure you want to delete ${name}?`)) {
+      await server.DELETE("/api/local_show/{id}", { params: { path: { id } } });
+    }
+  } catch (_) {
+  } finally {
+    revalidatePath("/api/local_shows");
+  }
+}
+
 export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
   let url = `/shows/${props.show.metadata_id}${provider(props.show.metadata_provider)}`;
   let [fixModal, toggleFixModal] = useToggle(false);
   let notificator = useNotifications();
-  function handleDelete() {}
   function handleFix() {
     toggleFixModal(true);
   }
@@ -99,6 +110,13 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
             <MoreButton>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
               <MenuRow onClick={handleMetadataReset}>Reset Metadata</MenuRow>
+              <MenuRow
+                onClick={() =>
+                  deleteShow(+props.show.metadata_id, props.show.title)
+                }
+              >
+                Delete show
+              </MenuRow>
             </MoreButton>
           </Show>
         </div>

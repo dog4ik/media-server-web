@@ -1,11 +1,6 @@
 import { A } from "@solidjs/router";
-import {
-  Schemas,
-  fullUrl,
-  revalidatePath,
-  server,
-} from "../../utils/serverApi";
-import MoreButton, { Row } from "../ContextMenu/MoreButton";
+import { Schemas, revalidatePath, server } from "../../utils/serverApi";
+import MoreButton from "../ContextMenu/MoreButton";
 import { Show } from "solid-js";
 import { FiDownload } from "solid-icons/fi";
 import { formatDuration, formatTimeBeforeRelease } from "../../utils/formats";
@@ -14,6 +9,7 @@ import FallbackImage from "../FallbackImage";
 import { MenuRow } from "../ContextMenu/Menu";
 import { ExtendedEpisode, posterList } from "@/utils/library";
 import { useMediaNotifications } from "@/context/NotificationContext";
+import promptConfirm from "../modals/ConfirmationModal";
 
 type Props = {
   episode: ExtendedEpisode;
@@ -46,6 +42,19 @@ async function markWatched(historyId: number, force: boolean) {
     } else {
       await server.DELETE("/api/history/{id}", {
         params: { path: { id: historyId } },
+      });
+    }
+  } catch (_) {
+  } finally {
+    revalidateHistory();
+  }
+}
+
+async function deleteEpisode(id: number, title: string) {
+  try {
+    if (await promptConfirm(`Are you sure you want to delete ${title}?`)) {
+      await server.DELETE("/api/local_episode/{id}", {
+        params: { path: { id } },
       });
     }
   } catch (_) {
@@ -158,6 +167,18 @@ export default function EpisodeCard(props: Props) {
                 }
               >
                 Mark as unwatched
+              </MenuRow>
+            </Show>
+            <Show when={props.episode.metadata_provider == "local"}>
+              <MenuRow
+                onClick={() =>
+                  deleteEpisode(
+                    +props.episode.metadata_id,
+                    props.episode.friendlyTitle(),
+                  )
+                }
+              >
+                Delete episode
               </MenuRow>
             </Show>
           </MoreButton>
