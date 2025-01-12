@@ -25,6 +25,7 @@ import {
 } from "@/ui/select";
 import { PeersList } from "./PeerList";
 import { TrackerList } from "./TrackerList";
+import { FileTree } from "./FileTree";
 
 type TorrentStatus = Schemas["DownloadState"];
 
@@ -194,20 +195,11 @@ function Torrent(props: TorrentProps) {
           </div>
           <div class="space-y-2">
             <h4 class="font-semibold">Files</h4>
-            <For each={props.files}>
-              {(file) => (
-                <TorrentFile
-                  priority={file.priority}
-                  size={file.size}
-                  path={file.path.join("/")}
-                  onPriorityUpdate={(priority) =>
-                    handlePriorityUpdate(file.index, priority)
-                  }
-                  idx={file.index}
-                  percent={fileProgress(file)}
-                />
-              )}
-            </For>
+            <FileTree
+              onProirityChange={handlePriorityUpdate}
+              fileProgress={fileProgress}
+              files={props.files}
+            />
           </div>
           <div class="space-y-2">
             <h4 class="font-semibold">Peers</h4>
@@ -420,7 +412,7 @@ export default function BitTorrentClient() {
 
   return (
     <div class="container mx-auto min-h-screen bg-background p-4">
-      <h1 class="mb-6 text-3xl font-bold">BitTorrent Client</h1>
+      <h2 class="mb-6 text-2xl font-bold">BitTorrent Client</h2>
       <div class="mb-4 flex space-x-2">
         <FilterButton
           filter="all"
