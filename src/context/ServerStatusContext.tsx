@@ -14,6 +14,7 @@ import {
   extendEpisode,
   extendMovie,
   extendShow,
+  fetchSeason,
   Media,
   Video,
 } from "@/utils/library";
@@ -98,6 +99,9 @@ function notificationProps(
     }
     if (type == "watchsession") {
       return "watching";
+    }
+    if (type == "introdetection") {
+      return "intro detection";
     }
   };
 
@@ -227,6 +231,28 @@ function createServerStatusContext(
       revalidatePath("/api/movie/{id}");
     }
   });
+
+  serverStatus.addProgressHandler("introdetection", async (progress) => {
+    if (
+      progress.status.progress_type == "start" ||
+      progress.status.progress_type == "error" ||
+      progress.status.progress_type == "finish"
+    ) {
+      let season = await fetchSeason(
+        progress.show_id.toString(),
+        progress.season,
+        "local",
+      );
+      if (season) {
+        notificator(
+          notificationProps(
+            season,
+            progress.status.progress_type,
+            progress.task_type,
+            progress.activity_id,
+          ),
+        );
+      }
     }
   });
 

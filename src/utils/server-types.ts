@@ -796,6 +796,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/tasks/intro_detection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all running tasks */
+        get: operations["intro_detection_tasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tasks/previews": {
         parameters: {
             query?: never;
@@ -1669,6 +1686,11 @@ export type components = {
             /** Format: int64 */
             start_sec: number;
         };
+        IntroJob: {
+            season: number;
+            /** Format: int64 */
+            show_id: number;
+        };
         JsonTracingEvent: {
             fields: {
                 [key: string]: unknown;
@@ -1768,6 +1790,9 @@ export type components = {
         }) | {
             /** @enum {string} */
             type: "delete";
+        };
+        ProgressChunk_IntroJob: components["schemas"]["IntroJob"] & {
+            status: components["schemas"]["ProgressStatus_TupleUnit"];
         };
         ProgressChunk_LibraryScanTask: components["schemas"]["TupleUnit"] & {
             status: components["schemas"]["ProgressStatus_Vec"];
@@ -2035,6 +2060,9 @@ export type components = {
         }) | (components["schemas"]["ProgressChunk_LibraryScanTask"] & {
             /** @enum {string} */
             task_type: "libraryscan";
+        }) | (components["schemas"]["ProgressChunk_IntroJob"] & {
+            /** @enum {string} */
+            task_type: "introdetection";
         });
         Task_PreviewsJob: {
             cancelable: boolean;
@@ -3599,6 +3627,37 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    intro_detection_tasks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        cancelable: boolean;
+                        /** Format: date-time */
+                        created: string;
+                        /** Format: uuid */
+                        id: string;
+                        kind: {
+                            season: number;
+                            /** Format: int64 */
+                            show_id: number;
+                        };
+                        latest_progress: components["schemas"]["ProgressChunk_IntroJob"];
+                    }[];
+                };
             };
         };
     };
