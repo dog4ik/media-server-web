@@ -1,7 +1,7 @@
 import { useNotifications } from "../../context/NotificationContext";
 import { FiArrowLeftCircle, FiRefreshCcw } from "solid-icons/fi";
 import SearchBar from "../SearchBar";
-import { revalidatePath, server } from "../../utils/serverApi";
+import { server } from "../../utils/serverApi";
 import { Button } from "@/ui/button";
 
 export default function NavBar() {
@@ -18,8 +18,6 @@ export default function NavBar() {
     if (scanResult.error) {
       notificator(`Scan failed: ${scanResult.error.message}`);
     }
-    revalidatePath("/api/local_shows");
-    revalidatePath("/api/local_movies");
   }
   return (
     <header class="fixed top-0 z-10 flex h-12 w-full shrink-0 items-center bg-black/30 px-4 py-8 text-white">

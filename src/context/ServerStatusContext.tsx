@@ -5,7 +5,7 @@ import {
   onCleanup,
   useContext,
 } from "solid-js";
-import { Schemas } from "../utils/serverApi";
+import { revalidatePath, Schemas } from "../utils/serverApi";
 import { useRawNotifications } from "./NotificationContext";
 import { server } from "../utils/serverApi";
 import { createAsync } from "@solidjs/router";
@@ -219,6 +219,14 @@ function createServerStatusContext(
     }
     if (progress.status.progress_type == "finish") {
       notificator({ message: "Finished library scan" });
+      revalidatePath("/api/local_shows");
+      revalidatePath("/api/show/{id}");
+      revalidatePath("/api/show/{id}/{season}");
+      revalidatePath("/api/show/{id}/{season}/{episode}");
+      revalidatePath("/api/local_movies");
+      revalidatePath("/api/movie/{id}");
+    }
+  });
     }
   });
 
