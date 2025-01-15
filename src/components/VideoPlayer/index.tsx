@@ -3,7 +3,6 @@ import {
   JSX,
   ParentProps,
   Show,
-  createContext,
   createSignal,
   onCleanup,
   onMount,
@@ -504,7 +503,7 @@ export default function VideoPlayer(props: Props & ParentProps) {
           }
         >
           <Button
-            class="bg-black/80 py-5 text-lg hover:bg-black"
+            class="bg-black/80 py-5 text-lg text-white hover:bg-black"
             onClick={() => (videoRef.currentTime = props.intro!.end_sec)}
           >
             Skip intro
