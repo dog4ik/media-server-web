@@ -33,6 +33,10 @@ export class ServerStatus {
     }
   }
 
+  close() {
+    this.socket.close();
+  }
+
   addProgressHandler<T extends keyof TaskProgressMap>(
     eventType: T,
     handler: (progress: TaskProgressMap[T]) => void,

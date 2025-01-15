@@ -1,4 +1,4 @@
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, For, onCleanup, Show } from "solid-js";
 import { Button } from "@/ui/button";
 import { Progress } from "@/ui/progress";
 import { Badge } from "@/ui/badge";
@@ -248,6 +248,10 @@ export default function BitTorrentClient() {
   let [expandedTorrent, setExpandedTorrent] = createSignal<string | null>(null);
 
   let torrentUpdates = new TorrentUpdates();
+
+  onCleanup(() => {
+    torrentUpdates.socket.close();
+  });
 
   torrentUpdates.socket.addEventListener("open", async () => {
     console.log("Opened torrents progress connection");

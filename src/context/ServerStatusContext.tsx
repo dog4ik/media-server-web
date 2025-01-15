@@ -1,4 +1,10 @@
-import { ParentProps, createContext, createSignal, useContext } from "solid-js";
+import {
+  ParentProps,
+  createContext,
+  createSignal,
+  onCleanup,
+  useContext,
+} from "solid-js";
 import { Schemas } from "../utils/serverApi";
 import { useRawNotifications } from "./NotificationContext";
 import { server } from "../utils/serverApi";
@@ -153,6 +159,8 @@ function createServerStatusContext(
   }
 
   let serverStatus = new ServerStatus();
+
+  onCleanup(() => serverStatus.close());
 
   let wakeSubscribers: Map<string, () => void> = new Map();
 
