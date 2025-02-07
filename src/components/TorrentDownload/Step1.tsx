@@ -53,7 +53,7 @@ export default function Step1(props: Props) {
         <TableHeader>
           <TableRow class="text-white">
             <TableHead>Name</TableHead>
-            <TableHead>AuTableHeador</TableHead>
+            <TableHead>Author</TableHead>
             <TableHead>Seeders</TableHead>
             <TableHead>Leechers</TableHead>
             <TableHead>Size</TableHead>

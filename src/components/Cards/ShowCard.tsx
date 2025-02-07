@@ -96,7 +96,7 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
         </A>
         <div class="flex items-center justify-between">
           <A href={url}>
-            <div class="truncate text-lg">
+            <div class="line-clamp-2 text-lg">
               <span>{props.show.title}</span>
             </div>
             <Show when={props.show.seasons}>

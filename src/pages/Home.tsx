@@ -4,8 +4,9 @@ import EpisodeCard from "../components/Cards/EpisodeCard";
 import MovieCard from "../components/Cards/MovieCard";
 import { createAsync } from "@solidjs/router";
 import Title from "../utils/Title";
-import { extendEpisode, extendShow } from "@/utils/library";
+import { extendEpisode } from "@/utils/library";
 import ShowCard from "@/components/Cards/ShowCard";
+import ElementsGrid from "@/components/ElementsGrid";
 
 type ContinueWatchingProps = {
   showHistory: Schemas["ShowSuggestion"][];
@@ -50,13 +51,13 @@ function TrendingShows(props: TrendingShowsProps) {
   return (
     <>
       <p class="my-8 text-3xl">Trending shows</p>
-      <div class="flex gap-4 overflow-x-auto">
+      <ElementsGrid elementSize={200}>
         <For each={props.shows}>
           {(show) => {
             return <ShowCard show={show} />;
           }}
         </For>
-      </div>
+      </ElementsGrid>
     </>
   );
 }
@@ -70,13 +71,13 @@ function TrendingMovies(props: TrendingMoviesProps) {
     <>
       <p class="my-8 text-3xl">Trending movies</p>
       <div>
-        <div class="flex gap-4 overflow-auto">
+        <ElementsGrid elementSize={200}>
           <For each={props.movies}>
             {(movie) => {
               return <MovieCard movie={movie} />;
             }}
           </For>
-        </div>
+        </ElementsGrid>
       </div>
     </>
   );

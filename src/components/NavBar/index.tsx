@@ -20,7 +20,7 @@ export default function NavBar() {
     }
   }
   return (
-    <header class="fixed top-0 z-10 flex h-12 w-full shrink-0 items-center bg-black/30 px-4 py-8 text-white">
+    <header class="fixed top-0 z-20 flex h-12 w-full shrink-0 items-center bg-black/30 px-4 py-8 text-white">
       <nav class="flex flex-1 items-center justify-between text-sm font-semibold">
         <div class="flex w-2/3 items-center gap-3">
           <button onClick={back}>

@@ -191,7 +191,11 @@ export function FileTree(props: Props) {
       produce((tree) => {
         let current: Entry | undefined = undefined;
         for (let path of fullPath) {
-          current = tree.find((el) => el.path == path);
+          if (current === undefined) {
+            current = tree.find((el) => el.path == path);
+          } else if ("children" in current) {
+            current = current.children.find((el) => el.path == path);
+          }
         }
         if (current && "children" in current) {
           current.isCollapsed = !current.isCollapsed;
