@@ -45,7 +45,7 @@ export interface Media {
 export type ExtendedMovie = Schemas["MovieMetadata"] &
   Media & {
     localId(): Promise<number | undefined>;
-    fetchVideo(): Promise<Video | undefined>;
+    fetchVideos(): Promise<Video[] | undefined>;
   };
 
 export async function fetchMovie(
@@ -82,13 +82,15 @@ export function extendMovie(movie: Schemas["MovieMetadata"]): ExtendedMovie {
       return this.title;
     },
 
-    async fetchVideo() {
+    async fetchVideos() {
       if (this.metadata_provider == "local") {
         let metadata = await server
           .GET("/api/video/by_content", {
             params: { query: { content_type: "movie", id: +this.metadata_id } },
           })
-          .then((res) => (res.data ? new Video(res.data) : undefined));
+          .then((res) =>
+            res.data ? res.data.map((v) => new Video(v)) : undefined,
+          );
         return metadata;
       }
     },
@@ -213,7 +215,7 @@ export function extendSeason(
 
 export type ExtendedEpisode = Schemas["EpisodeMetadata"] &
   Media & {
-    fetchVideo(): Promise<Video | undefined>;
+    fetchVideos(): Promise<Video[] | undefined>;
     /**
      * Show aware notificator
      */
@@ -263,13 +265,15 @@ export function extendEpisode(
       return `${this.title} S${formatSE(this.season_number)}E${formatSE(this.number)}`;
     },
 
-    async fetchVideo() {
+    async fetchVideos() {
       if (this.metadata_provider == "local") {
         let metadata = await server
           .GET("/api/video/by_content", {
             params: { query: { content_type: "show", id: +this.metadata_id } },
           })
-          .then((res) => (res.data ? new Video(res.data) : undefined));
+          .then((res) =>
+            res.data ? res.data.map((v) => new Video(v)) : undefined,
+          );
         return metadata;
       }
     },

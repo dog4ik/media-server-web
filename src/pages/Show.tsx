@@ -59,13 +59,13 @@ export default function ShowPage() {
     if (!local_season) return undefined;
 
     let settled = await Promise.allSettled(
-      local_season.extended_episodes.map((e) => e.fetchVideo()),
+      local_season.extended_episodes.map((e) => e.fetchVideos()),
     );
 
     let videos = settled.reduce(
       (acc, n) => {
         n.status === "fulfilled"
-          ? acc.push(n.value?.details)
+          ? acc.push(n.value?.at(0)?.details)
           : acc.push(undefined);
         return acc;
       },

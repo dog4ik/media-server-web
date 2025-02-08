@@ -1,5 +1,5 @@
 import { createAsync, useParams } from "@solidjs/router";
-import { Show, createEffect, createSignal } from "solid-js";
+import { For, Show, createEffect, createSignal } from "solid-js";
 import Description from "@/components/Description";
 import { fullUrl } from "@/utils/serverApi";
 import { useProvider } from "@/utils/metadataProviders";
@@ -59,11 +59,13 @@ export default function Episode() {
     }
   });
 
-  let video = createAsync(async () => {
+  let videos = createAsync(async () => {
     let episode = data()?.episode;
     if (!episode) return undefined;
-    return await episode.fetchVideo();
+    return await episode.fetchVideos();
   });
+
+  let video = () => videos()?.at(0);
 
   let torrentQuery = () => {
     let showData = data()?.show;
@@ -154,9 +156,9 @@ export default function Episode() {
             );
           }}
         </Show>
-        <Show when={video()}>
-          {(video) => <VideoInformation video={video()} />}
-        </Show>
+        <For each={videos()}>
+          {(video) => <VideoInformation video={video} />}
+        </For>
       </div>
     </>
   );

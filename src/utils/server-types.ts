@@ -1160,7 +1160,7 @@ export type paths = {
             path?: never;
             cookie?: never;
         };
-        /** Get video by content local id */
+        /** Videos for local content */
         get: operations["contents_video"];
         put?: never;
         post?: never;
@@ -1656,6 +1656,8 @@ export type components = {
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
         };
+        /** @enum {string} */
+        DownloadError: "missingfile";
         DownloadProgress: {
             changes: components["schemas"]["StateChange"][];
             peers: components["schemas"]["PeerDownloadStats"][];
@@ -1663,8 +1665,9 @@ export type components = {
             percent: number;
             tick_num: number;
         };
-        /** @enum {string} */
-        DownloadState: "paused" | "pending" | "seeding";
+        DownloadState: {
+            error: components["schemas"]["DownloadError"];
+        } | "validation" | "paused" | "pending" | "seeding";
         EpisodeMetadata: {
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
@@ -2010,6 +2013,12 @@ export type components = {
             };
             /** @enum {string} */
             type: "fileprioritychange";
+        } | {
+            change: {
+                bitfield: number[];
+            };
+            /** @enum {string} */
+            type: "validationresult";
         };
         StateFile: {
             end_piece: number;
@@ -2753,7 +2762,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "video/x-matroska": unknown;
+                    "video/*": unknown;
                 };
             };
             /** @description Video is not found */
@@ -2788,6 +2797,13 @@ export interface operations {
                     "application/json": components["schemas"]["EpisodeMetadata"];
                 };
             };
+            /** @description Episode is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     delete_episode: {
@@ -2803,6 +2819,13 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Episode is not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -2872,7 +2895,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "video/x-matroska": unknown;
+                    "video/*": unknown;
                 };
             };
             /** @description Video is not found */
@@ -3188,12 +3211,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            200: {
+            /** @description Scan is successfully started */
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
+            /** @description Scan is already in progress */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -3615,7 +3640,8 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            200: {
+            /** @description Intro detection task is started */
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3711,12 +3737,14 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Task can't be canceled or it is not found */
+            /** @description Task can't be found */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4221,16 +4249,16 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Desired video */
+            /** @description Videos for the content */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DetailedVideo"];
+                    "application/json": components["schemas"]["DetailedVideo"][];
                 };
             };
-            /** @description Video is not found */
+            /** @description Content is not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4280,6 +4308,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     update_video_history: {
@@ -4298,6 +4333,7 @@ export interface operations {
             };
         };
         responses: {
+            /** @description History entry is updated */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4368,7 +4404,8 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            200: {
+            /** @description Previews task is started */
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4450,7 +4487,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Subtitle */
+            /** @description Subtitles */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4515,7 +4552,8 @@ export interface operations {
             };
         };
         responses: {
-            200: {
+            /** @description Transcode task is started */
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4565,7 +4603,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "video/x-matroska": number[];
+                    "video/*": number[];
                 };
             };
             /** @description Video is not found */

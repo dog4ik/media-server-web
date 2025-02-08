@@ -1,4 +1,4 @@
-import { createEffect, createSignal, Show } from "solid-js";
+import { createEffect, createSignal, For, Show } from "solid-js";
 import { fullUrl } from "@/utils/serverApi";
 import Description from "@/components/Description";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
@@ -38,7 +38,8 @@ export default function Movie() {
     }
   });
 
-  let video = createAsync(async () => await movie()?.fetchVideo());
+  let videos = createAsync(async () => await movie()?.fetchVideos());
+  let video = () => videos()?.at(0);
 
   let watchUrl = () => {
     let id = provider() == "local" ? +movieId() : movie()?.local_id;
@@ -106,9 +107,9 @@ export default function Movie() {
                   </Show>
                 </div>
               </Description>
-              <Show when={video()}>
-                {(video) => <VideoInformation video={video()} />}
-              </Show>
+              <For each={videos()}>
+                {(video) => <VideoInformation video={video} />}
+              </For>
             </div>
           </>
         )}
