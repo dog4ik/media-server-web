@@ -5,7 +5,7 @@ export function formatDuration(duration: Schemas["SerdeDuration"]) {
   let durationInSeconds = duration.secs;
   let hours = Math.floor(durationInSeconds / 3600);
   let minutes = Math.floor((durationInSeconds % 3600) / 60);
-  let remainingSeconds = durationInSeconds % 60;
+  let remainingSeconds = Math.floor(durationInSeconds % 60);
 
   if (hours > 0) {
     str += hours + ":";

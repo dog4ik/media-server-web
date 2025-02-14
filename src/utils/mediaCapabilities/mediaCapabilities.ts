@@ -15,6 +15,9 @@ type VideoTrack = Schemas["DetailedVideo"]["video_tracks"][number];
 type AudioTrack = Schemas["DetailedVideo"]["audio_tracks"][number];
 
 export async function isCompatible(video: VideoTrack, audio: AudioTrack) {
+  if (!("mediaCapabilities" in navigator)) {
+    throw Error("mediaCapabilities api is not supported");
+  }
   let videoCodecs: string | undefined;
   let audioCodecs: string | undefined;
 
@@ -65,6 +68,9 @@ async function checkCompatibility(configuration: {
   video?: VideoConfiguration;
   audio?: AudioConfiguration;
 }) {
+  if (!("mediaCapabilities" in navigator)) {
+    throw Error("mediaCapabilities api is not supported");
+  }
   let combinedQuery = navigator.mediaCapabilities.decodingInfo({
     type: "media-source",
     video: configuration.video,
@@ -92,6 +98,9 @@ export async function canPlayAfterTranscode(
   videoCodec?: Schemas["VideoCodec"],
   audioCodec?: Schemas["AudioCodec"],
 ) {
+  if (!("mediaCapabilities" in navigator)) {
+    throw Error("mediaCapabilities api is not supported");
+  }
   let videoSpec: string | undefined = undefined;
   let audioSpec: string | undefined = undefined;
   if (videoCodec == "h264") {

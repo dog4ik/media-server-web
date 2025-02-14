@@ -3,10 +3,11 @@ import {
   BeforeLeaveEventArgs,
   createAsync,
   useBeforeLeave,
+  useLocation,
   useParams,
   useSearchParams,
 } from "@solidjs/router";
-import { InternalServerError } from "../utils/errors";
+import { InternalServerError, NotFoundError } from "../utils/errors";
 import VideoPlayer, {
   NextVideo,
   StreamingMethod,
@@ -58,6 +59,20 @@ function parseMovieParams() {
   return () => params.id;
 }
 
+function parseVideoIdQuery() {
+  let l = useLocation();
+  return () => {
+    if (Array.isArray(l.query.video)) {
+      return undefined;
+    }
+    let int = parseInt(l.query.video);
+    if (isNaN(int)) {
+      return;
+    }
+    return int;
+  };
+}
+
 type WatchProps = {
   url: string;
   streamingMethod: StreamingMethod;
@@ -92,14 +107,15 @@ function movieMediaSessionMetadata(movie: Schemas["MovieMetadata"]) {
 
 export function WatchMovie() {
   let movieId = parseMovieParams();
+  let videoIdQuery = parseVideoIdQuery();
   let movie = createAsync(async () => {
     let moviePromise = fetchMovie(movieId(), "local");
     let videoQuery = server.GET("/api/video/by_content", {
       params: { query: { id: +movieId(), content_type: "movie" } },
     });
-    let [movie, video] = await Promise.all([moviePromise, videoQuery]);
+    let [movie, videos] = await Promise.all([moviePromise, videoQuery]);
 
-    if (video.error !== undefined || !video.data) {
+    if (videos.error !== undefined || !videos.data) {
       throw new InternalServerError(
         "Video is not found, consider refreshing library",
       );
@@ -107,16 +123,26 @@ export function WatchMovie() {
     if ("mediaSession" in navigator) {
       navigator.mediaSession.metadata = movieMediaSessionMetadata(movie);
     }
-    return { video: video.data, movie, stream };
+
+    let video = (() => {
+      let v = videoIdQuery()
+        ? videos.data.find((v) => v.id == videoIdQuery())
+        : videos.data.at(0);
+      if (!v) {
+        throw new NotFoundError(`Show does not contain `);
+      }
+      return v;
+    })();
+    return { video, movie };
   });
-  let stream = () => (movie() ? getUrl(movie()!.video!.id) : undefined);
+
   return (
     <>
       <Show when={movie()}>
         {(data) => (
           <Watch
-            url={stream()!.url}
-            streamingMethod={stream()!.method}
+            url={getUrl(data().video.id).url}
+            streamingMethod={getUrl(data().video.id).method}
             video={data().video!}
           >
             <div class="absolute left-5 top-5">
@@ -173,6 +199,7 @@ async function showMediaSessionMetadata(
 
 export function WatchShow() {
   let params = parseShowParams();
+  let videoIdQuery = parseVideoIdQuery();
   let episode = createAsync(async () => {
     let episode = await fetchEpisode(
       params.showId(),
@@ -180,13 +207,13 @@ export function WatchShow() {
       params.episode(),
       "local",
     );
-    let video = await server.GET("/api/video/by_content", {
+    let videos = await server.GET("/api/video/by_content", {
       params: {
         query: { id: +episode.metadata_id, content_type: "show" },
       },
     });
     let show = await fetchShow(params.showId(), "local");
-    if (video.error || !video.data) {
+    if (videos.error || !videos.data) {
       throw new InternalServerError(
         "Video is not found, consider refreshing library",
       );
@@ -197,10 +224,17 @@ export function WatchShow() {
         (data) => (navigator.mediaSession.metadata = data),
       );
     }
-    return { video: video.data, episode, show };
+    let video = (() => {
+      let v = videoIdQuery()
+        ? videos.data.find((v) => v.id == videoIdQuery())
+        : videos.data.at(0);
+      if (!v) {
+        throw new NotFoundError(`Show does not contain `);
+      }
+      return v;
+    })();
+    return { video, episode, show };
   });
-
-  let stream = () => (episode() ? getUrl(episode()!.video.id) : undefined);
 
   let showUrl = () => `/shows/${params.showId()}`;
   let seasonUrl = () => `/shows/${params.showId()}/?season=${params.season()}`;
@@ -233,8 +267,8 @@ export function WatchShow() {
               intro={data().video.intro ?? undefined}
               next={nextEpisode()}
               video={data().video}
-              url={stream()!.url}
-              streamingMethod={stream()!.method}
+              url={getUrl(data().video.id).url}
+              streamingMethod={getUrl(data().video.id).method}
             >
               <div class="absolute left-5 top-5 flex flex-col">
                 <span class="text-2xl">{data().episode.title}</span>

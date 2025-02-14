@@ -79,12 +79,14 @@ function FilterButton<T extends FilterType>(props: {
   onClick: (filter: T) => void;
   currentFilter: FilterType;
 }) {
+  // @ts-expect-error
+  let filter: () => string = () => capitalize(props.filter);
   return (
     <Button
       variant={props.currentFilter == props.filter ? undefined : "outline"}
       onClick={() => props.onClick(props.filter)}
     >
-      {capitalize(props.filter)}
+      {filter()}
     </Button>
   );
 }
@@ -126,6 +128,9 @@ function Torrent(props: TorrentProps) {
     return (have / length) * 100;
   }
 
+  // @ts-expect-error
+  let status: () => string = () => props.status;
+
   return (
     <div class="border-b last:border-b-0">
       <div
@@ -143,7 +148,7 @@ function Torrent(props: TorrentProps) {
                 props.status == "paused" && "bg-neutral-500",
               )}
             >
-              {props.status}
+              {status()}
             </Badge>
           </div>
           <Progress value={props.percent} class="h-2" />
@@ -196,7 +201,7 @@ function Torrent(props: TorrentProps) {
           <div class="space-y-2">
             <h4 class="font-semibold">Files</h4>
             <FileTree
-              onProirityChange={handlePriorityUpdate}
+              onPriorityChange={handlePriorityUpdate}
               fileProgress={fileProgress}
               files={props.files}
             />
@@ -316,7 +321,7 @@ export default function BitTorrentClient() {
                   );
                   let peer = updated.peers[idx];
 
-                  if (changeType == "ininterested") {
+                  if (changeType == "uninterested") {
                     peer.in_status.interested = state.change.peer_change.value;
                   }
                   if (changeType == "inchoke") {

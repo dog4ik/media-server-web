@@ -40,6 +40,7 @@ export interface Media {
   url(): string;
   localPoster(): string;
   friendlyTitle(): string;
+  delete(): Promise<Schemas["AppError"] | undefined>;
 }
 
 export type ExtendedMovie = Schemas["MovieMetadata"] &
@@ -67,6 +68,15 @@ export async function fetchMovie(
 export function extendMovie(movie: Schemas["MovieMetadata"]): ExtendedMovie {
   return {
     ...movie,
+
+    async delete() {
+      if (this.metadata_provider != "local") return;
+      return await server
+        .DELETE("/api/local_movie/{id}", {
+          params: { path: { id: +this.metadata_id } },
+        })
+        .then((r) => r.error);
+    },
 
     localPoster() {
       return fullUrl("/api/movie/{id}/poster", {
@@ -128,6 +138,16 @@ export async function fetchShow(
 export function extendShow(show: Schemas["ShowMetadata"]): ExtendedShow {
   return {
     ...show,
+
+    async delete() {
+      if (this.metadata_provider != "local") return;
+      return await server
+        .DELETE("/api/local_show/{id}", {
+          params: { path: { id: +this.metadata_id } },
+        })
+        .then((r) => r.error);
+    },
+
     localPoster() {
       return fullUrl("/api/show/{id}/poster", {
         path: { id: +this.metadata_id },
@@ -187,6 +207,16 @@ export function extendSeason(
     extended_episodes: season.episodes.map((episode) =>
       extendEpisode(episode, showId),
     ),
+
+    async delete() {
+      if (this.metadata_provider != "local") return;
+      return await server
+        .DELETE("/api/local_season/{id}", {
+          params: { path: { id: +this.metadata_id } },
+        })
+        .then((r) => r.error);
+    },
+
     async fetchEpisode(number: number) {
       return await fetchEpisode(
         showId,
@@ -250,6 +280,15 @@ export function extendEpisode(
 ): ExtendedEpisode {
   return {
     ...episode,
+
+    async delete() {
+      if (this.metadata_provider != "local") return;
+      return await server
+        .DELETE("/api/local_episode/{id}", {
+          params: { path: { id: +this.metadata_id } },
+        })
+        .then((r) => r.error);
+    },
 
     localPoster() {
       return fullUrl("/api/episode/{id}/poster", {
@@ -333,6 +372,10 @@ export function extendVideoContent(
         : content.show.metadata_provider,
     url(): string {
       return this.content.url();
+    },
+
+    async delete() {
+      return await this.content.delete();
     },
 
     localPoster(): string {
@@ -470,6 +513,28 @@ export class Video {
   fetchMetadata() {
     return server.GET("/api/video/{id}/metadata", {
       params: { path: { id: this.details.id } },
+    });
+  }
+
+  variants() {
+    return this.details.variants.map((v) => new VariantVideo(v));
+  }
+}
+
+export class VariantVideo {
+  constructor(public details: Schemas["DetailedVariant"]) {}
+
+  defaultAudio() {
+    return defaultTrack(this.details.audio_tracks);
+  }
+
+  defaultVideo() {
+    return defaultTrack(this.details.video_tracks);
+  }
+
+  videoCompatibility() {
+    return createAsync(async () => {
+      return await isCompatible(this.defaultVideo(), this.defaultAudio());
     });
   }
 }

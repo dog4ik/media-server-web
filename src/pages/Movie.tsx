@@ -15,6 +15,9 @@ import { fetchMovie } from "@/utils/library";
 export default function Movie() {
   let [movieId, provider] = useProvider();
   let [downloadModal, setDownloadModal] = createSignal(false);
+  let [selectedVideo, setSelectedVideo] = createSignal<
+    [number, number | undefined]
+  >([0, undefined]);
 
   let movie = createAsync(async () => {
     let movie = await fetchMovie(movieId(), provider());
@@ -42,8 +45,17 @@ export default function Movie() {
   let video = () => videos()?.at(0);
 
   let watchUrl = () => {
+    let [videoIdx, variantIdx] = selectedVideo();
     let id = provider() == "local" ? +movieId() : movie()?.local_id;
-    if (id) return `/movies/${id}/watch`;
+    if (!id) return;
+    let params = new URLSearchParams();
+    if (variantIdx !== undefined) {
+      let variant = videos()![videoIdx].variants()[variantIdx];
+      params.append("variant", variant.details.id);
+    }
+    let video = videos()![videoIdx];
+    params.append("video", video.details.id.toString());
+    return `/movies/${id}/watch?${params.toString()}`;
   };
 
   return (
@@ -108,7 +120,32 @@ export default function Movie() {
                 </div>
               </Description>
               <For each={videos()}>
-                {(video) => <VideoInformation video={video} />}
+                {(video, idx) => (
+                  <>
+                    <VideoInformation
+                      onSelect={() => setSelectedVideo([idx(), undefined])}
+                      isSelected={
+                        selectedVideo()[0] == idx() &&
+                        selectedVideo()[1] === undefined
+                      }
+                      title={`Video file #${idx() + 1}`}
+                      video={video}
+                    />
+                    <For each={video.variants()}>
+                      {(variant, vidx) => (
+                        <VideoInformation
+                          title={`#${idx() + 1} Video variant #${vidx() + 1}`}
+                          video={variant}
+                          onSelect={() => setSelectedVideo([idx(), vidx()])}
+                          isSelected={
+                            selectedVideo()[0] == idx() &&
+                            selectedVideo()[1] == vidx()
+                          }
+                        />
+                      )}
+                    </For>
+                  </>
+                )}
               </For>
             </div>
           </>

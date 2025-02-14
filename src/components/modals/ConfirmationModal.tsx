@@ -52,10 +52,10 @@ export default function promptConfirm(
             }}
           >
             <AlertDialogFooter>
-              <Button type="reset" variant={"destructive"}>
-                Cancel
+              <Button type="reset">Cancel</Button>
+              <Button type="submit" variant={"destructive"}>
+                Yes
               </Button>
-              <Button type="submit">Yes</Button>
             </AlertDialogFooter>
           </form>
         </AlertDialogContent>

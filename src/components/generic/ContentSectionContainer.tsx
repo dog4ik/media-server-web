@@ -1,16 +1,85 @@
-import { FiInfo } from "solid-icons/fi";
-import { JSXElement, ParentProps, Show } from "solid-js";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
+import { Compatibility } from "@/utils/mediaCapabilities/mediaCapabilities";
+import clsx from "clsx";
+import { FiHeadphones, FiInfo, FiVideo } from "solid-icons/fi";
+import { ParentProps, Show } from "solid-js";
 import { JSX } from "solid-js/h/jsx-runtime";
 
 type Props = {
   title: string;
+  onClick?: () => void;
+  isActive?: boolean;
+  compatibility: Compatibility | undefined;
 };
 
 export default function ContentSectionContainer(props: Props & ParentProps) {
   return (
-    <div class="flex flex-col justify-center divide-y overflow-hidden rounded-xl bg-white/20">
-      <span class="text-md p-3 font-bold">{props.title}</span>
+    <button
+      onClick={props.onClick}
+      class={clsx(
+        "flex w-full flex-col justify-center divide-y overflow-hidden rounded-xl bg-white/20 text-start outline transition-all",
+        props.isActive ? "outline-2 outline-white" : "outline-transparent",
+      )}
+    >
+      <div class="flex items-center justify-between gap-2 p-3">
+        <span class="text-md font-bold">{props.title}</span>
+        <div class="flex items-center gap-2">
+          <span>This browser supports: </span>
+          <CompatibilityIcons compatibiily={props.compatibility} />
+        </div>
+      </div>
       <div class="p-3">{props.children}</div>
+    </button>
+  );
+}
+
+type CompatibilityIconProps = {
+  compatibiily: MediaCapabilitiesInfo;
+} & ParentProps;
+
+function CompatibilityIcon(props: CompatibilityIconProps) {
+  let text = () =>
+    props.compatibiily.supported
+      ? `Supported, ${props.compatibiily.smooth ? "smooth" : "Not smoth"} and ${props.compatibiily.powerEfficient ? "power efficient" : "not power efficient"}`
+      : "Not supported";
+  return (
+    <Tooltip>
+      <TooltipTrigger>
+        <div
+          class={clsx(
+            "flex h-10 w-10 items-center justify-center rounded-md",
+            props.compatibiily.supported ? "bg-green-500" : "bg-red-500",
+          )}
+        >
+          {props.children}
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>{text()}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+type CompatibilityIconsProps = {
+  compatibiily: Compatibility | undefined;
+};
+
+const ICON_SIZE = 20;
+
+function CompatibilityIcons(props: CompatibilityIconsProps) {
+  return (
+    <div class="flex items-center justify-center">
+      <Show when={props.compatibiily}>
+        {(compatibility) => (
+          <>
+            <CompatibilityIcon compatibiily={compatibility().audio}>
+              <FiHeadphones size={ICON_SIZE} />
+            </CompatibilityIcon>
+            <CompatibilityIcon compatibiily={compatibility().video}>
+              <FiVideo size={ICON_SIZE} />
+            </CompatibilityIcon>
+          </>
+        )}
+      </Show>
     </div>
   );
 }

@@ -18,6 +18,7 @@ import WatchLayout from "./layouts/WatchLayout";
 import SearchPage from "./pages/Search";
 import NotFound from "./pages/NotFound";
 import TestPage from "./pages/TestPage";
+import EnhancedShowPage from "./pages/ShowEnhanced";
 
 function loadShows() {
   return server.GET("/api/local_shows");
@@ -43,7 +44,7 @@ function App() {
         <Route path="/movies" component={Movies} />
         <Route path="/movies/:id" component={Movie} />
         <Route path="/shows" component={Shows} preload={loadShows} />
-        <Route path="/shows/:id" component={Show} preload={loadShow} />
+        <Route path="/shows/:id" component={EnhancedShowPage} preload={loadShow} />
         <Route path="/shows/:id/:season/:episode" component={Episode} />
         <Route path="/torrent" component={Torrent} />
         <Route path="/settings" component={Settings} />

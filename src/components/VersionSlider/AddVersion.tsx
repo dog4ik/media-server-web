@@ -276,7 +276,7 @@ function SmoothStats(props: { capabilities: MediaCapabilitiesDecodingInfo }) {
               <FiZapOff class="h-6 w-6 shrink-0 stroke-red-500" />
             </TooltipTrigger>
             <TooltipContent>
-              <p>Not power effecient</p>
+              <p>Not power efficient</p>
             </TooltipContent>
           </Tooltip>
         }
@@ -286,7 +286,7 @@ function SmoothStats(props: { capabilities: MediaCapabilitiesDecodingInfo }) {
             <FiZapOff class="h-6 w-6 shrink-0 stroke-green-500" />
           </TooltipTrigger>
           <TooltipContent>
-            <p>Power effecient</p>
+            <p>Power efficient</p>
           </TooltipContent>
         </Tooltip>
       </Show>

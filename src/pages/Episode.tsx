@@ -13,6 +13,7 @@ import VideoActions from "@/components/Description/VideoActions";
 import VideoInformation from "@/components/Description/VideoInformation";
 import { fetchEpisode, fetchShow } from "@/utils/library";
 import { ParseParamsError } from "@/utils/errors";
+import { IntroBar } from "@/components/Description/IntroBar";
 
 function parseParams() {
   let params = useParams();
@@ -26,6 +27,9 @@ export default function Episode() {
   let [episodeNumber, seasonNumber] = parseParams();
   let [showId, provider] = useProvider();
   let [torrentModal, setTorrentModal] = createSignal(false);
+  let [selectedVideo, setSelectedVideo] = createSignal<
+    [number, number | undefined]
+  >([0, undefined]);
 
   let data = createAsync(async () => {
     let episodePromise = fetchEpisode(
@@ -75,8 +79,17 @@ export default function Episode() {
   };
 
   let watchUrl = () => {
+    let [videoIdx, variantIdx] = selectedVideo();
     let id = provider() == "local" ? +showId() : data()?.local_id;
-    if (id) return `/shows/${id}/${seasonNumber()}/${episodeNumber()}/watch`;
+    if (!id) return;
+    let params = new URLSearchParams();
+    if (variantIdx !== undefined) {
+      let variant = videos()![videoIdx].variants()[variantIdx];
+      params.append("variant", variant.details.id);
+    }
+    let video = videos()![videoIdx];
+    params.append("video", video.details.id.toString());
+    return `/shows/${id}/${seasonNumber()}/${episodeNumber()}/watch?${params.toString()}`;
   };
 
   let pageTitle = () =>
@@ -151,13 +164,48 @@ export default function Episode() {
                       </VideoActions>
                     )}
                   </Show>
+                  <div class="w-96">
+                    <Show when={videos()?.find((v) => v.details.intro)}>
+                      {(video) => (
+                        <IntroBar
+                          totalDuration={video().details.duration.secs}
+                          intro={video().details.intro!}
+                        />
+                      )}
+                    </Show>
+                  </div>
                 </div>
               </Description>
             );
           }}
         </Show>
         <For each={videos()}>
-          {(video) => <VideoInformation video={video} />}
+          {(video, idx) => (
+            <>
+              <VideoInformation
+                title={`#${idx() + 1} Video file`}
+                video={video}
+                onSelect={() => setSelectedVideo([idx(), undefined])}
+                isSelected={
+                  selectedVideo()[0] == idx() &&
+                  selectedVideo()[1] === undefined
+                }
+              />
+              <For each={video.variants()}>
+                {(variant, vidx) => (
+                  <VideoInformation
+                    title={`#${idx() + 1} Video variant #${vidx() + 1}`}
+                    video={variant}
+                    onSelect={() => setSelectedVideo([idx(), vidx()])}
+                    isSelected={
+                      selectedVideo()[0] == idx() &&
+                      selectedVideo()[1] == vidx()
+                    }
+                  />
+                )}
+              </For>
+            </>
+          )}
         </For>
       </div>
     </>

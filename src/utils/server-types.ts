@@ -221,7 +221,7 @@ export type paths = {
         get: operations["all_history"];
         put?: never;
         post?: never;
-        /** Delete all history for default user */
+        /** Delete all history for the default user */
         delete: operations["clear_history"];
         options?: never;
         head?: never;
@@ -271,7 +271,7 @@ export type paths = {
         };
         /** Get history for specific video */
         get: operations["video_history"];
-        /** Update history */
+        /** Update history entry */
         put: operations["update_history"];
         post?: never;
         /** Delete history entry */
@@ -1767,7 +1767,7 @@ export type components = {
             value: boolean;
         } | {
             /** @enum {string} */
-            change_type: "ininterested";
+            change_type: "uninterested";
             value: boolean;
         } | {
             /** @enum {string} */
@@ -2378,6 +2378,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Server configuration is reset */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -2559,11 +2560,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Fixed metadata match */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Content is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -2692,11 +2703,21 @@ export interface operations {
             };
         };
         responses: {
+            /** @description History update is successful */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description History entry is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -2712,11 +2733,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Successfully removed history item */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description History entry is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -2802,7 +2833,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -2829,7 +2862,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -2867,11 +2902,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Successfully deleted movie */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Movie is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -2941,11 +2986,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Successfully deleted season */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Season is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -2961,11 +3016,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Successfully deleted show */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Show is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -3057,11 +3122,21 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Updated movie metadata */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Movie is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -3152,11 +3227,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Fixed movie metadata */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Movie is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -3199,6 +3284,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Content is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -3376,11 +3470,21 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Updated show metadata */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Show is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -3510,11 +3614,21 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Updated season metadata */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Season is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -3575,11 +3689,21 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Updated episode metadata */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Episode is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -3598,11 +3722,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Fixed show metadata */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Show is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -3618,11 +3752,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Succsessfully reset show metadata */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Show is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -3647,12 +3791,14 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Show or season are not found */
+            /** @description Season is not found */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4152,14 +4298,18 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
             /** @description Task is not found */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4263,7 +4413,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4313,7 +4465,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4347,6 +4501,15 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
         };
     };
     remove_video_history: {
@@ -4361,11 +4524,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description History entry is deleted */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4411,6 +4584,15 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
         };
     };
     delete_previews: {
@@ -4430,6 +4612,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Previews directory is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4559,6 +4750,15 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
         };
     };
     remove_variant: {
@@ -4575,11 +4775,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Successfully deleted variant */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Variant is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };

@@ -180,7 +180,7 @@ function Directory(props: DirectoryProps) {
 
 type Props = {
   files: Schemas["StateFile"][];
-  onProirityChange: (idx: number, priority: Schemas["Priority"]) => void;
+  onPriorityChange: (idx: number, priority: Schemas["Priority"]) => void;
   fileProgress: (file: Schemas["StateFile"]) => number;
 };
 
@@ -212,7 +212,7 @@ export function FileTree(props: Props) {
               <Directory
                 fileProgress={props.fileProgress}
                 items={entry.children}
-                onPriorityUpdate={props.onProirityChange}
+                onPriorityUpdate={props.onPriorityChange}
                 files={props.files}
                 isCollapsed={entry.isCollapsed}
                 path={entry.path}
@@ -225,7 +225,7 @@ export function FileTree(props: Props) {
             return (
               <Child
                 path={entry.path}
-                onPriorityUpdate={props.onProirityChange}
+                onPriorityUpdate={props.onPriorityChange}
                 fileProgress={props.fileProgress}
                 file={props.files.find((f) => f.index == entry.idx)!}
                 idx={entry.idx}
