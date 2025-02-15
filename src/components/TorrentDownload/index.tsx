@@ -60,7 +60,12 @@ export function TorrentDownloadSteps(props: Props) {
 
   let torrentSearch = createAsync(async () => {
     let result = await server.GET("/api/torrent/search", {
-      params: { query: { search: props.downloadQuery } },
+      params: {
+        query: {
+          search: props.downloadQuery,
+          content_type: props.content_hint?.content_type,
+        },
+      },
     });
     if (!result.data || result.data.length === 0) {
       return undefined;

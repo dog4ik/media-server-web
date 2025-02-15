@@ -1767,7 +1767,7 @@ export type components = {
             value: boolean;
         } | {
             /** @enum {string} */
-            change_type: "uninterested";
+            change_type: "ininterested";
             value: boolean;
         } | {
             /** @enum {string} */
@@ -4156,6 +4156,7 @@ export interface operations {
         parameters: {
             query: {
                 search: string;
+                content_type?: null | ("movie" | "show");
             };
             header?: never;
             path?: never;

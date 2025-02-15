@@ -321,7 +321,7 @@ export default function BitTorrentClient() {
                   );
                   let peer = updated.peers[idx];
 
-                  if (changeType == "uninterested") {
+                  if (changeType == "ininterested") {
                     peer.in_status.interested = state.change.peer_change.value;
                   }
                   if (changeType == "inchoke") {
