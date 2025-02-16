@@ -29,7 +29,7 @@ import { FileTree } from "./FileTree";
 
 type TorrentStatus = Schemas["DownloadState"];
 
-type FilterType = TorrentStatus | "all";
+type FilterType = TorrentStatus["type"] | "all";
 
 type TorrentFileProps = {
   idx: number;
@@ -79,8 +79,12 @@ function FilterButton<T extends FilterType>(props: {
   onClick: (filter: T) => void;
   currentFilter: FilterType;
 }) {
-  // @ts-expect-error
-  let filter: () => string = () => capitalize(props.filter);
+  let filter: () => string = () => {
+    if (typeof props.filter == "object" && "error" in props.filter) {
+      return "Error";
+    }
+    return capitalize(props.filter);
+  };
   return (
     <Button
       variant={props.currentFilter == props.filter ? undefined : "outline"}
@@ -128,8 +132,9 @@ function Torrent(props: TorrentProps) {
     return (have / length) * 100;
   }
 
-  // @ts-expect-error
-  let status: () => string = () => props.status;
+  let status = () => {
+    return props.status.type as FilterType;
+  };
 
   return (
     <div class="border-b last:border-b-0">
@@ -143,9 +148,10 @@ function Torrent(props: TorrentProps) {
             <Badge
               class={clsx(
                 "text-white",
-                props.status == "pending" && "bg-green-500",
-                props.status == "seeding" && "bg-sky-500",
-                props.status == "paused" && "bg-neutral-500",
+                status() == "pending" && "bg-green-500",
+                status() == "seeding" && "bg-sky-500",
+                status() == "paused" && "bg-neutral-500",
+                status() == "error" && "bg-red-500",
               )}
             >
               {status()}
@@ -179,7 +185,7 @@ function Torrent(props: TorrentProps) {
           </div>
           <div class="flex space-x-2">
             <Show
-              when={props.status == "paused"}
+              when={props.status.type == "paused"}
               fallback={
                 <Button size="sm">
                   <Pause class="mr-2 h-4 w-4" /> Pause
@@ -249,13 +255,20 @@ class TorrentUpdates {
 
 export default function BitTorrentClient() {
   let [torrents, setTorrents] = createStore<Schemas["TorrentState"][]>([]);
-  let [filter, setFilter] = createSignal<TorrentStatus | "all">("all");
+  let [filter, setFilter] = createSignal<FilterType>("all");
   let [expandedTorrent, setExpandedTorrent] = createSignal<string | null>(null);
 
   let torrentUpdates = new TorrentUpdates();
 
-  onCleanup(() => {
+  function cleanup() {
     torrentUpdates.socket.close();
+  }
+
+  window.addEventListener("beforeunload", cleanup);
+
+  onCleanup(() => {
+    window.removeEventListener("beforeunload", cleanup);
+    cleanup();
   });
 
   torrentUpdates.socket.addEventListener("open", async () => {
@@ -400,7 +413,7 @@ export default function BitTorrentClient() {
   let filteredTorrents = () =>
     filter() === "all"
       ? torrents
-      : torrents.filter((t) => t.state === filter());
+      : torrents.filter((t) => t.state.type === filter());
 
   let toggleExpand = (id: string) => {
     setExpandedTorrent((prev) => (prev === id ? null : id));
@@ -440,6 +453,11 @@ export default function BitTorrentClient() {
         />
         <FilterButton
           filter="paused"
+          currentFilter={filter()}
+          onClick={setFilter}
+        />
+        <FilterButton
+          filter="error"
           currentFilter={filter()}
           onClick={setFilter}
         />

@@ -162,9 +162,18 @@ function createServerStatusContext(
     setIsConnecting(false);
   }
 
+  function cleanup() {
+    serverStatus.close();
+  }
+
+  window.addEventListener("beforeunload", cleanup);
+
   let serverStatus = new ServerStatus();
 
-  onCleanup(() => serverStatus.close());
+  onCleanup(() => {
+    window.removeEventListener("beforeunload", cleanup);
+    cleanup();
+  });
 
   let wakeSubscribers: Map<string, () => void> = new Map();
 

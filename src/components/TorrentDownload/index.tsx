@@ -73,6 +73,14 @@ export function TorrentDownloadSteps(props: Props) {
     return result;
   });
 
+  server
+    .GET("/api/torrent/output_location", {
+      params: {
+        query: { content_type: props.content_hint?.content_type ?? "show" },
+      },
+    })
+    .then((res) => outputLocation() || setOutputLocation(res.data?.join("/")));
+
   function changeStep(newStep: number) {
     if (newStep <= 0) {
       setSelectedMagnetLink(undefined);

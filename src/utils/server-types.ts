@@ -1656,8 +1656,9 @@ export type components = {
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
         };
-        /** @enum {string} */
-        DownloadError: "missingfile";
+        DownloadError: {
+            storage: components["schemas"]["StorageError"];
+        };
         DownloadProgress: {
             changes: components["schemas"]["StateChange"][];
             peers: components["schemas"]["PeerDownloadStats"][];
@@ -1667,7 +1668,21 @@ export type components = {
         };
         DownloadState: {
             error: components["schemas"]["DownloadError"];
-        } | "validation" | "paused" | "pending" | "seeding";
+            /** @enum {string} */
+            type: "error";
+        } | {
+            /** @enum {string} */
+            type: "validation";
+        } | {
+            /** @enum {string} */
+            type: "paused";
+        } | {
+            /** @enum {string} */
+            type: "pending";
+        } | {
+            /** @enum {string} */
+            type: "seeding";
+        };
         EpisodeMetadata: {
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
@@ -2053,6 +2068,9 @@ export type components = {
             choked: boolean;
             interested: boolean;
         };
+        StorageError: {
+            fs: string;
+        } | "hash" | "bounds";
         SubtitlesCodec: null | string;
         TaskProgress: (components["schemas"]["ProgressChunk_WatchTask"] & {
             /** @enum {string} */
