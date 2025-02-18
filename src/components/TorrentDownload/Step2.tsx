@@ -3,6 +3,7 @@ import { Schemas } from "../../utils/serverApi";
 import ElementsGrid from "../ElementsGrid";
 import { formatSize } from "../../utils/formats";
 import { createStore } from "solid-js/store";
+import { Checkbox, CheckboxControl } from "@/ui/checkbox";
 
 type Props = {
   content: Schemas["TorrentInfo"];
@@ -25,30 +26,14 @@ type SelectionSectorProps = {
   onSelect: (force: boolean) => void;
 };
 
-type CheckboxProps = {
-  onSelect?: (force: boolean) => void;
-  isChecked: boolean;
-};
-
-function Checkbox(props: CheckboxProps) {
-  return (
-    <input
-      type="checkbox"
-      checked={props.isChecked}
-      onChange={(e) =>
-        props.onSelect && props.onSelect(e.currentTarget.checked)
-      }
-      class="checkbox-accent checkbox checkbox-lg rounded-full"
-    />
-  );
-}
-
 function SelectionSector(props: SelectionSectorProps & ParentProps) {
   return (
     <div class="flex flex-col py-10">
       <div class="flex items-center gap-4">
         <span class="text-3xl">{props.title}</span>
-        <Checkbox isChecked={props.isSelected} onSelect={props.onSelect} />
+        <Checkbox checked={props.isSelected} onChange={props.onSelect}>
+          <CheckboxControl />
+        </Checkbox>
       </div>
       <ElementsGrid elementSize={300}>{props.children}</ElementsGrid>
     </div>
@@ -70,7 +55,9 @@ function File(props: FileProps) {
         src={props.poster ?? "/no-photo.png"}
       />
       <div class="absolute right-3 top-3">
-        <Checkbox isChecked={props.isSelected} />
+        <Checkbox checked={props.isSelected}>
+          <CheckboxControl />
+        </Checkbox>
       </div>
       <Show when={props.subtitle}>
         <div class="absolute left-3 top-3">
@@ -87,7 +74,9 @@ function File(props: FileProps) {
         <span class="text-lg">{formatSize(props.size)}</span>
       </div>
       <div class="absolute right-3 top-3">
-        <Checkbox isChecked={props.isSelected} />
+        <Checkbox checked={props.isSelected}>
+          <CheckboxControl />
+        </Checkbox>
       </div>
     </button>
   );
@@ -95,12 +84,12 @@ function File(props: FileProps) {
 
 export default function Step2(props: Props) {
   let [selectedFiles, setSelectedFiles] = createStore<boolean[]>([]);
-  function handleSelect(idx: number, force: boolean) {
+  function select(idx: number, force: boolean) {
     setSelectedFiles(idx, force);
     props.onFileSelect(selectedFiles);
   }
 
-  function handleManySelect(idxes: number[], force: boolean) {
+  function selectMany(idxes: number[], force: boolean) {
     let values = [...selectedFiles];
     for (let idx of idxes) {
       values[idx] = force;
@@ -162,7 +151,7 @@ export default function Step2(props: Props) {
                 isSelected={season!.every((ep) => selectedFiles[ep.file_idx])}
                 title={`Season: ${seasonNumber}`}
                 onSelect={(force) =>
-                  handleManySelect(
+                  selectMany(
                     season!.map((ep) => ep.file_idx),
                     force,
                   )
@@ -177,9 +166,7 @@ export default function Step2(props: Props) {
                       poster={episode.metadata.poster ?? undefined}
                       isSelected={selectedFiles[episode.file_idx]}
                       size={file(episode.file_idx).size}
-                      onSelect={(force) =>
-                        handleSelect(episode.file_idx, force)
-                      }
+                      onSelect={(force) => select(episode.file_idx, force)}
                     />
                   )}
                 </For>
@@ -193,7 +180,7 @@ export default function Step2(props: Props) {
           <SelectionSector
             title="Movie"
             onSelect={(force) =>
-              handleManySelect(
+              selectMany(
                 movie().map((f) => f.file_idx),
                 force,
               )
@@ -205,7 +192,7 @@ export default function Step2(props: Props) {
                 <File
                   isSelected={selectedFiles[movie.file_idx]}
                   title={file(movie.file_idx).path.at(-1)!}
-                  onSelect={(force) => handleSelect(movie.file_idx, force)}
+                  onSelect={(force) => select(movie.file_idx, force)}
                   path={file(movie.file_idx).path.at(-1)!}
                   size={file(movie.file_idx).size}
                 />
@@ -218,7 +205,7 @@ export default function Step2(props: Props) {
         <SelectionSector
           title="Other files"
           onSelect={(force) =>
-            handleManySelect(
+            selectMany(
               otherFiles().map((f) => f.idx),
               force,
             )
@@ -230,7 +217,7 @@ export default function Step2(props: Props) {
               <File
                 isSelected={selectedFiles[file.idx]}
                 title={file.path.at(-1)!}
-                onSelect={(force) => handleSelect(file.idx, force)}
+                onSelect={(force) => select(file.idx, force)}
                 path={file.path.at(-1)!}
                 size={file.size}
               />
