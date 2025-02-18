@@ -2233,7 +2233,7 @@ export type components = {
             /** Format: int64 */
             time: number;
         };
-        VideoCodec: "hevc" | "h264" | {
+        VideoCodec: "hevc" | "h264" | "av1" | {
             other: string;
         };
         VideoContentMetadata: {

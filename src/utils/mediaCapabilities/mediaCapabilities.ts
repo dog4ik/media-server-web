@@ -2,6 +2,7 @@ import { Schemas } from "../serverApi";
 import { commonAACProfile, getAACAudio } from "./audio/aac";
 import { getAC3Audio } from "./audio/ac3";
 import { getEAC3Audio } from "./audio/eac3";
+import { getAv1Codec } from "./video/av1";
 import { getAVCCodec, getMaxAVCLevel } from "./video/avc";
 import { getHevcVideo, getMaxHEVCLevel } from "./video/hevc";
 
@@ -26,6 +27,9 @@ export async function isCompatible(video: VideoTrack, audio: AudioTrack) {
   }
   if (video.codec == "hevc") {
     videoCodecs = getHevcVideo(video.profile, video.level);
+  }
+  if (video.codec == "av1") {
+    videoCodecs = getAv1Codec();
   }
 
   if (audio.codec == "aac" && audio.profile) {
@@ -115,6 +119,10 @@ export async function canPlayAfterTranscode(
     let profile = "Main 10";
     videoSpec = getHevcVideo(profile, level);
   }
+  if (videoCodec == "av1") {
+    videoSpec = getAv1Codec();
+  }
+
   if (audioCodec == "aac") {
     audioSpec = commonAACProfile();
   }
