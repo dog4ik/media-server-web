@@ -11,7 +11,7 @@ import {
 import { Button } from "@/ui/button";
 
 type FileInputProps = {
-  value: string;
+  value?: string;
   title: string;
   description?: string;
   onChange: (val: string) => void;

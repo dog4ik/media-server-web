@@ -132,10 +132,6 @@ function Torrent(props: TorrentProps) {
     return (have / length) * 100;
   }
 
-  let status = () => {
-    return props.status.type as FilterType;
-  };
-
   return (
     <div class="border-b last:border-b-0">
       <div
@@ -148,13 +144,14 @@ function Torrent(props: TorrentProps) {
             <Badge
               class={clsx(
                 "text-white",
-                status() == "pending" && "bg-green-500",
-                status() == "seeding" && "bg-sky-500",
-                status() == "paused" && "bg-neutral-500",
-                status() == "error" && "bg-red-500",
+                props.status.type == "pending" && "bg-green-500",
+                props.status.type == "seeding" && "bg-sky-500",
+                props.status.type == "paused" && "bg-neutral-500",
+                props.status.type == "error" && "bg-red-500",
+                props.status.type == "validation" && "bg-purple-500",
               )}
             >
-              {status()}
+              {props.status.type}
             </Badge>
           </div>
           <Progress value={props.percent} class="h-2" />
