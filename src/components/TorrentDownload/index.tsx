@@ -73,13 +73,18 @@ export function TorrentDownloadSteps(props: Props) {
     return result;
   });
 
-  server
-    .GET("/api/torrent/output_location", {
-      params: {
-        query: { content_type: props.content_hint?.content_type ?? "show" },
-      },
-    })
-    .then((res) => outputLocation() || setOutputLocation(res.data?.join("/")));
+  server.GET("/api/torrent/output_location", {}).then((res) => {
+    let outputForContent = () => {
+      if (props.content_hint?.content_type == "show") {
+        return res.data?.show_location ?? undefined;
+      }
+      if (props.content_hint?.content_type == "movie") {
+        return res.data?.movie_location ?? undefined;
+      }
+      return undefined;
+    };
+    outputLocation() || setOutputLocation(outputForContent());
+  });
 
   function changeStep(newStep: number) {
     if (newStep <= 0) {

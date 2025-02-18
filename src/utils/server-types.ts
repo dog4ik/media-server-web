@@ -2143,6 +2143,10 @@ export type components = {
             content?: null | components["schemas"]["TorrentContent"];
             files: components["schemas"]["ResolvedTorrentFile"][];
         };
+        TorrentDefaultLocation: {
+            movie_location?: string | null;
+            show_location?: string | null;
+        };
         TorrentDownloadPayload: {
             content_hint?: null | components["schemas"]["DownloadContentHint"];
             enabled_files?: number[] | null;
@@ -4081,9 +4085,7 @@ export interface operations {
     };
     output_location: {
         parameters: {
-            query: {
-                content_type: "movie" | "show";
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -4095,7 +4097,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string[];
+                    "application/json": components["schemas"]["TorrentDefaultLocation"];
                 };
             };
         };
