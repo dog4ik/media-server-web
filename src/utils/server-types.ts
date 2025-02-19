@@ -1343,6 +1343,27 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/ws": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Open websockets connection */
+        get: operations["ws"];
+        /** Open websockets connection */
+        put: operations["ws"];
+        /** Open websockets connection */
+        post: operations["ws"];
+        /** Open websockets connection */
+        delete: operations["ws"];
+        options?: never;
+        head?: never;
+        /** Open websockets connection */
+        patch: operations["ws"];
+        trace?: never;
+    };
 };
 export type webhooks = Record<string, never>;
 export type components = {
@@ -2257,6 +2278,32 @@ export type components = {
         };
         /** @enum {string} */
         VideoTaskKind: "transcode" | "livetranscode" | "previews" | "subtitles";
+        WsMessage: {
+            torrents: components["schemas"]["TorrentState"][];
+            /** @enum {string} */
+            type: "alltorrents";
+        } | {
+            progress: components["schemas"]["TorrentProgress"];
+            /** @enum {string} */
+            type: "torrentprogress";
+        } | {
+            progress: components["schemas"]["Notification"];
+            /** @enum {string} */
+            type: "progress";
+        } | {
+            /** @enum {string} */
+            type: "connected";
+        } | {
+            /** @enum {string} */
+            type: "torrentunsubscribe";
+        };
+        WsRequest: {
+            /** @enum {string} */
+            type: "torrentsubscribe";
+        } | {
+            /** @enum {string} */
+            type: "torrentunsubscribe";
+        };
     };
     responses: never;
     parameters: never;
@@ -4845,6 +4892,96 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AppError"];
                 };
+            };
+        };
+    };
+    ws: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Protocol upgrade */
+            101: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ws: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Protocol upgrade */
+            101: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ws: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Protocol upgrade */
+            101: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ws: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Protocol upgrade */
+            101: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ws: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Protocol upgrade */
+            101: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

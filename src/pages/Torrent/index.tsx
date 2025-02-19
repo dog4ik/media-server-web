@@ -11,9 +11,8 @@ import Pause from "lucide-solid/icons/pause";
 import ChevronUp from "lucide-solid/icons/chevron-up";
 import ChevronDown from "lucide-solid/icons/chevron-down";
 
-import { fullUrl, revalidatePath, Schemas, server } from "@/utils/serverApi";
+import { revalidatePath, Schemas, server } from "@/utils/serverApi";
 import { AddTorrentModal } from "./AddTorrentModal";
-import { throwResponseErrors } from "@/utils/errors";
 import { createStore, produce } from "solid-js/store";
 import clsx from "clsx";
 import {
@@ -26,6 +25,8 @@ import {
 import { PeersList } from "./PeerList";
 import { TrackerList } from "./TrackerList";
 import { FileTree } from "./FileTree";
+import { useServerStatus } from "@/context/ServerStatusContext";
+import { createAsync } from "@solidjs/router";
 
 type TorrentStatus = Schemas["DownloadState"];
 
@@ -223,59 +224,25 @@ function Torrent(props: TorrentProps) {
   );
 }
 
-class TorrentUpdates {
-  socket: EventSource;
-  private handlersMap: Map<string, (v: Schemas["TorrentProgress"]) => void>;
-  constructor() {
-    let socket = new EventSource(fullUrl("/api/torrent/updates", {}));
-    socket.addEventListener("message", this._onMessage.bind(this));
-    this.handlersMap = new Map();
-    this.socket = socket;
-  }
-
-  private _onMessage(msg: MessageEvent<string>) {
-    let message: Schemas["TorrentProgress"] = JSON.parse(msg.data);
-    let hash = hexHash(message.torrent_hash);
-    let handler = this.handlersMap.get(hash);
-    if (handler) {
-      handler(message);
-    }
-  }
-
-  setTorrentHandler(
-    hash: string,
-    handler: (progress: Schemas["TorrentProgress"]) => void,
-  ) {
-    this.handlersMap.set(hash, handler);
-  }
-}
-
 export default function BitTorrentClient() {
   let [torrents, setTorrents] = createStore<Schemas["TorrentState"][]>([]);
   let [filter, setFilter] = createSignal<FilterType>("all");
-  let [expandedTorrent, setExpandedTorrent] = createSignal<string | null>(null);
+  let [expandedTorrent, setExpandedTorrent] = createSignal<string>();
 
-  let torrentUpdates = new TorrentUpdates();
+  let [{ serverStatus }] = useServerStatus();
 
   function cleanup() {
-    torrentUpdates.socket.close();
+    serverStatus.unsubcribeTorents();
   }
 
   window.addEventListener("beforeunload", cleanup);
 
-  onCleanup(() => {
-    window.removeEventListener("beforeunload", cleanup);
-    cleanup();
-  });
-
-  torrentUpdates.socket.addEventListener("open", async () => {
-    console.log("Opened torrents progress connection");
-    await server
-      .GET("/api/torrent/all")
-      .then(throwResponseErrors)
-      .then(setTorrents);
+  createAsync(async () => {
+    let torrents = await serverStatus.subscribeTorrents();
+    setTorrents(torrents);
+    console.log("ws torrent list", torrents);
     Object.values(torrents).forEach((t) => {
-      torrentUpdates.setTorrentHandler(t.info_hash, (chunk) => {
+      serverStatus.setTorrentHandler(t.info_hash, (chunk) => {
         if (chunk.type == "start") {
           server
             .GET("/api/torrent/{info_hash}/state", {
@@ -403,8 +370,9 @@ export default function BitTorrentClient() {
     });
   });
 
-  torrentUpdates.socket.addEventListener("error", (e) => {
-    console.log("error", e);
+  onCleanup(() => {
+    window.removeEventListener("beforeunload", cleanup);
+    cleanup();
   });
 
   let filteredTorrents = () =>
@@ -413,7 +381,7 @@ export default function BitTorrentClient() {
       : torrents.filter((t) => t.state.type === filter());
 
   let toggleExpand = (id: string) => {
-    setExpandedTorrent((prev) => (prev === id ? null : id));
+    setExpandedTorrent((prev) => (prev === id ? undefined : id));
   };
 
   let downloadSpeed = (peers: Schemas["StatePeer"][]) =>

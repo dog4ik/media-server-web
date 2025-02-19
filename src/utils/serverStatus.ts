@@ -1,5 +1,6 @@
 import { onCleanup } from "solid-js";
 import { fullUrl, Schemas } from "./serverApi";
+import { hexHash } from "./formats";
 
 type EventType = Schemas["Notification"];
 
@@ -8,28 +9,83 @@ type TaskProgressMap = {
 };
 
 export class ServerStatus {
-  private socket: EventSource;
+  private socket: WebSocket;
   private handlers: [
     keyof TaskProgressMap,
     (status: TaskProgressMap[keyof TaskProgressMap]) => void,
   ][];
+  private torrentHandlers: Map<string, (v: Schemas["TorrentProgress"]) => void>;
+  private allTorrentsPromise:
+    | ((torrents: Schemas["TorrentState"][]) => void)
+    | undefined;
+  private ready: Promise<void>;
+  private readyRes: () => void;
   constructor() {
-    let sse = new EventSource(fullUrl("/api/tasks/progress", {}));
-    sse.addEventListener("message", this._onMessage.bind(this));
-    sse.addEventListener("open", this._onOpen.bind(this));
-    sse.addEventListener("error", this._onError.bind(this));
+    let ws = new WebSocket(fullUrl("/api/ws", {}));
+    ws.addEventListener("message", this._onMessage.bind(this));
+    ws.addEventListener("error", this._onError.bind(this));
     this.handlers = [];
-    this.socket = sse;
+    this.torrentHandlers = new Map();
+    this.socket = ws;
+    this.allTorrentsPromise = undefined;
+    let { promise, resolve } = Promise.withResolvers<void>();
+    ws.addEventListener("open", this._onOpen.bind(this));
+    this.ready = promise;
+    this.readyRes = resolve;
   }
 
   _onError() {}
-  _onOpen() {}
+  _onOpen() {
+    this.readyRes();
+  }
   _onMessage(msg: MessageEvent<any>) {
-    let event: Schemas["Notification"] = JSON.parse(msg.data);
-    for (let [eventType, handler] of this.handlers) {
-      if (eventType == event.task_type) {
-        handler(event);
+    let event: Schemas["WsMessage"] = JSON.parse(msg.data);
+    if (event.type == "progress") {
+      for (let [eventType, handler] of this.handlers) {
+        if (eventType == event.progress.task_type) {
+          handler(event.progress);
+        }
       }
+      return;
+    }
+    if (event.type == "torrentprogress") {
+      let handler = this.torrentHandlers.get(
+        hexHash(event.progress.torrent_hash),
+      );
+      if (handler) {
+        handler(event.progress);
+      }
+      return;
+    }
+    if (event.type == "alltorrents" && this.allTorrentsPromise) {
+      try {
+        this.allTorrentsPromise(event.torrents);
+      } catch (_) {}
+      this.allTorrentsPromise = undefined;
+    }
+    if (event.type == "connected") {
+      console.log("established ws connection");
+    }
+  }
+
+  async subscribeTorrents() {
+    await this.ready;
+    let { promise, resolve } =
+      Promise.withResolvers<Schemas["TorrentState"][]>();
+    this.allTorrentsPromise = resolve;
+    this.send({ type: "torrentsubscribe" });
+    return await promise;
+  }
+
+  unsubcribeTorents() {
+    this.send({ type: "torrentunsubscribe" });
+  }
+
+  private send(message: Schemas["WsRequest"]) {
+    try {
+      this.socket.send(JSON.stringify(message));
+    } catch (e) {
+      console.error("Failed to send ws request", e);
     }
   }
 
@@ -49,5 +105,16 @@ export class ServerStatus {
     handler: (progress: TaskProgressMap[T]) => void,
   ) {
     this.handlers = this.handlers.filter(([_, h]) => h != handler);
+  }
+
+  setTorrentHandler(
+    hash: string,
+    handler: (progress: Schemas["TorrentProgress"]) => void,
+  ) {
+    this.torrentHandlers.set(hash, handler);
+  }
+
+  removeTorrentHandler(hash: string) {
+    this.torrentHandlers.delete(hash);
   }
 }
