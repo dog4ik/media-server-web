@@ -52,8 +52,8 @@ const resolutionOptions: Resolution[] = [
   { width: 1280, height: 720 },
   { width: 640, height: 480 },
 ];
-const videoCodecOptions: ExcludeOther<VideoCodec>[] = ["hevc", "h264"];
-const audioCodecOptions: ExcludeOther<AudioCodec>[] = ["aac", "ac3"];
+const videoCodecOptions: ExcludeOther<VideoCodec>[] = ["hevc", "h264", "av1", "vp8", "vp9"];
+const audioCodecOptions: ExcludeOther<AudioCodec>[] = ["aac", "ac3", "dts", "eac3"];
 
 type SelectionProps<T> = {
   onChange: (value: T) => void;

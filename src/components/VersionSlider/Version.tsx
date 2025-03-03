@@ -3,7 +3,6 @@ import { Schemas } from "../../utils/serverApi";
 import {
   FiClock,
   FiHardDrive,
-  FiHash,
   FiMaximize,
   FiVideo,
   FiVolume2,
@@ -83,7 +82,7 @@ export default function Version(props: Props) {
       </Stat>
       <Stat
         title="Video codec"
-        value={`${defaultVideo()?.codec} (${defaultVideo()?.profile})`}
+        value={`${defaultVideo()?.codec} (${defaultVideo()?.profile_idc})`}
       >
         <FiVideo size={ICON_SIZE} />
       </Stat>

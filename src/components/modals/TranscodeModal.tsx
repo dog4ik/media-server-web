@@ -116,7 +116,7 @@ export function TranscodeModal(props: Props) {
       open={props.isOpen}
     >
       <DialogContent class="w-full max-w-4xl text-white">
-        <div class="flex flex-col gap-4 items-center justify-center">
+        <div class="flex flex-col items-center justify-center gap-4">
           <AddVersion
             video={willPlay()?.video}
             selectedPayload={transcodePayload}
@@ -126,7 +126,11 @@ export function TranscodeModal(props: Props) {
             onVideoChange={(a) => onChange("video_codec", a)}
             onResolutionChange={(a) => onChange("resolution", a)}
           />
-          <form class="flex flex-col gap-4" onSubmit={handleSubmit} method="dialog">
+          <form
+            class="flex flex-col gap-4"
+            onSubmit={handleSubmit}
+            method="dialog"
+          >
             <Show when={redundancy()}>
               {(r) => (
                 <Alert>

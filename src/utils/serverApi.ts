@@ -1,7 +1,7 @@
 import { query, revalidate } from "@solidjs/router";
 
 import createClient, { ClientMethod, ParamsOption } from "openapi-fetch";
-import type { components, paths } from "./server-types";
+import type { components, paths } from "server-types";
 
 export function formatCodec<T extends string | { other: string }>(
   codec: T,

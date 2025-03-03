@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "openapi": "openapi-typescript http://localhost:6969/api-docs/openapi.json -o ./src/utils/server-types.ts -t"
+    "openapi": "openapi-typescript http://localhost:6969/api-docs/openapi.json -o server-types.d.ts -t"
   },
   "dependencies": {
     "@kobalte/core": "^0.13.7",
