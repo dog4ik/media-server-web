@@ -1,6 +1,7 @@
 import { Schemas } from "../serverApi";
 import { commonAACProfile, getAACAudio } from "./audio/aac";
 import { getAC3Audio } from "./audio/ac3";
+import { getDTSAudio } from "./audio/dts";
 import { getEAC3Audio } from "./audio/eac3";
 import { getAv1Codec } from "./video/av1";
 import { getAVCCodec, getMaxAVCLevel } from "./video/avc";
@@ -23,23 +24,31 @@ export async function isCompatible(video: VideoTrack, audio: AudioTrack) {
   let audioCodecs: string | undefined;
 
   if (video.codec == "h264") {
-    videoCodecs = getAVCCodec(video.profile, video.level);
+    videoCodecs = getAVCCodec(video.profile_idc, video.level);
   }
   if (video.codec == "hevc") {
-    videoCodecs = getHevcVideo(video.profile, video.level);
+    videoCodecs = getHevcVideo(video.profile_idc, video.level);
   }
   if (video.codec == "av1") {
     videoCodecs = getAv1Codec();
   }
+  if (video.codec == "vp9") {
+    videoCodecs = getVp9Codec();
+  }
+  if (video.codec == "vp8") {
+    videoCodecs = getVp8Codec();
+  }
 
-  if (audio.codec == "aac" && audio.profile) {
-    audioCodecs = getAACAudio(audio.profile);
+  if (audio.codec == "aac") {
+    audioCodecs = getAACAudio(audio.profile_idc);
   }
   if (audio.codec == "ac3") {
     audioCodecs = getAC3Audio();
   }
-
-  if (typeof audio.codec == "object" && audio.codec.other == "eac3") {
+  if (audio.codec == "dts") {
+    audioCodecs = getDTSAudio(audio.profile_idc);
+  }
+  if (audio.codec == "eac3") {
     audioCodecs = getEAC3Audio();
   }
 
@@ -48,7 +57,6 @@ export async function isCompatible(video: VideoTrack, audio: AudioTrack) {
 
   let audioConfig = {
     contentType: fullAudioMime,
-    profile: audio.profile,
     channels: audio.channels.toString(),
     samplerate: +audio.sample_rate,
   };
@@ -109,29 +117,36 @@ export async function canPlayAfterTranscode(
   let audioSpec: string | undefined = undefined;
   if (videoCodec == "h264") {
     let level = getMaxAVCLevel(resolution, framerate);
-    // Assume profile is main
-    let profile = "Main";
+    // Assume profile is Main
+    let profile = 77;
     if (level) videoSpec = getAVCCodec(profile, level);
   }
   if (videoCodec == "hevc") {
     let level = getMaxHEVCLevel(resolution, framerate);
-    // Assume profile is main 10
-    let profile = "Main 10";
+    // Assume profile is Main 10
+    let profile = 2;
     videoSpec = getHevcVideo(profile, level);
   }
   if (videoCodec == "av1") {
     videoSpec = getAv1Codec();
   }
+  if (videoCodec == "vp9") {
+    videoSpec = getVp9Codec();
+  }
+  if (videoCodec == "vp8") {
+    videoSpec = getVp8Codec();
+  }
 
   if (audioCodec == "aac") {
     audioSpec = commonAACProfile();
   }
-
   if (audioCodec == "ac3") {
     audioSpec = getAC3Audio();
   }
-
-  if (typeof audioCodec == "object" && audioCodec.other == "eac3") {
+  if (audioCodec == "dts") {
+    audioSpec = getDTSAudio();
+  }
+  if (audioCodec == "eac3") {
     audioSpec = getEAC3Audio();
   }
 
@@ -176,5 +191,3 @@ export async function canPlayAfterTranscode(
   ]);
   return { video, audio, combined };
 }
-
-// TODO: AV1, VP9/8 codecs

@@ -46,7 +46,7 @@ const AVC_PROFILES_DESC = [
   { profile_idc: 44, profile: "CAVLC 4:4:4 Intra", constraintFlag: 0 },
 ] as const;
 
-const levels = {
+const LEVELS = {
   10: 1485,
   11: 3000,
   12: 6000,
@@ -64,8 +64,8 @@ const levels = {
   51: 983040,
 } as const;
 
-export function getAVCCodec(profile: string, level: number) {
-  let description = AVC_PROFILES_DESC.find((d) => d.profile == profile);
+export function getAVCCodec(idc: number, level: number) {
+  let description = AVC_PROFILES_DESC.find((d) => d.profile_idc == idc);
   if (!description) return undefined;
   let encodedLevel = level.toString(16).padStart(2, "0");
   let encodedFlag = description.constraintFlag.toString(16).padStart(2, "0");
@@ -75,14 +75,17 @@ export function getAVCCodec(profile: string, level: number) {
   return codec;
 }
 
-export function getMaxAVCLevel(resolution: Schemas["Resolution"], framerate: number) {
+export function getMaxAVCLevel(
+  resolution: Schemas["Resolution"],
+  framerate: number,
+) {
   let { width, height } = resolution;
   let macroblocks = Math.ceil(width / 16) * Math.ceil(height / 16) * framerate;
-  let level: keyof typeof levels | undefined = undefined;
-  for (let [levelName, levelMacroblocks] of Object.entries(levels)) {
+  let level: keyof typeof LEVELS | undefined = undefined;
+  for (let [levelName, levelMacroblocks] of Object.entries(LEVELS)) {
     if (levelMacroblocks > macroblocks) {
-      if (!level || (level && levelMacroblocks < levels[level])) {
-        level = +levelName as keyof typeof levels;
+      if (!level || (level && levelMacroblocks < LEVELS[level])) {
+        level = +levelName as keyof typeof LEVELS;
       }
     }
   }

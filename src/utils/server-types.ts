@@ -1386,7 +1386,7 @@ export type components = {
             start_time: string;
             temp_path: string;
         };
-        AudioCodec: "aac" | "ac3" | {
+        AudioCodec: "aac" | "ac3" | "eac3" | "dts" | {
             other: string;
         };
         BrowseDirectory: {
@@ -1628,8 +1628,14 @@ export type components = {
             channels: number;
             codec: components["schemas"]["AudioCodec"];
             is_default: boolean;
-            profile?: string | null;
+            /** Format: int32 */
+            profile_idc: number;
             sample_rate: string;
+        };
+        DetailedChapter: {
+            end: string;
+            start: string;
+            title?: string | null;
         };
         DetailedSubtitleTrack: {
             codec: components["schemas"]["SubtitlesCodec"];
@@ -1647,6 +1653,7 @@ export type components = {
         };
         DetailedVideo: {
             audio_tracks: components["schemas"]["DetailedAudioTrack"][];
+            chapters: components["schemas"]["DetailedChapter"][];
             duration: components["schemas"]["SerdeDuration"];
             history?: null | components["schemas"]["DbHistory"];
             /** Format: int64 */
@@ -1669,7 +1676,8 @@ export type components = {
             is_default: boolean;
             /** Format: int32 */
             level: number;
-            profile: string;
+            /** Format: int32 */
+            profile_idc: number;
             resolution: components["schemas"]["Resolution"];
         };
         DownloadContentHint: {
@@ -2258,7 +2266,7 @@ export type components = {
             /** Format: int64 */
             time: number;
         };
-        VideoCodec: "hevc" | "h264" | "av1" | {
+        VideoCodec: "hevc" | "h264" | "av1" | "vp8" | "vp9" | {
             other: string;
         };
         VideoContentMetadata: {

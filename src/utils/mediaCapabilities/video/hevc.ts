@@ -1,26 +1,25 @@
 import { Schemas } from "../../serverApi";
 
-const HEVC_PROFILES_DESC = [
-  { profile_idc: 1, profile: "Main" },
-  { profile_idc: 2, profile: "Main 10" },
-  { profile_idc: 3, profile: "Main Still Picture" },
-  { profile_idc: 4, profile: "Range extensions profiles" },
-  { profile_idc: 5, profile: "High throughput profiles" },
-  { profile_idc: 6, profile: "Multiview Main profile" },
-  { profile_idc: 7, profile: "Scalable Main profile" },
-  { profile_idc: 8, profile: "3D Main profile" },
-  { profile_idc: 9, profile: "Screen content coding extensions profiles" },
-  { profile_idc: 10, profile: "Scalable format range extensions profile" },
-];
+const HEVC_PROFILES_DESC = {
+  1: "Main",
+  2: "Main 10",
+  3: "Main Still Picture",
+  4: "Range extensions profiles",
+  5: "High throughput profiles",
+  6: "Multiview Main profile",
+  7: "Scalable Main profile",
+  8: "3D Main profile",
+  9: "Screen content coding extensions profiles",
+  10: "Scalable format range extensions profile",
+} as const;
 
 // NOTE: figure out constraints and what does weird number means
-export function getHevcVideo(profile: string, level: number) {
+export function getHevcVideo(idc: number, level: number) {
   let base = "hev1";
-  let profileIdc = HEVC_PROFILES_DESC.find((p) => p.profile)?.profile_idc;
-  if (!profile) return undefined;
   let constraints = "b0";
-  let weirdNumber = profile == "Main" ? 6 : 4;
-  return `${base}.${profileIdc}.${weirdNumber}.L${level}.${constraints}`;
+  // idc 1 == Main
+  let weirdNumber = idc == 1 ? 6 : 4;
+  return `${base}.${idc}.${weirdNumber}.L${level}.${constraints}`;
 }
 const HVEC_LEVEL_TO_LUMA = {
   1: 552_960,
@@ -38,7 +37,14 @@ const HVEC_LEVEL_TO_LUMA = {
   6.2: 4_278_190_080,
 };
 
-export function getMaxHEVCLevel(resolution: Schemas["Resolution"], framerate: number) {
+export function profileDescription(idc: number) {
+  return HEVC_PROFILES_DESC[idc as keyof typeof HEVC_PROFILES_DESC];
+}
+
+export function getMaxHEVCLevel(
+  resolution: Schemas["Resolution"],
+  framerate: number,
+) {
   let { width, height } = resolution;
   let sum = width * height * framerate;
   let maxLumaSampleRate = sum + sum / 15;
