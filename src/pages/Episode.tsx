@@ -13,7 +13,7 @@ import VideoActions from "@/components/Description/VideoActions";
 import VideoInformation from "@/components/Description/VideoInformation";
 import { fetchEpisode, fetchShow } from "@/utils/library";
 import { ParseParamsError } from "@/utils/errors";
-import { IntroBar } from "@/components/Description/IntroBar";
+import { DynamicIntro, IntroBar } from "@/components/Description/IntroBar";
 
 function parseParams() {
   let params = useParams();
@@ -167,9 +167,10 @@ export default function Episode() {
                   <div class="w-96">
                     <Show when={videos()?.find((v) => v.details.intro)}>
                       {(video) => (
-                        <IntroBar
+                        <DynamicIntro
                           totalDuration={video().details.duration.secs}
-                          intro={video().details.intro!}
+                          initialEnd={video().details.intro!.end_sec}
+                          initialStart={video().details.intro!.start_sec}
                         />
                       )}
                     </Show>
