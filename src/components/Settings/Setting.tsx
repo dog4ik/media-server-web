@@ -64,14 +64,13 @@ export function InferredInput<T extends InputPropType>(props: InputProps<T>) {
       >
         <NumberFieldGroup>
           <NumberFieldDecrementTrigger aria-label="Decrement" />
-          <NumberFieldInput />
+          <NumberFieldInput/>
           <NumberFieldIncrementTrigger aria-label="Increment" />
         </NumberFieldGroup>
       </NumberField>
     );
   }
   if (typeof props.value == "boolean") {
-    console.log("rendering bool");
     return (
       <SwitchToggle
         class="toggle"

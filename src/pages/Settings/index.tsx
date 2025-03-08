@@ -56,48 +56,41 @@ function GeneralSettings() {
   return (
     <div class="flex flex-col gap-8 p-5">
       <div>
-        <SectionTitle name="Providers" />
         <SectionSubTitle name="Providers order" />
         <Show when={providers()}>
           {(data) => <ProviderOrdering providers={data()} />}
         </Show>
       </div>
       <div>
-        <SectionTitle name="Library" />
         <SectionSubTitle name="Transcoded variants" />
         <Variants />
       </div>
       <div>
-        <SectionTitle name="Server" />
+        <SectionTitle name="Settings" />
         <div class="divide-y divide-neutral-500">
           <SmartSetting setting="metadata_language" />
           <SmartSetting setting="show_folders" />
           <SmartSetting setting="movie_folders" />
-          <SmartSetting setting="port" />
           <SmartSetting setting="upnp_enabled" />
-          <SmartSetting setting="upnp_ttl" />
           <SmartSetting setting="hw_accel" />
-          <SmartSetting setting="ffmpeg_path" />
-          <SmartSetting setting="ffprobe_path" />
-          <SmartSetting setting="web_ui_path" />
+          <SmartSetting setting="intro_min_duration" />
         </div>
       </div>
 
+      <SectionTitle name="Advanced settings" />
       <div>
-        <SectionTitle name="Secrets" />
         <div class="divide-y divide-neutral-500">
+          <SmartSetting setting="port" />
           <SmartSetting setting="tmdb_key" />
           <SmartSetting setting="tvdb_key" />
+          <SmartSetting setting="ffmpeg_path" />
+          <SmartSetting setting="intro_detection_ffmpeg_build" />
+          <SmartSetting setting="ffprobe_path" />
+          <SmartSetting setting="web_ui_path" />
+          <SmartSetting setting="upnp_ttl" />
         </div>
       </div>
 
-      <div>
-        <SectionTitle name="Intro detection" />
-        <div class="divide-y divide-neutral-500">
-          <SmartSetting setting="intro_min_duration" />
-          <SmartSetting setting="intro_detection_ffmpeg_build" />
-        </div>
-      </div>
       <Show when={changesAmount()}>
         {(amount) => (
           <div class="fixed bottom-10 right-10 z-20 flex items-center gap-8">

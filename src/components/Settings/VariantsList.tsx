@@ -198,6 +198,7 @@ export default function Variants() {
             <TableHeader>
               <TableRow>
                 <TableHead>#</TableHead>
+                <TableHead>Title</TableHead>
                 <TableHead>Video Codec</TableHead>
                 <TableHead>Resolution</TableHead>
                 <TableHead>Audio Codec</TableHead>
