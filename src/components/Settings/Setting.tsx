@@ -61,10 +61,11 @@ export function InferredInput<T extends InputPropType>(props: InputProps<T>) {
         onRawValueChange={(val) => props.onInput(val as T)}
         defaultValue={props.value}
         disabled={props.disabled}
+        format={false}
       >
         <NumberFieldGroup>
           <NumberFieldDecrementTrigger aria-label="Decrement" />
-          <NumberFieldInput/>
+          <NumberFieldInput />
           <NumberFieldIncrementTrigger aria-label="Increment" />
         </NumberFieldGroup>
       </NumberField>
