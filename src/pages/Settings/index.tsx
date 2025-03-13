@@ -6,7 +6,6 @@ import Variants from "../../components/Settings/VariantsList";
 import { SmartSetting } from "../../components/Settings/Setting";
 import { Show } from "solid-js";
 import { useNotifications } from "../../context/NotificationContext";
-import ProviderOrdering from "../../components/Settings/ProviderList";
 import SettingsProvider, {
   useSettingsContext,
 } from "@/context/SettingsContext";
@@ -31,13 +30,6 @@ function GeneralSettings() {
     resetChangedSettings();
   }
 
-  async function fetchProviders() {
-    let providers = await server.GET("/api/configuration/providers");
-    return providers.data;
-  }
-
-  let providers = createAsync(fetchProviders);
-
   async function restoreConfiguration() {
     let confirmed = await promptConfirm("Do you want to reset configuration?");
     if (confirmed) {
@@ -55,12 +47,6 @@ function GeneralSettings() {
 
   return (
     <div class="flex flex-col gap-8 p-5">
-      <div>
-        <SectionSubTitle name="Providers order" />
-        <Show when={providers()}>
-          {(data) => <ProviderOrdering providers={data()} />}
-        </Show>
-      </div>
       <div>
         <SectionSubTitle name="Transcoded variants" />
         <Variants />
