@@ -29,6 +29,7 @@ export default function promptConfirm(
   }
 
   function onClose() {
+    setShowModal(false);
     resolve(false);
   }
 
