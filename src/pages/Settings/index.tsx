@@ -54,9 +54,9 @@ function GeneralSettings() {
       <div>
         <SectionTitle name="Settings" />
         <div class="divide-y divide-neutral-500">
-          <SmartSetting setting="metadata_language" />
           <SmartSetting setting="show_folders" />
           <SmartSetting setting="movie_folders" />
+          <SmartSetting setting="metadata_language" />
           <SmartSetting setting="upnp_enabled" />
           <SmartSetting setting="hw_accel" />
           <SmartSetting setting="intro_min_duration" />
