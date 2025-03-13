@@ -61,7 +61,7 @@ export const SETTINGS: Settings = {
     typeHint: "path",
   },
   ffprobe_path: {
-    description: "Path to ffprobe binary. This setting will be depricated in favor of ffmpeg builtin abi",
+    description: "Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg builtin abi",
     long_name: "Ffprobe path",
     name: "ffprobe_path",
     typeHint: "path",

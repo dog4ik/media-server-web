@@ -41,8 +41,10 @@ export default function FileInput(props: FileInputProps) {
           />
         </DialogContent>
       </Dialog>
-      <div class="flex h-9 flex-1 items-center justify-between gap-2 rounded-md border bg-background py-1 pl-3 text-sm">
-        <span>{props.value}</span>
+      <div class="flex h-9 w-full items-center justify-between gap-2 rounded-md border bg-background py-1 pl-3 text-sm">
+        <span class="line-clamp-1" title={props.value}>
+          {props.value}
+        </span>
         <Button
           variant={"ghost"}
           onClick={() => {

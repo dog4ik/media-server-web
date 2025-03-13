@@ -188,7 +188,7 @@ function FileInputs(props: FileInputsProps) {
       <div class="space-y-3">
         <For each={props.values}>
           {(file, idx) => (
-            <div class="flex items-center justify-between gap-2">
+            <div class="flex w-full">
               <FileInput
                 title="Select directory"
                 value={file}

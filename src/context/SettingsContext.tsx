@@ -76,7 +76,7 @@ function createSettingsContext(initialSettings: SettingsObject) {
             setSettingsErrors(e.key, e);
           }
           if (r.data.require_restart) {
-            notificator("Restart required to some settings to apply");
+            notificator("Restart is required for some settings to apply");
           } else {
             notificator("Updated server configuration");
           }
@@ -85,13 +85,7 @@ function createSettingsContext(initialSettings: SettingsObject) {
       })
       .finally(async () => {
         await revalidatePath("/api/configuration");
-        setChangedSettings(
-          produce((settings) => {
-            for (let key of Object.keys(settings)) {
-              delete settings[key as keyof typeof settings];
-            }
-          }),
-        );
+        resetChangedSettings();
       });
   }
 
@@ -136,18 +130,12 @@ function createSettingsContext(initialSettings: SettingsObject) {
   }
 
   function resetSettingsErrors() {
-    setSettingsErrors(
-      produce((settings) => {
-        for (let key of Object.keys(settings)) {
-          delete settings[key as keyof typeof settings];
-        }
-      }),
-    );
+    setSettingsErrors({});
   }
 
   return {
     setSettingsErrors,
-    setChangedSettings: setChangedSettings,
+    setChangedSettings,
     resetSettingsErrors,
     resetChangedSettings,
     apply,

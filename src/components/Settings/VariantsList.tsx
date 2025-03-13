@@ -5,8 +5,8 @@ import {
   revalidatePath,
   server,
 } from "../../utils/serverApi";
-import { createSignal, For, Match, Show, Suspense, Switch } from "solid-js";
-import { InternalServerError } from "../../utils/errors";
+import { For, Match, Show, Suspense, Switch } from "solid-js";
+import { throwResponseErrors } from "../../utils/errors";
 import {
   defaultTrack,
   ExtendedVideoContent,
@@ -73,7 +73,7 @@ function Row(props: TableRowProps) {
         <FallbackImage
           srcList={props.posterList}
           alt="Content poster"
-          class="aspect-poster inline"
+          class="inline aspect-poster rounded-md"
           width={60}
           height={90}
         />
@@ -163,12 +163,10 @@ function NoItemsDisplay() {
 
 export default function Variants() {
   let videos = createAsync(async () => {
-    let variants = await server.GET("/api/variants");
-    if (!variants.data)
-      throw new InternalServerError("Failed to get all variants");
-    let promises = variants.data.map((video) => fetchVideoContent(video.id));
+    let variants = await server.GET("/api/variants").then(throwResponseErrors);
+    let promises = variants.map((video) => fetchVideoContent(video.id));
     let settled = await Promise.allSettled(promises);
-    return variants.data?.map((d, idx) => {
+    return variants.map((d, idx) => {
       let settledContent = settled[idx];
       return {
         ...d,

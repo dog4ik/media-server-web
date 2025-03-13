@@ -72,7 +72,7 @@ function Season(props: SeasonProps) {
             content_type="show"
           />
           <div>
-            <div class="sticky top-0 z-10 flex h-40 max-h-40 gap-4 rounded-xl bg-neutral-900/80 p-4">
+            <div class="sticky top-0 z-10 flex gap-4 rounded-xl bg-neutral-900/80 p-4">
               <div>
                 <FallbackImage
                   alt="Poster image"
