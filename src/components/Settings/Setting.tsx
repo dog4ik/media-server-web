@@ -74,7 +74,6 @@ export function InferredInput<T extends InputPropType>(props: InputProps<T>) {
   if (typeof props.value == "boolean") {
     return (
       <SwitchToggle
-        class="toggle"
         onChange={(e) => props.onInput(e as T)}
         checked={props.value}
       >
@@ -130,17 +129,6 @@ export function InferredInput<T extends InputPropType>(props: InputProps<T>) {
   }
 }
 
-type SelectProps<T extends string | number> = {
-  options: T[];
-  value: string;
-  onChange: (val: T) => void;
-};
-
-type ToggleProps = {
-  value: boolean;
-  onChange: (val: boolean) => void;
-};
-
 type SecretInputProps = {
   value: string;
   placeholder?: string;
@@ -165,17 +153,21 @@ type FileInputsProps = {
 };
 
 function FileInputs(props: FileInputsProps) {
-  let files = props.values;
   let [modalOpen, setModalOpen] = createSignal(false);
+  let clone = () => [...props.values];
+
   function onChange(idx: number, data: string) {
+    let files = clone();
     files[idx] = data;
     props.onChange(files);
   }
   function onRemove(idx: number) {
+    let files = clone();
     files = files.filter((_, i) => i !== idx);
     props.onChange(files);
   }
   function onAdd(val: string) {
+    let files = clone();
     let last = files.at(-1);
     if (last !== "") {
       files.push(val);
@@ -300,7 +292,6 @@ export function SmartSetting<T extends keyof typeof SETTINGS>(
         <Match when={setting.typeHint == "path"}>
           <FileInput
             title="Select file"
-            description=""
             onChange={handleUpdate}
             value={
               (changedSettings[props.setting] ??
