@@ -78,7 +78,7 @@ export default function NotificationsProvider(props: ParentProps) {
   let [{ notifications }, { removeNotification }] = context;
   return (
     <NotificationsContext.Provider value={context}>
-      <div class="fixed right-2 top-2 z-50 flex max-w-xs select-none flex-col items-end gap-3 md:max-w-2xl">
+      <div class="fixed right-2 bottom-2 z-50 flex max-w-xs select-none flex-col items-end gap-3 md:max-w-2xl">
         <For each={notifications()}>
           {(item) => (
             <Notification
