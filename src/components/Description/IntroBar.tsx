@@ -52,8 +52,9 @@ export function IntroBar(self: Props) {
 
 type DynamicIntroProps = {
   totalDuration: number;
-  initialStart: number;
-  initialEnd: number;
+  start: number;
+  end: number;
+  onChange: (intro: Schemas["Intro"]) => void;
 };
 
 type PointerProps = {
@@ -96,7 +97,7 @@ function IntroPointer(self: PointerProps & ParentProps) {
   return (
     <button
       style={{ left: `${self.positionOffset * 100}%` }}
-      class="absolute z-20 flex h-full w-2 items-center justify-center bg-gray-900"
+      class="absolute z-20 flex h-full w-2 cursor-grab items-center justify-center bg-gray-900"
       onMouseDown={handleMouseDown}
     >
       {self.children}
@@ -109,22 +110,26 @@ const ICON_SIZE = 15;
 export function DynamicIntro(self: DynamicIntroProps) {
   let timelineRef: HTMLDivElement;
   let strippedDuration = self.totalDuration / STRIP_FACTOR;
-  let [startPointer, setStartPointer] = createSignal(self.initialStart);
-  let [endPointer, setEndPointer] = createSignal(self.initialEnd);
-  let startPercent = () => startPointer() / strippedDuration;
-  let endPercent = () => endPointer() / strippedDuration;
+  let startPercent = () => self.start / strippedDuration;
+  let endPercent = () => self.end / strippedDuration;
 
   let changeStartPosition = (newPercent: number) => {
     let clampedPercent = Math.min(newPercent, endPercent());
-    setStartPointer(clampedPercent * strippedDuration);
+    self.onChange({
+      start_sec: clampedPercent * strippedDuration,
+      end_sec: self.end,
+    });
   };
 
   let changeEndPosition = (newPercent: number) => {
     let clampedPercent = Math.max(newPercent, startPercent());
-    setEndPointer(clampedPercent * strippedDuration);
+    self.onChange({
+      start_sec: self.start,
+      end_sec: clampedPercent * strippedDuration,
+    });
   };
 
-  let duration = () => endPointer() - startPointer();
+  let duration = () => self.end - self.start;
 
   let durationPercent = () => duration() / strippedDuration;
 
@@ -142,7 +147,7 @@ export function DynamicIntro(self: DynamicIntroProps) {
         onChange={changeStartPosition}
       >
         <span class="pointer-events-none absolute bottom-10">
-          {formatDuration({ nanos: 0, secs: startPointer() })}
+          {formatDuration({ nanos: 0, secs: self.start })}
         </span>
         <FiArrowLeft size={ICON_SIZE} />
       </IntroPointer>
@@ -152,7 +157,7 @@ export function DynamicIntro(self: DynamicIntroProps) {
         onChange={changeEndPosition}
       >
         <span class="pointer-events-none absolute top-10">
-          {formatDuration({ nanos: 0, secs: endPointer() })}
+          {formatDuration({ nanos: 0, secs: self.end })}
         </span>
         <FiArrowRight size={ICON_SIZE} />
       </IntroPointer>
