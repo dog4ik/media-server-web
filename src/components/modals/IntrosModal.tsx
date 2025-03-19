@@ -121,10 +121,8 @@ function SecondsInput(self: SecondsInputProps) {
 function IntroRow(props: IntroRowProps) {
   let hasChanged = () => !cmpIntro(props.originalIntro, props.intro);
   return (
-    <div class="flex w-full items-center gap-20">
-      <div class="flex-1 shrink-0">
-        <span>Video {props.index + 1}:</span>
-      </div>
+    <div class="flex w-full items-center justify-center gap-10 overflow-y-auto py-4">
+      <span class="shrink-0">Video {props.index + 1}:</span>
       <div class="flex w-full items-center gap-16">
         <Show
           when={props.intro}
@@ -180,7 +178,11 @@ function IntroRow(props: IntroRowProps) {
         <Button disabled={!hasChanged()} onClick={props.onSave}>
           Save
         </Button>
-        <Button onClick={props.onDelete} disabled={props.intro === undefined}>
+        <Button
+          variant={"destructive"}
+          onClick={props.onDelete}
+          disabled={props.intro === undefined}
+        >
           <FiTrash size={30} />
         </Button>
       </div>
@@ -339,7 +341,7 @@ function Inner(props: InnerProps) {
                 height={120}
               />
               <div>{payload.episode.friendlyTitle()}</div>
-              <div class="space-y-10 divide-y-2">
+              <div class="space-y-10 divide-y-2 px-8">
                 <For each={payload.videos}>
                   {(v, i) => (
                     <IntroRow
