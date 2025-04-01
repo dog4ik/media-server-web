@@ -23,7 +23,7 @@ export function RecursiveRow(props: { title: string } & ParentProps) {
       <ExpandRow popoverTarget={submenuId}>{props.title}</ExpandRow>
       <ul
         id={submenuId}
-        class={`w-60 bg-neutral-800`}
+        class={`w-60 bg-primary`}
         style={`
 position-anchor: --${submenuId};
 position-area: right span-bottom;
@@ -48,7 +48,7 @@ export default function MoreButton(props: ParentProps) {
 anchor-name: --${menuId};
 `}
         id="menu-btn"
-        class="rounded-full p-1.5 transition-colors hover:bg-neutral-600/50"
+        class="hover:bg-primary-600/50 rounded-full p-1.5 transition-colors"
       >
         <FiMoreVertical size={20} />
       </button>
@@ -56,7 +56,7 @@ anchor-name: --${menuId};
         id={menuId}
         ref={menuRef!}
         onClick={() => menuRef.togglePopover(false)}
-        class="w-60 bg-neutral-800"
+        class="w-60 animate-fade-in rounded-xl bg-primary-foreground duration-200"
         style={`
 position-anchor: --${menuId};
 position-area: right span-bottom;

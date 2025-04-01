@@ -13,6 +13,7 @@ type Variable<T extends Config[number]["key"]> = {
 
 export type Settings = { [K in Config[number]["key"]]: Variable<K> };
 
+/** All server side settings are declared in this object*/
 export const SETTINGS: Settings = {
   intro_min_duration: {
     description:
@@ -61,7 +62,8 @@ export const SETTINGS: Settings = {
     typeHint: "path",
   },
   ffprobe_path: {
-    description: "Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg builtin abi",
+    description:
+      "Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg builtin abi",
     long_name: "Ffprobe path",
     name: "ffprobe_path",
     typeHint: "path",

@@ -496,6 +496,10 @@ export class Video {
       .then((r) => r.data?.id);
   }
 
+  defaultSubtitles() {
+    return defaultTrack(this.details.subtitle_tracks);
+  }
+
   defaultAudio() {
     return defaultTrack(this.details.audio_tracks);
   }

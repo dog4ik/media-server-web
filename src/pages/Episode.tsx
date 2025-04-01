@@ -1,7 +1,7 @@
 import { createAsync, useParams } from "@solidjs/router";
 import { For, Show, createEffect, createSignal } from "solid-js";
 import Description from "@/components/Description";
-import { fullUrl } from "@/utils/serverApi";
+import { fullUrl, Schemas } from "@/utils/serverApi";
 import { useProvider } from "@/utils/metadataProviders";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
 import { setBackdrop } from "@/context/BackdropContext";
@@ -11,9 +11,26 @@ import Icon from "@/components/ui/Icon";
 import { FiDownload } from "solid-icons/fi";
 import VideoActions from "@/components/Description/VideoActions";
 import VideoInformation from "@/components/Description/VideoInformation";
-import { fetchEpisode, fetchShow } from "@/utils/library";
+import { fetchEpisode, fetchShow, Video } from "@/utils/library";
 import { ParseParamsError } from "@/utils/errors";
-import { DynamicIntro, IntroBar } from "@/components/Description/IntroBar";
+import { DynamicIntro } from "@/components/Description/IntroBar";
+import { createStore } from "solid-js/store";
+
+type SelectedSubtitles =
+  | {
+      origin: "container";
+      index: number;
+    }
+  | {
+      origin: "external";
+      id: number;
+    };
+
+export type TrackSelection = {
+  subtitlesTrack?: SelectedSubtitles;
+  videoTrack: number;
+  audioTrack: number;
+};
 
 function parseParams() {
   let params = useParams();
@@ -27,9 +44,13 @@ export default function Episode() {
   let [episodeNumber, seasonNumber] = parseParams();
   let [showId, provider] = useProvider();
   let [torrentModal, setTorrentModal] = createSignal(false);
+  // [videoIndex, variantIndex]
   let [selectedVideo, setSelectedVideo] = createSignal<
     [number, number | undefined]
   >([0, undefined]);
+  let [videoSelection, setVideoSelection] = createStore<
+    Record<string, TrackSelection>
+  >({});
 
   let data = createAsync(async () => {
     let episodePromise = fetchEpisode(
@@ -185,6 +206,16 @@ export default function Episode() {
             <>
               <VideoInformation
                 title={`#${idx() + 1} Video file`}
+                setVideoSelection={(newSelection) =>
+                  setVideoSelection(`${idx()}`, newSelection)
+                }
+                selection={
+                  videoSelection[`${idx()}`] ?? {
+                    audioTrack: 0,
+                    videoTrack: 0,
+                    subtitlesTrack: undefined,
+                  }
+                }
                 video={video}
                 onSelect={() => setSelectedVideo([idx(), undefined])}
                 isSelected={
@@ -195,6 +226,16 @@ export default function Episode() {
               <For each={video.variants()}>
                 {(variant, vidx) => (
                   <VideoInformation
+                    setVideoSelection={(newSelection) =>
+                      setVideoSelection(`${idx()}`, newSelection)
+                    }
+                    selection={
+                      videoSelection[`${idx()}`] ?? {
+                        audioTrack: 0,
+                        videoTrack: 0,
+                        subtitlesTrack: undefined,
+                      }
+                    }
                     title={`#${idx() + 1} Video variant #${vidx() + 1}`}
                     video={variant}
                     onSelect={() => setSelectedVideo([idx(), vidx()])}
