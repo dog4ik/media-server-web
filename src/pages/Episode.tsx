@@ -188,10 +188,9 @@ export default function Episode() {
                   <div class="w-96">
                     <Show when={videos()?.find((v) => v.details.intro)}>
                       {(video) => (
-                        <DynamicIntro
+                        <IntroBar
                           totalDuration={video().details.duration.secs}
-                          initialEnd={video().details.intro!.end_sec}
-                          initialStart={video().details.intro!.start_sec}
+                          intro={video().details.intro!}
                         />
                       )}
                     </Show>

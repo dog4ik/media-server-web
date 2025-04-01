@@ -18,6 +18,30 @@ export function formatDuration(duration: Schemas["SerdeDuration"]) {
   return str;
 }
 
+export function parseDuration(duration: string) {
+  let inBounds = (n: number) => n >= 0 && n < 60;
+  let split = duration.split(":");
+  let first = split.at(0) ? parseInt(split[0]) : undefined;
+  let second = split.at(1) ? parseInt(split[1]) : undefined;
+  let third = split.at(2) ? parseInt(split[2]) : undefined;
+
+  if (split.length == 3) {
+    if (first === undefined || isNaN(first) || !inBounds(first)) return;
+    if (second === undefined || isNaN(second) || !inBounds(second)) return;
+    if (third === undefined || isNaN(second) || !inBounds(third)) return;
+    return first * 60 * 60 + second * 60 + third;
+  }
+  if (split.length == 2) {
+    if (first === undefined || isNaN(first) || !inBounds(first)) return;
+    if (second === undefined || isNaN(second) || !inBounds(second)) return;
+    return first * 60 + second;
+  }
+  if (split.length == 1) {
+    if (first === undefined || isNaN(first) || inBounds(first)) return;
+    return first;
+  }
+}
+
 export function formatTimeBeforeRelease(input: string) {
   let targetDate = new Date(input);
   let now = new Date();

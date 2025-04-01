@@ -796,6 +796,40 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/show/{show_id}/{season}/intros": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete all season intros */
+        delete: operations["delete_season_intros"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/show/{show_id}/{season}/{episode}/intros": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete all intros for the episode */
+        delete: operations["delete_episode_intros"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tasks/intro_detection": {
         parameters: {
             query?: never;
@@ -1343,6 +1377,26 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/video/{video_id}/intro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get intro for the video */
+        get: operations["video_intro"];
+        /** Update intros for the video
+         *     If into does not exist it will be created */
+        put: operations["update_video_intro"];
+        post?: never;
+        /** Delete intro for the video */
+        delete: operations["delete_video_intro"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/ws": {
         parameters: {
             query?: never;
@@ -1711,6 +1765,12 @@ export type components = {
         } | {
             /** @enum {string} */
             type: "seeding";
+        };
+        EditIntroPayload: {
+            /** Format: int64 */
+            end: number;
+            /** Format: int64 */
+            start: number;
         };
         EpisodeMetadata: {
             metadata_id: string;
@@ -3879,6 +3939,72 @@ export interface operations {
             };
         };
     };
+    delete_season_intros: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                show_id: number;
+                /** @description Season number */
+                season: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Intros are removed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Season is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    delete_episode_intros: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                show_id: number;
+                /** @description Season number */
+                season: number;
+                /** @description Episode number */
+                episode: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Intros are removed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Episode is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
     intro_detection_tasks: {
         parameters: {
             query?: never;
@@ -4893,6 +5019,107 @@ export interface operations {
                 };
             };
             /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    video_intro: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video Id */
+                video_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Intro */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Intro is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    update_video_intro: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video Id */
+                video_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditIntroPayload"];
+            };
+        };
+        responses: {
+            /** @description Intro is updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Intro is newly created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    delete_video_intro: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video Id */
+                video_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Intro was removed successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Intro is not found */
             404: {
                 headers: {
                     [name: string]: unknown;

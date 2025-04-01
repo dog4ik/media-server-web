@@ -16,6 +16,7 @@ import FallbackImage from "@/components/FallbackImage";
 import useToggle from "@/utils/useToggle";
 import { formatSE } from "@/utils/formats";
 import promptConfirm from "@/components/modals/ConfirmationModal";
+import { IntrosModal } from "@/components/modals/IntrosModal";
 
 async function detectIntros(show_id: number, season: number) {
   await server.POST("/api/show/{show_id}/{season}/detect_intros", {
@@ -59,6 +60,7 @@ function Season(props: SeasonProps) {
     fetchSeason(props.showId, props.season, props.provider),
   );
   let [downloadModal, setDownloadModal] = useToggle(false);
+  let [introsModal, setIntrosModal] = useToggle(false);
   return (
     <Show when={season()}>
       {(season) => (
@@ -71,6 +73,17 @@ function Season(props: SeasonProps) {
             query={props.torrentQuery}
             content_type="show"
           />
+          <Show when={season().metadata_provider == "local"}>
+            <IntrosModal
+              open={introsModal()}
+              onClose={setIntrosModal}
+              show_id={+props.showId}
+              episodes={season().episodes.map((e) =>
+                extendEpisode(e, props.showId),
+              )}
+              season={season().number}
+            />
+          </Show>
           <div>
             <div class="sticky top-0 z-10 flex gap-4 rounded-xl bg-neutral-900/80 p-4">
               <div>
@@ -93,6 +106,12 @@ function Season(props: SeasonProps) {
               </div>
               <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
                 <FiDownload size={30} />
+              </Icon>
+              <Icon
+                tooltip="Manage intros"
+                onClick={() => setIntrosModal(true)}
+              >
+                <FiSkipForward size={30} />
               </Icon>
               <Show when={season().metadata_provider == "local"}>
                 <Icon
