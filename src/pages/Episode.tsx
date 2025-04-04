@@ -1,7 +1,7 @@
 import { createAsync, useParams } from "@solidjs/router";
 import { For, Show, createEffect, createSignal } from "solid-js";
 import Description from "@/components/Description";
-import { fullUrl, Schemas } from "@/utils/serverApi";
+import { fullUrl } from "@/utils/serverApi";
 import { useProvider } from "@/utils/metadataProviders";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
 import { setBackdrop } from "@/context/BackdropContext";
@@ -11,9 +11,9 @@ import Icon from "@/components/ui/Icon";
 import { FiDownload } from "solid-icons/fi";
 import VideoActions from "@/components/Description/VideoActions";
 import VideoInformation from "@/components/Description/VideoInformation";
-import { fetchEpisode, fetchShow, Video } from "@/utils/library";
+import { fetchEpisode, fetchShow } from "@/utils/library";
 import { ParseParamsError } from "@/utils/errors";
-import { DynamicIntro } from "@/components/Description/IntroBar";
+import { IntroBar } from "@/components/Description/IntroBar";
 import { createStore } from "solid-js/store";
 
 type SelectedSubtitles =
@@ -226,7 +226,7 @@ export default function Episode() {
                 {(variant, vidx) => (
                   <VideoInformation
                     setVideoSelection={(newSelection) =>
-                      setVideoSelection(`${idx()}`, newSelection)
+                      setVideoSelection(`${idx()}-${vidx()}`, newSelection)
                     }
                     selection={
                       videoSelection[`${idx()}`] ?? {

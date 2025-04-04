@@ -7,6 +7,7 @@ import { Schemas, server } from "../../utils/serverApi";
 import { formatSize } from "../../utils/formats";
 import { Steps } from "@/ui/steps";
 import { Button } from "@/ui/button";
+import useDebounce from "@/utils/useDebounce";
 
 type StepLoadingProps = {
   currentStep: number;
@@ -38,6 +39,9 @@ type Props = {
 
 export function TorrentDownloadSteps(props: Props) {
   let [currentStep, setCurrentStep] = createSignal(0);
+  let [query, deferredQuery, setQuery] = useDebounce(300, props.downloadQuery);
+  let [selectedProvider, setSelectedProvider] =
+    createSignal<Schemas["TorrentIndexIdentifier"]>("tpb");
   let [selectedMagnetLink, setSelectedMagnetLink] = createSignal<string>();
   let [selectedFiles, setSelectedFiles] = createSignal<boolean[]>([]);
   let [outputLocation, setOutputLocation] = createSignal<string>();
@@ -58,16 +62,29 @@ export function TorrentDownloadSteps(props: Props) {
     });
   });
 
+  let searchAbortController: AbortController | undefined = undefined;
+
   let torrentSearch = createAsync(async () => {
-    let result = await server.GET("/api/torrent/search", {
-      params: {
-        query: {
-          search: props.downloadQuery,
-          content_type: props.content_hint?.content_type,
+    let abortController = new AbortController();
+    let signal = abortController.signal;
+    searchAbortController = abortController;
+    let result = await server
+      .GET("/api/torrent/search", {
+        params: {
+          query: {
+            search: deferredQuery(),
+            content_type: props.content_hint?.content_type,
+            provider: selectedProvider(),
+          },
         },
-      },
-    });
-    if (!result.data || result.data.length === 0) {
+        signal,
+      })
+      .catch((_) => {
+        if (searchAbortController?.signal.aborted) {
+          console.log("Aborted torrent search request");
+        }
+      });
+    if (!result?.data || result.data.length === 0) {
       return undefined;
     }
     return result;
@@ -123,13 +140,22 @@ export function TorrentDownloadSteps(props: Props) {
       />
       <div class="max-h-96 w-full flex-1 overflow-y-auto">
         <Switch fallback={<StepLoading currentStep={currentStep()} />}>
-          <Match when={currentStep() === 0 && torrentSearch()?.data}>
+          <Match when={currentStep() === 0}>
             <Step1
               onSelect={(magnet) => {
                 setSelectedMagnetLink(magnet);
                 setCurrentStep(1);
               }}
-              searchResults={torrentSearch()!.data!}
+              onProviderChange={setSelectedProvider}
+              onQueryChange={(q) => {
+                if (searchAbortController) {
+                  searchAbortController.abort();
+                }
+                setQuery(q);
+              }}
+              provider={selectedProvider()}
+              query={query()}
+              searchResults={torrentSearch()?.data}
             />
           </Match>
           <Match when={currentStep() === 1 && resolvedMagnetLink()?.data}>

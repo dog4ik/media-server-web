@@ -949,6 +949,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/torrent/index_magnet_link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get magnet link by torrent provider index */
+        get: operations["index_magnet_link"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/torrent/open": {
         parameters: {
             query?: never;
@@ -1474,117 +1491,157 @@ export type components = {
         /** @enum {string} */
         CodecType: "audio" | "video" | "subtitle" | "data" | "attachment";
         ConfigSchema: ({
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description The network port on which the server listens for incoming connections
+             */
             cli_value: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description The network port on which the server listens for incoming connections
+             */
             config_value: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description The network port on which the server listens for incoming connections
+             */
             default_value: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description The network port on which the server listens for incoming connections
+             */
             env_value: number;
             /** @enum {string} */
             key: "port";
             require_restart: boolean;
         } | {
+            /** @description List of directories that contain show files. All episode files from these directories will show up in the library */
             cli_value: string[];
+            /** @description List of directories that contain show files. All episode files from these directories will show up in the library */
             config_value: string[];
+            /** @description List of directories that contain show files. All episode files from these directories will show up in the library */
             default_value: string[];
+            /** @description List of directories that contain show files. All episode files from these directories will show up in the library */
             env_value: string[];
             /** @enum {string} */
             key: "show_folders";
             require_restart: boolean;
         } | {
+            /** @description List of directories that contain movie files. All movie files from these directories will show up in the library */
             cli_value: string[];
+            /** @description List of directories that contain movie files. All movie files from these directories will show up in the library */
             config_value: string[];
+            /** @description List of directories that contain movie files. All movie files from these directories will show up in the library */
             default_value: string[];
+            /** @description List of directories that contain movie files. All movie files from these directories will show up in the library */
             env_value: string[];
             /** @enum {string} */
             key: "movie_folders";
             require_restart: boolean;
         } | {
+            /** @description API key for TMDB. Allows server to authenticate with TMDB metadata provider */
             cli_value: string | null;
+            /** @description API key for TMDB. Allows server to authenticate with TMDB metadata provider */
             config_value: string | null;
+            /** @description API key for TMDB. Allows server to authenticate with TMDB metadata provider */
             default_value: string | null;
+            /** @description API key for TMDB. Allows server to authenticate with TMDB metadata provider */
             env_value: string | null;
             /** @enum {string} */
             key: "tmdb_key";
             require_restart: boolean;
         } | {
+            /** @description API key for TVDB. Allows server to authenticate with TVDB metadata provider */
             cli_value: string | null;
+            /** @description API key for TVDB. Allows server to authenticate with TVDB metadata provider */
             config_value: string | null;
+            /** @description API key for TVDB. Allows server to authenticate with TVDB metadata provider */
             default_value: string | null;
+            /** @description API key for TVDB. Allows server to authenticate with TVDB metadata provider */
             env_value: string | null;
             /** @enum {string} */
             key: "tvdb_key";
             require_restart: boolean;
         } | {
+            /** @description Path to ffmpeg binary. This ffmpeg binary will be used for media transcoding tasks */
             cli_value: string;
+            /** @description Path to ffmpeg binary. This ffmpeg binary will be used for media transcoding tasks */
             config_value: string;
+            /** @description Path to ffmpeg binary. This ffmpeg binary will be used for media transcoding tasks */
             default_value: string;
+            /** @description Path to ffmpeg binary. This ffmpeg binary will be used for media transcoding tasks */
             env_value: string;
             /** @enum {string} */
             key: "ffmpeg_path";
             require_restart: boolean;
         } | {
+            /** @description Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg abi */
             cli_value: string;
+            /** @description Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg abi */
             config_value: string;
+            /** @description Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg abi */
             default_value: string;
+            /** @description Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg abi */
             env_value: string;
             /** @enum {string} */
             key: "ffprobe_path";
             require_restart: boolean;
         } | {
+            /** @description Enable hardware acceleration to significantly improve transcoding performance, if supported by the system */
             cli_value: boolean;
+            /** @description Enable hardware acceleration to significantly improve transcoding performance, if supported by the system */
             config_value: boolean;
+            /** @description Enable hardware acceleration to significantly improve transcoding performance, if supported by the system */
             default_value: boolean;
+            /** @description Enable hardware acceleration to significantly improve transcoding performance, if supported by the system */
             env_value: boolean;
             /** @enum {string} */
             key: "hw_accel";
             require_restart: boolean;
         } | {
-            /** @description Minimal intro duration from seconds */
+            /** @description Minimal intro duration in seconds. With very low values things like netflix logo will be considered as intro */
             cli_value: number;
-            /** @description Minimal intro duration from seconds */
+            /** @description Minimal intro duration in seconds. With very low values things like netflix logo will be considered as intro */
             config_value: number;
-            /** @description Minimal intro duration from seconds */
+            /** @description Minimal intro duration in seconds. With very low values things like netflix logo will be considered as intro */
             default_value: number;
-            /** @description Minimal intro duration from seconds */
+            /** @description Minimal intro duration in seconds. With very low values things like netflix logo will be considered as intro */
             env_value: number;
             /** @enum {string} */
             key: "intro_min_duration";
             require_restart: boolean;
         } | {
-            /** @description Path to FFmpeg build that supports chromparint audio fingerprinting */
+            /** @description Path to the FFmpeg build that supports Chromaprint. Required for intro detection feature to work */
             cli_value: string;
-            /** @description Path to FFmpeg build that supports chromparint audio fingerprinting */
+            /** @description Path to the FFmpeg build that supports Chromaprint. Required for intro detection feature to work */
             config_value: string;
-            /** @description Path to FFmpeg build that supports chromparint audio fingerprinting */
+            /** @description Path to the FFmpeg build that supports Chromaprint. Required for intro detection feature to work */
             default_value: string;
-            /** @description Path to FFmpeg build that supports chromparint audio fingerprinting */
+            /** @description Path to the FFmpeg build that supports Chromaprint. Required for intro detection feature to work */
             env_value: string;
             /** @enum {string} */
             key: "intro_detection_ffmpeg_build";
             require_restart: boolean;
         } | {
-            /** @description Path to Web UI dist directory */
+            /** @description Path to Web UI assets, useful when Web UI located in a separate directory */
             cli_value: string;
-            /** @description Path to Web UI dist directory */
+            /** @description Path to Web UI assets, useful when Web UI located in a separate directory */
             config_value: string;
-            /** @description Path to Web UI dist directory */
+            /** @description Path to Web UI assets, useful when Web UI located in a separate directory */
             default_value: string;
-            /** @description Path to Web UI dist directory */
+            /** @description Path to Web UI assets, useful when Web UI located in a separate directory */
             env_value: string;
             /** @enum {string} */
             key: "web_ui_path";
             require_restart: boolean;
         } | {
-            /** @description Enabled upnp */
+            /** @description Enable SSDP (Simple Service Discovery Protocol) for UPnP. This allows the server to be discovered on the local network by compatible devices */
             cli_value: boolean;
-            /** @description Enabled upnp */
+            /** @description Enable SSDP (Simple Service Discovery Protocol) for UPnP. This allows the server to be discovered on the local network by compatible devices */
             config_value: boolean;
-            /** @description Enabled upnp */
+            /** @description Enable SSDP (Simple Service Discovery Protocol) for UPnP. This allows the server to be discovered on the local network by compatible devices */
             default_value: boolean;
-            /** @description Enabled upnp */
+            /** @description Enable SSDP (Simple Service Discovery Protocol) for UPnP. This allows the server to be discovered on the local network by compatible devices */
             env_value: boolean;
             /** @enum {string} */
             key: "upnp_enabled";
@@ -1592,35 +1649,35 @@ export type components = {
         } | {
             /**
              * Format: int32
-             * @description Ssdp packet ttl
+             * @description Time to live duration of SSDP packet on the local network
              */
             cli_value: number;
             /**
              * Format: int32
-             * @description Ssdp packet ttl
+             * @description Time to live duration of SSDP packet on the local network
              */
             config_value: number;
             /**
              * Format: int32
-             * @description Ssdp packet ttl
+             * @description Time to live duration of SSDP packet on the local network
              */
             default_value: number;
             /**
              * Format: int32
-             * @description Ssdp packet ttl
+             * @description Time to live duration of SSDP packet on the local network
              */
             env_value: number;
             /** @enum {string} */
             key: "upnp_ttl";
             require_restart: boolean;
         } | {
-            /** @description Metadata language */
+            /** @description Language to fetch metadata in. Selected language will be used in names, plots and posters */
             cli_value: components["schemas"]["Language"];
-            /** @description Metadata language */
+            /** @description Language to fetch metadata in. Selected language will be used in names, plots and posters */
             config_value: components["schemas"]["Language"];
-            /** @description Metadata language */
+            /** @description Language to fetch metadata in. Selected language will be used in names, plots and posters */
             default_value: components["schemas"]["Language"];
-            /** @description Metadata language */
+            /** @description Language to fetch metadata in. Selected language will be used in names, plots and posters */
             env_value: components["schemas"]["Language"];
             /** @enum {string} */
             key: "metadata_language";
@@ -1682,6 +1739,10 @@ export type components = {
             channels: number;
             codec: components["schemas"]["AudioCodec"];
             is_default: boolean;
+            is_dub: boolean;
+            is_hearing_impaired: boolean;
+            is_visual_impaired: boolean;
+            language?: string | null;
             /** Format: int32 */
             profile_idc: number;
             sample_rate: string;
@@ -1694,6 +1755,8 @@ export type components = {
         DetailedSubtitleTrack: {
             codec: components["schemas"]["SubtitlesCodec"];
             is_default: boolean;
+            is_hearing_impaired: boolean;
+            is_visual_impaired: boolean;
             language?: string | null;
         };
         DetailedVariant: {
@@ -1767,9 +1830,15 @@ export type components = {
             type: "seeding";
         };
         EditIntroPayload: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description End range specified in seconds
+             */
             end: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Start range specified in seconds
+             */
             start: number;
         };
         EpisodeMetadata: {
@@ -1786,6 +1855,9 @@ export type components = {
         ExternalIdMetadata: {
             id: string;
             provider: components["schemas"]["MetadataProvider"];
+        };
+        IndexMagnetLink: {
+            magnet_link: string;
         };
         Intro: {
             /** Format: int64 */
@@ -2215,12 +2287,15 @@ export type components = {
             author?: string | null;
             /** Format: date-time */
             created: string;
-            imdb_id: string;
+            imdb_id?: string | null;
             leechers: number;
             /** Format: uri */
-            magnet: string;
+            magnet?: string | null;
             name: string;
+            provider: components["schemas"]["TorrentIndexIdentifier"];
+            provider_id: string;
             seeders: number;
+            /** Format: int64 */
             size: number;
         };
         TorrentContent: {
@@ -2246,6 +2321,8 @@ export type components = {
             file_idx: number;
             metadata: components["schemas"]["EpisodeMetadata"];
         };
+        /** @enum {string} */
+        TorrentIndexIdentifier: "tpb" | "rutracker";
         TorrentInfo: {
             contents: components["schemas"]["TorrentContents"];
             name: string;
@@ -2346,6 +2423,7 @@ export type components = {
         };
         /** @enum {string} */
         VideoTaskKind: "transcode" | "livetranscode" | "previews" | "subtitles";
+        /** @description Websockets connection output message */
         WsMessage: {
             torrents: components["schemas"]["TorrentState"][];
             /** @enum {string} */
@@ -2365,6 +2443,7 @@ export type components = {
             /** @enum {string} */
             type: "torrentunsubscribe";
         };
+        /** @description Websockets connection input message */
         WsRequest: {
             /** @enum {string} */
             type: "torrentsubscribe";
@@ -4197,6 +4276,35 @@ export interface operations {
             };
         };
     };
+    index_magnet_link: {
+        parameters: {
+            query: {
+                id: string;
+                provider: "tpb" | "rutracker";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexMagnetLink"];
+                };
+            };
+            /** @description Failed to obtain magnet link */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     open_torrent: {
         parameters: {
             query?: never;
@@ -4358,6 +4466,7 @@ export interface operations {
             query: {
                 search: string;
                 content_type?: null | ("movie" | "show");
+                provider?: null | ("tpb" | "rutracker");
             };
             header?: never;
             path?: never;
@@ -5084,6 +5193,13 @@ export interface operations {
             };
             /** @description Intro is newly created */
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Intro payload is incorrect */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -23,7 +23,6 @@ type Props = {
 };
 
 export default function VideoInformation(props: Props) {
-  console.log(props.video);
   let defaultVideo = createMemo(() => props.video.defaultVideo());
   let defaultAudio = createMemo(() => props.video.defaultAudio());
   let compatibility = props.video.videoCompatibility();
@@ -43,7 +42,7 @@ export default function VideoInformation(props: Props) {
           {(tracks) => (
             <Show when={tracks().length}>
               <Select
-                options={tracks().map((t) => t.language ?? undefined)}
+                options={tracks().map((t) => t.language ?? "Unknown")}
                 placeholder="Select subtitles"
                 itemComponent={(props) => (
                   <SelectItem item={props.item}>
@@ -66,7 +65,8 @@ export default function VideoInformation(props: Props) {
             <Show when={tracks().length}>
               <Select
                 options={tracks().map(
-                  (t, idx) => `${idx + 1}. ${formatCodec(t.codec)}`,
+                  (t, idx) =>
+                    `${idx + 1}. ${formatCodec(t.codec)}${t.language ? ` (${t.language})` : ""}`,
                 )}
                 placeholder="Select audio track"
                 itemComponent={(props) => (
