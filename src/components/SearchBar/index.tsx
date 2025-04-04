@@ -1,13 +1,7 @@
-import { FiSearch, FiX } from "solid-icons/fi";
+import { FiX } from "solid-icons/fi";
 import { For, Match, Show, Switch, onCleanup, onMount } from "solid-js";
 import { Schemas, server } from "../../utils/serverApi";
-import {
-  A,
-  createAsync,
-  useBeforeLeave,
-  useLocation,
-  useNavigate,
-} from "@solidjs/router";
+import { A, createAsync, useBeforeLeave, useNavigate } from "@solidjs/router";
 import ProviderLogo from "../generic/ProviderLogo";
 import useDebounce from "../../utils/useDebounce";
 import { TextField, TextFieldRoot } from "@/ui/textfield";
@@ -57,11 +51,23 @@ export default function SearchBar() {
   let [input, deferredInput, setInput] = useDebounce(500, "");
   let navigator = useNavigate();
 
+  let searchAbortController: AbortController | undefined = undefined;
+
   let searchResult = createAsync(async () => {
+    let abortController = new AbortController();
+    let signal = abortController.signal;
+    searchAbortController = abortController;
     if (!deferredInput()) return undefined;
-    return await server.GET("/api/search/content", {
-      params: { query: { search: deferredInput() } },
-    });
+    return await server
+      .GET("/api/search/content", {
+        params: { query: { search: deferredInput() } },
+        signal,
+      })
+      .catch(() => {
+        if (searchAbortController?.signal.aborted) {
+          console.log("Aborted content search request");
+        }
+      });
   });
 
   let windowRef: HTMLDivElement = {} as any;
@@ -106,7 +112,12 @@ export default function SearchBar() {
           <TextFieldRoot class="relative w-full">
             <TextField
               ref={inputRef!}
-              onInput={(e) => setInput(e.currentTarget.value)}
+              onInput={(e) => {
+                if (searchAbortController) {
+                  searchAbortController.abort();
+                }
+                setInput(e.currentTarget.value);
+              }}
               onFocus={() => windowRef.showPopover()}
               onKeyPress={(e: { key: string }) => {
                 if (e.key == "Enter") {
