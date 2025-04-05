@@ -1,8 +1,8 @@
-import { Show, createEffect, createSignal } from "solid-js";
+import { useTracksSelection } from "@/pages/Watch/TracksSelectionContext";
+import { Show, createEffect, createSignal, createMemo } from "solid-js";
 
 type Props = {
   time: number;
-  raw_data: string;
 };
 
 type SubtitleChunk = {
@@ -13,17 +13,24 @@ type SubtitleChunk = {
 };
 
 export default function Subtitles(props: Props) {
-  let subs = srtParser(props.raw_data);
+  let [{ fetchedSubtitles, tracks }] = useTracksSelection();
+  let subs = createMemo(() => {
+    let subs = fetchedSubtitles();
+    if (subs) {
+      return srtParser(subs);
+    }
+  });
 
   let [currentIndex, setCurrentIndex] = createSignal(0);
   seek(props.time);
-  let currentChunk = () => subs.at(currentIndex());
-  let nextChunk = () => subs.at(currentIndex() + 1);
+  let currentChunk = () => subs()?.at(currentIndex());
 
   function seek(time: number) {
-    let currentIndex = subs.findIndex((v) => v.startTime > time);
+    let s = subs();
+    if (!s) return;
+    let currentIndex = s.findIndex((v) => v.startTime > time);
     if (currentIndex === -1) {
-      currentIndex = subs.length - 1;
+      currentIndex = s.length - 1;
     }
     setCurrentIndex(currentIndex - 1);
   }
@@ -37,15 +44,15 @@ export default function Subtitles(props: Props) {
       <div class="absolute bottom-20 left-1/2 -translate-x-1/2 bg-black/80">
         <Show
           when={
+            tracks.subtitles &&
+            currentChunk() &&
             currentChunk()!.startTime <= props.time &&
             currentChunk()!.endTime > props.time
           }
         >
-          {/* i am in danger */}
-          <p
-            innerHTML={currentChunk()?.text}
-            class="flex rounded-md text-2xl 2xl:text-4xl"
-          />
+          <p class="flex rounded-md text-2xl 2xl:text-4xl">
+            {currentChunk()?.text}
+          </p>
         </Show>
       </div>
     </>

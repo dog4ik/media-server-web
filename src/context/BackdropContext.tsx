@@ -1,3 +1,4 @@
+import tracing from "@/utils/tracing";
 import { useLocation } from "@solidjs/router";
 import {
   ParentProps,
@@ -33,7 +34,7 @@ function createBackdropContext() {
 
   function loadImage(index: number) {
     if (index === backdropSrcList().length) {
-      console.log("Failed to load any of image sources");
+      tracing.warn("Failed to load any of image sources");
       return;
     }
 
@@ -47,11 +48,11 @@ function createBackdropContext() {
       setCurrentBackdrop(url);
     };
     img.onerror = (e) => {
-      console.log(e);
+      tracing.warn({ message: e.toString() }, "Failed to load image");
       loadImage(index + 1);
     };
     img.onabort = () => {
-      console.log("Aborted image download", img.src);
+      tracing.debug({ src: img.src }, "Aborted image download");
     };
   }
 

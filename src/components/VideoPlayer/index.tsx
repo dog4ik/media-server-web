@@ -12,13 +12,12 @@ import Preview from "./Preview";
 import { FaSolidClosedCaptioning } from "solid-icons/fa";
 import ActionIcon from "./ActionIcon";
 import Subtitles from "./Subtitles";
-import { createAsync } from "@solidjs/router";
 import PlayerMenu from "./PlayerMenu";
-import { Subtitle } from "../../pages/Watch";
 import { fullUrl, Schemas } from "../../utils/serverApi";
 import Hls from "hls.js";
 import clsx from "clsx";
 import { Button } from "@/ui/button";
+import { useTracksSelection } from "@/pages/Watch/TracksSelectionContext";
 
 function formatDuration(time: number) {
   let leadingZeroFormatter = new Intl.NumberFormat(undefined, {
@@ -47,7 +46,6 @@ type Props = {
   onVideoError: (error?: MediaError) => void;
   onAudioError: () => void;
   onHistoryUpdate: (time: number) => void;
-  subtitles: Subtitle[];
   previews?: { videoId: number; previewsAmount: number };
   streamingMethod: StreamingMethod;
   intro?: Schemas["Intro"];
@@ -78,18 +76,18 @@ function initHls(videoElement: HTMLVideoElement, manifestUrl: string) {
     backBufferLength: 1,
     frontBufferFlushThreshold: 20,
   });
-  hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+  hls.on(Hls.Events.MANIFEST_PARSED, function (_event, data) {
     console.log(
       "manifest loaded, found " + data.levels.length + " quality level",
     );
   });
-  hls.on(Hls.Events.BACK_BUFFER_REACHED, function (event, data) {
+  hls.on(Hls.Events.BACK_BUFFER_REACHED, function (_event, _data) {
     console.log("back buffer reached");
   });
-  hls.on(Hls.Events.BUFFER_EOS, function (event, data) {
+  hls.on(Hls.Events.BUFFER_EOS, function (_event, _data) {
     console.log("Buffer eos");
   });
-  hls.on(Hls.Events.ERROR, function (event, data) {
+  hls.on(Hls.Events.ERROR, function (_event, data) {
     if (data.details == "bufferStalledError") {
       console.log("trying to recover bufferStalledError");
       // video.currentTime = video.currentTime;
@@ -193,8 +191,6 @@ export default function VideoPlayer(props: Props & ParentProps) {
   let lastSynced = 0;
   let [isFullScreen, setIsFullScreen] = createSignal(false);
   let [showControls, setShowControls] = createSignal(true);
-  let [showCaptions, setShowCaptions] = createSignal(false);
-  let [selectedSubtitle, setSelectedSubtitle] = createSignal<Subtitle>();
   let [showMenu, setShowMenu] = createSignal(false);
   let [volume, setVolume] = createSignal(getInitialVolume());
   let [playbackSpeed, setPlaybackSpeed] = createSignal(1);
@@ -202,6 +198,7 @@ export default function VideoPlayer(props: Props & ParentProps) {
   let [duration, setDuration] = createSignal(0);
   let [playbackState, setPlaybackState] =
     createSignal<PlaybackState>("buffering");
+  let [{ tracks }] = useTracksSelection();
 
   let shouldShowControls = () =>
     (showControls() || isScubbing || isEnded() || showMenu()) &&
@@ -211,13 +208,6 @@ export default function VideoPlayer(props: Props & ParentProps) {
 
   let [dispatchedAction, setDispatchedAction] =
     createSignal<DispatchedAction>("unpause");
-
-  let subs = createAsync(async () => {
-    if (selectedSubtitle()) {
-      return await selectedSubtitle()!.fetch();
-    }
-    return undefined;
-  });
 
   function changeVolume(state: number) {
     if (state > 1) {
@@ -273,7 +263,6 @@ export default function VideoPlayer(props: Props & ParentProps) {
   function toggleCaptions() {
     resetOverlayTimeout();
     dispatchAction("togglesubs");
-    setShowCaptions(!showCaptions());
   }
 
   function toggleMute() {
@@ -491,8 +480,8 @@ export default function VideoPlayer(props: Props & ParentProps) {
         Browser does not support videos
       </video>
       <ActionIcon ref={actionContainer!} action={dispatchedAction()} />
-      <Show when={subs() !== undefined && showCaptions()}>
-        <Subtitles time={Math.floor(time() * 1000)} raw_data={subs()!} />
+      <Show when={tracks.subtitles !== undefined}>
+        <Subtitles time={Math.floor(time() * 1000)} />
       </Show>
       <div class="absolute bottom-20 right-20">
         <Show
@@ -530,12 +519,8 @@ export default function VideoPlayer(props: Props & ParentProps) {
       >
         <div ref={menuRef!} class="absolute bottom-16 right-5">
           <PlayerMenu
+            videoRef={videoRef}
             onPlaybackSpeedChange={changePlaybackSpeed}
-            onSubtitlesChange={(subtitle) => {
-              setShowCaptions(true);
-              setSelectedSubtitle(subtitle);
-            }}
-            availableSubtitles={props.subtitles}
             currentPlaybackSpeed={playbackSpeed()}
           />
         </div>
@@ -632,11 +617,11 @@ export default function VideoPlayer(props: Props & ParentProps) {
 
             <div class="flex select-none items-center gap-5">
               <button
-                class={`cursor-pointer ${showCaptions() ? "" : ""}`}
+                class={`cursor-pointer ${tracks.subtitles ? "" : ""}`}
                 onClick={() => toggleCaptions()}
               >
                 <FaSolidClosedCaptioning
-                  class={`${showCaptions() ? "fill-white" : "fill-neutral-700"}`}
+                  class={`${tracks.subtitles ? "fill-white" : "fill-neutral-700"}`}
                   size={30}
                 />
               </button>

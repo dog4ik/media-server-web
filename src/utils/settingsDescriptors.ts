@@ -82,6 +82,16 @@ export const SETTINGS: Settings = {
     long_name: "TVDB key",
     typeHint: "secret",
   },
+  provod_key: {
+    description: "API key for Provod agent",
+    long_name: "Provod key",
+    name: "provod_key",
+  },
+  provod_url: {
+    description: "Url of Provod agent",
+    name: "provod_url",
+    long_name: "Provod URL",
+  },
   web_ui_path: {
     description:
       "Path to Web UI files, useful when Web UI located in a separate directory",
@@ -96,7 +106,8 @@ export const SETTINGS: Settings = {
     long_name: "Enable UPnP discovery",
   },
   upnp_ttl: {
-    description: "Time to live duration of SSDP packet on the local network",
+    description:
+      'Time to live of SSDP packet. (Indicates allowed amount of ip routing "hops")',
     name: "upnp_ttl",
     long_name: "SSDP TTL",
   },

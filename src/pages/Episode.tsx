@@ -14,9 +14,9 @@ import VideoInformation from "@/components/Description/VideoInformation";
 import { fetchEpisode, fetchShow } from "@/utils/library";
 import { ParseParamsError } from "@/utils/errors";
 import { IntroBar } from "@/components/Description/IntroBar";
-import { createStore } from "solid-js/store";
+import { createStore, produce } from "solid-js/store";
 
-type SelectedSubtitles =
+export type SelectedSubtitles =
   | {
       origin: "container";
       index: number;
@@ -28,8 +28,8 @@ type SelectedSubtitles =
 
 export type TrackSelection = {
   subtitlesTrack?: SelectedSubtitles;
-  videoTrack: number;
-  audioTrack: number;
+  videoTrack?: number;
+  audioTrack?: number;
 };
 
 function parseParams() {
@@ -87,7 +87,47 @@ export default function Episode() {
   let videos = createAsync(async () => {
     let episode = data()?.episode;
     if (!episode) return undefined;
-    return await episode.fetchVideos();
+    let videos = await episode.fetchVideos();
+    if (!videos) return undefined;
+    let defaultOrFirstIdx = (values: { is_default: boolean }[]) => {
+      if (values.length == 0) {
+        return undefined;
+      }
+      let idx = values.findIndex((v) => v.is_default);
+      return idx == -1 ? 0 : idx;
+    };
+    for (let i = 0; i < videos.length; ++i) {
+      let video = videos[i];
+      let defaultAudio = defaultOrFirstIdx(video.details.audio_tracks);
+      let defaultVideo = defaultOrFirstIdx(video.details.video_tracks);
+      let defaultSubtitles = defaultOrFirstIdx(video.details.subtitle_tracks);
+      setVideoSelection(`${i}`, {
+        audioTrack: defaultAudio,
+        videoTrack: defaultVideo,
+        subtitlesTrack: defaultSubtitles
+          ? {
+              origin: "container",
+              index: defaultSubtitles,
+            }
+          : undefined,
+      });
+      let variants = video.variants();
+      for (let j = 0; j < variants.length; ++j) {
+        let variant = variants[j];
+        let defaultAudio = variant.details.audio_tracks.findIndex(
+          (a) => a.is_default,
+        );
+        let defaultVideo = variant.details.video_tracks.findIndex(
+          (a) => a.is_default,
+        );
+        setVideoSelection(`${i}-${j}`, {
+          audioTrack: defaultAudio != -1 ? defaultAudio : undefined,
+          videoTrack: defaultVideo != -1 ? defaultVideo : undefined,
+          subtitlesTrack: undefined,
+        });
+      }
+    }
+    return videos;
   });
 
   let video = () => videos()?.at(0);
@@ -205,16 +245,16 @@ export default function Episode() {
             <>
               <VideoInformation
                 title={`#${idx() + 1} Video file`}
-                setVideoSelection={(newSelection) =>
-                  setVideoSelection(`${idx()}`, newSelection)
+                setVideoSelection={(key, val) =>
+                  setVideoSelection(
+                    `${idx()}`,
+                    produce((v) => {
+                      v[key] = val;
+                    }),
+                  )
                 }
-                selection={
-                  videoSelection[`${idx()}`] ?? {
-                    audioTrack: 0,
-                    videoTrack: 0,
-                    subtitlesTrack: undefined,
-                  }
-                }
+                externalSubtitles={[]}
+                selection={videoSelection[`${idx()}`]}
                 video={video}
                 onSelect={() => setSelectedVideo([idx(), undefined])}
                 isSelected={
@@ -225,9 +265,15 @@ export default function Episode() {
               <For each={video.variants()}>
                 {(variant, vidx) => (
                   <VideoInformation
-                    setVideoSelection={(newSelection) =>
-                      setVideoSelection(`${idx()}-${vidx()}`, newSelection)
+                    setVideoSelection={(key, val) =>
+                      setVideoSelection(
+                        `${idx()}-${vidx()}`,
+                        produce((v) => {
+                          v[key] = val;
+                        }),
+                      )
                     }
+                    externalSubtitles={[]}
                     selection={
                       videoSelection[`${idx()}`] ?? {
                         audioTrack: 0,

@@ -27,6 +27,7 @@ import { TrackerList } from "./TrackerList";
 import { FileTree } from "./FileTree";
 import { useServerStatus } from "@/context/ServerStatusContext";
 import { createAsync } from "@solidjs/router";
+import tracing from "@/utils/tracing";
 
 type TorrentStatus = Schemas["DownloadState"];
 
@@ -240,7 +241,6 @@ export default function BitTorrentClient() {
   createAsync(async () => {
     let torrents = await serverStatus.subscribeTorrents();
     setTorrents(torrents);
-    console.log("ws torrent list", torrents);
     Object.values(torrents).forEach((t) => {
       serverStatus.setTorrentHandler(t.info_hash, (chunk) => {
         if (chunk.type == "start") {
@@ -259,14 +259,14 @@ export default function BitTorrentClient() {
         }
         // Skip all ticks before the fresh state
         if (t.tick_num >= chunk.tick_num) {
-          console.warn(
+          tracing.warn(
             `Skipping progress chunk from the past: expected ${t.tick_num + 1}, got ${chunk.tick_num}`,
           );
           return;
         }
         if (t.tick_num + 1 != chunk.tick_num) {
           // We missied progress tick
-          console.warn(
+          tracing.warn(
             `Detected missed progress tick: expected ${t.tick_num + 1}, got ${chunk.tick_num}`,
           );
         }
@@ -325,7 +325,7 @@ export default function BitTorrentClient() {
                 let url = state.change;
                 let tracker = updated.trackers.find((t) => t.url == url);
                 if (!tracker) {
-                  console.warn(
+                  tracing.warn(
                     `Tracker with url ${url} is missing in tracker list`,
                   );
                 }
@@ -341,7 +341,7 @@ export default function BitTorrentClient() {
                 let { file_idx, priority } = state.change;
                 let file = updated.files.find((f) => f.index == file_idx);
                 if (!file) {
-                  console.warn(`File with index ${file_idx} is missing`);
+                  tracing.warn(`File with index ${file_idx} is missing`);
                 } else {
                   file.priority = priority;
                 }
@@ -358,7 +358,7 @@ export default function BitTorrentClient() {
                 toUpdate.interested_amount = peer.interested_amount;
                 toUpdate.pending_blocks_amount = peer.pending_blocks_amount;
               } else {
-                console.warn(`Peer with ip ${peer.ip} is missing`);
+                tracing.warn(`Peer with ip ${peer.ip} is missing`);
               }
             }
 

@@ -1,6 +1,7 @@
 import { onCleanup } from "solid-js";
 import { fullUrl, Schemas } from "./serverApi";
 import { hexHash } from "./formats";
+import tracing from "./tracing";
 
 type EventType = Schemas["Notification"];
 
@@ -64,7 +65,7 @@ export class ServerStatus {
       this.allTorrentsPromise = undefined;
     }
     if (event.type == "connected") {
-      console.log("established ws connection");
+      tracing.info("established ws connection to the server");
     }
   }
 
@@ -85,7 +86,7 @@ export class ServerStatus {
     try {
       this.socket.send(JSON.stringify(message));
     } catch (e) {
-      console.error("Failed to send ws request", e);
+      tracing.error("Failed to send ws request", e);
     }
   }
 

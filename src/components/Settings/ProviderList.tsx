@@ -6,7 +6,7 @@ import { capitalize } from "@/utils/formats";
 
 type Props = {
   providers: {
-    provider_type: Schemas["ProviderType"];
+    provider_type: keyof Schemas["ProviderOrderResponse"];
     order: string[];
   }[];
 };
@@ -17,8 +17,8 @@ type ProviderListProps = {
 
 type SelectionHeaderProps = {
   selected: boolean;
-  name: Schemas["ProviderType"];
-  onSelect: (name: Schemas["ProviderType"]) => void;
+  name: keyof Schemas["ProviderOrderResponse"];
+  onSelect: (name: keyof Schemas["ProviderOrderResponse"]) => void;
 };
 
 function swap<T>(firstIdx: number, secondIndex: number, a: T[]) {
@@ -45,7 +45,7 @@ function SelectionHeader(props: SelectionHeaderProps) {
 
 export default function ProviderOrdering(props: Props) {
   let [selection, setSelection] =
-    createSignal<Schemas["ProviderType"]>("movie");
+    createSignal<keyof Schemas["ProviderOrderResponse"]>("movie");
   let currentOrder = () => {
     return props.providers.find((p) => p.provider_type == selection())!.order;
   };

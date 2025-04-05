@@ -65,7 +65,10 @@ export type paths = {
         };
         /** Get providers order */
         get: operations["get_providers_order"];
-        /** Update providers order */
+        /**
+         * Update providers order
+         * @description Returns updated order
+         */
         put: operations["order_providers"];
         post?: never;
         delete?: never;
@@ -1563,6 +1566,30 @@ export type components = {
             key: "tvdb_key";
             require_restart: boolean;
         } | {
+            /** @description Url of Provod agent. */
+            cli_value: string | null;
+            /** @description Url of Provod agent. */
+            config_value: string | null;
+            /** @description Url of Provod agent. */
+            default_value: string | null;
+            /** @description Url of Provod agent. */
+            env_value: string | null;
+            /** @enum {string} */
+            key: "provod_url";
+            require_restart: boolean;
+        } | {
+            /** @description API key for Provod agent. Allows server to authenticate with Provod proxy server */
+            cli_value: string | null;
+            /** @description API key for Provod agent. Allows server to authenticate with Provod proxy server */
+            config_value: string | null;
+            /** @description API key for Provod agent. Allows server to authenticate with Provod proxy server */
+            default_value: string | null;
+            /** @description API key for Provod agent. Allows server to authenticate with Provod proxy server */
+            env_value: string | null;
+            /** @enum {string} */
+            key: "provod_key";
+            require_restart: boolean;
+        } | {
             /** @description Path to ffmpeg binary. This ffmpeg binary will be used for media transcoding tasks */
             cli_value: string;
             /** @description Path to ffmpeg binary. This ffmpeg binary will be used for media transcoding tasks */
@@ -1649,22 +1676,22 @@ export type components = {
         } | {
             /**
              * Format: int32
-             * @description Time to live duration of SSDP packet on the local network
+             * @description Amount of ip routing "hops" for SSDP packet.
              */
             cli_value: number;
             /**
              * Format: int32
-             * @description Time to live duration of SSDP packet on the local network
+             * @description Amount of ip routing "hops" for SSDP packet.
              */
             config_value: number;
             /**
              * Format: int32
-             * @description Time to live duration of SSDP packet on the local network
+             * @description Amount of ip routing "hops" for SSDP packet.
              */
             default_value: number;
             /**
              * Format: int32
-             * @description Time to live duration of SSDP packet on the local network
+             * @description Amount of ip routing "hops" for SSDP packet.
              */
             env_value: number;
             /** @enum {string} */
@@ -2107,11 +2134,20 @@ export type components = {
             progress_type: "pause";
         };
         ProviderOrder: {
-            order: string[];
-            provider_type: components["schemas"]["ProviderType"];
+            discover: components["schemas"]["MetadataProvider"][];
+        } | {
+            movie: components["schemas"]["MetadataProvider"][];
+        } | {
+            show: components["schemas"]["MetadataProvider"][];
+        } | {
+            torrent: components["schemas"]["TorrentIndexIdentifier"][];
         };
-        /** @enum {string} */
-        ProviderType: "discover" | "movie" | "show" | "torrent";
+        ProviderOrderResponse: {
+            discover: components["schemas"]["MetadataProvider"][];
+            movie: components["schemas"]["MetadataProvider"][];
+            show: components["schemas"]["MetadataProvider"][];
+            torrent: components["schemas"]["TorrentIndexIdentifier"][];
+        };
         Resolution: {
             height: number;
             width: number;
@@ -2556,7 +2592,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProviderOrder"][];
+                    "application/json": components["schemas"]["ProviderOrderResponse"];
                 };
             };
         };
@@ -2580,7 +2616,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProviderOrder"];
+                    "application/json": string[];
                 };
             };
         };

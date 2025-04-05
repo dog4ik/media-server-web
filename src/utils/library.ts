@@ -7,7 +7,7 @@ import { throwResponseErrors } from "./errors";
 import { isCompatible } from "./mediaCapabilities/mediaCapabilities";
 
 export function defaultTrack<T extends { is_default: boolean }>(tracks: T[]) {
-  return tracks.find((t) => t.is_default) ?? tracks[0];
+  return tracks.find((t) => t.is_default) ?? tracks.at(0);
 }
 
 async function externalToLocal<T extends Media>(content: T) {

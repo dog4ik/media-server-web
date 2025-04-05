@@ -16,6 +16,7 @@ import { JSX } from "solid-js/h/jsx-runtime";
 import { MEDIA_SERVER_URL } from "@/utils/serverApi";
 import FileInput from "@/components/ui/FileInput";
 import Plus from "lucide-solid/icons/plus";
+import tracing from "@/utils/tracing";
 
 export function AddTorrentModal() {
   let [open, setOpen] = createSignal(false);
@@ -26,7 +27,7 @@ export function AddTorrentModal() {
   let [isLoading, setIsLoading] = createSignal(false);
 
   let uploadTorrentFile = async (file: File) => {
-    console.log("uploading torrent file");
+    tracing.debug("uploading torrent file");
     let formData = new FormData();
     if (saveLocation()) {
       formData.append("save_location", saveLocation()!);
@@ -47,10 +48,10 @@ export function AddTorrentModal() {
       }
 
       let result = await response.json();
-      console.log("Upload successful:", result);
+      tracing.info("Upload successful:");
       return result;
     } catch (error) {
-      console.error("Error uploading file:", error);
+      tracing.error(`Failed to upload file`);
       throw error;
     }
   };

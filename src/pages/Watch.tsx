@@ -17,7 +17,9 @@ import { onCleanup, ParentProps, Show } from "solid-js";
 import { Meta } from "@solidjs/meta";
 import { formatSE } from "../utils/formats";
 import Title from "../utils/Title";
-import { fetchEpisode, fetchMovie, fetchShow } from "@/utils/library";
+import { fetchEpisode, fetchMovie, fetchShow, Video } from "@/utils/library";
+import tracing from "@/utils/tracing";
+import TracksSelectionProvider from "./Watch/TracksSelectionContext";
 
 export type SubtitlesOrigin = "container" | "api" | "local" | "imported";
 
@@ -74,10 +76,7 @@ function parseVideoIdQuery() {
 }
 
 type WatchProps = {
-  url: string;
-  streamingMethod: StreamingMethod;
-  video: Schemas["DetailedVideo"];
-  intro?: Schemas["Intro"];
+  video: Video;
   next?: NextVideo;
 };
 
@@ -122,6 +121,8 @@ export function WatchMovie() {
     }
     if ("mediaSession" in navigator) {
       navigator.mediaSession.metadata = movieMediaSessionMetadata(movie);
+    } else {
+      tracing.warn("Media session api is not supported by the browser");
     }
 
     let video = (() => {
@@ -131,7 +132,7 @@ export function WatchMovie() {
       if (!v) {
         throw new NotFoundError(`Show does not contain `);
       }
-      return v;
+      return new Video(v);
     })();
     return { video, movie };
   });
@@ -140,11 +141,7 @@ export function WatchMovie() {
     <>
       <Show when={movie()}>
         {(data) => (
-          <Watch
-            url={getUrl(data().video.id).url}
-            streamingMethod={getUrl(data().video.id).method}
-            video={data().video!}
-          >
+          <Watch video={data().video!}>
             <div class="absolute left-5 top-5">
               <A href={`/movies/${data().movie.metadata_id}`}>
                 <span class="text-2xl hover:underline">
@@ -231,7 +228,7 @@ export function WatchShow() {
       if (!v) {
         throw new NotFoundError(`Show does not contain `);
       }
-      return v;
+      return new Video(v);
     })();
     return { video, episode, show };
   });
@@ -263,13 +260,7 @@ export function WatchShow() {
               text={`${data().show.title} S${formatSE(data().episode.season_number)}E${formatSE(data().episode.number)}`}
             />
             <Meta property="og-image" content={data().episode.poster ?? ""} />
-            <Watch
-              intro={data().video.intro ?? undefined}
-              next={nextEpisode()}
-              video={data().video}
-              url={getUrl(data().video.id).url}
-              streamingMethod={getUrl(data().video.id).method}
-            >
+            <Watch next={nextEpisode()} video={data().video}>
               <div class="absolute left-5 top-5 flex flex-col">
                 <span class="text-2xl">{data().episode.title}</span>
                 <div class="flex gap-2">
@@ -299,15 +290,17 @@ export function WatchShow() {
 }
 
 function Watch(props: WatchProps & ParentProps) {
+  let url = () => getUrl(props.video.details.id).url;
+  let method = () => getUrl(props.video.details.id).method;
   function handleAudioError() {
-    console.log("audio error encountered");
+    tracing.error("audio error encountered");
   }
 
   function handleVideoError() {
-    console.log("video error encountered");
+    tracing.error("video error encountered");
   }
-  let link = props.url;
-  let streaming_method = props.streamingMethod;
+  let link = url();
+  let streaming_method = method();
 
   async function handleUnload(_: BeforeUnloadEvent | BeforeLeaveEventArgs) {
     if (streaming_method == "hls") {
@@ -329,63 +322,39 @@ function Watch(props: WatchProps & ParentProps) {
     window.removeEventListener("beforeunload", handleUnload);
   });
 
-  let subtitles = () => {
-    let subtitles: Subtitle[] = [];
-    let video = props.video;
-    if (video) {
-      for (let i = 0; i < video.subtitle_tracks.length; i++) {
-        let subtitleTrack = video.subtitle_tracks[i];
-        subtitles.push({
-          fetch: () =>
-            server
-              .GET("/api/video/{id}/pull_subtitle", {
-                params: {
-                  path: { id: video.id },
-                  query: { number: i },
-                },
-                parseAs: "text",
-              })
-              .then((d) => d.data!),
-          origin: "container",
-          language: subtitleTrack.language,
-        });
-      }
-    }
-    return subtitles;
-  };
-
   function updateHistory(time: number) {
-    let totalDuration = props.video.duration.secs;
+    let totalDuration = props.video.details.duration.secs;
     if (!totalDuration) return;
     let is_finished = (time / totalDuration) * 100 >= 90;
 
     server.PUT("/api/video/{id}/history", {
       body: { time: time, is_finished },
-      params: { path: { id: props.video.id } },
+      params: { path: { id: props.video.details.id } },
     });
   }
 
   return (
-    <VideoPlayer
-      intro={props.intro}
-      nextVideo={props.next}
-      streamingMethod={props.streamingMethod}
-      initialTime={props.video.history?.time ?? 0}
-      onAudioError={handleAudioError}
-      onVideoError={handleVideoError}
-      onHistoryUpdate={(time) => updateHistory(time)}
-      subtitles={subtitles()}
-      src={props.url}
-      previews={
-        props.video.previews_count > 0
-          ? {
-              previewsAmount: props.video.previews_count,
-              videoId: props.video.id,
-            }
-          : undefined
-      }
-    >
-      {props.children}
-    </VideoPlayer>
+    <TracksSelectionProvider video={props.video}>
+      <VideoPlayer
+        intro={props.video.details.intro ?? undefined}
+        nextVideo={props.next}
+        streamingMethod={method()}
+        initialTime={props.video.details.history?.time ?? 0}
+        onAudioError={handleAudioError}
+        onVideoError={handleVideoError}
+        onHistoryUpdate={updateHistory}
+        src={url()}
+        previews={
+          props.video.details.previews_count > 0
+            ? {
+                previewsAmount: props.video.details.previews_count,
+                videoId: props.video.details.id,
+              }
+            : undefined
+        }
+      >
+        {props.children}
+      </VideoPlayer>
+    </TracksSelectionProvider>
   );
 }
