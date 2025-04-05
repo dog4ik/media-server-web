@@ -4,7 +4,7 @@ import Description from "@/components/Description";
 import SeasonsCarousel from "@/components/ShowView/SeasonsCarousel";
 import EpisodeCard from "@/components/Cards/EpisodeCard";
 import ElementsGrid from "@/components/ElementsGrid";
-import { fullUrl, Schemas, server } from "../utils/serverApi";
+import { fullUrl, Schemas, server } from "@/utils/serverApi";
 import { useProvider } from "@/utils/metadataProviders";
 import { setBackdrop } from "@/context/BackdropContext";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
@@ -13,6 +13,8 @@ import Title from "@/utils/Title";
 import Icon from "@/components/ui/Icon";
 import { FiDownload, FiSkipForward } from "solid-icons/fi";
 import { useServerStatus } from "@/context/ServerStatusContext";
+import Season from "./Season";
+import { formatSE } from "@/utils/formats";
 
 export default function ShowPage() {
   let [id, provider] = useProvider();
@@ -146,37 +148,13 @@ export default function ShowPage() {
       </Suspense>
       <Suspense>
         <Show when={season()}>
-          {(seasonData) => (
-            <ElementsGrid elementSize={320}>
-              <For each={seasonData().extended_episodes}>
-                {(ep) => {
-                  let local_ep = () =>
-                    localSeason()?.episodes?.find(
-                      (e) =>
-                        e.number == ep.number &&
-                        localSeason()?.number == seasonData().number,
-                    );
-                  return (
-                    <EpisodeCard
-                      url={ep.url()}
-                      onFixMetadata={() => null}
-                      onOptimize={() => null}
-                      onDelete={() => null}
-                      video={local_ep()?.video}
-                      episode={{
-                        ...ep,
-                        runtime: local_ep()?.runtime ?? ep.runtime,
-                      }}
-                      availableLocally={
-                        ep.metadata_provider == "local" ||
-                        local_ep() !== undefined
-                      }
-                      history={local_ep()?.video?.history ?? undefined}
-                    />
-                  );
-                }}
-              </For>
-            </ElementsGrid>
+          {(season) => (
+            <Season
+              season={season()}
+              initialTorrentQuery={`${show()?.title} Season ${formatSE(season().number)}}`}
+              showId={id()}
+              canDetectIntros={true}
+            />
           )}
         </Show>
       </Suspense>
