@@ -179,6 +179,7 @@ export default function VideoPlayer(props: Props & ParentProps) {
   let menuBtnRef: HTMLButtonElement = {} as any;
   let actionContainer: HTMLDivElement = {} as any;
 
+  let [{ tracks }] = useTracksSelection();
   let showControlsTimeout: ReturnType<typeof setTimeout>;
   let [previewPosition, setPreviewPosition] = createSignal<number | null>(null);
   let [isPaused, setIsPaused] = createSignal(true);
@@ -191,6 +192,9 @@ export default function VideoPlayer(props: Props & ParentProps) {
   let lastSynced = 0;
   let [isFullScreen, setIsFullScreen] = createSignal(false);
   let [showControls, setShowControls] = createSignal(true);
+  let [showCaptions, setShowCaptions] = createSignal(
+    tracks.subtitles !== undefined,
+  );
   let [showMenu, setShowMenu] = createSignal(false);
   let [volume, setVolume] = createSignal(getInitialVolume());
   let [playbackSpeed, setPlaybackSpeed] = createSignal(1);
@@ -198,7 +202,6 @@ export default function VideoPlayer(props: Props & ParentProps) {
   let [duration, setDuration] = createSignal(0);
   let [playbackState, setPlaybackState] =
     createSignal<PlaybackState>("buffering");
-  let [{ tracks }] = useTracksSelection();
 
   let shouldShowControls = () =>
     (showControls() || isScubbing || isEnded() || showMenu()) &&
@@ -263,6 +266,7 @@ export default function VideoPlayer(props: Props & ParentProps) {
   function toggleCaptions() {
     resetOverlayTimeout();
     dispatchAction("togglesubs");
+    setShowCaptions(!showCaptions());
   }
 
   function toggleMute() {
@@ -480,7 +484,7 @@ export default function VideoPlayer(props: Props & ParentProps) {
         Browser does not support videos
       </video>
       <ActionIcon ref={actionContainer!} action={dispatchedAction()} />
-      <Show when={tracks.subtitles !== undefined}>
+      <Show when={tracks.subtitles !== undefined && showCaptions()}>
         <Subtitles time={Math.floor(time() * 1000)} />
       </Show>
       <div class="absolute bottom-20 right-20">
@@ -616,12 +620,9 @@ export default function VideoPlayer(props: Props & ParentProps) {
             </div>
 
             <div class="flex select-none items-center gap-5">
-              <button
-                class={`cursor-pointer ${tracks.subtitles ? "" : ""}`}
-                onClick={() => toggleCaptions()}
-              >
+              <button class={"cursor-pointer"} onClick={() => toggleCaptions()}>
                 <FaSolidClosedCaptioning
-                  class={`${tracks.subtitles ? "fill-white" : "fill-neutral-700"}`}
+                  class={`${tracks.subtitles && showCaptions() ? "fill-white" : "fill-neutral-700"}`}
                   size={30}
                 />
               </button>

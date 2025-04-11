@@ -1,12 +1,10 @@
-import { createEffect, createSignal, For, Show, Suspense } from "solid-js";
+import { createEffect, createSignal, Show, Suspense } from "solid-js";
 import { createAsync, useLocation } from "@solidjs/router";
 import Description from "@/components/Description";
 import SeasonsCarousel from "@/components/ShowView/SeasonsCarousel";
-import EpisodeCard from "@/components/Cards/EpisodeCard";
-import ElementsGrid from "@/components/ElementsGrid";
 import { fullUrl, Schemas, server } from "@/utils/serverApi";
 import { useProvider } from "@/utils/metadataProviders";
-import { setBackdrop } from "@/context/BackdropContext";
+import { HoverArea, setBackdrop } from "@/context/BackdropContext";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
 import { fetchSeason, fetchShow } from "@/utils/library";
 import Title from "@/utils/Title";
@@ -14,7 +12,6 @@ import Icon from "@/components/ui/Icon";
 import { FiDownload, FiSkipForward } from "solid-icons/fi";
 import { useServerStatus } from "@/context/ServerStatusContext";
 import Season from "./Season";
-import { formatSE } from "@/utils/formats";
 import ExternalLocalIdButtons from "@/components/ExternalLocalIdButtons";
 
 export default function ShowPage() {
@@ -105,65 +102,77 @@ export default function ShowPage() {
               query={show().friendlyTitle()}
               content_type="show"
             />
-            <Description
-              title={show().title}
-              localPoster={show().localPoster()}
-              plot={show().plot}
-              poster={show().poster}
-              imageDirection="vertical"
-              additionalInfo={
-                show().release_date
-                  ? [{ info: show().release_date! }]
-                  : undefined
-              }
-            >
-              <div class="flex items-center gap-2">
-                <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
-                  <FiDownload size={30} />
-                </Icon>
-                <Show when={show().metadata_provider == "local"}>
-                  <Icon
-                    tooltip={
-                      capabilities()?.chromaprint_enabled
-                        ? `Detect intros for season ${selectedSeason()}`
-                        : "Intro detection is not supported by local ffmpeg build"
-                    }
-                    disabled={!capabilities()?.chromaprint_enabled}
-                    onClick={() => detectIntros()}
-                  >
-                    <FiSkipForward size={30} />
-                  </Icon>
-                </Show>
-                <ExternalLocalIdButtons
-                  contentType="show"
-                  provider={provider()}
-                  id={id()}
-                />
+            <div class="grid grid-cols-4 gap-2 items-center">
+              <div class="hover-hide col-span-3">
+                <Description
+                  title={show().title}
+                  localPoster={show().localPoster()}
+                  plot={show().plot}
+                  poster={show().poster}
+                  imageDirection="vertical"
+                  additionalInfo={
+                    show().release_date
+                      ? [{ info: show().release_date! }]
+                      : undefined
+                  }
+                >
+                  <div class="flex items-center gap-2">
+                    <Icon
+                      tooltip="Download"
+                      onClick={() => setDownloadModal(true)}
+                    >
+                      <FiDownload size={30} />
+                    </Icon>
+                    <Show when={show().metadata_provider == "local"}>
+                      <Icon
+                        tooltip={
+                          capabilities()?.chromaprint_enabled
+                            ? `Detect intros for season ${selectedSeason()}`
+                            : "Intro detection is not supported by local ffmpeg build"
+                        }
+                        disabled={!capabilities()?.chromaprint_enabled}
+                        onClick={() => detectIntros()}
+                      >
+                        <FiSkipForward size={30} />
+                      </Icon>
+                    </Show>
+                    <ExternalLocalIdButtons
+                      contentType="show"
+                      provider={provider()}
+                      id={id()}
+                    />
+                  </div>
+                </Description>
               </div>
-            </Description>
+              <div class="z-20 col-span-1">
+                <HoverArea />
+              </div>
+            </div>
           </>
         )}
       </Show>
-      <Suspense>
-        <Show when={show() && selectedSeason()}>
-          <SeasonsCarousel
-            tabs={show()!.seasons!}
-            onChange={(season) => setSelectedSeason(season)}
-          />
-        </Show>
-      </Suspense>
-      <Suspense>
-        <Show when={season()}>
-          {(season) => (
-            <Season
-              season={season()}
-              initialTorrentQuery={`${show()?.title} Season ${season().number}`}
-              showId={id()}
-              canDetectIntros={true}
+      <div class="hover-hide">
+        <Suspense>
+          <Show when={show() && selectedSeason()}>
+            <SeasonsCarousel
+              tabs={show()!.seasons!}
+              onChange={(season) => setSelectedSeason(season)}
             />
-          )}
-        </Show>
-      </Suspense>
+          </Show>
+        </Suspense>
+        <Suspense>
+          <Show when={season()}>
+            {(season) => (
+              <Season
+                season={season()}
+                initialTorrentQuery={`${show()?.title} Season ${season().number}`}
+                showId={id()}
+                canDetectIntros={true}
+              />
+            )}
+          </Show>
+        </Suspense>
+      </div>
     </>
   );
 }

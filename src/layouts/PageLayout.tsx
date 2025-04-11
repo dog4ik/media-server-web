@@ -33,7 +33,7 @@ export default function PageLayout(props: ParentProps) {
       <SideBar />
       <NavBar />
       <div ref={backdropElement!} class="absolute inset-0">
-        <div class="relative h-full w-full">
+        <div class="size-full">
           <Show when={!currentBackdrop()}>
             <div
               ref={gradientElement!}
@@ -50,10 +50,10 @@ export default function PageLayout(props: ParentProps) {
               }`}
             />
           </Show>
-          <div class="absolute inset-0 bg-background/90" />
+          <div class="hover-hide fixed inset-0 bg-background/90" />
         </div>
       </div>
-      <main class="relative flex min-h-screen w-full flex-col overflow-y-scroll rounded-md pt-16 text-white">
+      <main class="relative z-10 flex min-h-screen w-full flex-col overflow-y-scroll rounded-md pt-16 text-white">
         <GlobalErrorBoundary>{props.children}</GlobalErrorBoundary>
       </main>
     </>

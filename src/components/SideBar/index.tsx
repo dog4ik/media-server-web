@@ -29,7 +29,7 @@ export default function SideBar() {
   };
 
   return (
-    <div class="z-10 flex flex-col items-center justify-between rounded-md p-2">
+    <div class="hover-hide z-10 flex flex-col items-center justify-between rounded-md p-2">
       <nav class="relative my-auto flex flex-col rounded-md sm:justify-center">
         <div
           class={`absolute left-0 right-0 z-10 w-full rounded-md bg-white transition-all duration-200`}

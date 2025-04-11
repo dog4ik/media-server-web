@@ -2,9 +2,11 @@ import tracing from "@/utils/tracing";
 import { useLocation } from "@solidjs/router";
 import {
   ParentProps,
+  Show,
   createContext,
   createEffect,
   createSignal,
+  onCleanup,
   useContext,
 } from "solid-js";
 
@@ -21,16 +23,20 @@ export function setBackdrop(url: (string | undefined)[]) {
 }
 
 function createBackdropContext() {
+  let location = useLocation();
+
   let [backdropSrcList, setBackdropSrcList] = createSignal<
     (string | undefined)[]
   >([]);
   let [currentBackdrop, setCurrentBackdrop] = createSignal<string>();
+  let [hover, setHover] = createSignal(false);
+
   let abortController = new AbortController();
   let image = new Image();
+
   function handleAbort() {
     image.src = "";
   }
-  let location = useLocation();
 
   function loadImage(index: number) {
     if (index === backdropSrcList().length) {
@@ -80,8 +86,8 @@ function createBackdropContext() {
   }
 
   return [
-    { backdropSrcList, currentBackdrop },
-    { changeBackdrop, removeBackdrop },
+    { backdropSrcList, currentBackdrop, hover },
+    { changeBackdrop, removeBackdrop, setHover },
   ] as const;
 }
 
@@ -89,7 +95,56 @@ export default function BackdropProvider(props: ParentProps) {
   let context = createBackdropContext();
   return (
     <BackdropContext.Provider value={context}>
+      <Show
+        when={context[0].hover()}
+        fallback={
+          <style>
+            {`
+.hover-hide {
+  opacity: 1;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+          `}
+          </style>
+        }
+      >
+        <style>
+          {`
+.hover-hide {
+  opacity: 0;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+        `}
+        </style>
+      </Show>
       {props.children}
     </BackdropContext.Provider>
+  );
+}
+
+export function HoverArea() {
+  let [{ currentBackdrop }, { setHover }] = useBackdropContext();
+  onCleanup(() => setHover(false));
+
+  return (
+    <div
+      onMouseOver={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      class="h-32 w-40 overflow-hidden rounded-2xl border-2 border-dashed border-white duration-0"
+    >
+      <div style={{ "clip-path": "inset(0px)" }} class="size-full">
+        <Show when={currentBackdrop()}>
+          {(backdrop) => (
+            <img
+              class="fixed left-0 top-0 size-full object-cover"
+              alt="Backdrop hole image"
+              height={window.innerHeight}
+              width={window.innerWidth}
+              src={backdrop()}
+            />
+          )}
+        </Show>
+      </div>
+    </div>
   );
 }
