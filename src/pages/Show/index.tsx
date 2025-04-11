@@ -15,6 +15,7 @@ import { FiDownload, FiSkipForward } from "solid-icons/fi";
 import { useServerStatus } from "@/context/ServerStatusContext";
 import Season from "./Season";
 import { formatSE } from "@/utils/formats";
+import ExternalLocalIdButtons from "@/components/ExternalLocalIdButtons";
 
 export default function ShowPage() {
   let [id, provider] = useProvider();
@@ -133,6 +134,11 @@ export default function ShowPage() {
                     <FiSkipForward size={30} />
                   </Icon>
                 </Show>
+                <ExternalLocalIdButtons
+                  contentType="show"
+                  provider={provider()}
+                  id={id()}
+                />
               </div>
             </Description>
           </>
@@ -151,7 +157,7 @@ export default function ShowPage() {
           {(season) => (
             <Season
               season={season()}
-              initialTorrentQuery={`${show()?.title} Season ${formatSE(season().number)}}`}
+              initialTorrentQuery={`${show()?.title} Season ${season().number}`}
               showId={id()}
               canDetectIntros={true}
             />

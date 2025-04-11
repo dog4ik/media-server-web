@@ -1,6 +1,6 @@
 import { Match, Switch } from "solid-js";
 import { Schemas } from "../../utils/serverApi";
-import { FiDownload } from "solid-icons/fi";
+import { FiHardDrive } from "solid-icons/fi";
 
 type Props = {
   provider: Schemas["MetadataProvider"];
@@ -16,7 +16,7 @@ export default function ProviderLogo(props: Props) {
         <img src="/tvdb.png" alt="tvdb logo" title="TVDB" />
       </Match>
       <Match when={props.provider === "local"}>
-        <FiDownload size={30} title="local" />
+        <FiHardDrive size={30} title="local" />
       </Match>
     </Switch>
   );

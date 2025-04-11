@@ -11,6 +11,7 @@ import { FiDownload } from "solid-icons/fi";
 import VideoActions from "@/components/Description/VideoActions";
 import VideoInformation from "@/components/Description/VideoInformation";
 import { fetchMovie } from "@/utils/library";
+import ExternalLocalIdButtons from "@/components/ExternalLocalIdButtons";
 
 export default function Movie() {
   let [movieId, provider] = useProvider();
@@ -117,6 +118,11 @@ export default function Movie() {
                       </VideoActions>
                     )}
                   </Show>
+                  <ExternalLocalIdButtons
+                    contentType="movie"
+                    provider={provider()}
+                    id={movieId()}
+                  />
                 </div>
               </Description>
               <For each={videos()}>
