@@ -8,7 +8,6 @@ import Icon from "@/components/ui/Icon";
 import { ExtendedSeason, extendEpisode, Media } from "@/utils/library";
 import { revalidatePath, server } from "@/utils/serverApi";
 import useToggle from "@/utils/useToggle";
-import { createAsync } from "@solidjs/router";
 import { FiDownload, FiSkipForward, FiTrash } from "solid-icons/fi";
 import { For, Show } from "solid-js";
 
@@ -114,20 +113,18 @@ export default function Season(props: Props) {
       </div>
       <ElementsGrid elementSize={320}>
         <For each={props.season.extended_episodes}>
-          {(ep) => {
-            return (
-              <EpisodeCard
-                url={ep.url()}
-                onFixMetadata={() => null}
-                onOptimize={() => null}
-                onDelete={() => null}
-                video={undefined}
-                episode={ep}
-                availableLocally={ep.metadata_provider == "local"}
-                history={undefined}
-              />
-            );
-          }}
+          {(ep) => (
+            <EpisodeCard
+              url={ep.url()}
+              onFixMetadata={() => null}
+              onOptimize={() => null}
+              onDelete={() => null}
+              video={undefined}
+              episode={ep}
+              availableLocally={ep.metadata_provider == "local"}
+              history={undefined}
+            />
+          )}
         </For>
       </ElementsGrid>
     </div>

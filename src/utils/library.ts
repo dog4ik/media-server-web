@@ -497,7 +497,7 @@ export class Video {
   }
 
   defaultSubtitles() {
-    return defaultTrack(this.details.subtitle_tracks);
+    return this.details.subtitle_tracks.find((t) => t.is_default);
   }
 
   defaultAudio() {

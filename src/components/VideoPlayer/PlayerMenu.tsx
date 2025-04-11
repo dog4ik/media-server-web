@@ -1,15 +1,25 @@
-import { useTracksSelection } from "@/pages/Watch/TracksSelectionContext";
-import { formatCodec } from "@/utils/formats";
+import {
+  isBrowserAudioTracksSupported,
+  isBrowserVideoTracksSupported,
+  SelectedSubtitleTrack,
+  useTracksSelection,
+} from "@/pages/Watch/TracksSelectionContext";
+import { formatCodec, formatResolution } from "@/utils/formats";
+import { isCompatible } from "@/utils/mediaCapabilities/mediaCapabilities";
+import { Schemas } from "@/utils/serverApi";
+import { createAsync } from "@solidjs/router";
 import { FiCheck } from "solid-icons/fi";
-import { For, Match, Show, Switch } from "solid-js";
+import { createMemo, For, Match, Show, Switch } from "solid-js";
 import { createSignal } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 type RowParams = {
   key: string;
   value?: () => string | number | boolean | undefined;
-  root: boolean;
+  root?: boolean;
   onClick: () => void;
+  codecSupport?: Promise<boolean>;
+  disabled?: boolean;
 };
 
 type MenuProps = {
@@ -19,10 +29,16 @@ type MenuProps = {
 };
 
 export function MenuRow(props: RowParams & { borderBottom?: boolean }) {
+  let codecSupport = createAsync(async () =>
+    props.codecSupport ? await props.codecSupport : true,
+  );
+  let isDisabled = () => !codecSupport() || props.disabled;
+
   return (
     <button
+      disabled={isDisabled()}
       onClick={props.onClick}
-      class={`flex h-12 w-full shrink-0 items-center justify-between ${props.borderBottom ? "border-b" : ""}`}
+      class={`flex h-12 w-full shrink-0 items-center justify-between disabled:text-gray-700 ${props.borderBottom ? "border-b" : ""}`}
     >
       <span>{props.key}</span>
       <Switch>
@@ -47,6 +63,43 @@ export function MenuRow(props: RowParams & { borderBottom?: boolean }) {
 
 const MAX_ROWS_BEFORE_SCROLL = 5;
 
+function formatSubtitlesTrack(selection?: SelectedSubtitleTrack) {
+  if (selection?.origin == "container") {
+    return `${selection?.track.language ?? "unknown"} (container)`;
+  }
+  if (selection?.origin == "external") {
+    return `${selection?.id} (external)`;
+  }
+  if (selection?.origin == "imported") {
+    return "Imported";
+  }
+  return "None";
+}
+
+function formatAudioTrack(track?: {
+  language?: string | null | undefined;
+  codec: Schemas["AudioCodec"];
+}) {
+  if (track) {
+    return `${track.language ?? "unknown"} (${formatCodec(track.codec)})`;
+  }
+  return "None";
+}
+
+function formatVideoTrack(track?: {
+  resolution: Schemas["Resolution"];
+  codec: Schemas["VideoCodec"];
+}) {
+  if (track) {
+    return `${formatResolution(track.resolution)} (${formatCodec(track.codec)})`;
+  }
+  return "None";
+}
+
+function formatPlaybackSpeed(speed: number) {
+  return `${speed}x`;
+}
+
 export default function PlayerMenu(props: MenuProps) {
   let [
     {
@@ -67,116 +120,117 @@ export default function PlayerMenu(props: MenuProps) {
     },
   ] = useTracksSelection();
 
-  const MAIN_MENU: RowParams[] = [
-    {
-      key: "Playback speed",
-      value: () => props.currentPlaybackSpeed,
-      onClick: () => setMenu(PLAYBACK_MENU),
-      root: true,
-    },
-    {
-      key: "Subtitles",
-      value: () => tracks.subtitles?.origin ?? "none",
-      onClick: () => setMenu(SUBTITLES_MENU),
-      root: true,
-    },
-    {
-      key: "Audio track",
-      value: () => tracks.audio?.language ?? "none",
-      onClick: () => setMenu(AUDIO_TARCKS_MENU),
-      root: true,
-    },
-    {
-      key: "Video track",
-      value: () =>
-        tracks.video?.codec ? formatCodec(tracks.video.codec) : "unknown",
-      onClick: () => setMenu(VIDEO_TRACKS_MENU),
-      root: true,
-    },
-  ];
+  let [menu, setMenu] = createSignal<keyof typeof menus>("main");
 
-  const SUBTITLES_MENU: RowParams[] = [
-    {
-      key: "None",
-      onClick: () => unsetSubtitlesTrack(),
-      value: () => (tracks.subtitles ? "" : "✓"),
-      root: false,
-    },
-    ...containerSubtitlesTracks().map((s, i) => {
-      return {
-        key: s.language ?? "unknown",
+  const menus = {
+    main: (): RowParams[] => [
+      {
+        key: "Playback speed",
+        value: () => formatPlaybackSpeed(props.currentPlaybackSpeed),
+        onClick: () => setMenu("playback"),
+        root: true,
+      },
+      {
+        key: "Subtitles",
+        value: () => formatSubtitlesTrack(tracks.subtitles),
+        onClick: () => setMenu("subtitles"),
+        root: true,
+      },
+      {
+        key: "Audio track",
+        value: () => formatAudioTrack(tracks.audio),
+        onClick: () => setMenu("audio"),
+        root: true,
+      },
+      {
+        key: "Video track",
+        value: () => formatVideoTrack(tracks.video),
+        onClick: () => setMenu("video"),
+        root: true,
+      },
+    ],
+
+    subtitles: (): RowParams[] => [
+      {
+        key: "None",
+        onClick: () => unsetSubtitlesTrack(),
+        value: () => tracks.subtitles === undefined,
+      },
+      ...containerSubtitlesTracks().map((s, i) => ({
+        key: formatSubtitlesTrack({ origin: "container", track: s }),
         onClick: () => selectContainerSubtitlesTrack(i),
         value: () => {
-          let track = tracks.subtitles;
-          if (track?.origin != "container") return;
-          let unwrappedTrack = unwrap(track);
-          if (unwrappedTrack.track == s) {
-            return "✓";
-          }
+          const t = tracks.subtitles;
+          return t?.origin === "container" && unwrap(t).track === s;
         },
-        root: false,
-      };
-    }),
-  ];
+      })),
+    ],
 
-  const AUDIO_TARCKS_MENU: RowParams[] = audioTracks().map((a, i) => {
-    return {
-      key: a.language ?? "unknown",
-      onClick: () => {
-        selectAudioTrack(i);
-      },
-      value: () => (a == unwrap(tracks.audio) ? "✓" : ""),
-      root: false,
-    };
-  });
+    audio: (): RowParams[] =>
+      audioTracks().map((a, i) => ({
+        key: `${i + 1}. ${formatAudioTrack(a)}`,
+        onClick: () => selectAudioTrack(i, props.videoRef),
+        value: () => a === unwrap(tracks.audio),
+        codecSupport: isCompatible(undefined, a).then((r) => r.audio.supported),
+        disabled: !isBrowserAudioTracksSupported(),
+      })),
 
-  const VIDEO_TRACKS_MENU: RowParams[] = videoTracks().map((v, i) => {
-    return {
-      key: formatCodec(v.codec),
-      onClick: () => selectVideoTrack(i),
-      value: () => (v == unwrap(tracks.video) ? "✓" : ""),
-      root: false,
-    };
-  });
+    video: (): RowParams[] =>
+      videoTracks().map((v, i) => ({
+        key: `${i + 1}. ${formatVideoTrack(v)}`,
+        onClick: () => selectVideoTrack(i, props.videoRef),
+        value: () => v === unwrap(tracks.video),
+        codecSupport: isCompatible(v, undefined).then((r) => r.video.supported),
+        disabled: !isBrowserVideoTracksSupported(),
+      })),
 
-  const PLAYBACK_MENU: RowParams[] = [...Array(4)].map((_, i) => {
-    let key = (i + 1) / 2;
-    return {
-      key: key.toString(),
-      value: () => props.currentPlaybackSpeed === key,
-      onClick: () => props.onPlaybackSpeedChange(key),
-      root: false,
-    };
-  });
+    playback: (): RowParams[] =>
+      [...Array(4)].map((_, i) => {
+        let speed = (i + 1) / 2;
+        return {
+          key: formatPlaybackSpeed(speed),
+          value: () => props.currentPlaybackSpeed === speed,
+          onClick: () => props.onPlaybackSpeedChange(speed),
+        };
+      }),
+  };
 
-  let [menu, setMenu] = createSignal<RowParams[]>(MAIN_MENU);
+  const menuHeight = createMemo(
+    () =>
+      Math.min(
+        menus[menu()]().length + (menu() === "main" ? 0 : 1),
+        MAX_ROWS_BEFORE_SCROLL,
+      ) * 48,
+  );
 
   return (
     <div
       style={{
-        height: `${Math.min(menu().length + (menu() === MAIN_MENU ? 0 : 1), MAX_ROWS_BEFORE_SCROLL) * 48}px`,
+        height: `${menuHeight()}px`,
       }}
-      class="flex w-60 flex-col overflow-hidden rounded-md bg-primary-foreground/80 px-2 transition-all"
+      class="flex w-80 flex-col overflow-hidden rounded-md bg-primary-foreground/80 px-2 transition-all"
     >
       <div class="w-full overflow-y-auto">
-        <Show when={menu() !== MAIN_MENU}>
+        <Show when={menu() !== "main"}>
           <MenuRow
             key="Back"
             root={false}
-            onClick={() => setMenu(MAIN_MENU)}
+            onClick={() => setMenu("main")}
             borderBottom
           />
         </Show>
-        <For each={menu()}>
+        <For each={menus[menu()]()}>
           {(row) => (
             <MenuRow
               key={row.key}
               value={row.value}
               root={row.root}
+              codecSupport={row.codecSupport}
+              disabled={row.disabled}
               onClick={() => {
                 row.onClick();
                 if (!row.root) {
-                  setMenu(MAIN_MENU);
+                  setMenu("main");
                 }
               }}
             />

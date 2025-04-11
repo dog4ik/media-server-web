@@ -20,7 +20,7 @@ export const useTracksSelection = () => {
   return context;
 };
 
-type SelectedSubtitleTrack =
+export type SelectedSubtitleTrack =
   | {
       origin: "container";
       track: Schemas["DetailedSubtitleTrack"];
@@ -78,7 +78,7 @@ export function isBrowserVideoTracksSupported() {
   return typeof "VideoTracks" != "undefined";
 }
 
-export function isBrowserAudioTracksSUpported() {
+export function isBrowserAudioTracksSupported() {
   return typeof "AudioTracks" != "undefined";
 }
 
@@ -142,13 +142,16 @@ function createSelectionContext(video: Video) {
       return;
     }
     if (element) {
-      elementAudioTracks(element)?.forEach((t, i) => {
+      let atracks = elementAudioTracks(element);
+      if (!atracks) return;
+      for (let i = 0; i < atracks.length; ++i) {
+        let t = atracks[i];
         if (i == index) {
           t.enabled = true;
         } else {
           t.enabled = false;
         }
-      });
+      }
     }
     setStore("audio", video.details.audio_tracks[index]);
   }

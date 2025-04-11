@@ -1,4 +1,5 @@
 import { Schemas } from "../serverApi";
+import tracing from "../tracing";
 import { commonAACProfile, getAACAudio } from "./audio/aac";
 import { getAC3Audio } from "./audio/ac3";
 import { getDTSAudio } from "./audio/dts";
@@ -32,6 +33,7 @@ export async function isCompatible<
     : undefined;
 }> {
   if (!("mediaCapabilities" in navigator)) {
+    tracing.warn("mediaCapabilities api is not supported");
     throw Error("mediaCapabilities api is not supported");
   }
   let videoCodecs: string | undefined;
@@ -102,6 +104,7 @@ async function checkCompatibility(configuration: {
   audio?: AudioConfiguration;
 }) {
   if (!("mediaCapabilities" in navigator)) {
+    tracing.warn("mediaCapabilities api is not supported");
     throw Error("mediaCapabilities api is not supported");
   }
   let combinedQuery = navigator.mediaCapabilities.decodingInfo({
@@ -122,6 +125,14 @@ async function checkCompatibility(configuration: {
     audioQuery,
     combinedQuery,
   ]).then((r) => r.map((r) => (r.status == "fulfilled" ? r.value : undefined)));
+  tracing.debug(
+    {
+      videoSupported: video?.supported,
+      audioSupport: audio?.supported,
+      combinedSupport: combined?.supported,
+    },
+    `Media mediaCapabilities result`,
+  );
   return { video, audio, combined };
 }
 

@@ -233,7 +233,7 @@ export default function BitTorrentClient() {
   let [{ serverStatus }] = useServerStatus();
 
   function cleanup() {
-    serverStatus.unsubcribeTorents();
+    serverStatus.unsubscribeTorrents();
   }
 
   window.addEventListener("beforeunload", cleanup);

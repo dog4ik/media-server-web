@@ -78,7 +78,7 @@ export class ServerStatus {
     return await promise;
   }
 
-  unsubcribeTorents() {
+  unsubscribeTorrents() {
     this.send({ type: "torrentunsubscribe" });
   }
 
