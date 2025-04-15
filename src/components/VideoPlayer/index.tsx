@@ -504,7 +504,7 @@ export default function VideoPlayer(props: Props & ParentProps) {
         </Show>
         <Show when={props.nextVideo}>
           {(next) => (
-            <Show when={time() / duration() > 0.9}>
+            <Show when={duration() - time() < 120}>
               <Button
                 as="a"
                 href={next().url}
