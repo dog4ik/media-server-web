@@ -833,6 +833,27 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/subtitles/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get subtitles in text format */
+        get: operations["get_subtitles"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete subtitles on the server
+         * @description Note that if subtitles are referenced it will not delete referenced file
+         */
+        delete: operations["delete_subtitles"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tasks/intro_detection": {
         parameters: {
             query?: never;
@@ -1319,10 +1340,34 @@ export type paths = {
             path?: never;
             cookie?: never;
         };
-        /** Pull subtitle from video file */
+        /** Pull subtitle from video file using its track number */
         get: operations["pull_video_subtitle"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/video/{id}/reference_subtitles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create subtitles entry using path reference.
+         * @description This types of subtitles are just references to user files and not stored in server assets
+         *     directory.
+         *
+         *     TODO:
+         *     Read more about subtitles references here
+         */
+        post: operations["reference_external_subtitles"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1357,6 +1402,23 @@ export type paths = {
         put?: never;
         /** Start transcode video job */
         post: operations["transcode_video"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/video/{id}/upload_subtitles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload subtitles on the server */
+        post: operations["upload_subtitles"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1734,6 +1796,11 @@ export type components = {
                 video_id: number;
             }[];
         };
+        /** @description `external_ids` table maps content to external movie/show metadata provider ids.
+         *     For example it can connect tmdb ID to specific local tv show.
+         *     This is useful to crossmatch local library against different providers.
+         *
+         *     Usually removed with it's _parent_ using cascade delete */
         DbExternalId: {
             /** Format: int64 */
             episode_id?: number | null;
@@ -1750,6 +1817,9 @@ export type components = {
             /** Format: int64 */
             show_id?: number | null;
         };
+        /** @description `history` table simply holds history for each video file in the library
+         *
+         *     Usually removed with video using cascade delete */
         DbHistory: {
             /** Format: int64 */
             id: number;
@@ -1783,8 +1853,17 @@ export type components = {
             codec: components["schemas"]["SubtitlesCodec"];
             is_default: boolean;
             is_hearing_impaired: boolean;
+            is_text_format: boolean;
             is_visual_impaired: boolean;
             language?: string | null;
+        };
+        DetailedSubtitlesAsset: {
+            /** Format: int64 */
+            id: number;
+            is_available: boolean;
+            is_external: boolean;
+            language?: string | null;
+            path: string;
         };
         DetailedVariant: {
             audio_tracks: components["schemas"]["DetailedAudioTrack"][];
@@ -1809,6 +1888,7 @@ export type components = {
             /** Format: int64 */
             size: number;
             subtitle_tracks: components["schemas"]["DetailedSubtitleTrack"][];
+            subtitles: components["schemas"]["DetailedSubtitlesAsset"][];
             variants: components["schemas"]["DetailedVariant"][];
             video_tracks: components["schemas"]["DetailedVideoTrack"][];
         };
@@ -2269,6 +2349,10 @@ export type components = {
             fs: string;
         } | "hash" | "bounds";
         SubtitlesCodec: null | string;
+        SubtitlesReferencePayload: {
+            language?: string | null;
+            path: string;
+        };
         TaskProgress: (components["schemas"]["ProgressChunk_WatchTask"] & {
             /** @enum {string} */
             task_type: "watchsession";
@@ -4120,6 +4204,68 @@ export interface operations {
             };
         };
     };
+    get_subtitles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description subtitles id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Subtitles stream */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": number[];
+                };
+            };
+            /** @description Subtitles are not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    delete_subtitles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description subtitles id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Subtitles are successfully deleted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Subtitles are not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
     intro_detection_tasks: {
         parameters: {
             query?: never;
@@ -5045,6 +5191,40 @@ export interface operations {
             };
         };
     };
+    reference_external_subtitles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubtitlesReferencePayload"];
+            };
+        };
+        responses: {
+            /** @description Subtitles are referenced successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
     create_transcode_stream: {
         parameters: {
             query?: never;
@@ -5092,6 +5272,42 @@ export interface operations {
         responses: {
             /** @description Transcode task is started */
             202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    upload_subtitles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    language?: string | null;
+                    subtitles: number[];
+                };
+            };
+        };
+        responses: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

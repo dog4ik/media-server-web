@@ -163,6 +163,7 @@ export default function PlayerMenu(props: MenuProps) {
           const t = tracks.subtitles;
           return t?.origin === "container" && unwrap(t).track === s;
         },
+        disabled: !s.is_text_format,
       })),
     ],
 
