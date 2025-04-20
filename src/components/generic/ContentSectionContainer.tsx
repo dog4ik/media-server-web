@@ -9,7 +9,7 @@ type Props = {
   title: string;
   onClick?: () => void;
   isActive?: boolean;
-  compatibility: Compatibility | undefined;
+  compatibility: Partial<Compatibility> | undefined;
 };
 
 export default function ContentSectionContainer(props: Props & ParentProps) {
@@ -60,7 +60,7 @@ function CompatibilityIcon(props: CompatibilityIconProps) {
 }
 
 type CompatibilityIconsProps = {
-  compatibiily: Compatibility | undefined;
+  compatibiily?: Partial<Compatibility>;
 };
 
 const ICON_SIZE = 20;
@@ -71,12 +71,20 @@ function CompatibilityIcons(props: CompatibilityIconsProps) {
       <Show when={props.compatibiily}>
         {(compatibility) => (
           <>
-            <CompatibilityIcon compatibiily={compatibility().audio}>
-              <FiHeadphones size={ICON_SIZE} />
-            </CompatibilityIcon>
-            <CompatibilityIcon compatibiily={compatibility().video}>
-              <FiVideo size={ICON_SIZE} />
-            </CompatibilityIcon>
+            <Show when={compatibility().audio}>
+              {(audio) => (
+                <CompatibilityIcon compatibiily={audio()}>
+                  <FiHeadphones size={ICON_SIZE} />
+                </CompatibilityIcon>
+              )}
+            </Show>
+            <Show when={compatibility().video}>
+              {(video) => (
+                <CompatibilityIcon compatibiily={video()}>
+                  <FiVideo size={ICON_SIZE} />
+                </CompatibilityIcon>
+              )}
+            </Show>
           </>
         )}
       </Show>

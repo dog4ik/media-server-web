@@ -14,7 +14,6 @@ import VideoInformation from "@/components/Description/VideoInformation";
 import { fetchEpisode, fetchShow } from "@/utils/library";
 import { ParseParamsError } from "@/utils/errors";
 import { IntroBar } from "@/components/Description/IntroBar";
-import { createStore, produce } from "solid-js/store";
 
 export type SelectedSubtitles =
   | {
@@ -48,9 +47,6 @@ export default function Episode() {
   let [selectedVideo, setSelectedVideo] = createSignal<
     [number, number | undefined]
   >([0, undefined]);
-  let [videoSelection, setVideoSelection] = createStore<
-    Record<string, TrackSelection>
-  >({});
 
   let data = createAsync(async () => {
     let episodePromise = fetchEpisode(
@@ -89,44 +85,6 @@ export default function Episode() {
     if (!episode) return undefined;
     let videos = await episode.fetchVideos();
     if (!videos) return undefined;
-    let defaultOrFirstIdx = (values: { is_default: boolean }[]) => {
-      if (values.length == 0) {
-        return undefined;
-      }
-      let idx = values.findIndex((v) => v.is_default);
-      return idx == -1 ? 0 : idx;
-    };
-    for (let i = 0; i < videos.length; ++i) {
-      let video = videos[i];
-      let defaultAudio = defaultOrFirstIdx(video.details.audio_tracks);
-      let defaultVideo = defaultOrFirstIdx(video.details.video_tracks);
-      let defaultSubtitles = defaultOrFirstIdx(video.details.subtitle_tracks);
-      setVideoSelection(`${i}`, {
-        audioTrack: defaultAudio,
-        videoTrack: defaultVideo,
-        subtitlesTrack: defaultSubtitles
-          ? {
-              origin: "container",
-              index: defaultSubtitles,
-            }
-          : undefined,
-      });
-      let variants = video.variants();
-      for (let j = 0; j < variants.length; ++j) {
-        let variant = variants[j];
-        let defaultAudio = variant.details.audio_tracks.findIndex(
-          (a) => a.is_default,
-        );
-        let defaultVideo = variant.details.video_tracks.findIndex(
-          (a) => a.is_default,
-        );
-        setVideoSelection(`${i}-${j}`, {
-          audioTrack: defaultAudio != -1 ? defaultAudio : undefined,
-          videoTrack: defaultVideo != -1 ? defaultVideo : undefined,
-          subtitlesTrack: undefined,
-        });
-      }
-    }
     return videos;
   });
 
@@ -245,16 +203,6 @@ export default function Episode() {
             <>
               <VideoInformation
                 title={`#${idx() + 1} Video file`}
-                setVideoSelection={(key, val) =>
-                  setVideoSelection(
-                    `${idx()}`,
-                    produce((v) => {
-                      v[key] = val;
-                    }),
-                  )
-                }
-                externalSubtitles={[]}
-                selection={videoSelection[`${idx()}`]}
                 video={video}
                 onSelect={() => setSelectedVideo([idx(), undefined])}
                 isSelected={
@@ -265,22 +213,6 @@ export default function Episode() {
               <For each={video.variants()}>
                 {(variant, vidx) => (
                   <VideoInformation
-                    setVideoSelection={(key, val) =>
-                      setVideoSelection(
-                        `${idx()}-${vidx()}`,
-                        produce((v) => {
-                          v[key] = val;
-                        }),
-                      )
-                    }
-                    externalSubtitles={[]}
-                    selection={
-                      videoSelection[`${idx()}`] ?? {
-                        audioTrack: 0,
-                        videoTrack: 0,
-                        subtitlesTrack: undefined,
-                      }
-                    }
                     title={`#${idx() + 1} Video variant #${vidx() + 1}`}
                     video={variant}
                     onSelect={() => setSelectedVideo([idx(), vidx()])}

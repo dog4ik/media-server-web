@@ -33,15 +33,15 @@ type TableRowProps = {
   idx: number;
   url: string;
   posterList: string[];
-  audio: Schemas["DetailedAudioTrack"];
-  video: Schemas["DetailedVideoTrack"];
+  audio?: Schemas["DetailedAudioTrack"];
+  video?: Schemas["DetailedVideoTrack"];
   size: number;
   onDelete: () => void;
 };
 
 type PlayMarkProps = {
-  video: Schemas["DetailedVideoTrack"];
-  audio: Schemas["DetailedAudioTrack"];
+  video?: Schemas["DetailedVideoTrack"];
+  audio?: Schemas["DetailedAudioTrack"];
 };
 
 function CanPlayMark(props: PlayMarkProps) {
@@ -52,11 +52,11 @@ function CanPlayMark(props: PlayMarkProps) {
       when={playStatus()}
     >
       {(status) => (
-        <Switch>
-          <Match when={status().combined.supported}>
+        <Switch fallback={<div class="h-2 w-2 rounded-full bg-neutral-700" />}>
+          <Match when={status().combined?.supported}>
             <div class="h-2 w-2 rounded-full bg-green-500" />
           </Match>
-          <Match when={!status().combined.supported}>
+          <Match when={!status().combined?.supported}>
             <div class="h-2 w-2 rounded-full bg-red-500" />
           </Match>
         </Switch>
@@ -81,9 +81,17 @@ function Row(props: TableRowProps) {
           {props.title}
         </A>
       </TableCell>
-      <TableCell>{formatCodec(props.video.codec)}</TableCell>
-      <TableCell>{formatResolution(props.video.resolution)}</TableCell>
-      <TableCell>{formatCodec(props.audio.codec)}</TableCell>
+      <TableCell>
+        {props.video?.codec ? formatCodec(props.video.codec) : "N/A"}
+      </TableCell>
+      <TableCell>
+        {props.video?.resolution
+          ? formatResolution(props.video.resolution)
+          : "N/A"}
+      </TableCell>
+      <TableCell>
+        {props.audio?.codec ? formatCodec(props.audio.codec) : "N/A"}
+      </TableCell>
       <TableCell>
         <CanPlayMark audio={props.audio} video={props.video} />
       </TableCell>

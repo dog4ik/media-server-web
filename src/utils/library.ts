@@ -536,6 +536,10 @@ export class VariantVideo {
     return defaultTrack(this.details.video_tracks);
   }
 
+  defaultSubtitles() {
+    return undefined;
+  }
+
   videoCompatibility() {
     return createAsync(async () => {
       return await isCompatible(this.defaultVideo(), this.defaultAudio());

@@ -137,84 +137,88 @@ async function checkCompatibility(configuration: {
 }
 
 export async function canPlayAfterTranscode(
-  resolution: Schemas["Resolution"],
-  framerate: number,
-  videoCodec?: Schemas["VideoCodec"],
-  audioCodec?: Schemas["AudioCodec"],
+  videoConfig?: {
+    resolution: Schemas["Resolution"];
+    framerate: number;
+    videoCodec: Schemas["VideoCodec"];
+  },
+  audioConfig?: {
+    audioCodec?: Schemas["AudioCodec"];
+  },
 ) {
   if (!("mediaCapabilities" in navigator)) {
     throw Error("mediaCapabilities api is not supported");
   }
   let videoSpec: string | undefined = undefined;
   let audioSpec: string | undefined = undefined;
-  if (videoCodec == "h264") {
-    let level = getMaxAVCLevel(resolution, framerate);
+  if (videoConfig?.videoCodec == "h264") {
+    let level = getMaxAVCLevel(videoConfig.resolution, videoConfig.framerate);
     // Assume profile is Main
     let profile = 77;
     if (level) videoSpec = getAVCCodec(profile, level);
   }
-  if (videoCodec == "hevc") {
-    let level = getMaxHEVCLevel(resolution, framerate);
+  if (videoConfig?.videoCodec == "hevc") {
+    let level = getMaxHEVCLevel(videoConfig.resolution, videoConfig.framerate);
     // Assume profile is Main 10
     let profile = 2;
     videoSpec = getHevcVideo(profile, level);
   }
-  if (videoCodec == "av1") {
+  if (videoConfig?.videoCodec == "av1") {
     videoSpec = getAv1Codec();
   }
-  if (videoCodec == "vp9") {
+  if (videoConfig?.videoCodec == "vp9") {
     videoSpec = getVp9Codec();
   }
-  if (videoCodec == "vp8") {
+  if (videoConfig?.videoCodec == "vp8") {
     videoSpec = getVp8Codec();
   }
 
-  if (audioCodec == "aac") {
+  if (audioConfig?.audioCodec == "aac") {
     audioSpec = commonAACProfile();
   }
-  if (audioCodec == "ac3") {
+  if (audioConfig?.audioCodec == "ac3") {
     audioSpec = getAC3Audio();
   }
-  if (audioCodec == "dts") {
+  if (audioConfig?.audioCodec == "dts") {
     audioSpec = getDTSAudio();
   }
-  if (audioCodec == "eac3") {
+  if (audioConfig?.audioCodec == "eac3") {
     audioSpec = getEAC3Audio();
   }
 
-  let videoConfig: VideoConfiguration | undefined = undefined;
-  let audioConfig: AudioConfiguration | undefined = undefined;
+  let videoQueryConfig: VideoConfiguration | undefined = undefined;
+  let audioQueryConfig: AudioConfiguration | undefined = undefined;
 
-  if (videoSpec) {
+  if (videoSpec && videoConfig) {
     let fullVideoMime = `video/mp4; codecs=${videoSpec}`;
-    let { width, height } = resolution;
-    videoConfig = {
+    let { width, height } = videoConfig.resolution;
+    videoQueryConfig = {
       bitrate: 200_000,
       contentType: fullVideoMime,
-      framerate,
+      framerate: videoConfig.framerate,
       width,
       height,
     };
   }
-  if (audioSpec) {
+  if (audioSpec && audioConfig) {
     let fullAudioMime = `audio/mp4; codecs=${audioSpec}`;
-    audioConfig = {
+    audioQueryConfig = {
       contentType: fullAudioMime,
     };
   }
 
   let combinedQuery = navigator.mediaCapabilities.decodingInfo({
     type: "media-source",
-    video: videoConfig,
-    audio: audioConfig,
+    video: videoQueryConfig,
+    audio: audioQueryConfig,
   });
   let videoQuery = navigator.mediaCapabilities.decodingInfo({
     type: "media-source",
-    video: videoConfig,
+    video: videoQueryConfig,
   });
   let audioQuery = navigator.mediaCapabilities.decodingInfo({
     type: "media-source",
-    audio: audioConfig,
+    audio: audioQueryConfig,
   });
   let [video, audio, combined] = await Promise.all([
     videoQuery,

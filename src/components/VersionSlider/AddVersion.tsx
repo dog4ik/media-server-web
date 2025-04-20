@@ -1,7 +1,6 @@
-import { createSignal, For, Match, ParentProps, Show, Switch } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createSignal, ParentProps, Show } from "solid-js";
 import { Schemas } from "../../utils/serverApi";
-import { FiCheck, FiFeather, FiZap, FiZapOff } from "solid-icons/fi";
+import { FiCheck, FiFeather, FiZapOff } from "solid-icons/fi";
 import {
   Card,
   CardContent,
@@ -10,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/ui/card";
-import { Button } from "@/ui/button";
 import {
   Select,
   SelectContent,
@@ -52,8 +50,19 @@ const resolutionOptions: Resolution[] = [
   { width: 1280, height: 720 },
   { width: 640, height: 480 },
 ];
-const videoCodecOptions: ExcludeOther<VideoCodec>[] = ["hevc", "h264", "av1", "vp8", "vp9"];
-const audioCodecOptions: ExcludeOther<AudioCodec>[] = ["aac", "ac3", "dts", "eac3"];
+const videoCodecOptions: ExcludeOther<VideoCodec>[] = [
+  "hevc",
+  "h264",
+  "av1",
+  "vp8",
+  "vp9",
+];
+const audioCodecOptions: ExcludeOther<AudioCodec>[] = [
+  "aac",
+  "ac3",
+  "dts",
+  "eac3",
+];
 
 type SelectionProps<T> = {
   onChange: (value: T) => void;
@@ -295,7 +304,6 @@ function SmoothStats(props: { capabilities: MediaCapabilitiesDecodingInfo }) {
 }
 
 export default function AddVersion(props: Props) {
-  let originalResolution = () => props.originalVideo.defaultVideo().resolution;
   let originalAudio = () => props.originalVideo.defaultAudio();
   let originalVideo = () => props.originalVideo.defaultVideo();
 
@@ -306,33 +314,41 @@ export default function AddVersion(props: Props) {
         description="Select desired video preset"
         capabilities={props.video}
       >
-        <ResolutionSelection
-          onChange={(s) => props.onResolutionChange(s)}
-          maxResolution={originalResolution()}
-          currentValue={
-            props.selectedPayload.resolution ?? originalResolution()
-          }
-        />
-        <VideoSelection
-          onChange={(s) => props.onVideoChange(s)}
-          defaultVideo={originalVideo().codec}
-          currentValue={
-            props.selectedPayload.video_codec ?? originalVideo().codec
-          }
-        />
+        <Show when={originalVideo()}>
+          {(video) => (
+            <>
+              <ResolutionSelection
+                onChange={(s) => props.onResolutionChange(s)}
+                maxResolution={video().resolution}
+                currentValue={
+                  props.selectedPayload.resolution ?? video().resolution
+                }
+              />
+              <VideoSelection
+                onChange={(s) => props.onVideoChange(s)}
+                defaultVideo={video().codec}
+                currentValue={
+                  props.selectedPayload.video_codec ?? video().codec
+                }
+              />
+            </>
+          )}
+        </Show>
       </CardAddVersion>
       <CardAddVersion
         title="Audio codec"
         description="Select desired audio preset"
         capabilities={props.audio}
       >
-        <AudioSelection
-          onChange={(s) => props.onAudioChange(s)}
-          defaultAudio={originalAudio().codec}
-          currentValue={
-            props.selectedPayload.audio_codec ?? originalAudio().codec
-          }
-        />
+        <Show when={originalAudio()}>
+          {(audio) => (
+            <AudioSelection
+              onChange={(s) => props.onAudioChange(s)}
+              defaultAudio={audio().codec}
+              currentValue={props.selectedPayload.audio_codec ?? audio().codec}
+            />
+          )}
+        </Show>
       </CardAddVersion>
     </div>
   );

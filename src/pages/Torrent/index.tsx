@@ -65,7 +65,7 @@ function TorrentFile(props: TorrentFileProps) {
           <SelectItem item={p.item}>{capitalize(p.item.rawValue)}</SelectItem>
         )}
       >
-        <SelectTrigger class="w-[100px]">
+        <SelectTrigger class="w-24">
           <SelectValue class="text-white">
             {capitalize(props.priority)}
           </SelectValue>
@@ -398,8 +398,7 @@ export default function BitTorrentClient() {
   }
 
   return (
-    <div class="container mx-auto min-h-screen bg-background p-4">
-      <h2 class="mb-6 text-2xl font-bold">BitTorrent Client</h2>
+    <div class="container mx-auto h-5/6 bg-background p-4">
       <div class="mb-4 flex space-x-2">
         <FilterButton
           filter="all"
@@ -430,8 +429,15 @@ export default function BitTorrentClient() {
       <div class="mb-4 flex space-x-2">
         <AddTorrentModal />
       </div>
-      <div class="h-[calc(100vh-200px)] overflow-y-auto rounded-md border">
-        <For each={filteredTorrents()}>
+      <div class="overflow-y-auto rounded-md border">
+        <For
+          fallback={
+            <div class="flex h-full min-h-80 items-center justify-center">
+              <span class="text-xl">Torrent list is empty</span>
+            </div>
+          }
+          each={filteredTorrents()}
+        >
           {(torrent) => (
             <Torrent
               pieces={torrent.downloaded_pieces}

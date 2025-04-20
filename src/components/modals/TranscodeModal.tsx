@@ -19,7 +19,7 @@ function defaultTrack<T extends { is_default: boolean }>(tracks: T[]) {
   return tracks.find((t) => t.is_default) ?? tracks[0];
 }
 
-function stringCodec<T extends string | { other: string }>(codec: T) {
+function stringCodec<T extends string | { other: string }>(codec?: T) {
   if (typeof codec == "object") {
     return codec.other;
   } else {
@@ -29,10 +29,10 @@ function stringCodec<T extends string | { other: string }>(codec: T) {
 
 export function TranscodeModal(props: Props) {
   let [transcodePayload, setTranscodePayload] = createStore({
-    resolution: props.video.defaultVideo().resolution,
-    audio_codec: props.video.defaultAudio().codec,
+    resolution: props.video.defaultVideo()?.resolution,
+    audio_codec: props.video.defaultAudio()?.codec,
     audio_track: undefined,
-    video_codec: props.video.defaultVideo().codec,
+    video_codec: props.video.defaultVideo()?.codec,
   });
 
   function onChange<T extends keyof typeof transcodePayload>(
@@ -47,12 +47,26 @@ export function TranscodeModal(props: Props) {
     createSignal<Awaited<ReturnType<typeof canPlayAfterTranscode>>>();
 
   let checkCompatibility = async () => {
-    return await canPlayAfterTranscode(
-      transcodePayload.resolution,
-      props.video.defaultVideo().framerate,
-      transcodePayload.video_codec,
-      transcodePayload.audio_codec,
-    );
+    let audioConfig = () => {
+      if (transcodePayload.audio_codec) {
+        return { audioCodec: transcodePayload.audio_codec };
+      }
+    };
+    let videoConfig = () => {
+      let framerate = props.video.defaultVideo()?.framerate;
+      if (
+        transcodePayload.resolution &&
+        framerate &&
+        transcodePayload.video_codec
+      ) {
+        return {
+          videoCodec: transcodePayload.video_codec,
+          framerate,
+          resolution: transcodePayload.resolution,
+        };
+      }
+    };
+    return await canPlayAfterTranscode(videoConfig(), audioConfig());
   };
   checkCompatibility().then((r) => setWillPlay(r));
 
@@ -61,7 +75,7 @@ export function TranscodeModal(props: Props) {
       let video = defaultTrack(variant.video_tracks);
       let audio = defaultTrack(variant.audio_tracks);
       if (
-        stringCodec(video.codec) == stringCodec(transcodePayload.video_codec) &&
+        stringCodec(video.codec) == stringCodec(transcodePayload?.video_codec) &&
         video.resolution == transcodePayload.resolution &&
         stringCodec(audio.codec) == stringCodec(transcodePayload.audio_codec)
       ) {
@@ -70,9 +84,9 @@ export function TranscodeModal(props: Props) {
     }
 
     if (
-      stringCodec(props.video.defaultVideo().codec) ===
+      stringCodec(props.video.defaultVideo()?.codec) ===
         stringCodec(transcodePayload.video_codec) &&
-      stringCodec(props.video.defaultAudio().codec) ===
+      stringCodec(props.video.defaultAudio()?.codec) ===
         stringCodec(transcodePayload.audio_codec)
     ) {
       return { conflictIn: "source" } as const;
@@ -82,22 +96,22 @@ export function TranscodeModal(props: Props) {
   function handleSubmit() {
     let filteredPayload: Schemas["TranscodePayload"] = {};
     if (
-      props.video.defaultVideo().resolution.width !==
-        transcodePayload.resolution.width ||
-      props.video.defaultVideo().resolution.height !==
-        transcodePayload.resolution.height
+      props.video.defaultVideo()?.resolution.width !==
+        transcodePayload.resolution?.width ||
+      props.video.defaultVideo()?.resolution.height !==
+        transcodePayload.resolution?.height
     ) {
       filteredPayload.resolution = transcodePayload.resolution;
     }
     if (
-      stringCodec(props.video.defaultVideo().codec) !==
+      stringCodec(props.video.defaultVideo()?.codec) !==
       stringCodec(transcodePayload.video_codec)
     ) {
       filteredPayload.video_codec = transcodePayload.video_codec;
     }
 
     if (
-      stringCodec(props.video.defaultAudio().codec) !==
+      stringCodec(props.video.defaultAudio()?.codec) !==
       stringCodec(transcodePayload.audio_codec)
     ) {
       filteredPayload.audio_codec = transcodePayload.audio_codec;
