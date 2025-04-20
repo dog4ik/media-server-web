@@ -91,87 +91,89 @@ export default function ShowPage() {
   return (
     <>
       <Title text={show()?.title} />
-      <Show when={show()}>
-        {(show) => (
-          <>
-            <DownloadTorrentModal
-              open={downloadModal()}
-              onClose={() => setDownloadModal(false)}
-              metadata_id={show().metadata_id}
-              metadata_provider={provider()}
-              query={show().friendlyTitle()}
-              content_type="show"
-            />
-            <div class="grid grid-cols-4 gap-2 items-center">
-              <div class="hover-hide col-span-3">
-                <Description
-                  title={show().title}
-                  localPoster={show().localPoster()}
-                  plot={show().plot}
-                  poster={show().poster}
-                  imageDirection="vertical"
-                  additionalInfo={
-                    show().release_date
-                      ? [{ info: show().release_date! }]
-                      : undefined
-                  }
-                >
-                  <div class="flex items-center gap-2">
-                    <Icon
-                      tooltip="Download"
-                      onClick={() => setDownloadModal(true)}
-                    >
-                      <FiDownload size={30} />
-                    </Icon>
-                    <Show when={show().metadata_provider == "local"}>
-                      <Icon
-                        tooltip={
-                          capabilities()?.chromaprint_enabled
-                            ? `Detect intros for season ${selectedSeason()}`
-                            : "Intro detection is not supported by local ffmpeg build"
-                        }
-                        disabled={!capabilities()?.chromaprint_enabled}
-                        onClick={() => detectIntros()}
-                      >
-                        <FiSkipForward size={30} />
-                      </Icon>
-                    </Show>
-                    <ExternalLocalIdButtons
-                      contentType="show"
-                      provider={provider()}
-                      id={id()}
-                    />
-                  </div>
-                </Description>
-              </div>
-              <div class="z-20 col-span-1">
-                <HoverArea />
-              </div>
-            </div>
-          </>
-        )}
-      </Show>
-      <div class="hover-hide">
-        <Suspense>
-          <Show when={show() && selectedSeason()}>
-            <SeasonsCarousel
-              tabs={show()!.seasons!}
-              onChange={(season) => setSelectedSeason(season)}
-            />
-          </Show>
-        </Suspense>
-        <Suspense>
-          <Show when={season()}>
-            {(season) => (
-              <Season
-                season={season()}
-                initialTorrentQuery={`${show()?.title} Season ${season().number}`}
-                showId={id()}
-                canDetectIntros={true}
+      <div class="space-y-5 p-4">
+        <Show when={show()}>
+          {(show) => (
+            <>
+              <DownloadTorrentModal
+                open={downloadModal()}
+                onClose={() => setDownloadModal(false)}
+                metadata_id={show().metadata_id}
+                metadata_provider={provider()}
+                query={show().friendlyTitle()}
+                content_type="show"
               />
-            )}
-          </Show>
-        </Suspense>
+              <div class="grid grid-cols-4 items-center gap-2">
+                <div class="hover-hide col-span-3">
+                  <Description
+                    title={show().title}
+                    localPoster={show().localPoster()}
+                    plot={show().plot}
+                    poster={show().poster}
+                    imageDirection="vertical"
+                    additionalInfo={
+                      show().release_date
+                        ? [{ info: show().release_date! }]
+                        : undefined
+                    }
+                  >
+                    <div class="flex items-center gap-2">
+                      <Icon
+                        tooltip="Download"
+                        onClick={() => setDownloadModal(true)}
+                      >
+                        <FiDownload size={30} />
+                      </Icon>
+                      <Show when={show().metadata_provider == "local"}>
+                        <Icon
+                          tooltip={
+                            capabilities()?.chromaprint_enabled
+                              ? `Detect intros for season ${selectedSeason()}`
+                              : "Intro detection is not supported by local ffmpeg build"
+                          }
+                          disabled={!capabilities()?.chromaprint_enabled}
+                          onClick={() => detectIntros()}
+                        >
+                          <FiSkipForward size={30} />
+                        </Icon>
+                      </Show>
+                      <ExternalLocalIdButtons
+                        contentType="show"
+                        provider={provider()}
+                        id={id()}
+                      />
+                    </div>
+                  </Description>
+                </div>
+                <div class="z-20 col-span-1">
+                  <HoverArea />
+                </div>
+              </div>
+            </>
+          )}
+        </Show>
+        <div class="hover-hide">
+          <Suspense>
+            <Show when={show() && selectedSeason()}>
+              <SeasonsCarousel
+                tabs={show()!.seasons!}
+                onChange={(season) => setSelectedSeason(season)}
+              />
+            </Show>
+          </Suspense>
+          <Suspense>
+            <Show when={season()}>
+              {(season) => (
+                <Season
+                  season={season()}
+                  initialTorrentQuery={`${show()?.title} Season ${season().number}`}
+                  showId={id()}
+                  canDetectIntros={true}
+                />
+              )}
+            </Show>
+          </Suspense>
+        </div>
       </div>
     </>
   );
