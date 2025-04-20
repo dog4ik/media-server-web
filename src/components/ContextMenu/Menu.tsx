@@ -7,12 +7,12 @@ type RowProps = {
 
 export function MenuRow(props: RowProps & ParentProps) {
   return (
-    <li
-      class="flex transition-colors w-full cursor-pointer items-center rounded-md py-1 pl-2 hover:bg-neutral-700"
+    <button
+      class="flex w-full cursor-pointer items-center rounded-md py-1 pl-2 transition-colors hover:bg-neutral-700"
       onClick={props.onClick}
     >
       <span class="pointer-events-none text-white">{props.children}</span>
-    </li>
+    </button>
   );
 }
 
