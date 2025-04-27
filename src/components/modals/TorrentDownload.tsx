@@ -18,18 +18,20 @@ export default function DownloadTorrentModal(props: Props) {
       onOpenChange={(isOpen) => isOpen || props.onClose()}
     >
       <DialogContent class="h-3/4 w-2/3">
-        <DialogHeader>
-          <DialogTitle>Download</DialogTitle>
-        </DialogHeader>
-        <TorrentDownloadSteps
-          content_hint={{
-            content_type: props.content_type,
-            metadata_id: props.metadata_id,
-            metadata_provider: props.metadata_provider,
-          }}
-          onClose={props.onClose}
-          downloadQuery={props.query}
-        />
+        <div class="h-full overflow-hidden">
+          <DialogHeader>
+            <DialogTitle>Download</DialogTitle>
+          </DialogHeader>
+          <TorrentDownloadSteps
+            content_hint={{
+              content_type: props.content_type,
+              metadata_id: props.metadata_id,
+              metadata_provider: props.metadata_provider,
+            }}
+            onClose={props.onClose}
+            downloadQuery={props.query}
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );

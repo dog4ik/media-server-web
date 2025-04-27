@@ -28,7 +28,7 @@ type SelectionSectorProps = {
 
 function SelectionSector(props: SelectionSectorProps & ParentProps) {
   return (
-    <div class="flex flex-col py-10">
+    <div class="flex flex-col">
       <div class="flex items-center gap-4">
         <span class="text-3xl">{props.title}</span>
         <Checkbox checked={props.isSelected} onChange={props.onSelect}>

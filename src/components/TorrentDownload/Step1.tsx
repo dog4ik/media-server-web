@@ -65,7 +65,9 @@ function TorrentResult(props: TorrentResultProps) {
       onClick={handleClick}
     >
       <TableCell>
-        <Button variant={"link"} onClick={handleClick}>{props.result.name}</Button>
+        <Button variant={"link"} onClick={handleClick}>
+          {props.result.name}
+        </Button>
       </TableCell>
       <TableCell>{props.result.author ?? ""}</TableCell>
       <TableCell>{props.result.seeders}</TableCell>

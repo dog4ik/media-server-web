@@ -65,26 +65,26 @@ export function AddTorrentModal() {
       return;
     }
     // TODO: Implement magnet link submission logic
-    console.log("Submitting magnet link:", magnetLink);
+    tracing.debug("Submitting magnet link:", magnetLink);
     setOpen(false);
     setMagnetLink("");
     setError(undefined);
   };
 
-  let handleFileSubmit: JSX.EventHandler<
-    HTMLFormElement,
-    SubmitEvent
-  > = async (e) => {
+  let handleFileSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (
+    e,
+  ) => {
     e.preventDefault();
-    if (!torrentFile()) {
+    let file = torrentFile();
+    if (!file) {
       setError("Please select a .torrent file");
       return;
     }
-    console.log("Submitting torrent file:", torrentFile.name);
+    tracing.debug({ name: file.name }, "Submitting torrent file:");
     try {
       setError(undefined);
       setIsLoading(true);
-      await uploadTorrentFile(torrentFile()!);
+      await uploadTorrentFile(file);
       setOpen(false);
       setTorrentFile(undefined);
     } catch (error) {
@@ -98,7 +98,6 @@ export function AddTorrentModal() {
   };
 
   let handleFileChange: JSX.EventHandler<HTMLInputElement, Event> = (e) => {
-    console.log("here", e.currentTarget.files![0]);
     let file = e.currentTarget.files?.[0];
     if (file && file.name.endsWith(".torrent")) {
       setTorrentFile(file);

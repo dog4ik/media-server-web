@@ -5,7 +5,6 @@ import Step3 from "./Step3";
 import { createAsync } from "@solidjs/router";
 import { Schemas, server } from "../../utils/serverApi";
 import { formatSize } from "../../utils/formats";
-import { Steps } from "@/ui/steps";
 import { Button } from "@/ui/button";
 import useDebounce from "@/utils/useDebounce";
 
@@ -133,12 +132,8 @@ export function TorrentDownloadSteps(props: Props) {
   }
 
   return (
-    <div class="relative flex w-full flex-col items-center">
-      <Steps
-        current={currentStep()}
-        steps={["Select torrent", "Select files", "Select output location"]}
-      />
-      <div class="max-h-96 w-full flex-1 overflow-y-auto">
+    <div class="flex h-full w-full flex-col items-center">
+      <div class="w-full overflow-y-auto">
         <Switch fallback={<StepLoading currentStep={currentStep()} />}>
           <Match when={currentStep() === 0}>
             <Step1
