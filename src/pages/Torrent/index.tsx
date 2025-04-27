@@ -136,8 +136,8 @@ function Torrent(props: TorrentProps) {
 
   return (
     <div class="border-b last:border-b-0">
-      <div
-        class="flex cursor-pointer items-center justify-between p-4"
+      <button
+        class="flex w-full cursor-pointer items-center justify-between p-4"
         onClick={() => props.onExpand(props.id)}
       >
         <div class="flex-grow">
@@ -161,7 +161,7 @@ function Torrent(props: TorrentProps) {
         <Show when={props.isExpanded} fallback={<ChevronDown class="ml-2" />}>
           <ChevronUp class="ml-2" />
         </Show>
-      </div>
+      </button>
       <Show when={props.isExpanded}>
         <div class="bg-muted p-4">
           <div class="mb-4 grid grid-cols-2 gap-4">
