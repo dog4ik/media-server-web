@@ -83,7 +83,7 @@ export function TorrentDownloadSteps(props: Props) {
           console.log("Aborted torrent search request");
         }
       });
-    if (!result?.data || result.data.length === 0) {
+    if (result?.data == undefined) {
       return undefined;
     }
     return result;
@@ -133,7 +133,7 @@ export function TorrentDownloadSteps(props: Props) {
 
   return (
     <div class="flex h-full w-full flex-col items-center">
-      <div class="w-full overflow-y-auto">
+      <div class="size-full overflow-y-auto">
         <Switch fallback={<StepLoading currentStep={currentStep()} />}>
           <Match when={currentStep() === 0}>
             <Step1

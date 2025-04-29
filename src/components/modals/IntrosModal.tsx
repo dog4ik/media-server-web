@@ -65,8 +65,8 @@ function defaultIntro(
   };
 }
 
-function SecondsInput(self: SecondsInputProps) {
-  let formattedValue = () => formatDuration({ secs: self.value, nanos: 0 });
+function SecondsInput(props: SecondsInputProps) {
+  let formattedValue = () => formatDuration({ secs: props.value, nanos: 0 });
   let [rawValue, setRawValue] = createSignal(formattedValue());
 
   createEffect(() => setRawValue(formattedValue()));
@@ -74,7 +74,7 @@ function SecondsInput(self: SecondsInputProps) {
   function onBlur() {
     let duration = parseDuration(rawValue());
     if (duration !== undefined) {
-      self.onChange(Math.max(Math.min(duration, self.max), self.min));
+      props.onChange(Math.max(Math.min(duration, props.max), props.min));
     } else {
       setRawValue(formattedValue());
     }
@@ -85,20 +85,20 @@ function SecondsInput(self: SecondsInputProps) {
   }
 
   function increment() {
-    self.onChange(Math.min(self.value + 1, self.max));
+    props.onChange(Math.min(props.value + 1, props.max));
     setRawValue(formattedValue());
     console.log("increment");
   }
 
   function decrement() {
-    self.onChange(Math.max(self.value - 1, self.min));
+    props.onChange(Math.max(props.value - 1, props.min));
     setRawValue(formattedValue());
     console.log("decrement");
   }
 
   return (
     <NumberField value={rawValue()} class="w-40">
-      <NumberFieldLabel>{self.children}</NumberFieldLabel>
+      <NumberFieldLabel>{props.children}</NumberFieldLabel>
       <NumberFieldGroup>
         <NumberFieldDecrementTrigger
           onClick={decrement}

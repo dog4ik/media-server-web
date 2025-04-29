@@ -10,7 +10,7 @@ import Icon from "@/components/ui/Icon";
 import { FiDownload } from "solid-icons/fi";
 import VideoActions from "@/components/Description/VideoActions";
 import VideoInformation from "@/components/Description/VideoInformation";
-import { fetchMovie } from "@/utils/library";
+import { fetchMovie, posterList } from "@/utils/library";
 import ExternalLocalIdButtons from "@/components/ExternalLocalIdButtons";
 
 export default function Movie() {
@@ -79,7 +79,6 @@ export default function Movie() {
                 <div class="hover-hide col-span-3">
                   <Description
                     title={movie().title}
-                    localPoster={movie().localPoster()}
                     progress={
                       video()?.details.history
                         ? {
@@ -94,7 +93,7 @@ export default function Movie() {
                         ? [{ info: movie().release_date! }]
                         : undefined
                     }
-                    poster={movie().poster}
+                    posterList={posterList(movie())}
                     imageDirection="horizontal"
                   >
                     <div class="flex items-center gap-2">

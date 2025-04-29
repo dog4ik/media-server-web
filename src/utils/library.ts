@@ -23,8 +23,8 @@ async function externalToLocal<T extends Media>(content: T) {
 
 export function posterList(media: Media) {
   let list: string[] = [];
-  let localPoster = media.localPoster();
-  if (localPoster) {
+  if (media.metadata_provider === "local") {
+    let localPoster = media.localPoster();
     list.push(localPoster);
   }
   if (media.poster) {

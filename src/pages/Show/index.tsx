@@ -6,7 +6,7 @@ import { fullUrl, Schemas, server } from "@/utils/serverApi";
 import { useProvider } from "@/utils/metadataProviders";
 import { HoverArea, setBackdrop } from "@/context/BackdropContext";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
-import { fetchSeason, fetchShow } from "@/utils/library";
+import { fetchSeason, fetchShow, posterList } from "@/utils/library";
 import Title from "@/utils/Title";
 import Icon from "@/components/ui/Icon";
 import { FiDownload, FiSkipForward } from "solid-icons/fi";
@@ -107,9 +107,8 @@ export default function ShowPage() {
                 <div class="hover-hide col-span-3">
                   <Description
                     title={show().title}
-                    localPoster={show().localPoster()}
+                    posterList={posterList(show())}
                     plot={show().plot}
-                    poster={show().poster}
                     imageDirection="vertical"
                     additionalInfo={
                       show().release_date

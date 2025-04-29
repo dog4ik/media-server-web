@@ -1,7 +1,7 @@
 import { BiRegularMagnet } from "solid-icons/bi";
 import { capitalize, formatSize } from "@/utils/formats";
 import { Schemas, server } from "@/utils/serverApi";
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, ErrorBoundary, For, Show } from "solid-js";
 import {
   Table,
   TableBody,
@@ -98,9 +98,17 @@ function TorrentResult(props: TorrentResultProps) {
   );
 }
 
+function SearchError(props: { message: string }) {
+  return (
+    <div class="flex size-full items-center justify-center">
+      <h3 class="text-2xl">Table search error: {props.message}</h3>
+    </div>
+  );
+}
+
 export default function Step1(props: Props) {
   return (
-    <div class="overflow-y-auto">
+    <div class="h-full overflow-y-auto">
       <div class="flex w-full items-center space-x-2">
         <TextFieldRoot
           value={props.query}
@@ -140,12 +148,21 @@ export default function Step1(props: Props) {
             <TableHead>Magnet</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
-          <For each={props.searchResults}>
-            {(res) => <TorrentResult onClick={props.onSelect} result={res} />}
-          </For>
-        </TableBody>
+        <ErrorBoundary fallback={<></>}>
+          <TableBody>
+            <For each={props.searchResults}>
+              {(res) => <TorrentResult onClick={props.onSelect} result={res} />}
+            </For>
+          </TableBody>
+        </ErrorBoundary>
       </Table>
+      <ErrorBoundary fallback={(e) => <SearchError message={e.message}/>}>
+        <Show when={props.searchResults?.length === 0}>
+          <div class="flex size-full items-center justify-center">
+            <h3 class="text-4xl text-white">No results</h3>
+          </div>
+        </Show>
+      </ErrorBoundary>
     </div>
   );
 }

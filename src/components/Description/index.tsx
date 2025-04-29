@@ -10,8 +10,7 @@ type AdditionalInfo = {
 };
 
 type Props = {
-  poster?: string | null;
-  localPoster: string | undefined;
+  posterList: string[];
   plot?: string | null;
   title: string;
   progress?: { history: Schemas["DbHistory"]; runtime: number };
@@ -65,7 +64,7 @@ export default function Description(props: Props & ParentProps) {
           width={imageDirection() == "horizontal" ? 350 : 208}
           class="rounded-xl"
           height={imageDirection() == "horizontal" ? 208 : 312}
-          srcList={[props.localPoster, props.poster ?? undefined]}
+          srcList={props.posterList}
         />
         <Show when={props.progress}>
           {(progress) => (

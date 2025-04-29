@@ -7,7 +7,7 @@ import {
   FiHome,
   FiVideo,
 } from "solid-icons/fi";
-import { createSignal, For, Match, Show, Switch } from "solid-js";
+import { createEffect, createSignal, For, Match, Show, Switch } from "solid-js";
 import { TextFieldRoot, TextField } from "@/ui/textfield";
 import { Button } from "@/ui/button";
 
@@ -78,7 +78,8 @@ function makeFile(path: string): Schemas["BrowseFile"] {
 }
 
 type Props = {
-  onSubmit: (path: string) => void;
+  onSubmit?: (path: string) => void;
+  onChange?: (path: string) => void;
   initialDir?: string;
   disallowFiles?: boolean;
 };
@@ -121,6 +122,10 @@ export function FilePicker(props: Props) {
     setSelectedOutput(file);
   }
 
+  createEffect(() => {
+    if (selectedOutput()) props.onChange?.(selectedOutput()!.path);
+  });
+
   async function handleBack(currentKey: string) {
     let parent = await server
       .GET_NO_CACHE("/api/file_browser/parent/{key}", {
@@ -147,12 +152,14 @@ export function FilePicker(props: Props) {
             value={selectedOutput()?.path ?? ""}
           />
         </TextFieldRoot>
-        <Button
-          onClick={() => props.onSubmit(selectedOutput()!.path)}
-          disabled={!selectedOutput()?.path}
-        >
-          Submit
-        </Button>
+        <Show when={props.onSubmit}>
+          <Button
+            onClick={() => props.onSubmit?.(selectedOutput()!.path)}
+            disabled={!selectedOutput()?.path}
+          >
+            Submit
+          </Button>
+        </Show>
       </div>
       <Show when={locations()}>
         {(locations) => (

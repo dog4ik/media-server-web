@@ -10,11 +10,11 @@ type Props = {
   totalDuration: number;
 };
 
-export function IntroBar(self: Props) {
-  let strippedDuration = self.totalDuration / STRIP_FACTOR;
-  let startPercent = self.intro.start_sec / strippedDuration;
-  let endPercent = self.intro.end_sec / strippedDuration;
-  let duration = self.intro.end_sec - self.intro.start_sec;
+export function IntroBar(props: Props) {
+  let strippedDuration = props.totalDuration / STRIP_FACTOR;
+  let startPercent = props.intro.start_sec / strippedDuration;
+  let endPercent = props.intro.end_sec / strippedDuration;
+  let duration = props.intro.end_sec - props.intro.start_sec;
   let durationPercent = duration / strippedDuration;
 
   return (
@@ -30,13 +30,13 @@ export function IntroBar(self: Props) {
         style={{ left: `${startPercent * 100}%` }}
         class="absolute bottom-0 -translate-x-1/2 translate-y-full text-sm"
       >
-        {formatDuration({ secs: self.intro.start_sec, nanos: 0 })}
+        {formatDuration({ secs: props.intro.start_sec, nanos: 0 })}
       </span>
       <span
         style={{ left: `${endPercent * 100}%` }}
         class="absolute bottom-0 -translate-x-1/2 translate-y-full text-sm"
       >
-        {formatDuration({ secs: self.intro.end_sec, nanos: 0 })}
+        {formatDuration({ secs: props.intro.end_sec, nanos: 0 })}
       </span>
       <span
         style={{
@@ -63,16 +63,16 @@ type PointerProps = {
   timelineRef: () => HTMLDivElement;
 };
 
-function IntroPointer(self: PointerProps & ParentProps) {
+function IntroPointer(props: PointerProps & ParentProps) {
   let [isDragging, setIsDragging] = createSignal(false);
-  let timelineRef = () => self.timelineRef();
+  let timelineRef = () => props.timelineRef();
 
   let handleScubbing = (e: MouseEvent) => {
     e.preventDefault();
     let rect = timelineRef().getBoundingClientRect();
     let offsetX = e.pageX - rect.left;
     let percent = Math.min(Math.max(0, offsetX), rect.width) / rect.width;
-    self.onChange(percent);
+    props.onChange(percent);
   };
 
   let handleMouseDown = () => {
@@ -96,40 +96,40 @@ function IntroPointer(self: PointerProps & ParentProps) {
 
   return (
     <button
-      style={{ left: `${self.positionOffset * 100}%` }}
+      style={{ left: `${props.positionOffset * 100}%` }}
       class="absolute z-20 flex h-full w-2 cursor-grab items-center justify-center bg-gray-900"
       onMouseDown={handleMouseDown}
     >
-      {self.children}
+      {props.children}
     </button>
   );
 }
 
 const ICON_SIZE = 15;
 
-export function DynamicIntro(self: DynamicIntroProps) {
+export function DynamicIntro(props: DynamicIntroProps) {
   let timelineRef: HTMLDivElement;
-  let strippedDuration = self.totalDuration / STRIP_FACTOR;
-  let startPercent = () => self.start / strippedDuration;
-  let endPercent = () => self.end / strippedDuration;
+  let strippedDuration = props.totalDuration / STRIP_FACTOR;
+  let startPercent = () => props.start / strippedDuration;
+  let endPercent = () => props.end / strippedDuration;
 
   let changeStartPosition = (newPercent: number) => {
     let clampedPercent = Math.min(newPercent, endPercent());
-    self.onChange({
+    props.onChange({
       start_sec: clampedPercent * strippedDuration,
-      end_sec: self.end,
+      end_sec: props.end,
     });
   };
 
   let changeEndPosition = (newPercent: number) => {
     let clampedPercent = Math.max(newPercent, startPercent());
-    self.onChange({
-      start_sec: self.start,
+    props.onChange({
+      start_sec: props.start,
       end_sec: clampedPercent * strippedDuration,
     });
   };
 
-  let duration = () => self.end - self.start;
+  let duration = () => props.end - props.start;
 
   let durationPercent = () => duration() / strippedDuration;
 
@@ -147,7 +147,7 @@ export function DynamicIntro(self: DynamicIntroProps) {
         onChange={changeStartPosition}
       >
         <span class="pointer-events-none absolute bottom-10">
-          {formatDuration({ nanos: 0, secs: self.start })}
+          {formatDuration({ nanos: 0, secs: props.start })}
         </span>
         <FiArrowLeft size={ICON_SIZE} />
       </IntroPointer>
@@ -157,7 +157,7 @@ export function DynamicIntro(self: DynamicIntroProps) {
         onChange={changeEndPosition}
       >
         <span class="pointer-events-none absolute top-10">
-          {formatDuration({ nanos: 0, secs: self.end })}
+          {formatDuration({ nanos: 0, secs: props.end })}
         </span>
         <FiArrowRight size={ICON_SIZE} />
       </IntroPointer>

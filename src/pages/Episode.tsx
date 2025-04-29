@@ -11,7 +11,7 @@ import Icon from "@/components/ui/Icon";
 import { FiDownload } from "solid-icons/fi";
 import VideoActions from "@/components/Description/VideoActions";
 import VideoInformation from "@/components/Description/VideoInformation";
-import { fetchEpisode, fetchShow } from "@/utils/library";
+import { fetchEpisode, fetchShow, posterList } from "@/utils/library";
 import { ParseParamsError } from "@/utils/errors";
 import { IntroBar } from "@/components/Description/IntroBar";
 
@@ -133,7 +133,7 @@ export default function Episode() {
             return (
               <Description
                 title={episode().title}
-                localPoster={episode().localPoster()}
+                posterList={posterList(episode())}
                 progress={
                   video()?.details.history
                     ? {
@@ -143,7 +143,6 @@ export default function Episode() {
                     : undefined
                 }
                 plot={episode().plot}
-                poster={episode().poster}
                 imageDirection="horizontal"
                 additionalInfo={[
                   {

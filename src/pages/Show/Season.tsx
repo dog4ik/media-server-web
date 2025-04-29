@@ -5,7 +5,7 @@ import promptConfirm from "@/components/modals/ConfirmationModal";
 import { IntrosModal } from "@/components/modals/IntrosModal";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
 import Icon from "@/components/ui/Icon";
-import { ExtendedSeason, extendEpisode, Media } from "@/utils/library";
+import { ExtendedSeason, extendEpisode, Media, posterList } from "@/utils/library";
 import { revalidatePath, server } from "@/utils/serverApi";
 import useToggle from "@/utils/useToggle";
 import { FiDownload, FiSkipForward, FiTrash } from "solid-icons/fi";
@@ -69,7 +69,7 @@ export default function Season(props: Props) {
             class="aspect-poster grow rounded-xl object-cover"
             width={57}
             height={86}
-            srcList={[props.season.localPoster(), props.season.poster]}
+            srcList={posterList(props.season)}
           />
         </div>
         <div class="flex flex-1 flex-col gap-4">
