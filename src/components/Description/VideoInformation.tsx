@@ -16,6 +16,7 @@ import { SelectedSubtitleTrack } from "@/pages/Watch/TracksSelectionContext";
 import { createAsync } from "@solidjs/router";
 import { isCompatible } from "@/utils/mediaCapabilities/mediaCapabilities";
 import tracing from "@/utils/tracing";
+import UploadSubtitles from "./UploadSubtitles";
 
 class SubtitlesKeys {
   constructor(private subs: () => SelectedSubtitleTrack[]) {}
@@ -189,8 +190,16 @@ export default function VideoInformation(props: Props) {
                     <>
                       <Info key="Codec" value={track().codec ?? "unknown"} />
                       <Info
-                        key="Visual annotations"
+                        key="Hearing impaired"
                         value={track().is_hearing_impaired ? "yes" : "no"}
+                      />
+                      <Info
+                        key="Visual annotations"
+                        value={track().is_visual_impaired ? "yes" : "no"}
+                      />
+                      <Info
+                        key="Text format"
+                        value={track().is_text_format ? "yes" : "no"}
                       />
                       <Show when={track().language}>
                         {(lang) => <Info key="Language" value={lang()} />}
@@ -206,7 +215,6 @@ export default function VideoInformation(props: Props) {
           {(tracks) => (
             <Show when={tracks().length}>
               <div class="grid grid-cols-3 gap-3">
-                <span>Video:</span>
                 <Select<number>
                   class="col-span-3"
                   options={tracks().map((_, i) => i)}
@@ -290,6 +298,9 @@ export default function VideoInformation(props: Props) {
           )}
         </Show>
       </div>
+      <Show when={() => typeof props.video.details.id === "number"}>
+        <UploadSubtitles videoId={props.video.details.id as number} />
+      </Show>
     </ContentSectionContainer>
   );
 }

@@ -7,7 +7,7 @@ type Props = {
   metadata_id: string;
   content_type: Schemas["ContentType"];
   onClose: () => void;
-  query: string;
+  query: (provider: Schemas["TorrentIndexIdentifier"]) => string;
   open: boolean;
 };
 

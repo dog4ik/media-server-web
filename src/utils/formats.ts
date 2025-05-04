@@ -111,3 +111,13 @@ export function hexHash(hash: number[]) {
     .reduce((acc, n) => acc + n.toString(16).padStart(2, "0"), "")
     .padEnd(40, "0");
 }
+
+export function formatTorrentIndex(index: Schemas["TorrentIndexIdentifier"]) {
+  if (index == "tpb") {
+    return "The Pirate Bay";
+  }
+  if (index == "rutracker") {
+    return "RuTracker";
+  }
+  throw Error(`${index} torrent index is not supported`);
+}

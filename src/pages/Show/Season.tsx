@@ -5,8 +5,13 @@ import promptConfirm from "@/components/modals/ConfirmationModal";
 import { IntrosModal } from "@/components/modals/IntrosModal";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
 import Icon from "@/components/ui/Icon";
-import { ExtendedSeason, extendEpisode, Media, posterList } from "@/utils/library";
-import { revalidatePath, server } from "@/utils/serverApi";
+import {
+  ExtendedSeason,
+  extendEpisode,
+  Media,
+  posterList,
+} from "@/utils/library";
+import { revalidatePath, Schemas, server } from "@/utils/serverApi";
 import useToggle from "@/utils/useToggle";
 import { FiDownload, FiSkipForward, FiTrash } from "solid-icons/fi";
 import { For, Show } from "solid-js";
@@ -32,7 +37,7 @@ async function deleteContent<T extends Media>(content: T) {
 
 type Props = {
   season: ExtendedSeason;
-  initialTorrentQuery: string;
+  initialTorrentQuery: (provider: Schemas["TorrentIndexIdentifier"]) => string;
   showId: string;
   canDetectIntros: boolean;
 };

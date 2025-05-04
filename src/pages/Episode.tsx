@@ -1,7 +1,7 @@
 import { createAsync, useParams } from "@solidjs/router";
 import { For, Show, createEffect, createSignal } from "solid-js";
 import Description from "@/components/Description";
-import { fullUrl } from "@/utils/serverApi";
+import { fullUrl, Schemas } from "@/utils/serverApi";
 import { useProvider } from "@/utils/metadataProviders";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
 import { setBackdrop } from "@/context/BackdropContext";
@@ -90,13 +90,6 @@ export default function Episode() {
 
   let video = () => videos()?.at(0);
 
-  let torrentQuery = () => {
-    let showData = data()?.show;
-    let episodeData = data()?.episode;
-    if (!episodeData || !showData) return undefined;
-    return `${showData.title} S${formatSE(episodeData.season_number)}E${formatSE(episodeData.number)}`;
-  };
-
   let watchUrl = () => {
     let [videoIdx, variantIdx] = selectedVideo();
     let id = provider() == "local" ? +showId() : data()?.local_id;
@@ -119,14 +112,30 @@ export default function Episode() {
   return (
     <>
       <Title text={pageTitle()} />
-      <DownloadTorrentModal
-        open={torrentModal()}
-        metadata_id={data()!.show!.metadata_id}
-        onClose={() => setTorrentModal(false)}
-        metadata_provider={provider()}
-        query={torrentQuery()!}
-        content_type="show"
-      />
+      <Show when={data()}>
+        {(data) => {
+          let torrentQuery = (provider: Schemas["TorrentIndexIdentifier"]) => {
+            let showData = data().show;
+            let episodeData = data().episode;
+            if (provider == "tpb")
+              return `${showData.title} S${formatSE(episodeData.season_number)}E${formatSE(episodeData.number)}`;
+            if (provider == "rutracker") {
+              return `${showData.title} Сезон: ${episodeData.season_number}`;
+            }
+            throw Error(`Unsupported torrent index ${provider}`);
+          };
+          return (
+            <DownloadTorrentModal
+              open={torrentModal()}
+              metadata_id={data()!.show!.metadata_id}
+              onClose={() => setTorrentModal(false)}
+              metadata_provider={provider()}
+              query={torrentQuery}
+              content_type="show"
+            />
+          );
+        }}
+      </Show>
       <div class="space-y-5 p-4">
         <Show when={data()?.episode}>
           {(episode) => {

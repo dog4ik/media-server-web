@@ -71,7 +71,7 @@ export default function Movie() {
                 metadata_id={movie().metadata_id}
                 onClose={() => setDownloadModal(false)}
                 metadata_provider={provider()}
-                query={movie().friendlyTitle()}
+                query={() => movie().friendlyTitle()}
                 content_type="movie"
                 ref={downloadModal!}
               />

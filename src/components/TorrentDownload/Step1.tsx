@@ -1,5 +1,5 @@
 import { BiRegularMagnet } from "solid-icons/bi";
-import { capitalize, formatSize } from "@/utils/formats";
+import { capitalize, formatSize, formatTorrentIndex } from "@/utils/formats";
 import { Schemas, server } from "@/utils/serverApi";
 import { createSignal, ErrorBoundary, For, Show } from "solid-js";
 import {
@@ -125,13 +125,17 @@ export default function Step1(props: Props) {
           options={["rutracker", "tpb"]}
           itemComponent={(props) => (
             <SelectItem item={props.item}>
-              {capitalize(props.item.rawValue)}
+              {formatTorrentIndex(props.item.rawValue)}
             </SelectItem>
           )}
         >
           <SelectTrigger>
             <SelectValue<string>>
-              {(state) => state.selectedOption()}
+              {(state) =>
+                formatTorrentIndex(
+                  state.selectedOption() as Schemas["TorrentIndexIdentifier"],
+                )
+              }
             </SelectValue>
           </SelectTrigger>
           <SelectContent />
@@ -156,7 +160,7 @@ export default function Step1(props: Props) {
           </TableBody>
         </ErrorBoundary>
       </Table>
-      <ErrorBoundary fallback={(e) => <SearchError message={e.message}/>}>
+      <ErrorBoundary fallback={(e) => <SearchError message={e.message} />}>
         <Show when={props.searchResults?.length === 0}>
           <div class="flex size-full items-center justify-center">
             <h3 class="text-4xl text-white">No results</h3>

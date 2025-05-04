@@ -100,7 +100,7 @@ export default function ShowPage() {
                 onClose={() => setDownloadModal(false)}
                 metadata_id={show().metadata_id}
                 metadata_provider={provider()}
-                query={show().friendlyTitle()}
+                query={() => show().friendlyTitle()}
                 content_type="show"
               />
               <div class="grid grid-cols-4 items-center gap-2">
@@ -162,14 +162,27 @@ export default function ShowPage() {
           </Suspense>
           <Suspense>
             <Show when={season()}>
-              {(season) => (
-                <Season
-                  season={season()}
-                  initialTorrentQuery={`${show()?.title} Season ${season().number}`}
-                  showId={id()}
-                  canDetectIntros={true}
-                />
-              )}
+              {(season) => {
+                let torrentQuery = (
+                  provider: Schemas["TorrentIndexIdentifier"],
+                ) => {
+                  if (provider == "tpb") {
+                    return `${show()?.title} Season ${season().number}`;
+                  }
+                  if (provider == "rutracker") {
+                    return `${show()?.title} Сезон: ${season().number}`;
+                  }
+                  throw Error(`Provider ${provider} is not supported`);
+                };
+                return (
+                  <Season
+                    season={season()}
+                    initialTorrentQuery={torrentQuery}
+                    showId={id()}
+                    canDetectIntros={true}
+                  />
+                );
+              }}
             </Show>
           </Suspense>
         </div>

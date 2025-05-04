@@ -32,15 +32,18 @@ function StepLoading(props: StepLoadingProps) {
 
 type Props = {
   onClose: () => void;
-  downloadQuery: string;
+  downloadQuery: (provider: Schemas["TorrentIndexIdentifier"]) => string;
   content_hint?: Schemas["DownloadContentHint"];
 };
 
 export function TorrentDownloadSteps(props: Props) {
   let [currentStep, setCurrentStep] = createSignal(0);
-  let [query, deferredQuery, setQuery] = useDebounce(300, props.downloadQuery);
   let [selectedProvider, setSelectedProvider] =
     createSignal<Schemas["TorrentIndexIdentifier"]>("tpb");
+  let [query, deferredQuery, setQuery] = useDebounce(
+    300,
+    props.downloadQuery(selectedProvider()),
+  );
   let [selectedMagnetLink, setSelectedMagnetLink] = createSignal<string>();
   let [selectedFiles, setSelectedFiles] = createSignal<boolean[]>([]);
   let [outputLocation, setOutputLocation] = createSignal<string>();
@@ -131,6 +134,15 @@ export function TorrentDownloadSteps(props: Props) {
     props.onClose();
   }
 
+  async function handleProviderChange(
+    provider: Schemas["TorrentIndexIdentifier"],
+  ) {
+    if (selectedProvider() != provider) {
+      setSelectedProvider(provider);
+      setQuery(props.downloadQuery(provider));
+    }
+  }
+
   return (
     <div class="flex h-full w-full flex-col items-center">
       <div class="size-full overflow-y-auto">
@@ -141,7 +153,7 @@ export function TorrentDownloadSteps(props: Props) {
                 setSelectedMagnetLink(magnet);
                 setCurrentStep(1);
               }}
-              onProviderChange={setSelectedProvider}
+              onProviderChange={handleProviderChange}
               onQueryChange={(q) => {
                 if (searchAbortController) {
                   searchAbortController.abort();
