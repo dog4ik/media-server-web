@@ -5,7 +5,7 @@ import {
   revalidatePath,
   server,
 } from "../../utils/serverApi";
-import { For, Match, Show, Suspense, Switch } from "solid-js";
+import { ErrorBoundary, For, Match, Show, Suspense, Switch } from "solid-js";
 import { throwResponseErrors } from "../../utils/errors";
 import {
   defaultTrack,
@@ -62,6 +62,14 @@ function CanPlayMark(props: PlayMarkProps) {
         </Switch>
       )}
     </Show>
+  );
+}
+
+function VariantsError(props: { e: any }) {
+  return (
+    <div class="flex size-full items-center justify-center">
+      <span class="text-2xl">Falied to load variants</span>
+    </div>
   );
 }
 
@@ -198,38 +206,41 @@ export default function Variants() {
 
   return (
     <div class="flex flex-col gap-5">
-      <Suspense>
-        <Show fallback={<NoItemsDisplay />} when={videos()?.length! > 0}>
-          <Table class="border">
-            <TableHeader>
-              <TableRow>
-                <TableHead>#</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Video Codec</TableHead>
-                <TableHead>Resolution</TableHead>
-                <TableHead>Audio Codec</TableHead>
-                <TableHead>Can play</TableHead>
-                <TableHead>Size</TableHead>
-                <TableHead class="text-right"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <For each={videos()}>
-                {(video, idx) => (
-                  <VideoTranscodedVariants
-                    idx={idx()}
-                    onDelete={(variantId: string) =>
-                      onDelete(video.id, variantId)
-                    }
-                    video={video}
-                    content={video.content!}
-                  />
-                )}
-              </For>
-            </TableBody>
-          </Table>
-        </Show>
-      </Suspense>
+      <ErrorBoundary fallback={(e) => <VariantsError e={e} />}>
+        <Suspense>
+          <Show fallback={<NoItemsDisplay />} when={videos()?.length! > 0}>
+            <Table class="border">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>#</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Video Codec</TableHead>
+                  <TableHead>Resolution</TableHead>
+                  <TableHead>Audio Codec</TableHead>
+                  <TableHead>Can play</TableHead>
+                  <TableHead>Size</TableHead>
+                  <TableHead class="text-right"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <For each={videos()}>
+                  {(video, idx) => (
+                    <VideoTranscodedVariants
+                      idx={idx()}
+                      onDelete={(variantId: string) =>
+                        onDelete(video.id, variantId)
+                      }
+                      video={video}
+                      // this is a lie
+                      content={video.content!}
+                    />
+                  )}
+                </For>
+              </TableBody>
+            </Table>
+          </Show>
+        </Suspense>
+      </ErrorBoundary>
     </div>
   );
 }

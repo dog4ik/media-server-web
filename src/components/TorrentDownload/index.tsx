@@ -7,6 +7,7 @@ import { Schemas, server } from "../../utils/serverApi";
 import { formatSize } from "../../utils/formats";
 import { Button } from "@/ui/button";
 import useDebounce from "@/utils/useDebounce";
+import { useNotifications } from "@/context/NotificationContext";
 
 type StepLoadingProps = {
   currentStep: number;
@@ -47,6 +48,7 @@ export function TorrentDownloadSteps(props: Props) {
   let [selectedMagnetLink, setSelectedMagnetLink] = createSignal<string>();
   let [selectedFiles, setSelectedFiles] = createSignal<boolean[]>([]);
   let [outputLocation, setOutputLocation] = createSignal<string>();
+  let notificator = useNotifications();
 
   let resolvedMagnetLink = createAsync(async () => {
     if (!selectedMagnetLink()) {
@@ -123,7 +125,7 @@ export function TorrentDownloadSteps(props: Props) {
   );
 
   async function handleFinish() {
-    await server.POST("/api/torrent/open", {
+    let r = await server.POST("/api/torrent/open", {
       body: {
         magnet_link: selectedMagnetLink()!,
         enabled_files: enabledFiles(),
@@ -131,6 +133,11 @@ export function TorrentDownloadSteps(props: Props) {
         content_hint: props.content_hint,
       },
     });
+    if (r.error) {
+      notificator(`Failed to open torrent: ${r.error.message}`);
+    } else {
+      notificator("Created torrent download");
+    }
     props.onClose();
   }
 

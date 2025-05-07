@@ -1,9 +1,10 @@
 import ProviderLogo from "@/components/generic/ProviderLogo";
 import PageTitle from "@/components/PageTitle";
+import { BaseError, throwResponseErrors } from "@/utils/errors";
 import { capitalize } from "@/utils/formats";
 import { Schemas, server } from "@/utils/serverApi";
 import { A, createAsync, useLocation } from "@solidjs/router";
-import { For, Show } from "solid-js";
+import { ErrorBoundary, For, Match, Show, Suspense, Switch } from "solid-js";
 
 type SearchResultProps = {
   item: Schemas["MetadataSearchResult"];
@@ -43,6 +44,36 @@ function SearchResultRow(props: SearchResultProps) {
   );
 }
 
+function SearchLoading() {
+  return (
+    <div class="flex size-full items-center justify-center">
+      <span class="text-2xl">Loading</span>
+    </div>
+  );
+}
+
+function SearchNoResults() {
+  return (
+    <div class="flex size-full items-center justify-center">
+      <span class="text-2xl">No results</span>
+    </div>
+  );
+}
+
+function SearchError(props: { e: any }) {
+  return (
+    <div class="flex size-full items-center justify-center">
+      <Switch fallback={<span class="text-2xl">Search request failed</span>}>
+        <Match when={props.e instanceof BaseError}>
+          <span class="text-2xl">
+            Search request failed: {(props.e as BaseError).message}
+          </span>
+        </Match>
+      </Switch>
+    </div>
+  );
+}
+
 function searchQuery() {
   let query = useLocation().query.query;
   if (Array.isArray(query)) {
@@ -54,17 +85,25 @@ function searchQuery() {
 export default function SearchPage() {
   let query = () => searchQuery();
   let searchResults = createAsync(() =>
-    server.GET("/api/search/content", {
-      params: { query: { search: searchQuery() } },
-    }),
+    server
+      .GET("/api/search/content", {
+        params: { query: { search: query() } },
+      })
+      .then(throwResponseErrors),
   );
 
   return (
     <div>
       <PageTitle>Search results for: {query()}</PageTitle>
-      <For each={searchResults()?.data}>
-        {(res) => <SearchResultRow item={res} />}
-      </For>
+      <div>
+        <ErrorBoundary fallback={(e) => <SearchError e={e} />}>
+          <Suspense fallback={<SearchLoading />}>
+            <For fallback={<SearchNoResults />} each={searchResults()}>
+              {(res) => <SearchResultRow item={res} />}
+            </For>
+          </Suspense>
+        </ErrorBoundary>
+      </div>
     </div>
   );
 }

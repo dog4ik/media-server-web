@@ -5,6 +5,7 @@ import { A, createAsync, useBeforeLeave, useNavigate } from "@solidjs/router";
 import ProviderLogo from "../generic/ProviderLogo";
 import useDebounce from "../../utils/useDebounce";
 import { TextField, TextFieldRoot } from "@/ui/textfield";
+import { capitalize } from "@/utils/formats";
 
 function SearchContent(props: {
   result: Schemas["MetadataSearchResult"];
@@ -14,19 +15,20 @@ function SearchContent(props: {
     <A
       onClick={props.onClick}
       href={`/${props.result.content_type}s/${props.result.metadata_id}?provider=${props.result.metadata_provider}`}
-      class="flex h-40 items-center gap-2 px-2 text-start transition-colors hover:bg-white/10"
+      class="flex h-32 items-center gap-2 bg-background p-2 px-2 text-start"
     >
       <img
-        class="h-5/6 w-24 object-cover"
-        src={props.result.poster ?? "/empty_image.svg"}
+        class="aspect-poster h-full basis-20 object-cover"
+        src={props.result.poster || "/no-photo.png"}
+        width={40}
+        height={80}
+        alt={`Search ${props.result.content_type} poster`}
       />
-      <div class="flex w-2/3 flex-1 flex-col gap-2">
-        <div class="flex items-center justify-between">
-          <span class="truncate text-xl">{props.result.title}</span>
-          <div class="h-6 w-10">
-            <ProviderLogo provider={props.result.metadata_provider} />
-          </div>
-        </div>
+      <div class="flex flex-1 flex-col gap-2">
+        <span class="truncate text-lg">{props.result.title}</span>
+        <span class="truncate text-xs">
+          {capitalize(props.result.content_type)}
+        </span>
         <Show when={props.result.plot}>
           {(plot) => (
             <p title={plot()} class="line-clamp-3">
@@ -35,6 +37,9 @@ function SearchContent(props: {
           )}
         </Show>
       </div>
+      <div class="h-6 w-10">
+        <ProviderLogo provider={props.result.metadata_provider} />
+      </div>
     </A>
   );
 }
@@ -42,7 +47,7 @@ function SearchContent(props: {
 function SearchLoading() {
   return (
     <div class="flex h-full w-full flex-1 items-center justify-center">
-      <span class="loading loading-dots loading-md"></span>
+      <span class="loading loading-dots loading-md">Loading</span>
     </div>
   );
 }
@@ -100,7 +105,7 @@ export default function SearchBar() {
   });
 
   return (
-    <div class="relative w-2/3 items-center gap-2">
+    <div class="relative w-full items-center gap-2">
       <form
         class="relative w-full"
         onSubmit={(e) => {
@@ -145,14 +150,14 @@ export default function SearchBar() {
       </form>
       <div
         ref={windowRef!}
-        class={`m-0 h-2/3 w-2/3 translate-y-16 bg-transparent open:absolute ${input() ? "text-white backdrop-blur-2xl" : "hidden"}`}
+        class={`m-0 h-2/3 w-2/3 translate-y-16 bg-background open:absolute ${input() ? "text-white backdrop-blur-2xl" : "hidden"}`}
         popover="manual"
       >
         <Show when={searchResult()?.data} fallback={<SearchLoading />}>
           {(data) => (
             <Switch>
               <Match when={data().length > 0}>
-                <div class="flex-col overflow-y-auto">
+                <div class="divide-y overflow-y-auto">
                   <For each={data()}>
                     {(item) => (
                       <SearchContent
