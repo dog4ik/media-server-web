@@ -1511,7 +1511,6 @@ export type components = {
         AppErrorKind: "InternalError" | "NotFound" | "Duplicate" | "BadRequest";
         AppResources: {
             app_version: string;
-            base_path: string;
             binary_path?: string | null;
             cache_path: string;
             database_path: string;
@@ -1520,6 +1519,7 @@ export type components = {
             os_version: string;
             resources_path: string;
             start_time: string;
+            statics_path: string;
             temp_path: string;
         };
         AudioCodec: "aac" | "ac3" | "eac3" | "dts" | {
@@ -1987,7 +1987,7 @@ export type components = {
             timestamp: string;
         };
         /** @enum {string} */
-        Language: "en" | "es" | "de" | "fr" | "ru" | "ja";
+        Language: "en" | "es" | "de" | "fr" | "ru" | "ja" | "sr";
         /** Format: uri */
         MetadataImage: string;
         /** @enum {string} */
@@ -2807,6 +2807,7 @@ export interface operations {
                     "application/json": components["schemas"]["DbExternalId"];
                 };
             };
+            /** @description Local id is not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4435,7 +4436,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4483,7 +4486,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4512,14 +4517,18 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
             /** @description Failed to add torrent */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4550,7 +4559,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4604,7 +4615,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4639,7 +4652,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4709,7 +4724,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4762,7 +4779,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -4831,14 +4850,18 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
             /** @description Worker is not available */
             500: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -5250,7 +5273,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
         };
     };
@@ -5455,7 +5480,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
             };
             /** @description Video is not found */
             404: {
