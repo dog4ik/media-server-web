@@ -27,7 +27,7 @@ function FileRow(props: FileRowProps) {
   return (
     <TableRow>
       <TableCell>{props.number}</TableCell>
-      <TableCell>{props.file.path.slice(1).join("/")}</TableCell>
+      <TableCell>{props.file.path.join("/")}</TableCell>
       <TableCell class="text-right">{formatSize(props.file.size)}</TableCell>
     </TableRow>
   );

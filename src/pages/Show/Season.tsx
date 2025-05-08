@@ -96,7 +96,7 @@ export default function Season(props: Props) {
           <Icon
             tooltip={
               props.canDetectIntros
-                ? `Detect intros for season ${props.season}`
+                ? `Detect intros for season ${props.season.number}`
                 : "Server does not support intro detection"
             }
             disabled={!props.canDetectIntros}
@@ -105,7 +105,7 @@ export default function Season(props: Props) {
             <FiSkipForward size={30} />
           </Icon>
           <Icon
-            tooltip={`Delete season ${props.season}`}
+            tooltip={`Delete season ${props.season.number}`}
             onClick={() =>
               deleteContent(props.season).then(() =>
                 revalidatePath("/api/show/{id}/{season}"),
