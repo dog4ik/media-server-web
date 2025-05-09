@@ -14,15 +14,15 @@ export default function PlayButton(props: Props) {
   return (
     <A
       href={props.href}
-      data-tip="Play"
       classList={{
-        "flex h-10 w-16 items-center justify-center rounded-md": true,
+        "flex gap-2 items-center p-2 justify-center rounded-md": true,
         "bg-green-500": props.canPlay?.combined?.supported === true,
         "bg-red-500": props.canPlay?.combined?.supported === false,
         "bg-yellow-500": props.canPlay?.combined === undefined,
       }}
     >
       <FiPlay size={25} class="stroke-black" />
+      <span class="text-black">Play</span>
     </A>
   );
 }

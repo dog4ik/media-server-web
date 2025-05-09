@@ -82,6 +82,10 @@ export class ServerStatus {
     this.send({ type: "torrentunsubscribe" });
   }
 
+  async trackWatchSession(task_id: string) {
+    this.send({ type: "trackwatchsession", task_id });
+  }
+
   private send(message: Schemas["WsRequest"]) {
     try {
       this.socket.send(JSON.stringify(message));
@@ -98,6 +102,7 @@ export class ServerStatus {
     eventType: T,
     handler: (progress: TaskProgressMap[T]) => void,
   ) {
+    tracing.trace(`Adding progress handler for ${eventType}`);
     this.handlers.push([eventType, handler as any]);
     onCleanup(() => this.removeProgressHandler(handler));
   }
@@ -105,6 +110,12 @@ export class ServerStatus {
   removeProgressHandler<T extends keyof TaskProgressMap>(
     handler: (progress: TaskProgressMap[T]) => void,
   ) {
+    let idx = this.handlers.findIndex(([_, h]) => h == handler);
+    if (idx === -1) {
+      tracing.warn("Event handler not found");
+    }
+    tracing.trace(`Removing event listener for ${this.handlers[idx][0]}`);
+    this.handlers.splice(idx, 1);
     this.handlers = this.handlers.filter(([_, h]) => h != handler);
   }
 

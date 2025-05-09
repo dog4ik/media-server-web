@@ -1,6 +1,6 @@
 import { createAsync } from "@solidjs/router";
 import { Schemas } from "../../utils/serverApi";
-import { isCompatible } from "../../utils/mediaCapabilities/mediaCapabilities";
+import { isCompatible } from "../../utils/mediaCapabilities";
 
 type Props = {
   variant: Schemas["DetailedVariant"];

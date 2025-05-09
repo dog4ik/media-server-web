@@ -5,21 +5,31 @@ import {
   useBeforeLeave,
   useLocation,
   useParams,
-  useSearchParams,
 } from "@solidjs/router";
-import { InternalServerError, NotFoundError } from "../utils/errors";
-import VideoPlayer, {
-  NextVideo,
-  StreamingMethod,
-} from "../components/VideoPlayer";
+import {
+  InternalServerError,
+  NotFoundError,
+  notifyResponseErrors,
+  throwResponseErrors,
+} from "../utils/errors";
+import VideoPlayer, { NextVideo } from "../components/VideoPlayer";
 import { Schemas, fullUrl, server } from "../utils/serverApi";
 import { onCleanup, ParentProps, Show } from "solid-js";
 import { Meta } from "@solidjs/meta";
 import { formatSE } from "../utils/formats";
 import Title from "../utils/Title";
-import { fetchEpisode, fetchMovie, fetchShow, Video } from "@/utils/library";
+import {
+  fetchEpisode,
+  fetchMovie,
+  fetchShow,
+  Media,
+  Video,
+} from "@/utils/library";
 import tracing from "@/utils/tracing";
 import TracksSelectionProvider from "./Watch/TracksSelectionContext";
+import { useServerStatus } from "@/context/ServerStatusContext";
+import { useNotificationsContext } from "@/context/NotificationContext";
+import { containerSupport } from "@/utils/mediaCapabilities";
 
 export type SubtitlesOrigin = "container" | "api" | "local" | "imported";
 
@@ -29,22 +39,16 @@ export type Subtitle = {
   language?: Schemas["DetailedSubtitleTrack"]["language"];
 };
 
-function streamUrl(streamId: string) {
-  return fullUrl("/api/transcode/{id}/manifest", { path: { id: streamId } });
+function hlsStreamUrl(streamId: string) {
+  return fullUrl("/api/watch/hls/{id}/manifest", { path: { id: streamId } });
 }
 
-function getUrl(videoId: number): { url: string; method: StreamingMethod } {
-  let [params] = useSearchParams<{ stream_id: string; variant: string }>();
-  let streamId: string | undefined = params.stream_id;
-  if (streamId) {
-    return { url: streamUrl(streamId), method: "hls" };
-  }
-  let variant: string | undefined = params.variant;
+function directStreamUrl(videoId: number) {
   let url = fullUrl("/api/video/{id}/watch", {
-    query: variant ? { variant } : undefined,
+    query: undefined,
     path: { id: videoId },
   });
-  return { url, method: "progressive" };
+  return url;
 }
 
 function parseShowParams() {
@@ -77,8 +81,9 @@ function parseVideoIdQuery() {
 
 type WatchProps = {
   video: Video;
+  media?: Media;
   next?: NextVideo;
-};
+} & ParentProps;
 
 function movieMediaSessionMetadata(movie: Schemas["MovieMetadata"]) {
   let posterUrl = fullUrl("/api/movie/{id}/poster", {
@@ -141,7 +146,7 @@ export function WatchMovie() {
     <>
       <Show when={movie()}>
         {(data) => (
-          <Watch video={data().video!}>
+          <Watch media={data().movie} video={data().video}>
             <div class="absolute left-5 top-5">
               <A href={`/movies/${data().movie.metadata_id}`}>
                 <span class="text-2xl hover:underline">
@@ -260,7 +265,11 @@ export function WatchShow() {
               text={`${data().show.title} S${formatSE(data().episode.season_number)}E${formatSE(data().episode.number)}`}
             />
             <Meta property="og-image" content={data().episode.poster ?? ""} />
-            <Watch next={nextEpisode()} video={data().video}>
+            <Watch
+              media={data().episode}
+              next={nextEpisode()}
+              video={data().video}
+            >
               <div class="absolute left-5 top-5 flex flex-col">
                 <span class="text-2xl">{data().episode.title}</span>
                 <div class="flex gap-2">
@@ -289,9 +298,94 @@ export function WatchShow() {
   );
 }
 
-function Watch(props: WatchProps & ParentProps) {
-  let url = () => getUrl(props.video.details.id).url;
-  let method = () => getUrl(props.video.details.id).method;
+type StreamParams = (
+  | {
+      method: "hls";
+      audioCodec?: string;
+      videoCodec?: string;
+    }
+  | {
+      method: "direct";
+    }
+) & {
+  streamId: string;
+  watchUrl: string;
+};
+
+function Watch(props: WatchProps) {
+  let [{ serverStatus }] = useServerStatus();
+  let [, { addNotification }] = useNotificationsContext();
+  let streamParams = createAsync<StreamParams>(async () => {
+    let compatibility = await props.video.videoCompatibility();
+    if (
+      compatibility.combined?.supported &&
+      containerSupport(props.video.details.container)
+    ) {
+      tracing.debug("Selected direct playback method");
+      let streamId = await server
+        .POST("/api/watch/direct/start/{id}", {
+          params: { path: { id: props.video.details.id } },
+          body: { variant_id: undefined },
+        })
+        .then(
+          notifyResponseErrors(
+            addNotification,
+            "start direct play job",
+            props.media,
+          ),
+        )
+        .then(throwResponseErrors)
+        .then((d) => {
+          serverStatus.trackWatchSession(d.task_id);
+          return d.task_id;
+        });
+      return {
+        method: "direct",
+        streamId,
+        watchUrl: directStreamUrl(props.video.details.id),
+      };
+    } else {
+      let audio_codec: Schemas["AudioCodec"] | undefined = undefined;
+      let video_codec: Schemas["VideoCodec"] | undefined = undefined;
+      if (!compatibility.audio?.supported) {
+        audio_codec = "aac";
+      }
+      if (!compatibility.video?.supported) {
+        video_codec = "h264";
+      }
+      tracing.debug(
+        {
+          video_codec,
+          audio_codec,
+        },
+        "Selected hls playback method",
+      );
+      let streamId = await server
+        .POST("/api/watch/hls/start/{id}", {
+          params: { path: { id: props.video.details.id } },
+          body: {
+            variant_id: undefined,
+            audio_codec,
+            video_codec,
+          },
+        })
+        .then(
+          notifyResponseErrors(addNotification, "start hls job", props.media),
+        )
+        .then(throwResponseErrors)
+        .then(({ task_id }) => {
+          serverStatus.trackWatchSession(task_id);
+          return task_id;
+        });
+      return {
+        method: "hls",
+        audioCodec: audio_codec,
+        videoCodec: video_codec,
+        streamId,
+        watchUrl: hlsStreamUrl(streamId),
+      };
+    }
+  });
   function handleAudioError() {
     tracing.error("audio error encountered");
   }
@@ -299,20 +393,24 @@ function Watch(props: WatchProps & ParentProps) {
   function handleVideoError() {
     tracing.error("video error encountered");
   }
-  let link = url();
-  let streaming_method = method();
 
   async function handleUnload(_: BeforeUnloadEvent | BeforeLeaveEventArgs) {
-    if (streaming_method == "hls") {
-      let url = new URL(link);
-      let id = url.pathname.split("/").at(3);
-      if (id) {
-        throw Error("Unimplemented: Live transcode cancellation");
-        //await server.DELETE("/api/tasks/{id}", {
-        //  params: { path: { id } },
-        //  keepalive: true,
-        //});
-      }
+    let stream = streamParams();
+    let id = stream?.streamId;
+    if (id) {
+      tracing.debug({ id }, "Cleaning up stream");
+      await server
+        .DELETE("/api/tasks/watch_session/{id}", {
+          params: { path: { id } },
+          keepalive: true,
+        })
+        .then(
+          notifyResponseErrors(
+            addNotification,
+            "clean up watch session",
+            props.media,
+          ),
+        );
     }
   }
 
@@ -329,32 +427,39 @@ function Watch(props: WatchProps & ParentProps) {
 
     server.PUT("/api/video/{id}/history", {
       body: { time: time, is_finished },
-      params: { path: { id: props.video.details.id } },
+      params: {
+        path: { id: props.video.details.id },
+        query: { id: streamParams()?.streamId },
+      },
     });
   }
 
   return (
     <TracksSelectionProvider video={props.video}>
-      <VideoPlayer
-        intro={props.video.details.intro ?? undefined}
-        nextVideo={props.next}
-        streamingMethod={method()}
-        initialTime={props.video.details.history?.time ?? 0}
-        onAudioError={handleAudioError}
-        onVideoError={handleVideoError}
-        onHistoryUpdate={updateHistory}
-        src={url()}
-        previews={
-          props.video.details.previews_count > 0
-            ? {
-                previewsAmount: props.video.details.previews_count,
-                videoId: props.video.details.id,
-              }
-            : undefined
-        }
-      >
-        {props.children}
-      </VideoPlayer>
+      <Show when={streamParams()}>
+        {(params) => (
+          <VideoPlayer
+            intro={props.video.details.intro ?? undefined}
+            nextVideo={props.next}
+            streamingMethod={params().method}
+            initialTime={props.video.details.history?.time ?? 0}
+            onAudioError={handleAudioError}
+            onVideoError={handleVideoError}
+            onHistoryUpdate={updateHistory}
+            src={params().watchUrl}
+            previews={
+              props.video.details.previews_count > 0
+                ? {
+                    previewsAmount: props.video.details.previews_count,
+                    videoId: props.video.details.id,
+                  }
+                : undefined
+            }
+          >
+            {props.children}
+          </VideoPlayer>
+        )}
+      </Show>
     </TracksSelectionProvider>
   );
 }

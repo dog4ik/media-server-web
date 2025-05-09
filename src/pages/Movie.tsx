@@ -1,4 +1,4 @@
-import { createEffect, createSignal, For, Show } from "solid-js";
+import { createEffect, createSignal, Show } from "solid-js";
 import { fullUrl } from "@/utils/serverApi";
 import Description from "@/components/Description";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
@@ -9,16 +9,16 @@ import Title from "@/utils/Title";
 import Icon from "@/components/ui/Icon";
 import { FiDownload } from "solid-icons/fi";
 import VideoActions from "@/components/Description/VideoActions";
-import VideoInformation from "@/components/Description/VideoInformation";
+import VideoInformation, {
+  VideoSelection,
+} from "@/components/Description/VideoInformation";
 import { fetchMovie, posterList } from "@/utils/library";
 import ExternalLocalIdButtons from "@/components/ExternalLocalIdButtons";
 
 export default function Movie() {
   let [movieId, provider] = useProvider();
   let [downloadModal, setDownloadModal] = createSignal(false);
-  let [selectedVideo, setSelectedVideo] = createSignal<
-    [number, number | undefined]
-  >([0, undefined]);
+  let [selectedVideo, setSelectedVideo] = createSignal<VideoSelection>();
 
   let movie = createAsync(async () => {
     let movie = await fetchMovie(movieId(), provider());
@@ -42,19 +42,29 @@ export default function Movie() {
     }
   });
 
-  let videos = createAsync(async () => await movie()?.fetchVideos());
+  let videos = createAsync(async () => {
+    let videos = await movie()?.fetchVideos();
+    if (!videos) return undefined;
+    let firstVideo = videos.at(0);
+    if (firstVideo) {
+      setSelectedVideo({ video_id: firstVideo.details.id });
+    }
+    return videos;
+  });
   let video = () => videos()?.at(0);
 
   let watchUrl = () => {
-    let [videoIdx, variantIdx] = selectedVideo();
+    let selection = selectedVideo();
+    if (!selection) return;
+    let { video_id, variant_id } = selection;
     let id = provider() == "local" ? +movieId() : movie()?.local_id;
     if (!id) return;
     let params = new URLSearchParams();
-    if (variantIdx !== undefined) {
-      let variant = videos()![videoIdx].variants()[variantIdx];
-      params.append("variant", variant.details.id);
+    let video = videos()?.find((v) => v.details.id == video_id);
+    if (!video) return;
+    if (variant_id !== undefined) {
+      params.append("variant", variant_id);
     }
-    let video = videos()![videoIdx];
     params.append("video", video.details.id.toString());
     return `/movies/${id}/watch?${params.toString()}`;
   };
@@ -132,34 +142,18 @@ export default function Movie() {
                 </div>
               </div>
               <div class="hover-hide mt-8">
-                <For each={videos()}>
-                  {(video, idx) => (
-                    <>
-                      <VideoInformation
-                        onSelect={() => setSelectedVideo([idx(), undefined])}
-                        isSelected={
-                          selectedVideo()[0] == idx() &&
-                          selectedVideo()[1] === undefined
-                        }
-                        title={`Video file #${idx() + 1}`}
-                        video={video}
-                      />
-                      <For each={video.variants()}>
-                        {(variant, vidx) => (
-                          <VideoInformation
-                            title={`#${idx() + 1} Video variant #${vidx() + 1}`}
-                            video={variant}
-                            onSelect={() => setSelectedVideo([idx(), vidx()])}
-                            isSelected={
-                              selectedVideo()[0] == idx() &&
-                              selectedVideo()[1] == vidx()
-                            }
-                          />
-                        )}
-                      </For>
-                    </>
-                  )}
-                </For>
+                <Show when={selectedVideo()}>
+                  <Show when={videos()}>
+                    {(videos) => (
+                      <>
+                        <VideoInformation
+                          videos={videos()}
+                          selectedVideo={selectedVideo()!}
+                        />
+                      </>
+                    )}
+                  </Show>
+                </Show>
               </div>
             </>
           )}

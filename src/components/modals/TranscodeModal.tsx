@@ -1,7 +1,7 @@
 import { createSignal, Show } from "solid-js";
 import { Schemas } from "../../utils/serverApi";
 import AddVersion from "../VersionSlider/AddVersion";
-import { canPlayAfterTranscode } from "../../utils/mediaCapabilities/mediaCapabilities";
+import { canPlayAfterTranscode } from "../../utils/mediaCapabilities";
 import { createStore } from "solid-js/store";
 import { FiAlertTriangle } from "solid-icons/fi";
 import { Dialog, DialogContent } from "@/ui/dialog";

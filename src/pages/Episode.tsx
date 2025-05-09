@@ -1,5 +1,5 @@
 import { createAsync, useParams } from "@solidjs/router";
-import { For, Show, createEffect, createSignal } from "solid-js";
+import { Show, createEffect, createSignal } from "solid-js";
 import Description from "@/components/Description";
 import { fullUrl, Schemas } from "@/utils/serverApi";
 import { useProvider } from "@/utils/metadataProviders";
@@ -10,10 +10,13 @@ import Title from "@/utils/Title";
 import Icon from "@/components/ui/Icon";
 import { FiDownload } from "solid-icons/fi";
 import VideoActions from "@/components/Description/VideoActions";
-import VideoInformation from "@/components/Description/VideoInformation";
 import { fetchEpisode, fetchShow, posterList } from "@/utils/library";
 import { ParseParamsError } from "@/utils/errors";
 import { IntroBar } from "@/components/Description/IntroBar";
+import { VideoList } from "@/components/Description/VideoList";
+import VideoInformation, {
+  VideoSelection,
+} from "@/components/Description/VideoInformation";
 
 export type SelectedSubtitles =
   | {
@@ -44,9 +47,7 @@ export default function Episode() {
   let [showId, provider] = useProvider();
   let [torrentModal, setTorrentModal] = createSignal(false);
   // [videoIndex, variantIndex]
-  let [selectedVideo, setSelectedVideo] = createSignal<
-    [number, number | undefined]
-  >([0, undefined]);
+  let [selectedVideo, setSelectedVideo] = createSignal<VideoSelection>();
 
   let data = createAsync(async () => {
     let episodePromise = fetchEpisode(
@@ -85,21 +86,29 @@ export default function Episode() {
     if (!episode) return undefined;
     let videos = await episode.fetchVideos();
     if (!videos) return undefined;
+    let firstVideo = videos.at(0);
+    if (firstVideo) {
+      setSelectedVideo({ video_id: firstVideo.details.id });
+    }
     return videos;
   });
 
   let video = () => videos()?.at(0);
 
   let watchUrl = () => {
-    let [videoIdx, variantIdx] = selectedVideo();
+    let selection = selectedVideo();
+    if (!selection) {
+      return;
+    }
+    let { video_id, variant_id } = selection;
+    let video = videos()?.find((v) => v.details.id == video_id)!;
+
     let id = provider() == "local" ? +showId() : data()?.local_id;
     if (!id) return;
     let params = new URLSearchParams();
-    if (variantIdx !== undefined) {
-      let variant = videos()![videoIdx].variants()[variantIdx];
-      params.append("variant", variant.details.id);
+    if (variant_id !== undefined) {
+      params.append("variant", variant_id);
     }
-    let video = videos()![videoIdx];
     params.append("video", video.details.id.toString());
     return `/shows/${id}/${seasonNumber()}/${episodeNumber()}/watch?${params.toString()}`;
   };
@@ -206,34 +215,29 @@ export default function Episode() {
             );
           }}
         </Show>
-        <For each={videos()}>
-          {(video, idx) => (
-            <>
-              <VideoInformation
-                title={`#${idx() + 1} Video file`}
-                video={video}
-                onSelect={() => setSelectedVideo([idx(), undefined])}
-                isSelected={
-                  selectedVideo()[0] == idx() &&
-                  selectedVideo()[1] === undefined
-                }
-              />
-              <For each={video.variants()}>
-                {(variant, vidx) => (
-                  <VideoInformation
-                    title={`#${idx() + 1} Video variant #${vidx() + 1}`}
-                    video={variant}
-                    onSelect={() => setSelectedVideo([idx(), vidx()])}
-                    isSelected={
-                      selectedVideo()[0] == idx() &&
-                      selectedVideo()[1] == vidx()
-                    }
+        <Show when={selectedVideo()}>
+          <Show when={videos()}>
+            {(videos) => (
+              <>
+                <Show
+                  when={
+                    videos().length > 1 ||
+                    videos().some((v) => v.details.variants.length > 0)
+                  }
+                >
+                  <VideoList
+                    onVideoSelect={setSelectedVideo}
+                    videos={videos()}
                   />
-                )}
-              </For>
-            </>
-          )}
-        </For>
+                </Show>
+                <VideoInformation
+                  videos={videos()}
+                  selectedVideo={selectedVideo()!}
+                />
+              </>
+            )}
+          </Show>
+        </Show>
       </div>
     </>
   );

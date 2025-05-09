@@ -1,3 +1,7 @@
+import { useNotificationsContext } from "@/context/NotificationContext";
+import { Media } from "./library";
+import { NotificationProps } from "@/components/Notification";
+
 export type ErrorType =
   | "database"
   | "server"
@@ -52,13 +56,13 @@ export class ParseParamsError extends BaseError {
 
 type FetchResponse<T> =
   | {
-      data: undefined;
+      data?: never;
       error: { message: string };
       response: Response;
     }
   | {
       data: T;
-      error: undefined;
+      error?: never;
       response: Response;
     };
 
@@ -80,4 +84,34 @@ export function throwResponseErrors<T>(
     throw new InternalServerError(msg);
   }
   throw new InternalServerError("unknown error");
+}
+
+/**
+ * Format should look like `fetch shows`
+ * so it will get resolved to 'Failed to `fetch shows` (error message)'
+ * or message
+ */
+export function notifyResponseErrors<T>(
+  addNotification: ReturnType<
+    typeof useNotificationsContext
+  >[1]["addNotification"],
+  /**
+   * Format should look like `fetched shows`
+   * so it will get resolved to Failed to message
+   */
+  message: string,
+  content?: Media,
+): (r: FetchResponse<T>) => FetchResponse<T> {
+  return (response) => {
+    if (response.error != undefined) {
+      let props = {
+        message: `Failed to ${message} (${response.error.message})`,
+        contentUrl: content?.url(),
+        subTitle: content?.friendlyTitle(),
+        poster: content?.poster,
+      };
+      addNotification(props);
+    }
+    return response;
+  };
 }

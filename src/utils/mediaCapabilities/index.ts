@@ -227,3 +227,78 @@ export async function canPlayAfterTranscode(
   ]);
   return { video, audio, combined };
 }
+
+type Browser = "chrome" | "firefox" | "safari" | "edge" | "electron";
+
+const CONTAINER_SUPPORT: Record<
+  Schemas["VideoContainer"],
+  Record<Browser, boolean>
+> = {
+  mp4: {
+    chrome: true,
+    electron: true,
+    firefox: true,
+    safari: true,
+    edge: true,
+  },
+  webm: {
+    chrome: true,
+    electron: true,
+    firefox: true,
+    safari: true,
+    edge: true,
+  },
+  ogg: {
+    chrome: true,
+    electron: true,
+    firefox: true,
+    safari: false,
+    edge: true,
+  },
+  mkv: {
+    chrome: true,
+    electron: true,
+    firefox: false,
+    safari: false,
+    edge: true,
+  },
+  mov: {
+    chrome: false,
+    electron: true,
+    firefox: false,
+    safari: true,
+    edge: false,
+  },
+  avi: {
+    chrome: false,
+    electron: false,
+    firefox: false,
+    safari: false,
+    edge: false,
+  },
+};
+
+export function containerSupport(
+  container: Schemas["VideoContainer"],
+): boolean {
+  let ua = navigator.userAgent;
+
+  let isChrome =
+    ua.includes("Chrome") && !ua.includes("Edg/") && !ua.includes("OPR/");
+  let isElectron = ua.includes("Electron");
+  let isFirefox = ua.includes("Firefox");
+  let isSafari = ua.includes("Safari") && !ua.includes("Chrome");
+  let isEdge = ua.includes("Edg/");
+
+  let browser: Browser | undefined = undefined;
+
+  if (isChrome) browser = "chrome";
+  else if (isElectron) browser = "electron";
+  else if (isFirefox) browser = "firefox";
+  else if (isSafari) browser = "safari";
+  else if (isEdge) browser = "edge";
+
+  if (!browser) return false;
+
+  return CONTAINER_SUPPORT[container][browser] ?? false;
+}

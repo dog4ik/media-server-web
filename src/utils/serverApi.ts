@@ -2,6 +2,7 @@ import { query, revalidate } from "@solidjs/router";
 
 import createClient, { ClientMethod, ParamsOption } from "openapi-fetch";
 import type { components, paths } from "server-types";
+import tracing from "./tracing";
 
 export function formatCodec<T extends string | { other: string }>(
   codec: T,
@@ -55,6 +56,7 @@ export type GetPaths = {
 }[keyof paths];
 
 export async function revalidatePath(path: GetPaths) {
+  tracing.trace({ path }, "Revalidating path");
   await revalidate(path);
 }
 

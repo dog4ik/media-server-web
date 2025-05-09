@@ -1,37 +1,9 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
-import { Compatibility } from "@/utils/mediaCapabilities/mediaCapabilities";
+import { Compatibility } from "@/utils/mediaCapabilities";
 import clsx from "clsx";
 import { FiHeadphones, FiInfo, FiVideo } from "solid-icons/fi";
 import { ParentProps, Show } from "solid-js";
 import { JSX } from "solid-js/h/jsx-runtime";
-
-type Props = {
-  title: string;
-  onClick?: () => void;
-  isActive?: boolean;
-  compatibility: Partial<Compatibility> | undefined;
-};
-
-export default function ContentSectionContainer(props: Props & ParentProps) {
-  return (
-    <button
-      onClick={props.onClick}
-      class={clsx(
-        "flex w-full flex-col justify-center divide-y overflow-hidden rounded-xl bg-white/20 text-start outline transition-all",
-        props.isActive ? "outline-2 outline-white" : "outline-transparent",
-      )}
-    >
-      <div class="flex items-center justify-between gap-2 p-3">
-        <span class="text-md font-bold">{props.title}</span>
-        <div class="flex items-center gap-2">
-          <span>This browser supports: </span>
-          <CompatibilityIcons compatibiily={props.compatibility} />
-        </div>
-      </div>
-      <div class="p-3">{props.children}</div>
-    </button>
-  );
-}
 
 type CompatibilityIconProps = {
   compatibiily: MediaCapabilitiesInfo;

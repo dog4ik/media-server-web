@@ -1,9 +1,6 @@
 import { createMemo, createSignal, Show } from "solid-js";
 import { formatCodec } from "../../utils/serverApi";
-import ContentSectionContainer, {
-  Info,
-} from "../generic/ContentSectionContainer";
-import { VariantVideo, Video } from "@/utils/library";
+import { Video } from "@/utils/library";
 import {
   Select,
   SelectContent,
@@ -14,9 +11,14 @@ import {
 import { formatResolution } from "@/utils/formats";
 import { SelectedSubtitleTrack } from "@/pages/Watch/TracksSelectionContext";
 import { createAsync } from "@solidjs/router";
-import { isCompatible } from "@/utils/mediaCapabilities/mediaCapabilities";
+import { isCompatible } from "@/utils/mediaCapabilities";
 import tracing from "@/utils/tracing";
 import UploadSubtitles from "./UploadSubtitles";
+
+export type VideoSelection = {
+  video_id: number;
+  variant_id?: string;
+};
 
 class SubtitlesKeys {
   constructor(private subs: () => SelectedSubtitleTrack[]) {}
@@ -61,18 +63,30 @@ class SubtitlesKeys {
 }
 
 type Props = {
-  title: string;
-  video: Video | VariantVideo;
-  onSelect: () => void;
-  isSelected: boolean;
+  videos: Video[];
+  selectedVideo: VideoSelection;
 };
 
 export default function VideoInformation(props: Props) {
+  let currentVideo = () => {
+    let video = props.videos.find(
+      (v) => v.details.id == props.selectedVideo.video_id,
+    )!;
+    let variant_id = props.selectedVideo.variant_id;
+    if (variant_id !== undefined) {
+      return video.variants().find((v) => v.details.id == variant_id)!;
+    }
+    return video;
+  };
+
   let subtitleTracks = createMemo(() => {
     let out: SelectedSubtitleTrack[] = [];
-    if ("subtitle_tracks" in props.video.details) {
-      for (let track of props.video.details.subtitle_tracks) {
-        out.push({ origin: "container", track });
+    for (let video of props.videos) {
+      let videoId = video.details.id;
+      if ("subtitle_tracks" in video.details) {
+        for (let track of video.details.subtitle_tracks) {
+          out.push({ origin: "container", track });
+        }
       }
     }
     return out;
@@ -81,11 +95,11 @@ export default function VideoInformation(props: Props) {
   let [selectedSubtitles, setSelectedSubtitles] = createSignal<
     SelectedSubtitleTrack | undefined
   >(
-    props.video.defaultSubtitles()
+    currentVideo().defaultSubtitles()
       ? subtitleTracks().find(
           (s) =>
             s.origin == "container" &&
-            s.track == props.video.defaultSubtitles(),
+            s.track == currentVideo().defaultSubtitles(),
         )
       : subtitleTracks().at(0),
   );
@@ -93,19 +107,19 @@ export default function VideoInformation(props: Props) {
   let subsKeys = new SubtitlesKeys(subtitleTracks);
 
   let [selectedVideoTrack, setSelectedVideoTrack] = createSignal(
-    props.video.defaultVideo(),
+    currentVideo().defaultVideo(),
   );
 
   let [selectedAudioTrack, setSelectedAudioTrack] = createSignal(
-    props.video.defaultAudio(),
+    currentVideo().defaultAudio(),
   );
 
   let compatibility = createAsync(() =>
     isCompatible(selectedVideoTrack(), selectedAudioTrack()),
   );
 
-  let videoTracks = () => props.video.details.video_tracks;
-  let audioTracks = () => props.video.details.audio_tracks;
+  let videoTracks = () => currentVideo().details.video_tracks;
+  let audioTracks = () => currentVideo().details.audio_tracks;
 
   let formatVideoTrack = (track_index: number, idx: number) => {
     let t = videoTracks()[track_index];
@@ -130,17 +144,13 @@ export default function VideoInformation(props: Props) {
   };
 
   return (
-    <ContentSectionContainer
-      isActive={props.isSelected}
-      onClick={props.onSelect}
-      compatibility={compatibility()}
-      title={props.title}
-    >
+    <>
       <div class="grid grid-cols-3 grid-rows-1">
         <Show when={subtitleTracks()}>
           {(tracks) => (
             <Show when={tracks().length}>
               <div class="grid grid-cols-3 gap-3">
+                <span>Subtitles:</span>
                 <Select
                   class="col-span-3"
                   options={tracks().map((t) => subsKeys.toString(t))}
@@ -164,7 +174,6 @@ export default function VideoInformation(props: Props) {
                     </SelectItem>
                   )}
                 >
-                  <span>Subtitles:</span>
                   <SelectTrigger class="w-[180px]">
                     <SelectValue<string | undefined>>
                       {(state) =>
@@ -178,43 +187,15 @@ export default function VideoInformation(props: Props) {
                   </SelectTrigger>
                   <SelectContent class="max-h-80 overflow-auto" />
                 </Select>
-                <Show
-                  when={(() => {
-                    let selection = selectedSubtitles();
-                    if (selection?.origin == "container") {
-                      return selection.track;
-                    }
-                  })()}
-                >
-                  {(track) => (
-                    <>
-                      <Info key="Codec" value={track().codec ?? "unknown"} />
-                      <Info
-                        key="Hearing impaired"
-                        value={track().is_hearing_impaired ? "yes" : "no"}
-                      />
-                      <Info
-                        key="Visual annotations"
-                        value={track().is_visual_impaired ? "yes" : "no"}
-                      />
-                      <Info
-                        key="Text format"
-                        value={track().is_text_format ? "yes" : "no"}
-                      />
-                      <Show when={track().language}>
-                        {(lang) => <Info key="Language" value={lang()} />}
-                      </Show>
-                    </>
-                  )}
-                </Show>
               </div>
             </Show>
           )}
         </Show>
-        <Show when={props.video.details.video_tracks}>
+        <Show when={currentVideo().details.video_tracks}>
           {(tracks) => (
             <Show when={tracks().length}>
               <div class="grid grid-cols-3 gap-3">
+                <span>Video:</span>
                 <Select<number>
                   class="col-span-3"
                   options={tracks().map((_, i) => i)}
@@ -237,23 +218,11 @@ export default function VideoInformation(props: Props) {
                   </SelectTrigger>
                   <SelectContent class="max-h-80 overflow-auto" />
                 </Select>
-                <Show when={selectedVideoTrack()}>
-                  {(track) => (
-                    <>
-                      <Info key="Codec" value={formatCodec(track().codec)} />
-                      <Info
-                        key="Resolution"
-                        value={formatResolution(track()!.resolution)}
-                      />
-                      <Info key="Framerate" value={track()!.framerate} />
-                    </>
-                  )}
-                </Show>
               </div>
             </Show>
           )}
         </Show>
-        <Show when={props.video.details.audio_tracks}>
+        <Show when={currentVideo().details.audio_tracks}>
           {(tracks) => (
             <Show when={tracks().length}>
               <div class="grid grid-cols-3 gap-3">
@@ -285,22 +254,12 @@ export default function VideoInformation(props: Props) {
                   </SelectTrigger>
                   <SelectContent class="max-h-80 overflow-auto" />
                 </Select>
-                <Show when={selectedAudioTrack()}>
-                  {(track) => (
-                    <Info key="Codec" value={formatCodec(track().codec)} />
-                  )}
-                </Show>
-                <Show when={selectedAudioTrack()?.language}>
-                  {(lang) => <Info key="Language" value={lang()} />}
-                </Show>
               </div>
             </Show>
           )}
         </Show>
       </div>
-      <Show when={() => typeof props.video.details.id === "number"}>
-        <UploadSubtitles videoId={props.video.details.id as number} />
-      </Show>
-    </ContentSectionContainer>
+      <UploadSubtitles videoId={props.selectedVideo.video_id} />
+    </>
   );
 }

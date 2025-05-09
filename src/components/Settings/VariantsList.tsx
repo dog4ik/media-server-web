@@ -17,7 +17,7 @@ import {
 import { formatResolution, formatSize } from "@/utils/formats";
 import { FiTrash } from "solid-icons/fi";
 import FallbackImage from "../FallbackImage";
-import { isCompatible } from "@/utils/mediaCapabilities/mediaCapabilities";
+import { isCompatible } from "@/utils/mediaCapabilities";
 import promptConfirm from "../modals/ConfirmationModal";
 import {
   Table,
