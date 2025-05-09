@@ -20,7 +20,7 @@ type Props = {
 
 function Addition(props: { data: AdditionalInfo[] }) {
   return (
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-2">
       <For each={props.data}>
         {(content, i) => {
           let isLast = i() == props.data.length - 1;
@@ -37,12 +37,16 @@ function Addition(props: { data: AdditionalInfo[] }) {
               }
             >
               {(href) => (
-                <A href={href()}>
-                  <span class="text-base hover:underline">{content.info}</span>
+                <>
+                  <A href={href()}>
+                    <span class="text-base hover:underline">
+                      {content.info}
+                    </span>
+                  </A>
                   <Show when={!isLast}>
                     <span>·</span>
                   </Show>
-                </A>
+                </>
               )}
             </Show>
           );

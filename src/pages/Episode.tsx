@@ -1,5 +1,5 @@
 import { createAsync, useParams } from "@solidjs/router";
-import { For, Show, createEffect, createSignal } from "solid-js";
+import { Show, createEffect, createSignal } from "solid-js";
 import Description from "@/components/Description";
 import { fullUrl, Schemas } from "@/utils/serverApi";
 import { useProvider } from "@/utils/metadataProviders";
@@ -10,10 +10,11 @@ import Title from "@/utils/Title";
 import Icon from "@/components/ui/Icon";
 import { FiDownload } from "solid-icons/fi";
 import VideoActions from "@/components/Description/VideoActions";
-import VideoInformation from "@/components/Description/VideoInformation";
 import { fetchEpisode, fetchShow, posterList } from "@/utils/library";
 import { ParseParamsError } from "@/utils/errors";
 import { IntroBar } from "@/components/Description/IntroBar";
+import { VideoList } from "@/components/Description/VideoList";
+import VideoInformation from "@/components/Description/VideoInformation";
 
 export type SelectedSubtitles =
   | {
@@ -85,21 +86,23 @@ export default function Episode() {
     if (!episode) return undefined;
     let videos = await episode.fetchVideos();
     if (!videos) return undefined;
+    setSelectedVideo([videos[0].details.id, undefined]);
     return videos;
   });
 
   let video = () => videos()?.at(0);
 
   let watchUrl = () => {
-    let [videoIdx, variantIdx] = selectedVideo();
+    let [videoId, variantIdx] = selectedVideo();
+    let video = videos()?.find((v) => v.details.id == videoId)!;
+
     let id = provider() == "local" ? +showId() : data()?.local_id;
     if (!id) return;
     let params = new URLSearchParams();
     if (variantIdx !== undefined) {
-      let variant = videos()![videoIdx].variants()[variantIdx];
+      let variant = video?.variants()[variantIdx]!;
       params.append("variant", variant.details.id);
     }
-    let video = videos()![videoIdx];
     params.append("video", video.details.id.toString());
     return `/shows/${id}/${seasonNumber()}/${episodeNumber()}/watch?${params.toString()}`;
   };
@@ -206,34 +209,28 @@ export default function Episode() {
             );
           }}
         </Show>
-        <For each={videos()}>
-          {(video, idx) => (
+        <Show when={videos()}>
+          {(videos) => (
             <>
-              <VideoInformation
-                title={`#${idx() + 1} Video file`}
-                video={video}
-                onSelect={() => setSelectedVideo([idx(), undefined])}
-                isSelected={
-                  selectedVideo()[0] == idx() &&
-                  selectedVideo()[1] === undefined
+              <Show
+                when={
+                  videos().length > 1 ||
+                  videos().some((v) => v.details.variants.length > 0)
                 }
+              >
+                <VideoList
+                  onVideoSelect={setSelectedVideo}
+                  selectedVideo={selectedVideo()}
+                  videos={videos()}
+                />
+              </Show>
+              <VideoInformation
+                videos={videos()}
+                selectedVideo={selectedVideo()}
               />
-              <For each={video.variants()}>
-                {(variant, vidx) => (
-                  <VideoInformation
-                    title={`#${idx() + 1} Video variant #${vidx() + 1}`}
-                    video={variant}
-                    onSelect={() => setSelectedVideo([idx(), vidx()])}
-                    isSelected={
-                      selectedVideo()[0] == idx() &&
-                      selectedVideo()[1] == vidx()
-                    }
-                  />
-                )}
-              </For>
             </>
           )}
-        </For>
+        </Show>
       </div>
     </>
   );

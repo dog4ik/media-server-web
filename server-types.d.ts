@@ -1511,8 +1511,6 @@ export type components = {
         AppErrorKind: "InternalError" | "NotFound" | "Duplicate" | "BadRequest";
         AppResources: {
             app_version: string;
-            binary_path?: string | null;
-            cache_path: string;
             database_path: string;
             log_path: string;
             os: string;
@@ -1867,6 +1865,7 @@ export type components = {
         };
         DetailedVariant: {
             audio_tracks: components["schemas"]["DetailedAudioTrack"][];
+            container: components["schemas"]["VideoContainer"];
             duration: components["schemas"]["SerdeDuration"];
             id: string;
             path: string;
@@ -1877,6 +1876,7 @@ export type components = {
         DetailedVideo: {
             audio_tracks: components["schemas"]["DetailedAudioTrack"][];
             chapters: components["schemas"]["DetailedChapter"][];
+            container: components["schemas"]["VideoContainer"];
             duration: components["schemas"]["SerdeDuration"];
             history?: null | components["schemas"]["DbHistory"];
             /** Format: int64 */
@@ -2526,6 +2526,8 @@ export type components = {
         VideoCodec: "hevc" | "h264" | "av1" | "vp8" | "vp9" | {
             other: string;
         };
+        /** @enum {string} */
+        VideoContainer: "avi" | "mkv" | "mov" | "mp4" | "ogg" | "webm";
         VideoContentMetadata: {
             /** @enum {string} */
             content_type: "episode";
