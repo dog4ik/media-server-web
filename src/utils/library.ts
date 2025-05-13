@@ -4,7 +4,7 @@ import { formatSE } from "./formats";
 import { fullUrl, Schemas, server } from "./serverApi";
 import { createAsync } from "@solidjs/router";
 import { throwResponseErrors } from "./errors";
-import { isCompatible } from "./mediaCapabilities/mediaCapabilities";
+import { isCompatible } from "./mediaCapabilities";
 
 export function defaultTrack<T extends { is_default: boolean }>(tracks: T[]) {
   return tracks.find((t) => t.is_default) ?? tracks.at(0);
@@ -488,12 +488,16 @@ export class Video {
     }
   }
 
-  async startLiveTranscode() {
+  async startLiveTranscode(
+    method: Schemas["StreamMethod"],
+    variant_id?: string,
+  ) {
     return await server
-      .POST("/api/video/{id}/stream_transcode", {
+      .POST("/api/watch/hls/start/{id}", {
         params: this.params(),
+        body: { method, variant_id },
       })
-      .then((r) => r.data?.id);
+      .then((r) => r.data?.task_id);
   }
 
   defaultSubtitles() {

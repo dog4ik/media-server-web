@@ -1,5 +1,5 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
-import { Compatibility } from "@/utils/mediaCapabilities/mediaCapabilities";
+import { Compatibility } from "@/utils/mediaCapabilities";
 import clsx from "clsx";
 import { FiHeadphones, FiInfo, FiVideo } from "solid-icons/fi";
 import { ParentProps, Show } from "solid-js";

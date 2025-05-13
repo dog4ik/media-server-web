@@ -5,7 +5,7 @@ import {
   useTracksSelection,
 } from "@/pages/Watch/TracksSelectionContext";
 import { formatCodec, formatResolution } from "@/utils/formats";
-import { isCompatible } from "@/utils/mediaCapabilities/mediaCapabilities";
+import { isCompatible } from "@/utils/mediaCapabilities";
 import { Schemas } from "@/utils/serverApi";
 import { createAsync } from "@solidjs/router";
 import { FiCheck } from "solid-icons/fi";

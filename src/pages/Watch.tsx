@@ -30,7 +30,7 @@ export type Subtitle = {
 };
 
 function streamUrl(streamId: string) {
-  return fullUrl("/api/transcode/{id}/manifest", { path: { id: streamId } });
+  return fullUrl("/api/watch/hls/{id}/manifest", { path: { id: streamId } });
 }
 
 function getUrl(videoId: number): { url: string; method: StreamingMethod } {
@@ -78,7 +78,7 @@ function parseVideoIdQuery() {
 type WatchProps = {
   video: Video;
   next?: NextVideo;
-};
+} & ParentProps;
 
 function movieMediaSessionMetadata(movie: Schemas["MovieMetadata"]) {
   let posterUrl = fullUrl("/api/movie/{id}/poster", {
@@ -289,7 +289,7 @@ export function WatchShow() {
   );
 }
 
-function Watch(props: WatchProps & ParentProps) {
+function Watch(props: WatchProps) {
   let url = () => getUrl(props.video.details.id).url;
   let method = () => getUrl(props.video.details.id).method;
   function handleAudioError() {
@@ -307,11 +307,11 @@ function Watch(props: WatchProps & ParentProps) {
       let url = new URL(link);
       let id = url.pathname.split("/").at(3);
       if (id) {
-        throw Error("Unimplemented: Live transcode cancellation");
-        //await server.DELETE("/api/tasks/{id}", {
+        tracing.warn("Unimplemented: Live transcode cancellation");
+        // await server.DELETE("/api/tasks/{id}", {
         //  params: { path: { id } },
         //  keepalive: true,
-        //});
+        // });
       }
     }
   }

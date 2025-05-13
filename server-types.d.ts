@@ -956,6 +956,40 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/tasks/watch_session/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Stop watch session */
+        delete: operations["stop_watch_session"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tasks/watch_sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all watching sessions */
+        get: operations["watch_sessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/torrent/all": {
         parameters: {
             query?: never;
@@ -1160,40 +1194,6 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/transcode/{id}/manifest": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** M3U8 manifest of live transcode task */
-        get: operations["transcode_stream_manifest"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/transcode/{id}/segment/{segment}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Retrieve transcoded segment */
-        get: operations["transcoded_segment"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/variants": {
         parameters: {
             query?: never;
@@ -1374,23 +1374,6 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/video/{id}/stream_transcode": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Start transcoded stream */
-        post: operations["create_transcode_stream"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/video/{id}/transcode": {
         parameters: {
             query?: never;
@@ -1479,6 +1462,74 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/watch/hls/start/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start new watch session */
+        post: operations["start_hls_stream"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/watch/hls/{id}/init": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Retrieve init segment */
+        get: operations["hls_init"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/watch/hls/{id}/manifest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** M3U8 manifest of live transcode task */
+        get: operations["hls_manifest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/watch/hls/{id}/segment/{segment}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Retrieve hls segment */
+        get: operations["hls_segment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/ws": {
         parameters: {
             query?: never;
@@ -1544,6 +1595,8 @@ export type components = {
             codecs: components["schemas"]["Codec"][];
             ffmpeg_version: string;
         };
+        /** @enum {string} */
+        ClientType: "web_client" | "upnp";
         Codec: {
             codec_type: components["schemas"]["CodecType"];
             decode_supported: boolean;
@@ -2092,8 +2145,8 @@ export type components = {
         ProgressChunk_TranscodeJob: components["schemas"]["VideoTask"] & {
             status: components["schemas"]["ProgressStatus_VideoProgress"];
         };
-        ProgressChunk_WatchTask: components["schemas"]["TupleUnit"] & {
-            status: components["schemas"]["ProgressStatus_TupleUnit"];
+        ProgressChunk_WatchTask: components["schemas"]["WatchIdentifier"] & {
+            status: components["schemas"]["ProgressStatus_WatchProgress"];
         };
         ProgressStatus_CompactTorrentProgress: {
             /** @enum {string} */
@@ -2177,6 +2230,29 @@ export type components = {
                 percent: number;
                 /** Format: float */
                 relative_speed: number;
+            };
+            /** @enum {string} */
+            progress_type: "pending";
+        } | {
+            /** @enum {string} */
+            progress_type: "cancel";
+        } | {
+            message?: string | null;
+            /** @enum {string} */
+            progress_type: "error";
+        } | {
+            /** @enum {string} */
+            progress_type: "pause";
+        };
+        ProgressStatus_WatchProgress: {
+            /** @enum {string} */
+            progress_type: "start";
+        } | {
+            /** @enum {string} */
+            progress_type: "finish";
+        } | {
+            progress: {
+                current_time: components["schemas"]["SerdeDuration"];
             };
             /** @enum {string} */
             progress_type: "pending";
@@ -2279,6 +2355,15 @@ export type components = {
             /** Format: int64 */
             show_id: number;
         };
+        StartWatchSessionRequest: {
+            method: components["schemas"]["StreamMethod"];
+            /** Format: uuid */
+            variant_id?: string | null;
+        };
+        StartWatchSessionResponse: {
+            /** Format: uuid */
+            task_id: string;
+        };
         StateChange: {
             change: {
                 ip: string;
@@ -2348,6 +2433,8 @@ export type components = {
         StorageError: {
             fs: string;
         } | "hash" | "bounds";
+        /** @enum {string} */
+        StreamMethod: "direct_play" | "hls";
         SubtitlesCodec: null | string;
         SubtitlesReferencePayload: {
             language?: string | null;
@@ -2402,6 +2489,28 @@ export type components = {
                 video_id: number;
             };
             latest_progress: components["schemas"]["ProgressChunk_TranscodeJob"];
+        };
+        Task_WatchTask: {
+            cancelable: boolean;
+            /** Format: date-time */
+            created: string;
+            /** Format: uuid */
+            id: string;
+            /** @description Task for watch tracking.
+             *
+             *     Be aware that currently watch tracking can be bypassed.
+             *     Therefore, these tasks should not be considered fully reliable. */
+            kind: {
+                client_agent: string;
+                client_type: components["schemas"]["ClientType"];
+                method: components["schemas"]["StreamMethod"];
+                total_duration: components["schemas"]["SerdeDuration"];
+                /** Format: uuid */
+                variant_id?: string | null;
+                /** Format: int64 */
+                video_id: number;
+            };
+            latest_progress: components["schemas"]["ProgressChunk_WatchTask"];
         };
         Torrent: {
             author?: string | null;
@@ -2501,15 +2610,6 @@ export type components = {
             resolution: components["schemas"]["Resolution"];
             video_codec: components["schemas"]["VideoCodec"];
         };
-        TranscodeJob: {
-            configuration: components["schemas"]["TranscodeConfiguration"];
-            hw_accel: boolean;
-            output_path: string[];
-            payload: components["schemas"]["TranscodePayload"];
-            source_path: string[];
-            /** Format: int64 */
-            video_id: number;
-        };
         TranscodePayload: {
             audio_codec?: null | components["schemas"]["AudioCodec"];
             audio_track?: number | null;
@@ -2545,6 +2645,10 @@ export type components = {
         };
         /** @enum {string} */
         VideoTaskKind: "transcode" | "livetranscode" | "previews" | "subtitles";
+        WatchIdentifier: {
+            /** Format: int64 */
+            video_id: number;
+        };
         /** @description Websockets connection output message */
         WsMessage: {
             torrents: components["schemas"]["TorrentState"][];
@@ -2572,6 +2676,11 @@ export type components = {
         } | {
             /** @enum {string} */
             type: "torrentunsubscribe";
+        } | {
+            /** Format: uuid */
+            task_id: string;
+            /** @enum {string} */
+            type: "trackwatchsession";
         };
     };
     responses: never;
@@ -4444,6 +4553,75 @@ export interface operations {
             };
         };
     };
+    stop_watch_session: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Task id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Task can't be found */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    watch_sessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        cancelable: boolean;
+                        /** Format: date-time */
+                        created: string;
+                        /** Format: uuid */
+                        id: string;
+                        /** @description Task for watch tracking.
+                         *
+                         *     Be aware that currently watch tracking can be bypassed.
+                         *     Therefore, these tasks should not be considered fully reliable. */
+                        kind: {
+                            client_agent: string;
+                            client_type: components["schemas"]["ClientType"];
+                            method: components["schemas"]["StreamMethod"];
+                            total_duration: components["schemas"]["SerdeDuration"];
+                            /** Format: uuid */
+                            variant_id?: string | null;
+                            /** Format: int64 */
+                            video_id: number;
+                        };
+                        latest_progress: components["schemas"]["ProgressChunk_WatchTask"];
+                    }[];
+                };
+            };
+        };
+    };
     all_torrents: {
         parameters: {
             query?: never;
@@ -4778,86 +4956,6 @@ export interface operations {
             };
             /** @description Torrent not found */
             404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-        };
-    };
-    transcode_stream_manifest: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Task id */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/plain": string;
-                };
-            };
-            /** @description Task uuid is incorrect */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-            /** @description Task is not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-        };
-    };
-    transcoded_segment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Transcode job */
-                id: string;
-                /** @description Desired segment */
-                segment: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Transcode job is not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-            /** @description Worker is not available */
-            500: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5250,37 +5348,6 @@ export interface operations {
             };
         };
     };
-    create_transcode_stream: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Video id */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Task_TranscodeJob"];
-                };
-            };
-            /** @description Video is not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-        };
-    };
     transcode_video: {
         parameters: {
             query?: never;
@@ -5518,6 +5585,165 @@ export interface operations {
             };
             /** @description Intro is not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    start_hls_stream: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartWatchSessionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StartWatchSessionResponse"];
+                };
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    hls_init: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Transcode job */
+                id: string;
+                /** @description Desired segment */
+                segment: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": number[];
+                };
+            };
+            /** @description Transcode job is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+            /** @description Transcode job is available */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    hls_manifest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Task id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description Task uuid is incorrect */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+            /** @description Task is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    hls_segment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Transcode job */
+                id: string;
+                /** @description Desired segment */
+                segment: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": number[];
+                };
+            };
+            /** @description Transcode job is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+            /** @description Transcode job is available */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };

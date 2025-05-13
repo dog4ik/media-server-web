@@ -132,34 +132,16 @@ export default function Movie() {
                 </div>
               </div>
               <div class="hover-hide mt-8">
-                <For each={videos()}>
-                  {(video, idx) => (
+                <Show when={videos()}>
+                  {(videos) => (
                     <>
                       <VideoInformation
-                        onSelect={() => setSelectedVideo([idx(), undefined])}
-                        isSelected={
-                          selectedVideo()[0] == idx() &&
-                          selectedVideo()[1] === undefined
-                        }
-                        title={`Video file #${idx() + 1}`}
-                        video={video}
+                        videos={videos()}
+                        selectedVideo={selectedVideo()}
                       />
-                      <For each={video.variants()}>
-                        {(variant, vidx) => (
-                          <VideoInformation
-                            title={`#${idx() + 1} Video variant #${vidx() + 1}`}
-                            video={variant}
-                            onSelect={() => setSelectedVideo([idx(), vidx()])}
-                            isSelected={
-                              selectedVideo()[0] == idx() &&
-                              selectedVideo()[1] == vidx()
-                            }
-                          />
-                        )}
-                      </For>
                     </>
                   )}
-                </For>
+                </Show>
               </div>
             </>
           )}

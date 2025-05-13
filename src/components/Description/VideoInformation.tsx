@@ -11,7 +11,7 @@ import {
 import { formatResolution } from "@/utils/formats";
 import { SelectedSubtitleTrack } from "@/pages/Watch/TracksSelectionContext";
 import { createAsync } from "@solidjs/router";
-import { isCompatible } from "@/utils/mediaCapabilities/mediaCapabilities";
+import { isCompatible } from "@/utils/mediaCapabilities";
 import tracing from "@/utils/tracing";
 import UploadSubtitles from "./UploadSubtitles";
 

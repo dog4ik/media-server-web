@@ -18,6 +18,7 @@ import Hls from "hls.js";
 import clsx from "clsx";
 import { Button } from "@/ui/button";
 import { useTracksSelection } from "@/pages/Watch/TracksSelectionContext";
+import tracing from "@/utils/tracing";
 
 function formatDuration(time: number) {
   let leadingZeroFormatter = new Intl.NumberFormat(undefined, {
@@ -70,6 +71,7 @@ export type DispatchedAction =
 type VideoEventType = Parameters<JSX.EventHandler<HTMLVideoElement, Event>>[0];
 
 function initHls(videoElement: HTMLVideoElement, manifestUrl: string) {
+  tracing.info({ manifestUrl }, "Initiating hls");
   var hls = new Hls({
     enableWorker: true,
     lowLatencyMode: true,
@@ -77,8 +79,8 @@ function initHls(videoElement: HTMLVideoElement, manifestUrl: string) {
     frontBufferFlushThreshold: 20,
   });
   hls.on(Hls.Events.MANIFEST_PARSED, function (_event, data) {
-    console.log(
-      "manifest loaded, found " + data.levels.length + " quality level",
+    tracing.debug(
+      "Manifest loaded, found " + data.levels.length + " quality level",
     );
   });
   hls.on(Hls.Events.BACK_BUFFER_REACHED, function (_event, _data) {
@@ -89,18 +91,18 @@ function initHls(videoElement: HTMLVideoElement, manifestUrl: string) {
   });
   hls.on(Hls.Events.ERROR, function (_event, data) {
     if (data.details == "bufferStalledError") {
-      console.log("trying to recover bufferStalledError");
+      tracing.warn("Trying to recover bufferStalledError");
       // video.currentTime = video.currentTime;
     }
     if (data.fatal) {
       console.log(data);
       switch (data.type) {
         case Hls.ErrorTypes.MEDIA_ERROR:
-          console.log("fatal media error encountered, try to recover");
+          tracing.error("Fatal media error encountered, try to recover");
           hls.recoverMediaError();
           break;
         case Hls.ErrorTypes.NETWORK_ERROR:
-          console.error("fatal network error encountered", data);
+          tracing.error("Fatal network error encountered");
           // All retries and media options have been exhausted.
           // Immediately trying to restart loading could cause loop loading.
           // Consider modifying loading policies to best fit your asset and network

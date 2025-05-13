@@ -9,6 +9,7 @@ import { useNavigate } from "@solidjs/router";
 import { useNotifications } from "../../context/NotificationContext";
 import { TranscodeModal } from "../modals/TranscodeModal";
 import { Video } from "@/utils/library";
+import { useServerStatus } from "@/context/ServerStatusContext";
 
 type Props = {
   video: Video;
@@ -19,6 +20,7 @@ export default function VideoActions(props: Props) {
   let notificator = useNotifications();
   let navigator = useNavigate();
   let [transcodeOpen, setTranscodeOpen] = createSignal(false);
+  let [{ serverStatus }] = useServerStatus();
 
   let videoCompatibility = props.video.videoCompatibility();
 
@@ -43,12 +45,16 @@ export default function VideoActions(props: Props) {
   };
 
   async function startLiveTranscoding() {
-    let res = await server.POST("/api/video/{id}/stream_transcode", {
-      params: { path: { id: props.video.details.id } },
-    });
-    if (res.data) {
-      navigator(props.watchUrl + `?stream_id=${res.data.id}`);
-    }
+    await server
+      .POST("/api/watch/hls/start/{id}", {
+        params: { path: { id: props.video.details.id } },
+        body: { method: "hls" },
+      })
+      .then((d) => {
+        if (d.data?.task_id === undefined) return;
+        serverStatus.trackWatchSession(d.data.task_id);
+        navigator(props.watchUrl + `&stream_id=${d.data.task_id}`);
+      });
   }
 
   return (
