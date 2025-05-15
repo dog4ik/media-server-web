@@ -1,15 +1,14 @@
-import { FiImage, FiLoader, FiPlay } from "solid-icons/fi";
-import { revalidatePath, server } from "../../utils/serverApi";
+import { FiImage, FiLoader } from "solid-icons/fi";
+import { revalidatePath } from "../../utils/serverApi";
 import Icon from "../ui/Icon";
 import { createSignal, For, ParentProps, Show } from "solid-js";
 import MoreButton, { RecursiveRow } from "../ContextMenu/MoreButton";
 import VariantMenuRow from "./VariantMenuRow";
 import PlayButton from "./PlayButton";
-import { useNavigate } from "@solidjs/router";
+import { createAsync } from "@solidjs/router";
 import { useNotifications } from "../../context/NotificationContext";
 import { TranscodeModal } from "../modals/TranscodeModal";
 import { Video } from "@/utils/library";
-import { useServerStatus } from "@/context/ServerStatusContext";
 
 type Props = {
   video: Video;
@@ -18,11 +17,9 @@ type Props = {
 
 export default function VideoActions(props: Props) {
   let notificator = useNotifications();
-  let navigator = useNavigate();
   let [transcodeOpen, setTranscodeOpen] = createSignal(false);
-  let [{ serverStatus }] = useServerStatus();
 
-  let videoCompatibility = props.video.videoCompatibility();
+  let videoCompatibility = createAsync(() => props.video.videoCompatibility());
 
   let deletePreviews = () => {
     props.video
@@ -43,19 +40,6 @@ export default function VideoActions(props: Props) {
       revalidatePath("/api/video/by_content");
     });
   };
-
-  async function startLiveTranscoding() {
-    await server
-      .POST("/api/watch/hls/start/{id}", {
-        params: { path: { id: props.video.details.id } },
-        body: { method: "hls" },
-      })
-      .then((d) => {
-        if (d.data?.task_id === undefined) return;
-        serverStatus.trackWatchSession(d.data.task_id);
-        navigator(props.watchUrl + `&stream_id=${d.data.task_id}`);
-      });
-  }
 
   return (
     <>
@@ -79,9 +63,6 @@ export default function VideoActions(props: Props) {
       </Show>
       <Icon tooltip={"Transcode"} onClick={() => setTranscodeOpen(true)}>
         <FiLoader size={30} />
-      </Icon>
-      <Icon tooltip={"Live transcode"} onClick={startLiveTranscoding}>
-        <FiPlay size={30} />
       </Icon>
       {props.children}
       <Show when={props.video.details.variants.length > 0}>

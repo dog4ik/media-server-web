@@ -57,7 +57,7 @@ const DEFAULT_VOLUME = 0.5;
 
 type PlaybackState = "playing" | "pause" | "buffering" | "error";
 
-export type StreamingMethod = "hls" | "progressive";
+export type StreamingMethod = "hls" | "direct";
 
 export type DispatchedAction =
   | "pause"
@@ -282,7 +282,9 @@ export default function VideoPlayer(props: Props & ParentProps) {
   }
   function handleSync(curTime: number) {
     if (Math.abs(curTime - lastSynced) > 5 && !isScubbing) {
-      props.onHistoryUpdate(Math.floor(curTime));
+      let time = Math.floor(curTime);
+      tracing.trace({ time }, "Updating video history");
+      props.onHistoryUpdate(time);
       lastSynced = curTime;
     }
   }
@@ -406,7 +408,7 @@ export default function VideoPlayer(props: Props & ParentProps) {
     if (props.streamingMethod == "hls") {
       initHls(videoRef, props.src);
     }
-    if (props.streamingMethod == "progressive") {
+    if (props.streamingMethod == "direct") {
       videoRef.src = props.src;
     }
     videoRef.volume = getInitialVolume();

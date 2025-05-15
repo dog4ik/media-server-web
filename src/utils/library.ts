@@ -513,9 +513,7 @@ export class Video {
   }
 
   videoCompatibility() {
-    return createAsync(async () => {
-      return await isCompatible(this.defaultVideo(), this.defaultAudio());
-    });
+    return isCompatible(this.defaultVideo(), this.defaultAudio());
   }
 
   fetchMetadata() {
@@ -545,8 +543,6 @@ export class VariantVideo {
   }
 
   videoCompatibility() {
-    return createAsync(async () => {
-      return await isCompatible(this.defaultVideo(), this.defaultAudio());
-    });
+    return isCompatible(this.defaultVideo(), this.defaultAudio());
   }
 }

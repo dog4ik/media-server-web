@@ -1462,6 +1462,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/watch/direct/start/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start direct stream session */
+        post: operations["start_direct_stream"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/watch/hls/start/{id}": {
         parameters: {
             query?: never;
@@ -1471,7 +1488,7 @@ export type paths = {
         };
         get?: never;
         put?: never;
-        /** Start new watch session */
+        /** Start new hls watch session */
         post: operations["start_hls_stream"];
         delete?: never;
         options?: never;
@@ -2355,8 +2372,11 @@ export type components = {
             /** Format: int64 */
             show_id: number;
         };
-        StartWatchSessionRequest: {
-            method: components["schemas"]["StreamMethod"];
+        StartDirectStreamRequest: {
+            /** Format: uuid */
+            variant_id?: string | null;
+        };
+        StartHlsStreamRequest: {
             /** Format: uuid */
             variant_id?: string | null;
         };
@@ -3137,7 +3157,9 @@ export interface operations {
     };
     update_history: {
         parameters: {
-            query?: never;
+            query?: {
+                id?: string | null;
+            };
             header?: never;
             path: {
                 /** @description History id */
@@ -5089,7 +5111,9 @@ export interface operations {
     };
     update_video_history: {
         parameters: {
-            query?: never;
+            query?: {
+                id?: string | null;
+            };
             header?: never;
             path: {
                 /** @description Video id */
@@ -5594,6 +5618,41 @@ export interface operations {
             };
         };
     };
+    start_direct_stream: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartDirectStreamRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StartWatchSessionResponse"];
+                };
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
     start_hls_stream: {
         parameters: {
             query?: never;
@@ -5606,7 +5665,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["StartWatchSessionRequest"];
+                "application/json": components["schemas"]["StartHlsStreamRequest"];
             };
         };
         responses: {
