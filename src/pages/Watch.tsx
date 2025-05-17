@@ -29,6 +29,7 @@ import tracing from "@/utils/tracing";
 import TracksSelectionProvider from "./Watch/TracksSelectionContext";
 import { useServerStatus } from "@/context/ServerStatusContext";
 import { useNotificationsContext } from "@/context/NotificationContext";
+import { containerSupport } from "@/utils/mediaCapabilities";
 
 export type SubtitlesOrigin = "container" | "api" | "local" | "imported";
 
@@ -316,7 +317,10 @@ function Watch(props: WatchProps) {
   let [, { addNotification }] = useNotificationsContext();
   let streamParams = createAsync<StreamParams>(async () => {
     let compatibility = await props.video.videoCompatibility();
-    if (compatibility.combined?.supported) {
+    if (
+      compatibility.combined?.supported &&
+      containerSupport(props.video.details.container)
+    ) {
       tracing.debug("Selected direct playback method");
       let streamId = await server
         .POST("/api/watch/direct/start/{id}", {
@@ -341,38 +345,42 @@ function Watch(props: WatchProps) {
         watchUrl: directStreamUrl(props.video.details.id),
       };
     } else {
-      let audioCodec = undefined;
-      let videoCodec = undefined;
+      let audio_codec: Schemas["AudioCodec"] | undefined = undefined;
+      let video_codec: Schemas["VideoCodec"] | undefined = undefined;
       if (!compatibility.audio?.supported) {
-        audioCodec = "aac";
+        audio_codec = "aac";
       }
       if (!compatibility.video?.supported) {
-        audioCodec = "h264";
+        video_codec = "h264";
       }
       tracing.debug(
         {
-          videoCodec,
-          audioCodec,
+          video_codec,
+          audio_codec,
         },
         "Selected hls playback method",
       );
       let streamId = await server
         .POST("/api/watch/hls/start/{id}", {
           params: { path: { id: props.video.details.id } },
-          body: { variant_id: undefined },
+          body: {
+            variant_id: undefined,
+            audio_codec,
+            video_codec,
+          },
         })
         .then(
           notifyResponseErrors(addNotification, "start hls job", props.media),
         )
         .then(throwResponseErrors)
-        .then((d) => {
-          serverStatus.trackWatchSession(d.task_id);
-          return d.task_id;
+        .then(({ task_id }) => {
+          serverStatus.trackWatchSession(task_id);
+          return task_id;
         });
       return {
         method: "hls",
-        audioCodec,
-        videoCodec,
+        audioCodec: audio_codec,
+        videoCodec: video_codec,
         streamId,
         watchUrl: hlsStreamUrl(streamId),
       };
@@ -389,8 +397,8 @@ function Watch(props: WatchProps) {
   async function handleUnload(_: BeforeUnloadEvent | BeforeLeaveEventArgs) {
     let stream = streamParams();
     let id = stream?.streamId;
-    tracing.debug({ id }, "Cleaning up streams");
     if (id) {
+      tracing.debug({ id }, "Cleaning up stream");
       await server
         .DELETE("/api/tasks/watch_session/{id}", {
           params: { path: { id } },

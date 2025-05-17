@@ -2033,6 +2033,21 @@ export type components = {
             id: string;
             provider: components["schemas"]["MetadataProvider"];
         };
+        /** @description Encoder configuration for hls live streams */
+        HlsStreamConfiguration: {
+            /** @description Audio encoder name
+             *
+             *     If `None` selected audio track will be copied */
+            audio_encoder?: string | null;
+            /** @description Audio track index */
+            audio_track: number;
+            /** @description Video encoder name
+             *
+             *     If `None` selected video track will be copied */
+            video_encoder?: string | null;
+            /** @description Video track index */
+            video_track: number;
+        };
         IndexMagnetLink: {
             magnet_link: string;
         };
@@ -2377,8 +2392,12 @@ export type components = {
             variant_id?: string | null;
         };
         StartHlsStreamRequest: {
+            audio_codec?: null | components["schemas"]["AudioCodec"];
+            audio_track?: number | null;
             /** Format: uuid */
             variant_id?: string | null;
+            video_codec?: null | components["schemas"]["VideoCodec"];
+            video_track?: number | null;
         };
         StartWatchSessionResponse: {
             /** Format: uuid */
@@ -2453,6 +2472,14 @@ export type components = {
         StorageError: {
             fs: string;
         } | "hash" | "bounds";
+        Stream: {
+            /** @enum {string} */
+            stream_type: "direct_play";
+        } | {
+            configuration: components["schemas"]["HlsStreamConfiguration"];
+            /** @enum {string} */
+            stream_type: "hls";
+        };
         /** @enum {string} */
         StreamMethod: "direct_play" | "hls";
         SubtitlesCodec: null | string;
@@ -2524,6 +2551,7 @@ export type components = {
                 client_agent: string;
                 client_type: components["schemas"]["ClientType"];
                 method: components["schemas"]["StreamMethod"];
+                stream: components["schemas"]["Stream"];
                 total_duration: components["schemas"]["SerdeDuration"];
                 /** Format: uuid */
                 variant_id?: string | null;
@@ -4632,6 +4660,7 @@ export interface operations {
                             client_agent: string;
                             client_type: components["schemas"]["ClientType"];
                             method: components["schemas"]["StreamMethod"];
+                            stream: components["schemas"]["Stream"];
                             total_duration: components["schemas"]["SerdeDuration"];
                             /** Format: uuid */
                             variant_id?: string | null;
