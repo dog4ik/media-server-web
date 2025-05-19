@@ -73,10 +73,9 @@ type VideoEventType = Parameters<JSX.EventHandler<HTMLVideoElement, Event>>[0];
 function initHls(videoElement: HTMLVideoElement, manifestUrl: string) {
   tracing.info({ manifestUrl }, "Initiating hls");
   var hls = new Hls({
-    enableWorker: true,
-    lowLatencyMode: true,
-    backBufferLength: 1,
-    frontBufferFlushThreshold: 20,
+    maxBufferLength: 30,
+    lowLatencyMode: false,
+    backBufferLength: Infinity,
   });
   hls.on(Hls.Events.MANIFEST_PARSED, function (_event, data) {
     tracing.debug(
@@ -90,23 +89,16 @@ function initHls(videoElement: HTMLVideoElement, manifestUrl: string) {
     console.log("Buffer eos");
   });
   hls.on(Hls.Events.ERROR, function (_event, data) {
-    if (data.details == "bufferStalledError") {
-      tracing.warn("Trying to recover bufferStalledError");
-      // video.currentTime = video.currentTime;
-    }
+    console.log(data);
     if (data.fatal) {
-      console.log(data);
       switch (data.type) {
         case Hls.ErrorTypes.MEDIA_ERROR:
-          tracing.error("Fatal media error encountered, try to recover");
+          tracing.error("Fatal media error encountered, trying to recover");
           hls.recoverMediaError();
           break;
         case Hls.ErrorTypes.NETWORK_ERROR:
-          tracing.error("Fatal network error encountered");
-          // All retries and media options have been exhausted.
-          // Immediately trying to restart loading could cause loop loading.
-          // Consider modifying loading policies to best fit your asset and network
-          // conditions (manifestLoadPolicy, playlistLoadPolicy, fragLoadPolicy).
+          tracing.error("Fatal network error encountered trying to recover");
+          hls.startLoad();
           break;
         default:
           // cannot recover
