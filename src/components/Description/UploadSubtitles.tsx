@@ -18,6 +18,7 @@ import { TextField, TextFieldLabel, TextFieldRoot } from "@/ui/textfield";
 import { MEDIA_SERVER_URL, Schemas } from "@/utils/serverApi";
 import tracing from "@/utils/tracing";
 import { createSignal, JSX } from "solid-js";
+import { FilePicker } from "../FilePicker";
 
 type Props = {
   videoId: number;
@@ -36,13 +37,11 @@ export default function UploadSubtitlesDialog(props: Props) {
   return (
     <Dialog>
       <DialogTrigger>Upload subtitles</DialogTrigger>
-      <DialogContent class="sm:max-w-2xl">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Upload subtitles</DialogTitle>
         </DialogHeader>
-        <div class="grid gap-4 py-4">
-          <UploadSubtitles videoId={props.videoId} />
-        </div>
+        <UploadSubtitles videoId={props.videoId} />
       </DialogContent>
     </Dialog>
   );
@@ -111,7 +110,7 @@ export function UploadSubtitles(props: Props) {
   };
 
   return (
-    <div>
+    <div class="flex flex-col gap-4">
       <h4 class="text-lg">Language</h4>
       <Combobox
         options={options()}
@@ -133,17 +132,7 @@ export function UploadSubtitles(props: Props) {
         </TabsList>
         <TabsContent value="link">
           <form onSubmit={handleFileSubmit}>
-            <div class="grid w-full items-center gap-4">
-              <TextFieldRoot class="flex flex-col space-y-1.5">
-                <TextFieldLabel>Referenced Subtitles</TextFieldLabel>
-                <TextField
-                  id="subtitles"
-                  placeholder="Select subtitles file on the server"
-                  value={path()}
-                  onChange={(e) => setPath(e.target.value)}
-                />
-              </TextFieldRoot>
-            </div>
+            <FilePicker onChange={setPath} />
             <Button type="submit" class="mt-4">
               Select Subtitles
             </Button>
@@ -153,9 +142,12 @@ export function UploadSubtitles(props: Props) {
           <form onSubmit={handleFileSubmit}>
             <div class="grid w-full items-center gap-4">
               <TextFieldRoot class="flex flex-col space-y-1.5">
-                <TextFieldLabel>Uploaded Subtitles</TextFieldLabel>
+                <TextFieldLabel class="grid h-20 w-full place-items-center rounded-md border-2 border-dashed">
+                  <span>Upload subtitles</span>
+                </TextFieldLabel>
                 <TextField
                   onInput={handleFileChange}
+                  class="hidden"
                   type="file"
                   accept=".srt"
                 />

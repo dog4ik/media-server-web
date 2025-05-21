@@ -14,7 +14,9 @@ import { fetchEpisode, fetchShow, posterList } from "@/utils/library";
 import { ParseParamsError } from "@/utils/errors";
 import { IntroBar } from "@/components/Description/IntroBar";
 import { VideoList } from "@/components/Description/VideoList";
-import VideoInformation from "@/components/Description/VideoInformation";
+import VideoInformation, {
+  VideoSelection,
+} from "@/components/Description/VideoInformation";
 
 export type SelectedSubtitles =
   | {
@@ -45,9 +47,7 @@ export default function Episode() {
   let [showId, provider] = useProvider();
   let [torrentModal, setTorrentModal] = createSignal(false);
   // [videoIndex, variantIndex]
-  let [selectedVideo, setSelectedVideo] = createSignal<
-    [number, number | undefined]
-  >([0, undefined]);
+  let [selectedVideo, setSelectedVideo] = createSignal<VideoSelection>();
 
   let data = createAsync(async () => {
     let episodePromise = fetchEpisode(
@@ -86,22 +86,28 @@ export default function Episode() {
     if (!episode) return undefined;
     let videos = await episode.fetchVideos();
     if (!videos) return undefined;
-    setSelectedVideo([videos[0].details.id, undefined]);
+    let firstVideo = videos.at(0);
+    if (firstVideo) {
+      setSelectedVideo({ video_id: firstVideo.details.id });
+    }
     return videos;
   });
 
   let video = () => videos()?.at(0);
 
   let watchUrl = () => {
-    let [videoId, variantIdx] = selectedVideo();
-    let video = videos()?.find((v) => v.details.id == videoId)!;
+    let selection = selectedVideo();
+    if (!selection) {
+      return;
+    }
+    let { video_id, variant_id } = selection;
+    let video = videos()?.find((v) => v.details.id == video_id)!;
 
     let id = provider() == "local" ? +showId() : data()?.local_id;
     if (!id) return;
     let params = new URLSearchParams();
-    if (variantIdx !== undefined) {
-      let variant = video?.variants()[variantIdx]!;
-      params.append("variant", variant.details.id);
+    if (variant_id !== undefined) {
+      params.append("variant", variant_id);
     }
     params.append("video", video.details.id.toString());
     return `/shows/${id}/${seasonNumber()}/${episodeNumber()}/watch?${params.toString()}`;
@@ -209,27 +215,28 @@ export default function Episode() {
             );
           }}
         </Show>
-        <Show when={videos()}>
-          {(videos) => (
-            <>
-              <Show
-                when={
-                  videos().length > 1 ||
-                  videos().some((v) => v.details.variants.length > 0)
-                }
-              >
-                <VideoList
-                  onVideoSelect={setSelectedVideo}
-                  selectedVideo={selectedVideo()}
+        <Show when={selectedVideo()}>
+          <Show when={videos()}>
+            {(videos) => (
+              <>
+                <Show
+                  when={
+                    videos().length > 1 ||
+                    videos().some((v) => v.details.variants.length > 0)
+                  }
+                >
+                  <VideoList
+                    onVideoSelect={setSelectedVideo}
+                    videos={videos()}
+                  />
+                </Show>
+                <VideoInformation
                   videos={videos()}
+                  selectedVideo={selectedVideo()!}
                 />
-              </Show>
-              <VideoInformation
-                videos={videos()}
-                selectedVideo={selectedVideo()}
-              />
-            </>
-          )}
+              </>
+            )}
+          </Show>
         </Show>
       </div>
     </>

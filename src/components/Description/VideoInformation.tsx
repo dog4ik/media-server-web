@@ -15,6 +15,11 @@ import { isCompatible } from "@/utils/mediaCapabilities";
 import tracing from "@/utils/tracing";
 import UploadSubtitles from "./UploadSubtitles";
 
+export type VideoSelection = {
+  video_id: number;
+  variant_id?: string;
+};
+
 class SubtitlesKeys {
   constructor(private subs: () => SelectedSubtitleTrack[]) {}
 
@@ -59,17 +64,17 @@ class SubtitlesKeys {
 
 type Props = {
   videos: Video[];
-  selectedVideo: [number, number | undefined];
+  selectedVideo: VideoSelection;
 };
 
 export default function VideoInformation(props: Props) {
   let currentVideo = () => {
     let video = props.videos.find(
-      (v) => v.details.id == props.selectedVideo[0],
+      (v) => v.details.id == props.selectedVideo.video_id,
     )!;
-    let variantIdx = props.selectedVideo.at(1);
-    if (variantIdx !== undefined) {
-      return video.variants()[variantIdx];
+    let variant_id = props.selectedVideo.variant_id;
+    if (variant_id !== undefined) {
+      return video.variants().find((v) => v.details.id == variant_id)!;
     }
     return video;
   };
@@ -254,7 +259,7 @@ export default function VideoInformation(props: Props) {
           )}
         </Show>
       </div>
-      <UploadSubtitles videoId={props.selectedVideo[0]} />
+      <UploadSubtitles videoId={props.selectedVideo.video_id} />
     </>
   );
 }

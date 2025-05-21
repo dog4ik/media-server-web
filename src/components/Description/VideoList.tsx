@@ -7,11 +7,11 @@ import {
 import { For } from "solid-js";
 import VideoInformationSlider from "./VideoInformationSlider";
 import { Video } from "@/utils/library";
+import { VideoSelection } from "./VideoInformation";
 
 type Props = {
   videos: Video[];
-  onVideoSelect: (videoId: number, variantIdx: undefined | number) => void;
-  selectedVideo: [number, undefined | number];
+  onVideoSelect: (selection: VideoSelection) => void;
 };
 
 const KEY_SEPARATOR = "-";
@@ -24,12 +24,12 @@ function makeVideoKey(videoId: number, variantIdx?: number) {
   }
 }
 
-function resolveVideoKeyTuple(key: string): [number, number | undefined] {
+function resolveVideoKeyTuple(key: string): VideoSelection {
   if (key.indexOf(KEY_SEPARATOR) != -1) {
     let s = key.split(KEY_SEPARATOR);
-    return [+s[0], +s[1]];
+    return { video_id: +s[0], variant_id: s[1] };
   } else {
-    return [+key, undefined];
+    return { video_id: +key };
   }
 }
 
@@ -37,7 +37,7 @@ export function VideoList(props: Props) {
   return (
     <div>
       <RadioGroup
-        onChange={(k) => props.onVideoSelect(...resolveVideoKeyTuple(k))}
+        onChange={(k) => props.onVideoSelect(resolveVideoKeyTuple(k))}
         defaultValue={makeVideoKey(props.videos[0].details.id)}
         class="grid gap-2"
       >
