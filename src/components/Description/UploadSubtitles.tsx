@@ -55,6 +55,9 @@ export function UploadSubtitles(props: Props) {
   let [language, setLanguage] = createSignal<string>();
   let [options, setOptions] = createSignal(LANGUAGE_OPTIONS);
 
+  let [isDragging, setIsDragging] = createSignal(false);
+  let [isDraggedOver, setIsDraggedOver] = createSignal(false);
+
   function onLanguageChange(val: string) {
     setOptions(
       LANGUAGE_OPTIONS.filter((option) => option.startsWith(val.toLowerCase())),
@@ -100,12 +103,46 @@ export function UploadSubtitles(props: Props) {
 
   let handleFileChange: JSX.EventHandler<HTMLInputElement, Event> = (e) => {
     let file = e.currentTarget.files?.[0];
-    if (file && file.name.endsWith(".srt")) {
+    if (file?.name.endsWith(".srt")) {
       setSubtitlesFile(file);
       setError(undefined);
     } else {
       setSubtitlesFile(undefined);
-      setError("Please select a valid .srt file");
+      setError("only .srt files are accepted");
+    }
+  };
+
+  let dragOverHandler: JSX.EventHandler<HTMLDivElement, DragEvent> = (e) => {
+    tracing.debug("File(s) in drop zone");
+    setIsDraggedOver(true);
+    e.preventDefault();
+  };
+
+  let dragLeaveHandler: JSX.EventHandler<HTMLDivElement, DragEvent> = (e) => {
+    tracing.debug("File(s) in drop zone");
+    setIsDraggedOver(false);
+    e.preventDefault();
+  };
+
+  let dropHandler: JSX.EventHandler<HTMLDivElement, DragEvent> = (e) => {
+    tracing.info("File(s) dropped");
+    setIsDragging(false);
+
+    // Prevent file from being opened
+    e.preventDefault();
+
+    if (e.dataTransfer?.items) {
+      [...e.dataTransfer.items].forEach((item, i) => {
+        // If dropped items aren't files, reject them
+        if (item.kind === "file") {
+          const file = item.getAsFile()!;
+          tracing.debug(`file[${i}].name = ${file.name}`);
+        }
+      });
+    } else if (e.dataTransfer?.files) {
+      [...e.dataTransfer.files].forEach((file, i) => {
+        tracing.debug(`file[${i}].name = ${file.name}`);
+      });
     }
   };
 
@@ -142,8 +179,20 @@ export function UploadSubtitles(props: Props) {
           <form onSubmit={handleFileSubmit}>
             <div class="grid w-full items-center gap-4">
               <TextFieldRoot class="flex flex-col space-y-1.5">
-                <TextFieldLabel class="grid h-20 w-full place-items-center rounded-md border-2 border-dashed">
-                  <span>Upload subtitles</span>
+                <TextFieldLabel class="relative grid h-20 w-full place-items-center rounded-md border-2 border-dashed">
+                  <div
+                    onDrop={dropHandler}
+                    onDragOver={dragOverHandler}
+                    onDragEnter={dragOverHandler}
+                    onDragEnd={dragLeaveHandler}
+                    onDragLeave={dragLeaveHandler}
+                    class="size-full absolute"
+                  ></div>
+                  <div class="pointer-events-none">
+                    <p>Upload subtitles</p>
+                    <p>{isDraggedOver() ? "over" : "so back"}</p>
+                    <p>{isDragging() ? "dragging" : "not dragging"}</p>
+                  </div>
                 </TextFieldLabel>
                 <TextField
                   onInput={handleFileChange}
