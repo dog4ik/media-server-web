@@ -68,7 +68,7 @@ function CanPlayMark(props: PlayMarkProps) {
 function VariantsError(props: { e: any }) {
   return (
     <div class="flex size-full items-center justify-center">
-      <span class="text-2xl">Falied to load variants</span>
+      <span class="text-2xl">Failed to load variants</span>
     </div>
   );
 }

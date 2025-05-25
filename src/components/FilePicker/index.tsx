@@ -36,7 +36,7 @@ function FileIcon(props: { fileType: FileType }) {
   );
 }
 
-type FileRowProps = {
+type EntryRowProps = {
   title: string;
   fileType: FileType;
   onClick: () => void;
@@ -44,12 +44,12 @@ type FileRowProps = {
   disabled?: boolean;
 };
 
-function FileRow(props: FileRowProps) {
+function EntryRow(props: EntryRowProps) {
   return (
     <button
       disabled={props.disabled}
       onClick={() => !props.disabled && props.onClick()}
-      class={`flex items-center gap-2 truncate p-2 ${props.disabled ? "text-neutral-400" : "text-white"}`}
+      class={`flex max-w-full items-center gap-2 overflow-hidden truncate whitespace-nowrap p-2 ${props.disabled ? "text-neutral-400" : "text-white"}`}
       title={props.title}
     >
       <div>
@@ -163,11 +163,11 @@ export function FilePicker(props: Props) {
       </div>
       <Show when={locations()}>
         {(locations) => (
-          <div class="flex h-96 w-full justify-between divide-x">
-            <div class="basis-1/3 overflow-x-hidden">
+          <div class="grid h-96 grid-cols-3 justify-between divide-x">
+            <div class="grow-0 flex-col overflow-y-auto">
               <Show when={locations().home}>
                 {(home) => (
-                  <FileRow
+                  <EntryRow
                     fileType="home"
                     title={home().path}
                     onClick={() => handleDirSelect(home())}
@@ -176,7 +176,7 @@ export function FilePicker(props: Props) {
               </Show>
               <Show when={locations().videos}>
                 {(videos) => (
-                  <FileRow
+                  <EntryRow
                     fileType="videos"
                     title={videos().path}
                     onClick={() => handleDirSelect(videos())}
@@ -185,7 +185,7 @@ export function FilePicker(props: Props) {
               </Show>
               <Show when={locations().root}>
                 {(root) => (
-                  <FileRow
+                  <EntryRow
                     fileType="directory"
                     title={root().path}
                     onClick={() => handleDirSelect(root())}
@@ -194,7 +194,7 @@ export function FilePicker(props: Props) {
               </Show>
               <For each={locations().disks}>
                 {(disk) => (
-                  <FileRow
+                  <EntryRow
                     fileType="disk"
                     title={disk.path}
                     onClick={() => handleDirSelect(disk)}
@@ -202,10 +202,10 @@ export function FilePicker(props: Props) {
                 )}
               </For>
             </div>
-            <div class="w-[800px] flex-grow overflow-x-hidden">
+            <div class="col-span-2 flex-col overflow-y-auto">
               <Show when={selectedDir()}>
                 {(prev) => (
-                  <FileRow
+                  <EntryRow
                     fileType="directory"
                     title="..[Back]"
                     onClick={() => handleBack(prev().key)}
@@ -217,7 +217,7 @@ export function FilePicker(props: Props) {
                   <>
                     <For each={dir().directories}>
                       {(childDir) => (
-                        <FileRow
+                        <EntryRow
                           onClick={() => handleDirSelect(childDir)}
                           title={childDir.title}
                           fileType="directory"
@@ -226,7 +226,7 @@ export function FilePicker(props: Props) {
                     </For>
                     <For each={dir().files}>
                       {(childFile) => (
-                        <FileRow
+                        <EntryRow
                           disabled={props.disallowFiles}
                           onClick={() => handleFileSelect(childFile)}
                           title={childFile.title}

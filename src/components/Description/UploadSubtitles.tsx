@@ -1,28 +1,26 @@
 import { Button } from "@/ui/button";
 import {
-  Combobox,
-  ComboboxContent,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxTrigger,
-} from "@/ui/combobox";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs";
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger,
+} from "@/ui/select";
+import { Dialog, DialogContent, DialogTrigger } from "@/ui/dialog";
 import { TextField, TextFieldLabel, TextFieldRoot } from "@/ui/textfield";
-import { MEDIA_SERVER_URL, Schemas } from "@/utils/serverApi";
+import { Schemas, server } from "@/utils/serverApi";
 import tracing from "@/utils/tracing";
-import { createSignal, JSX } from "solid-js";
+import { createSignal, JSX, ParentProps, Show } from "solid-js";
 import { FilePicker } from "../FilePicker";
+import { capitalize, formatSize } from "@/utils/formats";
+import { FiTrash } from "solid-icons/fi";
+import { useNotificationsContext } from "@/context/NotificationContext";
+import { notifyResponseErrors } from "@/utils/errors";
 
 type Props = {
   videoId: number;
-};
+  onClose: () => void;
+} & ParentProps;
 
 const LANGUAGE_OPTIONS: Schemas["Language"][] = [
   "en",
@@ -33,52 +31,44 @@ const LANGUAGE_OPTIONS: Schemas["Language"][] = [
   "ja",
 ];
 
-export default function UploadSubtitlesDialog(props: Props) {
+export function UploadSubtitlesDialog(props: Props) {
+  let [open, setOpen] = createSignal(false);
   return (
-    <Dialog>
-      <DialogTrigger>Upload subtitles</DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Upload subtitles</DialogTitle>
-        </DialogHeader>
-        <UploadSubtitles videoId={props.videoId} />
+    <Dialog open={open()}>
+      <DialogTrigger onClick={() => setOpen(true)}>Add subtitles</DialogTrigger>
+      <DialogContent class="h-5/6 w-5/6">
+        <UploadSubtitles
+          videoId={props.videoId}
+          onClose={() => setOpen(false)}
+        />
       </DialogContent>
     </Dialog>
   );
 }
 
 export function UploadSubtitles(props: Props) {
+  let [, { addNotification }] = useNotificationsContext();
   let [subtitlesFile, setSubtitlesFile] = createSignal<File>();
-  let [path, setPath] = createSignal<string>();
+  let [subtitlesServerPath, setSubtitlesServerPath] = createSignal<string>();
   let [error, setError] = createSignal<string>();
   let [isLoading, setIsLoading] = createSignal(false);
   let [language, setLanguage] = createSignal<string>();
-  let [options, setOptions] = createSignal(LANGUAGE_OPTIONS);
 
   let [isDragging, setIsDragging] = createSignal(false);
   let [isDraggedOver, setIsDraggedOver] = createSignal(false);
 
-  function onLanguageChange(val: string) {
-    setOptions(
-      LANGUAGE_OPTIONS.filter((option) => option.startsWith(val.toLowerCase())),
-    );
+  function dragEventFile(e: DragEvent) {
+    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0) {
+      let item = e.dataTransfer.items[0];
+      // If dropped items aren't files, reject them
+      return item.getAsFile();
+    } else if (e.dataTransfer?.files) {
+      return e.dataTransfer.files.item(0);
+    }
   }
 
-  async function uploadSubtitles(file: File) {
-    tracing.debug("uploading subtitles file");
-    let formData = new FormData();
-    if (language()) {
-      formData.append("language", language()!);
-    }
-    formData.append("file", file);
-
-    let response = await fetch(
-      `${MEDIA_SERVER_URL}/api/video/${props.videoId}/upload_subtitles`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
+  function dataTransferHaveSubrip(list: DataTransferItemList) {
+    return [...list].find((item) => item.type == "application/x-subrip");
   }
 
   let handleFileSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (
@@ -86,18 +76,39 @@ export function UploadSubtitles(props: Props) {
   ) => {
     e.preventDefault();
     let subs = subtitlesFile();
-    if (!subs) {
-      setError("Please select a .srt file");
+    if (subs) {
+      tracing.debug(
+        { name: subs.name, language: language() },
+        "Uploading subtitles file",
+      );
+      let formData = new FormData();
+      if (language()) {
+        formData.append("language", language()!);
+      }
+      formData.append("subtitles", subs);
+
+      await server
+        .POST("/api/video/{id}/upload_subtitles", {
+          // yep
+          body: formData as any,
+          params: { path: { id: props.videoId } },
+        })
+        .then(notifyResponseErrors(addNotification, "upload subtitles file"));
+
+      setSubtitlesFile(undefined);
+      setIsLoading(false);
+      props.onClose();
       return;
     }
-    tracing.debug({ name: subs.name }, "Submitting subtitles file");
-    try {
-      await uploadSubtitles(subs);
-      setSubtitlesFile(undefined);
-    } catch (error) {
-      setError("Failed to upload subtitles file");
-    } finally {
-      setIsLoading(false);
+    let path = subtitlesServerPath();
+    if (path) {
+      await server
+        .POST("/api/video/{id}/reference_subtitles", {
+          params: { path: { id: props.videoId } },
+          body: { path, language: language() },
+        })
+        .then(notifyResponseErrors(addNotification, "add subtitles"));
+      props.onClose();
     }
   };
 
@@ -113,101 +124,161 @@ export function UploadSubtitles(props: Props) {
   };
 
   let dragOverHandler: JSX.EventHandler<HTMLDivElement, DragEvent> = (e) => {
-    tracing.debug("File(s) in drop zone");
+    tracing.debug("Drag over handler");
+    e.preventDefault();
+    setIsDraggedOver(true);
+  };
+
+  let dragEnterHandler: JSX.EventHandler<HTMLDivElement, DragEvent> = (e) => {
+    tracing.debug("Drag enter handler");
     setIsDraggedOver(true);
     e.preventDefault();
   };
 
   let dragLeaveHandler: JSX.EventHandler<HTMLDivElement, DragEvent> = (e) => {
-    tracing.debug("File(s) in drop zone");
+    tracing.debug("Drag leave handler");
+    setIsDraggedOver(false);
+    e.preventDefault();
+  };
+
+  let dragEndHandler: JSX.EventHandler<HTMLDivElement, DragEvent> = (e) => {
+    tracing.debug("Drag end handler");
     setIsDraggedOver(false);
     e.preventDefault();
   };
 
   let dropHandler: JSX.EventHandler<HTMLDivElement, DragEvent> = (e) => {
-    tracing.info("File(s) dropped");
     setIsDragging(false);
+    setIsDraggedOver(false);
 
     // Prevent file from being opened
     e.preventDefault();
 
-    if (e.dataTransfer?.items) {
-      [...e.dataTransfer.items].forEach((item, i) => {
-        // If dropped items aren't files, reject them
-        if (item.kind === "file") {
-          const file = item.getAsFile()!;
-          tracing.debug(`file[${i}].name = ${file.name}`);
-        }
-      });
-    } else if (e.dataTransfer?.files) {
-      [...e.dataTransfer.files].forEach((file, i) => {
-        tracing.debug(`file[${i}].name = ${file.name}`);
-      });
+    let file = dragEventFile(e);
+    if (file?.name.endsWith(".srt")) {
+      tracing.debug({ name: file.name }, "Drag handler received file");
+      setSubtitlesFile(file);
     }
   };
 
   return (
-    <div class="flex flex-col gap-4">
-      <h4 class="text-lg">Language</h4>
-      <Combobox
-        options={options()}
-        placeholder="Subtitles language"
-        onInputChange={onLanguageChange}
-        itemComponent={(props) => (
-          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
-        )}
+    <div
+      class="size-full"
+      onDrop={dropHandler}
+      onDragOver={dragOverHandler}
+      onDragEnter={dragEnterHandler}
+      onDragEnd={dragEndHandler}
+      onDragLeave={dragLeaveHandler}
+    >
+      <Show
+        fallback={
+          <div class="pointer-events-none size-full border-2 border-dashed p-2"></div>
+        }
+        when={!isDraggedOver()}
       >
-        <ComboboxTrigger>
-          <ComboboxInput />
-        </ComboboxTrigger>
-        <ComboboxContent />
-      </Combobox>
-      <Tabs defaultValue="upload" class="w-full">
-        <TabsList class="grid w-full grid-cols-2">
-          <TabsTrigger value="link">Reference Subtitles</TabsTrigger>
-          <TabsTrigger value="upload">Upload Subtitles</TabsTrigger>
-        </TabsList>
-        <TabsContent value="link">
-          <form onSubmit={handleFileSubmit}>
-            <FilePicker onChange={setPath} />
-            <Button type="submit" class="mt-4">
-              Select Subtitles
-            </Button>
-          </form>
-        </TabsContent>
-        <TabsContent value="upload">
-          <form onSubmit={handleFileSubmit}>
+        <form onSubmit={handleFileSubmit} class="flex flex-col gap-4">
+          <h4 class="text-lg">Language</h4>
+          <Select
+            options={LANGUAGE_OPTIONS}
+            value={language() ?? null}
+            placeholder="Select language (optional)"
+            onChange={(l) => setLanguage(l ?? undefined)}
+            itemComponent={(p) => (
+              <SelectItem item={p.item}>
+                {capitalize(p.item.rawValue)}
+              </SelectItem>
+            )}
+          >
+            <SelectTrigger class="max-w-sm">
+              <SelectValue class="text-white">
+                {language() ? capitalize(language()!) : undefined}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent />
+          </Select>
+          <Show
+            fallback={
+              <>
+                <div class="flex items-center gap-4">
+                  <span class="text-lg">Select subtitles on the server</span>
+                  <span class="text-sm">or</span>{" "}
+                  <TextFieldRoot value={""} class="flex flex-col space-y-1.5">
+                    <TextFieldLabel class="cursor-pointer text-lg underline">
+                      Click to upload
+                    </TextFieldLabel>
+                    <TextField
+                      onInput={handleFileChange}
+                      class="hidden"
+                      type="file"
+                      accept=".srt"
+                    />
+                  </TextFieldRoot>
+                  <span class="text-sm">or</span>{" "}
+                  <span class="text-lg">
+                    Drag and drop <code>.srt</code> file
+                  </span>
+                </div>
+                <div>
+                  <FilePicker onChange={setSubtitlesServerPath} />
+                </div>
+              </>
+            }
+            when={subtitlesFile()}
+          >
+            {(file) => (
+              <div class="flex size-full flex-1 items-center justify-center gap-2">
+                <div class="flex flex-col gap-2">
+                  <span>{file().name}</span>
+                  <span>{formatSize(file().size)}</span>
+                </div>
+                <Button
+                  onClick={() => setSubtitlesFile(undefined)}
+                  variant="destructive"
+                >
+                  <FiTrash size={20} />
+                </Button>
+              </div>
+            )}
+          </Show>
+          <Show when={isDragging()}>
             <div class="grid w-full items-center gap-4">
-              <TextFieldRoot class="flex flex-col space-y-1.5">
-                <TextFieldLabel class="relative grid h-20 w-full place-items-center rounded-md border-2 border-dashed">
+              <div class="flex flex-col space-y-1.5">
+                <div class="relative grid h-20 w-full place-items-center rounded-md border-2 border-dashed">
                   <div
                     onDrop={dropHandler}
                     onDragOver={dragOverHandler}
-                    onDragEnter={dragOverHandler}
-                    onDragEnd={dragLeaveHandler}
+                    onDragEnter={dragEnterHandler}
+                    onDragEnd={dragEndHandler}
                     onDragLeave={dragLeaveHandler}
-                    class="size-full absolute"
+                    class="absolute size-full"
                   ></div>
                   <div class="pointer-events-none">
-                    <p>Upload subtitles</p>
-                    <p>{isDraggedOver() ? "over" : "so back"}</p>
+                    <Show
+                      fallback={<p>Upload subtitles</p>}
+                      when={subtitlesFile()}
+                    >
+                      {(file) => (
+                        <p>
+                          {file().name} | {formatSize(file().size)}
+                        </p>
+                      )}
+                    </Show>
+                    <p>{isDraggedOver() ? "over" : "not over"}</p>
                     <p>{isDragging() ? "dragging" : "not dragging"}</p>
                   </div>
-                </TextFieldLabel>
-                <TextField
-                  onInput={handleFileChange}
-                  class="hidden"
-                  type="file"
-                  accept=".srt"
-                />
-              </TextFieldRoot>
+                </div>
+              </div>
             </div>
-            <Button type="submit" class="mt-4">
-              Upload Subtitles
-            </Button>
-          </form>
-        </TabsContent>
-      </Tabs>
+          </Show>
+          <Button
+            disabled={!subtitlesServerPath() && !subtitlesFile()}
+            type="submit"
+            class="mt-4"
+          >
+            Add Subtitles
+          </Button>
+        </form>
+      </Show>
     </div>
   );
 }

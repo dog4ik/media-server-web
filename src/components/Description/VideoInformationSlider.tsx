@@ -10,7 +10,7 @@ import {
   SheetTrigger,
 } from "@/ui/sheet";
 import { Video } from "@/utils/library";
-import { FiInfo } from "solid-icons/fi";
+import Settings from "lucide-solid/icons/settings";
 
 type Props = {
   video: Video;
@@ -21,8 +21,14 @@ export default function VideoInformationSlider(props: Props) {
     <Sheet>
       <SheetTrigger
         as={(props: DialogTriggerProps) => (
-          <Button onClick={props.onClick} disabled={props.disabled}>
-            <FiInfo size={20} />
+          <Button
+            size={"sm"}
+            variant={"outline"}
+            onClick={props.onClick}
+            disabled={props.disabled}
+          >
+            <Settings class="mr-1 h-4 w-4" />
+            Details
           </Button>
         )}
       />
@@ -30,7 +36,7 @@ export default function VideoInformationSlider(props: Props) {
         <SheetHeader>
           <SheetTitle>Video Information</SheetTitle>
           <SheetDescription>
-            Here you can find the techincal information about the video
+            Here you can find the technincal information about the video
           </SheetDescription>
         </SheetHeader>
         <div class="grid gap-4 py-4">

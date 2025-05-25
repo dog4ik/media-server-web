@@ -221,7 +221,7 @@ export default function Episode() {
               <>
                 <Show
                   when={
-                    videos().length > 1 ||
+                    videos().length > 0 ||
                     videos().some((v) => v.details.variants.length > 0)
                   }
                 >
@@ -230,10 +230,6 @@ export default function Episode() {
                     videos={videos()}
                   />
                 </Show>
-                <VideoInformation
-                  videos={videos()}
-                  selectedVideo={selectedVideo()!}
-                />
               </>
             )}
           </Show>

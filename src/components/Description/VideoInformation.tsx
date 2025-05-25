@@ -13,7 +13,6 @@ import { SelectedSubtitleTrack } from "@/pages/Watch/TracksSelectionContext";
 import { createAsync } from "@solidjs/router";
 import { isCompatible } from "@/utils/mediaCapabilities";
 import tracing from "@/utils/tracing";
-import UploadSubtitles from "./UploadSubtitles";
 
 export type VideoSelection = {
   video_id: number;
@@ -259,7 +258,6 @@ export default function VideoInformation(props: Props) {
           )}
         </Show>
       </div>
-      <UploadSubtitles videoId={props.selectedVideo.video_id} />
     </>
   );
 }
