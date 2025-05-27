@@ -125,8 +125,17 @@ function createSelectionContext(video: Video) {
     if (store.subtitles?.origin == "external") {
       let id = store.subtitles.id;
       tracing.debug({ id }, "Fetching external subtitles");
-      // todo: fetch external subtitles
-      return;
+      let res = await server.GET("/api/subtitles/{id}", {
+        params: { path: { id } },
+        parseAs: "text",
+      });
+      if (res.error) {
+        tracing.error(
+          { message: res.error.message },
+          "Failed to fetch external subtitles",
+        );
+      }
+      return res.data;
     }
 
     if (store.subtitles?.origin == "imported") {
@@ -221,7 +230,7 @@ function createSelectionContext(video: Video) {
   }
 
   function externalSubtitlesTracks() {
-    return video.details.subtitle_tracks;
+    return video.details.subtitles;
   }
 
   return [

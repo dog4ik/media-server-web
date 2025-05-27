@@ -226,6 +226,7 @@ export default function Episode() {
                   }
                 >
                   <VideoList
+                    selectedVideo={selectedVideo()!}
                     onVideoSelect={setSelectedVideo}
                     videos={videos()}
                   />

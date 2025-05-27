@@ -13,14 +13,17 @@ import { createMemo, For, Match, Show, Switch } from "solid-js";
 import { createSignal } from "solid-js";
 import { unwrap } from "solid-js/store";
 
-type RowParams = {
-  key: string;
-  value?: () => string | number | boolean | undefined;
-  root?: boolean;
-  onClick: () => void;
-  codecSupport?: Promise<boolean>;
-  disabled?: boolean;
-};
+type RowParams =
+  | { type: "separator"; title: string }
+  | {
+      type: "row";
+      key: string;
+      value?: () => string | number | boolean | undefined;
+      root?: boolean;
+      onClick: () => void;
+      codecSupport?: Promise<boolean>;
+      disabled?: boolean;
+    };
 
 type MenuProps = {
   currentPlaybackSpeed: number;
@@ -28,7 +31,9 @@ type MenuProps = {
   onPlaybackSpeedChange: (speed: number) => void;
 };
 
-export function MenuRow(props: RowParams & { borderBottom?: boolean }) {
+export function MenuRow(
+  props: Exclude<RowParams, { type: "separator" }> & { borderBottom?: boolean },
+) {
   let codecSupport = createAsync(async () =>
     props.codecSupport ? await props.codecSupport : true,
   );
@@ -61,14 +66,22 @@ export function MenuRow(props: RowParams & { borderBottom?: boolean }) {
   );
 }
 
+export function Separator(props: Exclude<RowParams, { type: "row" }>) {
+  return (
+    <div class="w-full border-b border-t py-1">
+      <span class="text-xs font-bold">{props.title}</span>
+    </div>
+  );
+}
+
 const MAX_ROWS_BEFORE_SCROLL = 5;
 
 function formatSubtitlesTrack(selection?: SelectedSubtitleTrack) {
   if (selection?.origin == "container") {
-    return `${selection?.track.language ?? "unknown"} (container)`;
+    return `${selection?.track.language ?? "unknown"}`;
   }
   if (selection?.origin == "external") {
-    return `${selection?.id} (external)`;
+    return `${selection?.id}`;
   }
   if (selection?.origin == "imported") {
     return "Imported";
@@ -125,24 +138,28 @@ export default function PlayerMenu(props: MenuProps) {
   const menus = {
     main: (): RowParams[] => [
       {
+        type: "row",
         key: "Playback speed",
         value: () => formatPlaybackSpeed(props.currentPlaybackSpeed),
         onClick: () => setMenu("playback"),
         root: true,
       },
       {
+        type: "row",
         key: "Subtitles",
         value: () => formatSubtitlesTrack(tracks.subtitles),
         onClick: () => setMenu("subtitles"),
         root: true,
       },
       {
+        type: "row",
         key: "Audio track",
         value: () => formatAudioTrack(tracks.audio),
         onClick: () => setMenu("audio"),
         root: true,
       },
       {
+        type: "row",
         key: "Video track",
         value: () => formatVideoTrack(tracks.video),
         onClick: () => setMenu("video"),
@@ -152,23 +169,54 @@ export default function PlayerMenu(props: MenuProps) {
 
     subtitles: (): RowParams[] => [
       {
+        type: "row",
         key: "None",
         onClick: () => unsetSubtitlesTrack(),
         value: () => tracks.subtitles === undefined,
       },
-      ...containerSubtitlesTracks().map((s, i) => ({
-        key: formatSubtitlesTrack({ origin: "container", track: s }),
-        onClick: () => selectContainerSubtitlesTrack(i),
-        value: () => {
-          const t = tracks.subtitles;
-          return t?.origin === "container" && unwrap(t).track === s;
-        },
-        disabled: !s.is_text_format,
-      })),
+      ...[
+        {
+          type: "separator",
+          title: "External subtitles",
+        } as RowParams,
+      ].filter(() => externalSubtitlesTracks().length > 0),
+      ...externalSubtitlesTracks().map(
+        (s) =>
+          ({
+            type: "row",
+            key: formatSubtitlesTrack({ origin: "external", id: s.id }),
+            onClick: () => selectExternalSubtitlesTrack(s.id),
+            value: () => {
+              const t = tracks.subtitles;
+              return t?.origin === "external" && unwrap(t).id === s.id;
+            },
+            disabled: false,
+          }) as RowParams,
+      ),
+      ...[
+        {
+          type: "separator",
+          title: "Container subtitles",
+        } as RowParams,
+      ].filter(() => containerSubtitlesTracks().length > 0),
+      ...containerSubtitlesTracks().map(
+        (s, i) =>
+          ({
+            type: "row",
+            key: formatSubtitlesTrack({ origin: "container", track: s }),
+            onClick: () => selectContainerSubtitlesTrack(i),
+            value: () => {
+              const t = tracks.subtitles;
+              return t?.origin === "container" && unwrap(t).track === s;
+            },
+            disabled: !s.is_text_format,
+          }) as RowParams,
+      ),
     ],
 
     audio: (): RowParams[] =>
       audioTracks().map((a, i) => ({
+        type: "row",
         key: `${i + 1}. ${formatAudioTrack(a)}`,
         onClick: () => selectAudioTrack(i, props.videoRef),
         value: () => a === unwrap(tracks.audio),
@@ -178,6 +226,7 @@ export default function PlayerMenu(props: MenuProps) {
 
     video: (): RowParams[] =>
       videoTracks().map((v, i) => ({
+        type: "row",
         key: `${i + 1}. ${formatVideoTrack(v)}`,
         onClick: () => selectVideoTrack(i, props.videoRef),
         value: () => v === unwrap(tracks.video),
@@ -189,6 +238,7 @@ export default function PlayerMenu(props: MenuProps) {
       [...Array(4)].map((_, i) => {
         let speed = (i + 1) / 2;
         return {
+          type: "row",
           key: formatPlaybackSpeed(speed),
           value: () => props.currentPlaybackSpeed === speed,
           onClick: () => props.onPlaybackSpeedChange(speed),
@@ -214,6 +264,7 @@ export default function PlayerMenu(props: MenuProps) {
       <div class="w-full overflow-y-auto">
         <Show when={menu() !== "main"}>
           <MenuRow
+            type="row"
             key="Back"
             root={false}
             onClick={() => setMenu("main")}
@@ -222,19 +273,36 @@ export default function PlayerMenu(props: MenuProps) {
         </Show>
         <For each={menus[menu()]()}>
           {(row) => (
-            <MenuRow
-              key={row.key}
-              value={row.value}
-              root={row.root}
-              codecSupport={row.codecSupport}
-              disabled={row.disabled}
-              onClick={() => {
-                row.onClick();
-                if (!row.root) {
-                  setMenu("main");
-                }
-              }}
-            />
+            <>
+              <Show when={row.type == "row"}>
+                {(_) => {
+                  let r = () =>
+                    row as Exclude<RowParams, { type: "separator" }>;
+                  return (
+                    <MenuRow
+                      type="row"
+                      key={r().key}
+                      value={r().value}
+                      root={r().root}
+                      codecSupport={r().codecSupport}
+                      disabled={r().disabled}
+                      onClick={() => {
+                        r().onClick();
+                        if (!r().root) {
+                          setMenu("main");
+                        }
+                      }}
+                    />
+                  );
+                }}
+              </Show>
+              <Show when={row.type == "separator"}>
+                {(_) => {
+                  let r = () => row as Exclude<RowParams, { type: "row" }>;
+                  return <Separator type="separator" title={r().title} />;
+                }}
+              </Show>
+            </>
           )}
         </For>
       </div>

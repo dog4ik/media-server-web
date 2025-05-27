@@ -298,7 +298,15 @@ export function containerSupport(
   else if (isSafari) browser = "safari";
   else if (isEdge) browser = "edge";
 
-  if (!browser) return false;
+  if (!browser) {
+    tracing.warn(
+      { isChrome, isElectron, isFirefox, isSafari, isEdge },
+      "Could not detect browser",
+    );
+    return false;
+  } else {
+    tracing.info({ browser }, "Detected browser");
+  }
 
   return CONTAINER_SUPPORT[container][browser] ?? false;
 }

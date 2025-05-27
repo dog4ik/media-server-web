@@ -4384,7 +4384,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/octet-stream": number[];
+                    "text/plain": string;
                 };
             };
             /** @description Subtitles are not found */
@@ -4774,7 +4774,8 @@ export interface operations {
             content: {
                 "multipart/form-data": {
                     save_location?: string | null;
-                    torrent_file: number[];
+                    /** Format: binary */
+                    torrent_file: string;
                 };
             };
         };
@@ -4828,7 +4829,8 @@ export interface operations {
             content: {
                 "multipart/form-data": {
                     save_location?: string | null;
-                    torrent_file: number[];
+                    /** Format: binary */
+                    torrent_file: string;
                 };
             };
         };
@@ -5449,7 +5451,8 @@ export interface operations {
             content: {
                 "multipart/form-data": {
                     language?: string | null;
-                    subtitles: number[];
+                    /** Format: binary */
+                    subtitles: string;
                 };
             };
         };

@@ -315,7 +315,13 @@ type StreamParams = (
 function Watch(props: WatchProps) {
   let [{ serverStatus }] = useServerStatus();
   let [, { addNotification }] = useNotificationsContext();
+
+  let streamPending = false;
+
   let streamParams = createAsync<StreamParams>(async () => {
+    if (streamPending) {
+      await handleUnload();
+    }
     let compatibility = await props.video.videoCompatibility();
     if (
       compatibility.combined?.supported &&
@@ -339,6 +345,7 @@ function Watch(props: WatchProps) {
           serverStatus.trackWatchSession(d.task_id);
           return d.task_id;
         });
+      streamPending = true;
       return {
         method: "direct",
         streamId,
@@ -377,6 +384,7 @@ function Watch(props: WatchProps) {
           serverStatus.trackWatchSession(task_id);
           return task_id;
         });
+      streamPending = true;
       return {
         method: "hls",
         audioCodec: audio_codec,
@@ -394,7 +402,7 @@ function Watch(props: WatchProps) {
     tracing.error("video error encountered");
   }
 
-  async function handleUnload(_: BeforeUnloadEvent | BeforeLeaveEventArgs) {
+  async function handleUnload() {
     let stream = streamParams();
     let id = stream?.streamId;
     if (id) {
@@ -412,6 +420,7 @@ function Watch(props: WatchProps) {
           ),
         );
     }
+    streamPending = false;
   }
 
   window.addEventListener("beforeunload", handleUnload);

@@ -121,3 +121,12 @@ export function formatTorrentIndex(index: Schemas["TorrentIndexIdentifier"]) {
   }
   throw Error(`${index} torrent index is not supported`);
 }
+
+export function formatBitrate(bitrate: number): string {
+  if (bitrate >= 1000000) {
+    return `${(bitrate / 1000000).toFixed(1)} Mbps`;
+  } else if (bitrate >= 1000) {
+    return `${(bitrate / 1000).toFixed(0)} Kbps`;
+  }
+  return `${bitrate} bps`;
+}

@@ -1,6 +1,6 @@
-import { createSignal, For, Show } from "solid-js";
+import { ComponentProps, createSignal, For, ParentProps, Show } from "solid-js";
 import VideoInformationSlider from "./VideoInformationSlider";
-import { Video } from "@/utils/library";
+import { VariantVideo, Video } from "@/utils/library";
 import { VideoSelection } from "./VideoInformation";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
@@ -15,39 +15,54 @@ import ChevronDown from "lucide-solid/icons/chevron-down";
 import ChevronRight from "lucide-solid/icons/chevron-right";
 import Plus from "lucide-solid/icons/plus";
 import VideoIcon from "lucide-solid/icons/video";
-import { revalidatePath, Schemas, server } from "@/utils/serverApi";
+import {
+  formatCodec,
+  revalidatePath,
+  Schemas,
+  server,
+} from "@/utils/serverApi";
 import { useNotificationsContext } from "@/context/NotificationContext";
 import { notifyResponseErrors } from "@/utils/errors";
 import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
-import FileVideo from "lucide-solid/icons/file-video";
 import { formatDuration, formatSize } from "@/utils/formats";
-import { Dialog, DialogContent, DialogTrigger } from "@/ui/dialog";
+import { Dialog, DialogContent } from "@/ui/dialog";
 import { UploadSubtitles } from "./UploadSubtitles";
 import promptConfirm from "../modals/ConfirmationModal";
+import RadioButton from "../RadioButton";
+import { isCompatible } from "@/utils/mediaCapabilities";
+import { createAsync } from "@solidjs/router";
+import clsx from "clsx";
+
+type CompatibilityBadgeProps = {
+  compatibility: ReturnType<typeof isCompatible>;
+} & ParentProps &
+  ComponentProps<typeof Badge>;
+
+function CompatibilityBadge(props: CompatibilityBadgeProps) {
+  let compatibility = createAsync(async () => {
+    let compatibility = await props.compatibility;
+    if (compatibility.combined) return compatibility.combined.supported;
+    if (compatibility.video) return compatibility.video.supported;
+    if (compatibility.audio) return compatibility.audio.supported;
+  });
+  return (
+    <Badge
+      class={clsx({
+        "bg-emerald-500 hover:bg-emerald-400": compatibility() === true,
+        "bg-rose-500 hover:bg-rose-400": compatibility() === false,
+        "": compatibility() === undefined,
+      })}
+    >
+      {props.children}
+    </Badge>
+  );
+}
 
 type Props = {
   videos: Video[];
   onVideoSelect: (selection: VideoSelection) => void;
+  selectedVideo: VideoSelection;
 };
-
-const KEY_SEPARATOR = "-";
-
-function makeVideoKey(videoId: number, variantIdx?: number) {
-  if (variantIdx === undefined) {
-    return videoId.toString();
-  } else {
-    return `${videoId}${KEY_SEPARATOR}${variantIdx}`;
-  }
-}
-
-function resolveVideoKeyTuple(key: string): VideoSelection {
-  if (key.indexOf(KEY_SEPARATOR) != -1) {
-    let s = key.split(KEY_SEPARATOR);
-    return { video_id: +s[0], variant_id: s[1] };
-  } else {
-    return { video_id: +key };
-  }
-}
 
 export function VideoList(props: Props) {
   return (
@@ -55,11 +70,18 @@ export function VideoList(props: Props) {
       <For each={props.videos}>
         {(video) => (
           <ListItem
+            selectedVideo={props.selectedVideo}
             onSelect={(variantId) =>
-              props.onVideoSelect({
-                video_id: video.details.id,
-                variant_id: variantId,
-              })
+              props.selectedVideo.video_id == video.details.id &&
+              props.selectedVideo.variant_id == variantId
+                ? props.onVideoSelect({
+                    video_id: video.details.id,
+                    variant_id: undefined,
+                  })
+                : props.onVideoSelect({
+                    video_id: video.details.id,
+                    variant_id: variantId,
+                  })
             }
             video={video}
           />
@@ -169,21 +191,47 @@ function SubtitlesList(props: SubtitleListProps) {
 }
 
 type VariantProps = {
-  variant: Schemas["DetailedVariant"];
+  variant: VariantVideo;
+  isSelected: boolean;
   onDelete?: () => void;
+  onSelect: () => void;
 };
 
 function Variant(props: VariantProps) {
   return (
-    <div class="flex items-center justify-between rounded-lg border p-3">
+    <button
+      onClick={props.onSelect}
+      class="flex w-full items-center justify-between rounded-lg border p-3"
+    >
+      <RadioButton onClick={props.onSelect} checked={props.isSelected} />
       <div class="flex items-center gap-3">
         <Badge variant="outline">
-          {formatDuration(props.variant.duration)}
+          {formatDuration(props.variant.details.duration)}
         </Badge>
-        <Badge variant="outline">{formatSize(props.variant.size)}</Badge>
-        <Show when={props.variant.path}>
+        <Badge variant="outline">
+          {formatSize(props.variant.details.size)}
+        </Badge>
+        <Show when={props.variant.defaultVideo()}>
+          {(video) => (
+            <CompatibilityBadge
+              compatibility={isCompatible(video(), undefined)}
+            >
+              {formatCodec(video().codec)}
+            </CompatibilityBadge>
+          )}
+        </Show>
+        <Show when={props.variant.defaultAudio()}>
+          {(audio) => (
+            <CompatibilityBadge
+              compatibility={isCompatible(undefined, audio())}
+            >
+              {formatCodec(audio().codec)}
+            </CompatibilityBadge>
+          )}
+        </Show>
+        <Show when={props.variant.details.path}>
           <code class="text-sm text-muted-foreground">
-            {props.variant.path}
+            {props.variant.details.path}
           </code>
         </Show>
       </div>
@@ -191,18 +239,24 @@ function Variant(props: VariantProps) {
         variant="outline"
         size="sm"
         class="text-destructive hover:text-destructive"
-        onClick={() => props.onDelete?.()}
+        onClick={(e) => {
+          // prevent variant to be selected
+          e.stopPropagation();
+          props.onDelete?.();
+        }}
       >
         <Trash2 class="h-3 w-3" />
       </Button>
-    </div>
+    </button>
   );
 }
 
 type VariantListProps = {
   videoId: number;
-  items: Schemas["DetailedVariant"][];
+  items: VariantVideo[];
   onAddButtonClick: () => void;
+  selectedVideo: VideoSelection;
+  onVideoSelect: (variantId: string) => void;
 };
 
 function VariantList(props: VariantListProps) {
@@ -251,8 +305,13 @@ function VariantList(props: VariantListProps) {
           >
             {(variant) => (
               <Variant
+                onSelect={() => props.onVideoSelect(variant.details.id)}
+                isSelected={
+                  props.selectedVideo.video_id == props.videoId &&
+                  props.selectedVideo.variant_id == variant.details.id
+                }
                 variant={variant}
-                onDelete={() => deleteVariant(variant.id)}
+                onDelete={() => deleteVariant(variant.details.id)}
               />
             )}
           </For>
@@ -264,7 +323,7 @@ function VariantList(props: VariantListProps) {
               onClick={() => props.onAddButtonClick()}
             >
               <Plus class="mr-1 h-4 w-4" />
-              Add Subtitle
+              Add Transcoded Variant
             </Button>
           </Show>
         </div>
@@ -276,6 +335,7 @@ function VariantList(props: VariantListProps) {
 type ListItemProps = {
   video: Video;
   onSelect: (variantId?: string) => void;
+  selectedVideo: VideoSelection;
 };
 
 function ListItem(props: ListItemProps) {
@@ -300,7 +360,10 @@ function ListItem(props: ListItemProps) {
         <CardHeader class="pb-3">
           <div class="flex items-start justify-between">
             <div class="flex flex-1 items-start gap-3">
-              <FileVideo class="mt-1 h-6 w-6 flex-shrink-0 text-blue-500" />
+              <RadioButton
+                checked={props.selectedVideo.video_id == props.video.details.id}
+                onClick={() => props.onSelect(undefined)}
+              />
               <div class="min-w-0 flex-1 space-y-1">
                 <CardTitle class="text-sm leading-tight">
                   {props.video.details.path}
@@ -312,6 +375,27 @@ function ListItem(props: ListItemProps) {
                   <Badge variant="outline">
                     {formatSize(props.video.details.size)}
                   </Badge>
+                  <Badge variant="secondary">
+                    {formatDuration(props.video.details.duration)}
+                  </Badge>
+                  <Show when={props.video.defaultVideo()}>
+                    {(video) => (
+                      <CompatibilityBadge
+                        compatibility={isCompatible(video(), undefined)}
+                      >
+                        {formatCodec(video().codec)}
+                      </CompatibilityBadge>
+                    )}
+                  </Show>
+                  <Show when={props.video.defaultAudio()}>
+                    {(audio) => (
+                      <CompatibilityBadge
+                        compatibility={isCompatible(undefined, audio())}
+                      >
+                        {formatCodec(audio().codec)}
+                      </CompatibilityBadge>
+                    )}
+                  </Show>
                 </div>
               </div>
             </div>
@@ -328,9 +412,11 @@ function ListItem(props: ListItemProps) {
           />
           <Show when={props.video.details.variants.length > 0}>
             <VariantList
+              onVideoSelect={props.onSelect}
               onAddButtonClick={() => setAddModalOpen(true)}
-              items={props.video.details.variants}
+              items={props.video.variants()}
               videoId={props.video.details.id}
+              selectedVideo={props.selectedVideo}
             />
           </Show>
         </CardContent>
