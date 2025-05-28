@@ -1,20 +1,18 @@
 import {
   A,
-  BeforeLeaveEventArgs,
   createAsync,
   useBeforeLeave,
   useLocation,
   useParams,
 } from "@solidjs/router";
 import {
-  InternalServerError,
   NotFoundError,
   notifyResponseErrors,
   throwResponseErrors,
 } from "../utils/errors";
 import VideoPlayer, { NextVideo } from "../components/VideoPlayer";
 import { Schemas, fullUrl, server } from "../utils/serverApi";
-import { onCleanup, ParentProps, Show } from "solid-js";
+import { createMemo, onCleanup, ParentProps, Show } from "solid-js";
 import { Meta } from "@solidjs/meta";
 import { formatSE } from "../utils/formats";
 import Title from "../utils/Title";
@@ -30,6 +28,7 @@ import TracksSelectionProvider from "./Watch/TracksSelectionContext";
 import { useServerStatus } from "@/context/ServerStatusContext";
 import { useNotificationsContext } from "@/context/NotificationContext";
 import { containerSupport } from "@/utils/mediaCapabilities";
+import Hls from "hls.js";
 
 export type SubtitlesOrigin = "container" | "api" | "local" | "imported";
 
@@ -80,7 +79,7 @@ function parseVideoIdQuery() {
 }
 
 type WatchProps = {
-  video: Video;
+  videos: Video[];
   media?: Media;
   next?: NextVideo;
 } & ParentProps;
@@ -111,42 +110,30 @@ function movieMediaSessionMetadata(movie: Schemas["MovieMetadata"]) {
 
 export function WatchMovie() {
   let movieId = parseMovieParams();
-  let videoIdQuery = parseVideoIdQuery();
   let movie = createAsync(async () => {
     let moviePromise = fetchMovie(movieId(), "local");
-    let videoQuery = server.GET("/api/video/by_content", {
-      params: { query: { id: +movieId(), content_type: "movie" } },
-    });
+    let videoQuery = server
+      .GET("/api/video/by_content", {
+        params: { query: { id: +movieId(), content_type: "movie" } },
+      })
+      .then(throwResponseErrors)
+      .then((r) => r.map((v) => new Video(v)));
     let [movie, videos] = await Promise.all([moviePromise, videoQuery]);
 
-    if (videos.error !== undefined || !videos.data) {
-      throw new InternalServerError(
-        "Video is not found, consider refreshing library",
-      );
-    }
     if ("mediaSession" in navigator) {
       navigator.mediaSession.metadata = movieMediaSessionMetadata(movie);
     } else {
       tracing.warn("Media session api is not supported by the browser");
     }
 
-    let video = (() => {
-      let v = videoIdQuery()
-        ? videos.data.find((v) => v.id == videoIdQuery())
-        : videos.data.at(0);
-      if (!v) {
-        throw new NotFoundError(`Show does not contain `);
-      }
-      return new Video(v);
-    })();
-    return { video, movie };
+    return { videos, movie };
   });
 
   return (
     <>
       <Show when={movie()}>
         {(data) => (
-          <Watch media={data().movie} video={data().video}>
+          <Watch media={data().movie} videos={data().videos}>
             <div class="absolute left-5 top-5">
               <A href={`/movies/${data().movie.metadata_id}`}>
                 <span class="text-2xl hover:underline">
@@ -201,7 +188,6 @@ async function showMediaSessionMetadata(
 
 export function WatchShow() {
   let params = parseShowParams();
-  let videoIdQuery = parseVideoIdQuery();
   let episode = createAsync(async () => {
     let episode = await fetchEpisode(
       params.showId(),
@@ -209,33 +195,22 @@ export function WatchShow() {
       params.episode(),
       "local",
     );
-    let videos = await server.GET("/api/video/by_content", {
-      params: {
-        query: { id: +episode.metadata_id, content_type: "show" },
-      },
-    });
+    let videos = await server
+      .GET("/api/video/by_content", {
+        params: {
+          query: { id: +episode.metadata_id, content_type: "show" },
+        },
+      })
+      .then(throwResponseErrors)
+      .then((r) => r.map((v) => new Video(v)));
     let show = await fetchShow(params.showId(), "local");
-    if (videos.error || !videos.data) {
-      throw new InternalServerError(
-        "Video is not found, consider refreshing library",
-      );
-    }
 
     if ("mediaSession" in navigator) {
       showMediaSessionMetadata(params.showId(), episode).then(
         (data) => (navigator.mediaSession.metadata = data),
       );
     }
-    let video = (() => {
-      let v = videoIdQuery()
-        ? videos.data.find((v) => v.id == videoIdQuery())
-        : videos.data.at(0);
-      if (!v) {
-        throw new NotFoundError(`Show does not contain `);
-      }
-      return new Video(v);
-    })();
-    return { video, episode, show };
+    return { videos, episode, show };
   });
 
   let showUrl = () => `/shows/${params.showId()}`;
@@ -254,7 +229,7 @@ export function WatchShow() {
         url: `${episodeUrl(next.number)}/watch`,
         nextTitle: `S${formatSE(next.season_number)}E${formatSE(next.number)}`,
       };
-    } catch {}
+    } catch { }
   });
   return (
     <>
@@ -268,7 +243,7 @@ export function WatchShow() {
             <Watch
               media={data().episode}
               next={nextEpisode()}
-              video={data().video}
+              videos={data().videos}
             >
               <div class="absolute left-5 top-5 flex flex-col">
                 <span class="text-2xl">{data().episode.title}</span>
@@ -298,19 +273,58 @@ export function WatchShow() {
   );
 }
 
-type StreamParams = (
+export type StreamParams = (
   | {
-      method: "hls";
-      audioCodec?: string;
-      videoCodec?: string;
-    }
+    method: "hls";
+    audioCodec?: string;
+    videoCodec?: string;
+  }
   | {
-      method: "direct";
-    }
+    method: "direct";
+    watchUrl: string;
+  }
 ) & {
   streamId: string;
-  watchUrl: string;
 };
+
+function initHls() {
+  let hls = new Hls({
+    maxBufferLength: 30,
+    lowLatencyMode: false,
+    backBufferLength: Infinity,
+  });
+  hls.on(Hls.Events.MANIFEST_PARSED, (_event, data) => {
+    tracing.debug(
+      "Manifest loaded, found " + data.levels.length + " quality level",
+    );
+  });
+  hls.on(Hls.Events.BACK_BUFFER_REACHED, (_event, _data) => {
+    console.log("back buffer reached");
+  });
+  hls.on(Hls.Events.BUFFER_EOS, (_event, _data) => {
+    console.log("Buffer eos");
+  });
+  hls.on(Hls.Events.ERROR, (_event, data) => {
+    console.log(data);
+    if (data.fatal) {
+      switch (data.type) {
+        case Hls.ErrorTypes.MEDIA_ERROR:
+          tracing.error("Fatal media error encountered, trying to recover");
+          hls.recoverMediaError();
+          break;
+        case Hls.ErrorTypes.NETWORK_ERROR:
+          tracing.error("Fatal network error encountered trying to recover");
+          hls.startLoad();
+          break;
+        default:
+          // cannot recover
+          hls.destroy();
+          break;
+      }
+    }
+  });
+  return hls;
+}
 
 function Watch(props: WatchProps) {
   let [{ serverStatus }] = useServerStatus();
@@ -318,19 +332,35 @@ function Watch(props: WatchProps) {
 
   let streamPending = false;
 
+  let videoIdQuery = parseVideoIdQuery();
+  let hls = initHls();
+
+  let video = createMemo(() => {
+    let query = videoIdQuery();
+    if (props.videos.length === 0) {
+      throw new NotFoundError("videos length is 0");
+    }
+    if (query) {
+      return (
+        props.videos.find((v) => v.details.id === query) ?? props.videos[0]
+      );
+    }
+    return props.videos[0];
+  });
+
   let streamParams = createAsync<StreamParams>(async () => {
     if (streamPending) {
       await handleUnload();
     }
-    let compatibility = await props.video.videoCompatibility();
+    let compatibility = await video().videoCompatibility();
     if (
       compatibility.combined?.supported &&
-      containerSupport(props.video.details.container)
+      containerSupport(video().details.container)
     ) {
       tracing.debug("Selected direct playback method");
       let streamId = await server
         .POST("/api/watch/direct/start/{id}", {
-          params: { path: { id: props.video.details.id } },
+          params: { path: { id: video().details.id } },
           body: { variant_id: undefined },
         })
         .then(
@@ -349,7 +379,7 @@ function Watch(props: WatchProps) {
       return {
         method: "direct",
         streamId,
-        watchUrl: directStreamUrl(props.video.details.id),
+        watchUrl: directStreamUrl(video().details.id),
       };
     } else {
       let audio_codec: Schemas["AudioCodec"] | undefined = undefined;
@@ -369,7 +399,7 @@ function Watch(props: WatchProps) {
       );
       let streamId = await server
         .POST("/api/watch/hls/start/{id}", {
-          params: { path: { id: props.video.details.id } },
+          params: { path: { id: video().details.id } },
           body: {
             variant_id: undefined,
             audio_codec,
@@ -385,12 +415,12 @@ function Watch(props: WatchProps) {
           return task_id;
         });
       streamPending = true;
+      hls.loadSource(hlsStreamUrl(streamId));
       return {
         method: "hls",
         audioCodec: audio_codec,
         videoCodec: video_codec,
         streamId,
-        watchUrl: hlsStreamUrl(streamId),
       };
     }
   });
@@ -430,38 +460,38 @@ function Watch(props: WatchProps) {
   });
 
   function updateHistory(time: number) {
-    let totalDuration = props.video.details.duration.secs;
+    let totalDuration = video().details.duration.secs;
     if (!totalDuration) return;
     let is_finished = (time / totalDuration) * 100 >= 90;
 
     server.PUT("/api/video/{id}/history", {
       body: { time: time, is_finished },
       params: {
-        path: { id: props.video.details.id },
+        path: { id: video().details.id },
         query: { id: streamParams()?.streamId },
       },
     });
   }
 
   return (
-    <TracksSelectionProvider video={props.video}>
+    <TracksSelectionProvider video={video()}>
       <Show when={streamParams()}>
         {(params) => (
           <VideoPlayer
-            intro={props.video.details.intro ?? undefined}
+            hls={hls}
+            intro={video().details.intro ?? undefined}
             nextVideo={props.next}
-            streamingMethod={params().method}
-            initialTime={props.video.details.history?.time ?? 0}
+            streamParams={params()}
+            initialTime={video().details.history?.time ?? 0}
             onAudioError={handleAudioError}
             onVideoError={handleVideoError}
             onHistoryUpdate={updateHistory}
-            src={params().watchUrl}
             previews={
-              props.video.details.previews_count > 0
+              video().details.previews_count > 0
                 ? {
-                    previewsAmount: props.video.details.previews_count,
-                    videoId: props.video.details.id,
-                  }
+                  previewsAmount: video().details.previews_count,
+                  videoId: video().details.id,
+                }
                 : undefined
             }
           >

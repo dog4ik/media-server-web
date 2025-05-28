@@ -19,6 +19,7 @@ import clsx from "clsx";
 import { Button } from "@/ui/button";
 import { useTracksSelection } from "@/pages/Watch/TracksSelectionContext";
 import tracing from "@/utils/tracing";
+import { StreamParams } from "@/pages/Watch";
 
 function formatDuration(time: number) {
   let leadingZeroFormatter = new Intl.NumberFormat(undefined, {
@@ -43,15 +44,15 @@ export type NextVideo = {
 
 type Props = {
   initialTime: number;
-  src: string;
   onVideoError: (error?: MediaError) => void;
   onAudioError: () => void;
   onHistoryUpdate: (time: number) => void;
   previews?: { videoId: number; previewsAmount: number };
-  streamingMethod: StreamingMethod;
+  streamParams: StreamParams;
+  hls: Hls;
   intro?: Schemas["Intro"];
   nextVideo?: NextVideo;
-};
+} & ParentProps;
 
 const DEFAULT_VOLUME = 0.5;
 
@@ -69,47 +70,6 @@ export type DispatchedAction =
   | "seekleft";
 
 type VideoEventType = Parameters<JSX.EventHandler<HTMLVideoElement, Event>>[0];
-
-function initHls(videoElement: HTMLVideoElement, manifestUrl: string) {
-  tracing.info({ manifestUrl }, "Initiating hls");
-  var hls = new Hls({
-    maxBufferLength: 30,
-    lowLatencyMode: false,
-    backBufferLength: Infinity,
-  });
-  hls.on(Hls.Events.MANIFEST_PARSED, function (_event, data) {
-    tracing.debug(
-      "Manifest loaded, found " + data.levels.length + " quality level",
-    );
-  });
-  hls.on(Hls.Events.BACK_BUFFER_REACHED, function (_event, _data) {
-    console.log("back buffer reached");
-  });
-  hls.on(Hls.Events.BUFFER_EOS, function (_event, _data) {
-    console.log("Buffer eos");
-  });
-  hls.on(Hls.Events.ERROR, function (_event, data) {
-    console.log(data);
-    if (data.fatal) {
-      switch (data.type) {
-        case Hls.ErrorTypes.MEDIA_ERROR:
-          tracing.error("Fatal media error encountered, trying to recover");
-          hls.recoverMediaError();
-          break;
-        case Hls.ErrorTypes.NETWORK_ERROR:
-          tracing.error("Fatal network error encountered trying to recover");
-          hls.startLoad();
-          break;
-        default:
-          // cannot recover
-          hls.destroy();
-          break;
-      }
-    }
-  });
-  hls.loadSource(manifestUrl);
-  hls.attachMedia(videoElement);
-}
 
 function getInitialVolume() {
   let localStorageVolume = localStorage.getItem("volume");
@@ -135,7 +95,7 @@ function saveVolume(volume: number) {
   localStorage.setItem("volume", volume.toString());
 }
 
-export default function VideoPlayer(props: Props & ParentProps) {
+export default function VideoPlayer(props: Props) {
   let audioFailed = false;
   let videoFailed = false;
 
@@ -396,12 +356,16 @@ export default function VideoPlayer(props: Props & ParentProps) {
     handleScubbing(e);
   }
 
-  onMount(() => {
-    if (props.streamingMethod == "hls") {
-      initHls(videoRef, props.src);
+  let directStreamUrl = () => {
+    if (props.streamParams.method == "direct") {
+      return props.streamParams.watchUrl;
     }
-    if (props.streamingMethod == "direct") {
-      videoRef.src = props.src;
+  };
+  onMount(() => {
+    tracing.debug("Mounted video player");
+    props.hls.attachMedia(videoRef);
+    if (props.streamParams.method == "direct") {
+      videoRef.src = props.streamParams.watchUrl;
     }
     videoRef.volume = getInitialVolume();
     window.addEventListener("keydown", handleKeyboardPress);
@@ -410,6 +374,8 @@ export default function VideoPlayer(props: Props & ParentProps) {
   });
 
   onCleanup(() => {
+    tracing.debug("Unmounted video player");
+    props.hls.destroy();
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
     window.removeEventListener("keydown", handleKeyboardPress);
@@ -422,7 +388,7 @@ export default function VideoPlayer(props: Props & ParentProps) {
       class={`relative flex h-screen w-screen items-center justify-center text-white ${showControls() ? "" : "cursor-none"}`}
     >
       <video
-        src={props.src}
+        src={directStreamUrl()}
         onClick={handleClick}
         onPlay={() => {
           setIsPaused(false);
@@ -486,6 +452,7 @@ export default function VideoPlayer(props: Props & ParentProps) {
       <div class="absolute bottom-20 right-20">
         <Show
           when={
+            !isMetadataLoading() &&
             props.intro &&
             time() < props.intro.end_sec &&
             time() > props.intro.start_sec
@@ -500,10 +467,11 @@ export default function VideoPlayer(props: Props & ParentProps) {
         </Show>
         <Show when={props.nextVideo}>
           {(next) => (
-            <Show when={duration() - time() < 120}>
+            <Show when={!isMetadataLoading() && duration() - time() < 120}>
               <Button
                 as="a"
                 href={next().url}
+                onClick={() => setIsMetadataLoading(true)}
                 variant={"outline"}
                 class="bg-black/80 py-5 text-lg hover:bg-black"
               >
@@ -526,9 +494,8 @@ export default function VideoPlayer(props: Props & ParentProps) {
         </div>
       </div>
       <div
-        class={`${
-          shouldShowControls() ? "opacity-100" : "opacity-0"
-        } transition-opacity duration-200`}
+        class={`${shouldShowControls() ? "opacity-100" : "opacity-0"
+          } transition-opacity duration-200`}
       >
         <div class="h-full w-full bg-red-400">{props.children}</div>
         <div
@@ -558,7 +525,7 @@ export default function VideoPlayer(props: Props & ParentProps) {
                     number: Math.max(
                       Math.round(
                         (previewPosition()! / timelineRef!.offsetWidth) *
-                          props.previews!.previewsAmount,
+                        props.previews!.previewsAmount,
                       ),
                       1,
                     ),
@@ -570,7 +537,7 @@ export default function VideoPlayer(props: Props & ParentProps) {
                   Math.max(
                     Math.round(
                       (duration() * previewPosition()!) /
-                        timelineRef!.offsetWidth,
+                      timelineRef!.offsetWidth,
                     ),
                     0,
                   ),
