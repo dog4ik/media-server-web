@@ -11,7 +11,6 @@ const LEVELS: Record<number, [string, string]> = {
 
 function formatLine(obj: any) {
   const [level, color] = LEVELS[obj.level];
-  const ts = new Date(obj.time).toISOString();
   const msg = obj.msg;
   const rest = { ...obj };
   delete rest.level;
@@ -22,11 +21,10 @@ function formatLine(obj: any) {
     .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
     .join(" ");
 
-  const text = `%c${ts} %c${level.padEnd(2)} %c${msg}${fields ? `: ${fields}` : ""}`;
+  const text = `%c${level.padEnd(2)} %c${msg}${fields ? `: ${fields}` : ""}`;
   console.log(
     text,
     /// Styles
-    "color: gray; font-weight: bold;",
     color,
     "color: white;",
   );
