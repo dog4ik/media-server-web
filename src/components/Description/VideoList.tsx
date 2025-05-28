@@ -1,7 +1,6 @@
 import { ComponentProps, createSignal, For, ParentProps, Show } from "solid-js";
 import VideoInformationSlider from "./VideoInformationSlider";
 import { VariantVideo, Video } from "@/utils/library";
-import { VideoSelection } from "./VideoInformation";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import Trash2 from "lucide-solid/icons/trash-2";
@@ -32,6 +31,11 @@ import RadioButton from "../RadioButton";
 import { isCompatible } from "@/utils/mediaCapabilities";
 import { createAsync } from "@solidjs/router";
 import clsx from "clsx";
+
+export type VideoSelection = {
+  video_id: number;
+  variant_id?: string;
+};
 
 type CompatibilityBadgeProps = {
   compatibility: ReturnType<typeof isCompatible>;

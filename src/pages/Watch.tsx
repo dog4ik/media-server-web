@@ -465,7 +465,7 @@ function Watch(props: WatchProps) {
     let is_finished = (time / totalDuration) * 100 >= 90;
 
     server.PUT("/api/video/{id}/history", {
-      body: { time: time, is_finished },
+      body: { time: Math.floor(time), is_finished },
       params: {
         path: { id: video().details.id },
         query: { id: streamParams()?.streamId },

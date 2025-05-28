@@ -9,11 +9,9 @@ import Title from "@/utils/Title";
 import Icon from "@/components/ui/Icon";
 import { FiDownload } from "solid-icons/fi";
 import VideoActions from "@/components/Description/VideoActions";
-import VideoInformation, {
-  VideoSelection,
-} from "@/components/Description/VideoInformation";
 import { fetchMovie, posterList } from "@/utils/library";
 import ExternalLocalIdButtons from "@/components/ExternalLocalIdButtons";
+import { VideoList, VideoSelection } from "@/components/Description/VideoList";
 
 export default function Movie() {
   let [movieId, provider] = useProvider();
@@ -35,8 +33,8 @@ export default function Movie() {
       let localImage =
         movie()?.metadata_provider == "local"
           ? fullUrl("/api/movie/{id}/backdrop", {
-              path: { id: +movie()!.metadata_id },
-            })
+            path: { id: +movie()!.metadata_id },
+          })
           : undefined;
       setBackdrop([localImage, movie()!.backdrop ?? undefined]);
     }
@@ -92,9 +90,9 @@ export default function Movie() {
                     progress={
                       video()?.details.history
                         ? {
-                            history: video()!.details.history!,
-                            runtime: video()!.details.duration.secs,
-                          }
+                          history: video()!.details.history!,
+                          runtime: video()!.details.duration.secs,
+                        }
                         : undefined
                     }
                     plot={movie().plot}
@@ -146,10 +144,18 @@ export default function Movie() {
                   <Show when={videos()}>
                     {(videos) => (
                       <>
-                        <VideoInformation
-                          videos={videos()}
-                          selectedVideo={selectedVideo()!}
-                        />
+                        <Show
+                          when={
+                            videos().length > 0 ||
+                            videos().some((v) => v.details.variants.length > 0)
+                          }
+                        >
+                          <VideoList
+                            selectedVideo={selectedVideo()!}
+                            onVideoSelect={setSelectedVideo}
+                            videos={videos()}
+                          />
+                        </Show>
                       </>
                     )}
                   </Show>

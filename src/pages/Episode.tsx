@@ -13,20 +13,17 @@ import VideoActions from "@/components/Description/VideoActions";
 import { fetchEpisode, fetchShow, posterList } from "@/utils/library";
 import { ParseParamsError } from "@/utils/errors";
 import { IntroBar } from "@/components/Description/IntroBar";
-import { VideoList } from "@/components/Description/VideoList";
-import VideoInformation, {
-  VideoSelection,
-} from "@/components/Description/VideoInformation";
+import { VideoList, VideoSelection } from "@/components/Description/VideoList";
 
 export type SelectedSubtitles =
   | {
-      origin: "container";
-      index: number;
-    }
+    origin: "container";
+    index: number;
+  }
   | {
-      origin: "external";
-      id: number;
-    };
+    origin: "external";
+    id: number;
+  };
 
 export type TrackSelection = {
   subtitlesTrack?: SelectedSubtitles;
@@ -74,8 +71,8 @@ export default function Episode() {
       let localImage =
         showData?.metadata_provider == "local"
           ? fullUrl("/api/show/{id}/backdrop", {
-              path: { id: +showData.metadata_id },
-            })
+            path: { id: +showData.metadata_id },
+          })
           : undefined;
       setBackdrop([localImage, showData.backdrop ?? undefined]);
     }
@@ -155,9 +152,9 @@ export default function Episode() {
                 progress={
                   video()?.details.history
                     ? {
-                        history: video()!.details.history!,
-                        runtime: video()!.details.duration.secs,
-                      }
+                      history: video()!.details.history!,
+                      runtime: video()!.details.duration.secs,
+                    }
                     : undefined
                 }
                 plot={episode().plot}
