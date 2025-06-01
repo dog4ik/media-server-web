@@ -10,9 +10,9 @@ export function formatCodec<T extends string | { other: string }>(
   return typeof codec == "object" ? codec.other : codec;
 }
 
-const currentBaseUrl = `${window.location.protocol}//${window.location.host}`;
-export const MEDIA_SERVER_URL: string =
-  import.meta.env.VITE_MEDIA_SERVER_URL ?? currentBaseUrl;
+export const MEDIA_SERVER_URL: string = import.meta.env.PROD
+  ? `${window.location.protocol}//${window.location.host}`
+  : import.meta.env.VITE_MEDIA_SERVER_URL;
 
 const client = createClient<paths>({
   baseUrl: MEDIA_SERVER_URL,
@@ -51,8 +51,8 @@ export type GetPaths = {
   [Pathname in keyof paths]: paths[Pathname] extends {
     [K in "get"]: any;
   }
-    ? Pathname
-    : never;
+  ? Pathname
+  : never;
 }[keyof paths];
 
 export async function revalidatePath(path: GetPaths) {
