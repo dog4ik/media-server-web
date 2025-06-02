@@ -1,4 +1,4 @@
-import { For, Show } from "solid-js";
+import { For, Show, Suspense } from "solid-js";
 import { Schemas, revalidatePath, server } from "../../utils/serverApi";
 import useDebounce from "../../utils/useDebounce";
 import { createAsync } from "@solidjs/router";
@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/ui/dialog";
 import { TextField, TextFieldRoot } from "@/ui/textfield";
+import Loader from "../Loader";
 
 type SearchResultProps = {
   metadata: Schemas["MetadataSearchResult"];
@@ -22,7 +23,7 @@ function SearchResult(props: SearchResultProps) {
   return (
     <button
       onClick={props.onClick}
-      class="group relative overflow-hidden rounded-lg bg-card transition-colors hover:bg-card/80"
+      class="w-full overflow-hidden rounded-lg bg-card transition-colors hover:bg-card/80"
     >
       <div class="grid grid-cols-[120px_1fr] gap-4 p-4 md:p-6">
         <img
@@ -119,26 +120,35 @@ export default function FixMetadata(props: Props) {
           />
         </TextFieldRoot>
         <div class="flex-1 overflow-auto">
-          <Show when={searchResult()?.data}>
-            {(results) => (
-              <For
-                each={results().filter(
-                  (s) =>
-                    s.metadata_provider !== "local" &&
-                    s.content_type == props.contentType,
-                )}
-              >
-                {(result) => (
-                  <SearchResult
-                    metadata={result}
-                    onClick={() =>
-                      handleFix(result.metadata_provider, result.metadata_id)
-                    }
-                  />
-                )}
-              </For>
-            )}
-          </Show>
+          <Suspense fallback={<Loader />}>
+            <Show
+              when={searchResult()?.data}
+              fallback={
+                <div class="grid size-full place-items-center">
+                  <span class="text-2xl">Nothing found</span>
+                </div>
+              }
+            >
+              {(results) => (
+                <For
+                  each={results().filter(
+                    (s) =>
+                      s.metadata_provider !== "local" &&
+                      s.content_type == props.contentType,
+                  )}
+                >
+                  {(result) => (
+                    <SearchResult
+                      metadata={result}
+                      onClick={() =>
+                        handleFix(result.metadata_provider, result.metadata_id)
+                      }
+                    />
+                  )}
+                </For>
+              )}
+            </Show>
+          </Suspense>
         </div>
       </DialogContent>
     </Dialog>

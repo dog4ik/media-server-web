@@ -19,7 +19,7 @@ import {
 import { extendEpisode, extendMovie, extendShow } from "@/utils/library";
 import { Schemas, server } from "@/utils/serverApi";
 import { createAsync } from "@solidjs/router";
-import { createEffect, For, Show } from "solid-js";
+import { For, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 
 type RowProps = {
@@ -42,12 +42,6 @@ function TaskRow(props: RowProps) {
     }
     return { secs: 0, nanos: 0 };
   };
-  createEffect(() => {
-    console.log({
-      progress: progress().secs,
-      totalDuration: props.task.kind.total_duration.secs,
-    });
-  });
 
   let media = createAsync<{ title: string; url: string } | undefined>(
     async () => {

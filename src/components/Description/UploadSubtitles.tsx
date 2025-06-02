@@ -16,6 +16,7 @@ import { capitalize, formatSize } from "@/utils/formats";
 import { FiTrash } from "solid-icons/fi";
 import { useNotificationsContext } from "@/context/NotificationContext";
 import { notifyResponseErrors } from "@/utils/errors";
+import { LanguagePicker } from "../Settings/LanguagePicker";
 
 type Props = {
   videoId: number;
@@ -52,7 +53,7 @@ export function UploadSubtitles(props: Props) {
   let [subtitlesServerPath, setSubtitlesServerPath] = createSignal<string>();
   let [error, setError] = createSignal<string>();
   let [isLoading, setIsLoading] = createSignal(false);
-  let [language, setLanguage] = createSignal<string>();
+  let [language, setLanguage] = createSignal<Schemas["Language"]>();
 
   let [isDragging, setIsDragging] = createSignal(false);
   let [isDraggedOver, setIsDraggedOver] = createSignal(false);
@@ -178,24 +179,11 @@ export function UploadSubtitles(props: Props) {
       >
         <form onSubmit={handleFileSubmit} class="flex flex-col gap-4">
           <h4 class="text-lg">Language</h4>
-          <Select
-            options={LANGUAGE_OPTIONS}
-            value={language() ?? null}
+          <LanguagePicker
             placeholder="Select language (optional)"
-            onChange={(l) => setLanguage(l ?? undefined)}
-            itemComponent={(p) => (
-              <SelectItem item={p.item}>
-                {capitalize(p.item.rawValue)}
-              </SelectItem>
-            )}
-          >
-            <SelectTrigger class="max-w-sm">
-              <SelectValue class="text-white">
-                {language() ? capitalize(language()!) : undefined}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent />
-          </Select>
+            value={language()}
+            onChange={setLanguage}
+          />
           <Show
             fallback={
               <>

@@ -160,31 +160,29 @@ export default function ShowPage() {
               />
             </Show>
           </Suspense>
-          <Suspense>
-            <Show when={season()}>
-              {(season) => {
-                let torrentQuery = (
-                  provider: Schemas["TorrentIndexIdentifier"],
-                ) => {
-                  if (provider == "tpb") {
-                    return `${show()?.title} Season ${season().number}`;
-                  }
-                  if (provider == "rutracker") {
-                    return `${show()?.title} Сезон: ${season().number}`;
-                  }
-                  throw Error(`Provider ${provider} is not supported`);
-                };
-                return (
-                  <Season
-                    season={season()}
-                    initialTorrentQuery={torrentQuery}
-                    showId={id()}
-                    canDetectIntros={true}
-                  />
-                );
-              }}
-            </Show>
-          </Suspense>
+          <Show when={season()}>
+            {(season) => {
+              let torrentQuery = (
+                provider: Schemas["TorrentIndexIdentifier"],
+              ) => {
+                if (provider == "tpb") {
+                  return `${show()?.title} Season ${season().number}`;
+                }
+                if (provider == "rutracker") {
+                  return `${show()?.title} Сезон: ${season().number}`;
+                }
+                throw Error(`Provider ${provider} is not supported`);
+              };
+              return (
+                <Season
+                  season={season()}
+                  initialTorrentQuery={torrentQuery}
+                  showId={id()}
+                  canDetectIntros={true}
+                />
+              );
+            }}
+          </Show>
         </div>
       </div>
     </>

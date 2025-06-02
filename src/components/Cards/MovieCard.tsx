@@ -64,8 +64,8 @@ export default function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
   let localUrl =
     props.movie.metadata_provider == "local"
       ? fullUrl("/api/movie/{id}/poster", {
-          path: { id: +props.movie.metadata_id },
-        })
+        path: { id: +props.movie.metadata_id },
+      })
       : undefined;
 
   return (
@@ -77,18 +77,18 @@ export default function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
         initialSearch={props.movie.title}
         onClose={() => toggleFixModal(false)}
       />
-      <div class="w-52 max-w-52 flex-none">
+      <div class="min-w-60 max-w-60 flex-none space-y-2 overflow-hidden">
         <A href={url} class="relative w-full">
           <FallbackImage
             alt="Movie poster"
             srcList={[localUrl, props.movie.poster ?? undefined]}
-            class="aspect-poster w-full rounded-xl"
-            width={208}
-            height={312}
+            class="aspect-poster rounded-xl object-cover"
+            width={312}
+            height={468}
           />
         </A>
         <div class="flex items-center justify-between">
-          <A class="truncate text-lg" href={url}>
+          <A title={props.movie.title} class="text-md truncate" href={url}>
             {props.movie.title}
           </A>
           <Show when={props.movie.metadata_provider === "local"}>

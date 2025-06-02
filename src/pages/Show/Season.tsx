@@ -14,7 +14,7 @@ import {
 import { revalidatePath, Schemas, server } from "@/utils/serverApi";
 import useToggle from "@/utils/useToggle";
 import { FiDownload, FiSkipForward, FiTrash } from "solid-icons/fi";
-import { For, Show } from "solid-js";
+import { For, Show, Suspense } from "solid-js";
 
 async function detectIntros(show_id: number, season: number) {
   await server.POST("/api/show/{show_id}/{season}/detect_intros", {
@@ -48,14 +48,16 @@ export default function Season(props: Props) {
 
   return (
     <div>
-      <DownloadTorrentModal
-        open={downloadModal()}
-        onClose={() => setDownloadModal(false)}
-        metadata_id={props.season.metadata_id}
-        metadata_provider={props.season.metadata_provider}
-        query={props.initialTorrentQuery}
-        content_type="show"
-      />
+      <Suspense>
+        <DownloadTorrentModal
+          open={downloadModal()}
+          onClose={() => setDownloadModal(false)}
+          metadata_id={props.season.metadata_id}
+          metadata_provider={props.season.metadata_provider}
+          query={props.initialTorrentQuery}
+          content_type="show"
+        />
+      </Suspense>
       <Show when={props.season.metadata_provider == "local"}>
         <IntrosModal
           open={introsModal()}

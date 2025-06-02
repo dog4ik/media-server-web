@@ -51,8 +51,8 @@ export type GetPaths = {
   [Pathname in keyof paths]: paths[Pathname] extends {
     [K in "get"]: any;
   }
-  ? Pathname
-  : never;
+    ? Pathname
+    : never;
 }[keyof paths];
 
 export async function revalidatePath(path: GetPaths) {

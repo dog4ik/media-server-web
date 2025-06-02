@@ -74,14 +74,14 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
         initialSearch={props.show.title}
         onClose={() => toggleFixModal(false)}
       />
-      <div class="w-52 flex-none">
-        <A href={url} class="relative w-full">
+      <div class="min-w-60 max-w-60 flex-none space-y-2 overflow-hidden">
+        <A href={url} class="relative size-full">
           <FallbackImage
             alt="Show poster"
             srcList={[imageUrl, props.show.poster ?? undefined]}
-            class="rounded-xl"
-            width={208}
-            height={312}
+            class="aspect-poster rounded-xl object-cover"
+            width={312}
+            height={468}
           />
           <Show when={props.show.episodes_amount}>
             <div
@@ -95,12 +95,12 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
           </Show>
         </A>
         <div class="flex items-center justify-between">
-          <A href={url}>
-            <div class="line-clamp-2 text-lg">
-              <span>{props.show.title}</span>
-            </div>
+          <A href={url} class="text-md truncate">
+            <span class="truncate" title={props.show.title}>
+              {props.show.title}
+            </span>
             <Show when={props.show.seasons}>
-              <div class="text-sm text-white">
+              <div class="text-sm font-bold text-white">
                 {props.show.seasons!.length}{" "}
                 {props.show.seasons!.length == 1 ? "season" : "seasons"}
               </div>

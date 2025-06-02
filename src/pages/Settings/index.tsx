@@ -3,7 +3,7 @@ import SectionSubTitle from "../../components/Settings/SectionSubTitle";
 import { createAsync } from "@solidjs/router";
 import { Schemas, revalidatePath, server } from "../../utils/serverApi";
 import Variants from "../../components/Settings/VariantsList";
-import { SmartSetting } from "../../components/Settings/Setting";
+import { Setting, SmartSetting } from "../../components/Settings/Setting";
 import { Show } from "solid-js";
 import { useNotifications } from "../../context/NotificationContext";
 import SettingsProvider, {
@@ -11,6 +11,8 @@ import SettingsProvider, {
 } from "@/context/SettingsContext";
 import promptConfirm from "@/components/modals/ConfirmationModal";
 import { Button } from "@/ui/button";
+import { SETTINGS } from "@/utils/settingsDescriptors";
+import { LanguagePicker } from "@/components/Settings/LanguagePicker";
 
 export type SettingsObject = {
   [K in Schemas["ConfigSchema"][number]["key"]]: Extract<
@@ -22,7 +24,8 @@ export type SettingsObject = {
 function GeneralSettings() {
   let notificator = useNotifications();
 
-  let { changedSettings, resetChangedSettings, apply } = useSettingsContext();
+  let { changedSettings, resetChangedSettings, change, apply, remoteSettings } =
+    useSettingsContext();
 
   let changesAmount = () => Object.keys(changedSettings).length;
 
@@ -56,7 +59,22 @@ function GeneralSettings() {
         <div class="divide-y divide-neutral-500">
           <SmartSetting setting="show_folders" />
           <SmartSetting setting="movie_folders" />
-          <SmartSetting setting="metadata_language" />
+          <Setting
+            data={SETTINGS["metadata_language"]}
+            remote={remoteSettings()["metadata_language"]}
+          >
+            <LanguagePicker
+              onChange={(language) =>
+                language ? change("metadata_language", language) : null
+              }
+              value={
+                changedSettings["metadata_language"] ??
+                remoteSettings()["metadata_language"].config_value ??
+                remoteSettings()["metadata_language"].default_value
+              }
+              placeholder="Select metadata language"
+            />
+          </Setting>
           <SmartSetting setting="upnp_enabled" />
           <SmartSetting setting="hw_accel" />
           <SmartSetting setting="intro_min_duration" />
