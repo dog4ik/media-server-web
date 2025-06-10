@@ -1194,6 +1194,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/torrent/{info_hash}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Validate torrent by info hash */
+        post: operations["validate_torrent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/variants": {
         parameters: {
             query?: never;
@@ -5008,6 +5025,35 @@ export interface operations {
                 };
             };
             /** @description Torrent not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    validate_torrent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Hex encoded info_hash of the torrent */
+                info_hash: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Torrent is not found */
             404: {
                 headers: {
                     [name: string]: unknown;

@@ -10,6 +10,7 @@ import Play from "lucide-solid/icons/play";
 import Pause from "lucide-solid/icons/pause";
 import ChevronUp from "lucide-solid/icons/chevron-up";
 import ChevronDown from "lucide-solid/icons/chevron-down";
+import Refresh from "lucide-solid/icons/refresh-cw";
 
 import { revalidatePath, Schemas, server } from "@/utils/serverApi";
 import { AddTorrentModal } from "./AddTorrentModal";
@@ -28,6 +29,8 @@ import { FileTree } from "./FileTree";
 import { useServerStatus } from "@/context/ServerStatusContext";
 import { createAsync } from "@solidjs/router";
 import tracing from "@/utils/tracing";
+import { useNotificationsContext } from "@/context/NotificationContext";
+import { notifyResponseErrors } from "@/utils/errors";
 
 type TorrentStatus = Schemas["DownloadState"];
 
@@ -116,14 +119,25 @@ type TorrentProps = {
 };
 
 function Torrent(props: TorrentProps) {
+  let [, { addNotification }] = useNotificationsContext();
   function handlePriorityUpdate(idx: number, priority: Schemas["Priority"]) {
-    server.POST("/api/torrent/{info_hash}/file_priority", {
-      params: { path: { info_hash: props.hash } },
-      body: {
-        file: idx,
-        priority,
-      },
-    });
+    server
+      .POST("/api/torrent/{info_hash}/file_priority", {
+        params: { path: { info_hash: props.hash } },
+        body: {
+          file: idx,
+          priority,
+        },
+      })
+      .then(notifyResponseErrors(addNotification, "change file priority"));
+  }
+
+  function handleRevalidate() {
+    server
+      .POST("/api/torrent/{info_hash}/validate", {
+        params: { path: { info_hash: props.hash } },
+      })
+      .then(notifyResponseErrors(addNotification, "start torrent validation"));
   }
 
   function fileProgress(file: Schemas["StateFile"]) {
@@ -195,6 +209,13 @@ function Torrent(props: TorrentProps) {
                 <Play class="mr-2 h-4 w-4" /> Resume
               </Button>
             </Show>
+            <Button
+              onClick={handleRevalidate}
+              disabled={props.status.type == "validation"}
+              size="sm"
+            >
+              <Refresh class="mr-2 h-4 w-4" /> Revalidate contents
+            </Button>
             <Button
               onClick={() => props.onRemove(props.hash)}
               size="sm"

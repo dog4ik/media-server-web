@@ -22,17 +22,17 @@ export const useTracksSelection = () => {
 
 export type SelectedSubtitleTrack =
   | {
-      origin: "container";
-      track: Schemas["DetailedSubtitleTrack"];
-    }
+    origin: "container";
+    track: Schemas["DetailedSubtitleTrack"];
+  }
   | {
-      origin: "external";
-      id: number;
-    }
+    origin: "external";
+    id: number;
+  }
   | {
-      origin: "imported";
-      text: string;
-    };
+    origin: "imported";
+    text: string;
+  };
 
 type TracksSelection = {
   audio?: Schemas["DetailedAudioTrack"];
@@ -82,12 +82,12 @@ export function isBrowserAudioTracksSupported() {
   return typeof "AudioTracks" != "undefined";
 }
 
-function createSelectionContext(video: Video) {
+function createSelectionContext(video: () => Video) {
   let [store, setStore] = createStore<TracksSelection>({
-    video: video.defaultVideo(),
-    audio: video.defaultAudio(),
-    subtitles: video.defaultSubtitles()
-      ? { origin: "container", track: video.defaultSubtitles()! }
+    video: video().defaultVideo(),
+    audio: video().defaultAudio(),
+    subtitles: video().defaultSubtitles()
+      ? { origin: "container", track: video().defaultSubtitles()! }
       : undefined,
   });
 
@@ -96,12 +96,12 @@ function createSelectionContext(video: Video) {
     tracing.trace("Fetching subtitles");
     if (store.subtitles && store.subtitles.origin === "container") {
       let track = unwrap(store.subtitles.track);
-      let selectedTrackIdx = video.details.subtitle_tracks.findIndex(
+      let selectedTrackIdx = video().details.subtitle_tracks.findIndex(
         (t) => t === track,
       );
       if (selectedTrackIdx == -1) {
         tracing.warn(
-          { videoSubtitlesTracksLen: video.details.subtitle_tracks.length },
+          { videoSubtitlesTracksLen: video().details.subtitle_tracks.length },
           "Selected track is not found in video",
         );
         return;
@@ -114,7 +114,7 @@ function createSelectionContext(video: Video) {
               number: selectedTrackIdx,
             },
             path: {
-              id: video.details.id,
+              id: video().details.id,
             },
           },
           parseAs: "text",
@@ -144,9 +144,9 @@ function createSelectionContext(video: Video) {
   });
 
   function selectAudioTrack(index: number, element?: HTMLVideoElement) {
-    if (index >= video.details.audio_tracks.length) {
+    if (index >= video().details.audio_tracks.length) {
       tracing.error(
-        `Selected audio track is out of bounds ${index + 1}/${video.details.audio_tracks.length}`,
+        `Selected audio track is out of bounds ${index + 1}/${video().details.audio_tracks.length}`,
       );
       return;
     }
@@ -162,17 +162,17 @@ function createSelectionContext(video: Video) {
         }
       }
     }
-    setStore("audio", video.details.audio_tracks[index]);
+    setStore("audio", video().details.audio_tracks[index]);
   }
 
   function audioTracks() {
-    return video.details.audio_tracks;
+    return video().details.audio_tracks;
   }
 
   function selectVideoTrack(index: number, element?: HTMLVideoElement) {
-    if (index >= video.details.video_tracks.length) {
+    if (index >= video().details.video_tracks.length) {
       tracing.error(
-        `Selected video track is out of bounds ${index + 1}/${video.details.video_tracks.length}`,
+        `Selected video track is out of bounds ${index + 1}/${video().details.video_tracks.length}`,
       );
       return;
     }
@@ -185,24 +185,24 @@ function createSelectionContext(video: Video) {
         }
       });
     }
-    setStore("video", video.details.video_tracks[index]);
+    setStore("video", video().details.video_tracks[index]);
   }
 
   function videoTracks() {
-    return video.details.video_tracks;
+    return video().details.video_tracks;
   }
 
   function selectContainerSubtitlesTrack(index: number) {
     tracing.trace({ index }, "Selecting container subittles");
-    if (index >= video.details.subtitle_tracks.length) {
+    if (index >= video().details.subtitle_tracks.length) {
       tracing.error(
-        `Selected subtitles track is out of bounds ${index + 1}/${video.details.subtitle_tracks.length}`,
+        `Selected subtitles track is out of bounds ${index + 1}/${video().details.subtitle_tracks.length}`,
       );
       return;
     }
     setStore("subtitles", {
       origin: "container",
-      track: video.details.subtitle_tracks[index],
+      track: video().details.subtitle_tracks[index],
     });
   }
 
@@ -226,11 +226,11 @@ function createSelectionContext(video: Video) {
   }
 
   function containerSubtitlesTracks() {
-    return video.details.subtitle_tracks;
+    return video().details.subtitle_tracks;
   }
 
   function externalSubtitlesTracks() {
-    return video.details.subtitles;
+    return video().details.subtitles;
   }
 
   return [
@@ -258,7 +258,7 @@ function createSelectionContext(video: Video) {
 type Props = { video: Video } & ParentProps;
 
 export default function TracksSelectionProvider(props: Props) {
-  let context = () => createSelectionContext(props.video);
+  let context = () => createSelectionContext(() => props.video);
   return (
     <TracksSelectionContext.Provider value={context()}>
       {props.children}

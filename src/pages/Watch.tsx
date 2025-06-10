@@ -424,6 +424,7 @@ function Watch(props: WatchProps) {
       };
     }
   });
+
   function handleAudioError() {
     tracing.error("audio error encountered");
   }

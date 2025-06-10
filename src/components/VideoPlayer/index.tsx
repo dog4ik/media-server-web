@@ -233,7 +233,7 @@ export default function VideoPlayer(props: Props) {
     }
   }
   function handleSync(curTime: number) {
-    if (Math.abs(curTime - lastSynced) > 5 && !isScubbing) {
+    if (!isMetadataLoading() && Math.abs(curTime - lastSynced) > 5 && !isScubbing) {
       let time = Math.floor(curTime);
       tracing.trace({ time }, "Updating video history");
       props.onHistoryUpdate(time);
@@ -375,6 +375,7 @@ export default function VideoPlayer(props: Props) {
 
   onCleanup(() => {
     tracing.debug("Unmounted video player");
+    setIsMetadataLoading(true);
     props.hls.destroy();
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
@@ -433,6 +434,7 @@ export default function VideoPlayer(props: Props) {
         }}
         onEnded={(e) => {
           setIsEnded(true);
+          tracing.trace("Video end event");
           props.onHistoryUpdate(e.currentTarget.currentTime);
         }}
         ref={videoRef!}
