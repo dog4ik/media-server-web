@@ -1,7 +1,7 @@
 import { onCleanup } from "solid-js";
 import { fullUrl, Schemas } from "./serverApi";
-import { hexHash } from "./formats";
 import tracing from "./tracing";
+import { useServerStatus } from "@/context/ServerStatusContext";
 
 type EventType = Schemas["Notification"];
 
@@ -9,37 +9,93 @@ type TaskProgressMap = {
   [T in EventType["task_type"]]: Extract<EventType, { task_type: T }>;
 };
 
-export class ServerStatus {
-  private socket: WebSocket;
+const BASE_RECONNECT_DELAY = 1_000;
+const MAX_RECONNECT_DELAY = 30_000;
+
+export class ServerConnection {
+  private socket: WebSocket | undefined;
+  private reconnectAttempts = 0;
+  private reconnectTimeout: ReturnType<typeof setTimeout> | undefined =
+    undefined;
+
   private handlers: [
     keyof TaskProgressMap,
     (status: TaskProgressMap[keyof TaskProgressMap]) => void,
   ][];
-  private torrentHandlers: Map<string, (v: Schemas["TorrentProgress"]) => void>;
+  private torrentHandler:
+    | ((v: Schemas["TorrentProgress"] | Schemas["SessionState"]) => void)
+    | undefined;
   private allTorrentsPromise:
-    | ((torrents: Schemas["TorrentState"][]) => void)
+    | ((torrents: Schemas["SessionState"]) => void)
     | undefined;
   private ready: Promise<void>;
   private readyRes: () => void;
+  private wakeSubscribers: Set<() => void>;
   constructor() {
-    let ws = new WebSocket(fullUrl("/api/ws", {}));
-    ws.addEventListener("message", this._onMessage.bind(this));
-    ws.addEventListener("error", this._onError.bind(this));
     this.handlers = [];
-    this.torrentHandlers = new Map();
-    this.socket = ws;
+    this.torrentHandler = undefined;
+    this.connect();
     this.allTorrentsPromise = undefined;
     let { promise, resolve } = Promise.withResolvers<void>();
-    ws.addEventListener("open", this._onOpen.bind(this));
     this.ready = promise;
     this.readyRes = resolve;
+    this.wakeSubscribers = new Set();
   }
 
-  _onError() {}
-  _onOpen() {
-    this.readyRes();
+  connect() {
+    this.socket = new WebSocket(fullUrl("/api/ws", {}));
+    this.socket.addEventListener("open", () => {
+      tracing.info(
+        { attempts: this.reconnectAttempts },
+        "Established websocket connection to the server",
+      );
+      this.reconnectAttempts = 0;
+      this.onOpen();
+    });
+
+    this.socket.addEventListener("message", this.onMessage.bind(this));
+
+    this.socket.addEventListener("close", () => {
+      this.scheduleReconnect();
+    });
+    this.socket.addEventListener("error", () => {
+      this.scheduleReconnect();
+    });
   }
-  _onMessage(msg: MessageEvent<any>) {
+
+  private scheduleReconnect() {
+    if (this.reconnectTimeout) return;
+
+    const delay = Math.min(
+      BASE_RECONNECT_DELAY * Math.pow(2, this.reconnectAttempts),
+      MAX_RECONNECT_DELAY,
+    );
+
+    tracing.debug(
+      { attempts: this.reconnectAttempts },
+      `Scheduled ws reconnect in ${delay} ms`,
+    );
+
+    this.reconnectTimeout = setTimeout(() => {
+      this.reconnectTimeout = undefined;
+      this.reconnectAttempts += 1;
+      this.connect();
+    }, delay);
+  }
+
+  private onOpen() {
+    tracing.trace("Socket is ready");
+    if (this.torrentHandler !== undefined) {
+      tracing.debug(`WS reconnect requests full torrent session state`);
+      this.send({ type: "torrentsubscribe" });
+    }
+    this.readyRes();
+    for (let waker of this.wakeSubscribers) {
+      waker();
+      tracing.trace("Executed waker callback");
+    }
+  }
+  private onMessage(msg: MessageEvent<any>) {
     let event: Schemas["WsMessage"] = JSON.parse(msg.data);
     if (event.type == "progress") {
       for (let [eventType, handler] of this.handlers) {
@@ -50,29 +106,31 @@ export class ServerStatus {
       return;
     }
     if (event.type == "torrentprogress") {
-      let handler = this.torrentHandlers.get(
-        hexHash(event.progress.torrent_hash),
-      );
-      if (handler) {
-        handler(event.progress);
+      if (this.torrentHandler) {
+        this.torrentHandler(event.progress);
       }
       return;
     }
-    if (event.type == "alltorrents" && this.allTorrentsPromise) {
-      try {
-        this.allTorrentsPromise(event.torrents);
-      } catch (_) {}
-      this.allTorrentsPromise = undefined;
+    if (event.type == "torrentsessionstate") {
+      tracing.trace("Got full session state");
+      if (this.allTorrentsPromise) {
+        try {
+          this.allTorrentsPromise(event.session);
+        } catch (_) {}
+        this.allTorrentsPromise = undefined;
+      } else if (this.torrentHandler !== undefined) {
+        tracing.trace(`Dispatched reconnection torrent state`);
+        this.torrentHandler(event.session);
+      }
     }
     if (event.type == "connected") {
-      tracing.info("established ws connection to the server");
+      tracing.info("Successfuly received connect event from the server");
     }
   }
 
   async subscribeTorrents() {
     await this.ready;
-    let { promise, resolve } =
-      Promise.withResolvers<Schemas["TorrentState"][]>();
+    let { promise, resolve } = Promise.withResolvers<Schemas["SessionState"]>();
     this.allTorrentsPromise = resolve;
     this.send({ type: "torrentsubscribe" });
     return await promise;
@@ -87,15 +145,24 @@ export class ServerStatus {
   }
 
   private send(message: Schemas["WsRequest"]) {
-    try {
-      this.socket.send(JSON.stringify(message));
-    } catch (e) {
-      tracing.error("Failed to send ws request", e);
+    if (this.socket && this.socket.readyState == this.socket.OPEN) {
+      try {
+        tracing.trace("Sent socket message");
+        this.socket.send(JSON.stringify(message));
+      } catch (e) {
+        tracing.error({ error: e }, "Failed to send ws request");
+      }
+    } else {
+      tracing.warn("Socket is not ready, message is not sent");
     }
   }
 
   close() {
-    this.socket.close();
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = undefined;
+    }
+    this.socket?.close();
   }
 
   addProgressHandler<T extends keyof TaskProgressMap>(
@@ -113,6 +180,7 @@ export class ServerStatus {
     let idx = this.handlers.findIndex(([_, h]) => h == handler);
     if (idx === -1) {
       tracing.warn("Event handler not found");
+      return;
     }
     tracing.trace(`Removing event listener for ${this.handlers[idx][0]}`);
     this.handlers.splice(idx, 1);
@@ -120,13 +188,35 @@ export class ServerStatus {
   }
 
   setTorrentHandler(
-    hash: string,
-    handler: (progress: Schemas["TorrentProgress"]) => void,
+    handler: (
+      progress: Schemas["TorrentProgress"] | Schemas["SessionState"],
+    ) => void,
   ) {
-    this.torrentHandlers.set(hash, handler);
+    this.torrentHandler = handler;
   }
 
-  removeTorrentHandler(hash: string) {
-    this.torrentHandlers.delete(hash);
+  removeTorrentHandler() {
+    this.torrentHandler = undefined;
   }
+
+  addWaker(callback: () => void) {
+    if (this.socket?.readyState !== WebSocket.OPEN) {
+      tracing.debug("Registered server wakeup handler")
+      this.wakeSubscribers.add(callback);
+    } else {
+      callback();
+      tracing.error(`Redundant waker add`);
+    }
+  }
+  removeWaker(callback: () => void) {
+    this.wakeSubscribers.delete(callback);
+  }
+}
+
+export function onServerWakeup(callback: () => void) {
+  let [{ serverStatus }] = useServerStatus();
+  serverStatus.addWaker(callback);
+  onCleanup(() => {
+    serverStatus.removeWaker(callback);
+  });
 }

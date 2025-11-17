@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/ui/dialog";
-import AlertCircle from "lucide-solid/icons/alert-circle";
+import CircleAlert from "lucide-solid/icons/circle-alert";
 import { Alert, AlertDescription } from "@/ui/alert";
 import { createSignal, Show } from "solid-js";
 import { Button } from "@/ui/button";
@@ -65,7 +65,7 @@ export function AddTorrentModal() {
       return;
     }
     // TODO: Implement magnet link submission logic
-    tracing.debug("Submitting magnet link:", magnetLink);
+    tracing.debug({ magent: magnetLink() }, "Submitting magnet link");
     setOpen(false);
     setMagnetLink("");
     setError(undefined);
@@ -174,7 +174,7 @@ export function AddTorrentModal() {
         <Show when={error()}>
           {(error) => (
             <Alert variant="destructive">
-              <AlertCircle class="h-4 w-4" />
+              <CircleAlert class="h-4 w-4" />
               <AlertDescription>{error()}</AlertDescription>
             </Alert>
           )}

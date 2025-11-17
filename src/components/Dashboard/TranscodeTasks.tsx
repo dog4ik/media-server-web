@@ -18,8 +18,9 @@ import {
 } from "@/ui/table";
 import { formatCodec, formatResolution } from "@/utils/formats";
 import { extendEpisode, extendMovie, extendShow } from "@/utils/library";
+import { queryApi } from "@/utils/queryApi";
 import { Schemas, server } from "@/utils/serverApi";
-import { createAsync } from "@solidjs/router";
+import { Link } from "@tanstack/solid-router";
 import { For, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 
@@ -47,36 +48,34 @@ function TaskRow(props: RowProps) {
     };
   };
 
-  let media = createAsync<{ title: string; url: string } | undefined>(
-    async () => {
-      let metadata = await server
-        .GET("/api/video/{id}/metadata", {
-          params: { path: { id: props.task.kind.video_id } },
-        })
-        .then((d) => d.data);
-      if (metadata?.content_type == "movie") {
-        let movie = extendMovie(metadata.movie);
-        return { title: movie.friendlyTitle(), url: movie.url() };
-      }
-      if (metadata?.content_type == "episode") {
-        let show = extendShow(metadata.show);
-        let episode = extendEpisode(metadata.episode, show.metadata_id);
-        return {
-          title: `${show.friendlyTitle()}: ${episode.friendlyTitle()}`,
-          url: episode.url(),
-        };
-      }
-    },
+  let media = queryApi.useQuery(
+    "get",
+    "/api/video/{id}/metadata",
+    () => ({
+      params: { path: { id: props.task.kind.video_id } },
+    }),
+    () => ({
+      select: (metadata) => {
+        if (metadata?.content_type == "movie") {
+          let movie = extendMovie(metadata.movie);
+          return { title: movie.friendlyTitle(), url: movie.url() };
+        }
+        if (metadata?.content_type == "episode") {
+          let show = extendShow(metadata.show);
+          let episode = extendEpisode(metadata.episode, show.metadata_id);
+          return {
+            title: `${show.friendlyTitle()}: ${episode.friendlyTitle()}`,
+            url: episode.url(),
+          };
+        }
+      },
+    }),
   );
   return (
     <TableRow>
       <TableCell class="font-medium">
-        <Show when={media()}>
-          {(m) => (
-            <Button href={m().url} as="a" variant="link">
-              {m().title}
-            </Button>
-          )}
+        <Show when={media.data}>
+          {(m) => <Link {...m().url}>{m().title}</Link>}
         </Show>
       </TableCell>
       <TableCell>

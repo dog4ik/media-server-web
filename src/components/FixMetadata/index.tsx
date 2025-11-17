@@ -1,7 +1,6 @@
 import { For, Show, Suspense } from "solid-js";
 import { Schemas, revalidatePath, server } from "../../utils/serverApi";
 import useDebounce from "../../utils/useDebounce";
-import { createAsync } from "@solidjs/router";
 import { useNotifications } from "../../context/NotificationContext";
 import ProviderLogo from "../generic/ProviderLogo";
 import {
@@ -12,7 +11,9 @@ import {
   DialogTitle,
 } from "@/ui/dialog";
 import { TextField, TextFieldRoot } from "@/ui/textfield";
-import Loader from "../Loader";
+import Loader, { SuspenseLoader } from "../Loader";
+import { throwResponseErrors } from "@/utils/errors";
+import { queryApi } from "@/utils/queryApi";
 
 type SearchResultProps = {
   metadata: Schemas["MetadataSearchResult"];
@@ -23,7 +24,7 @@ function SearchResult(props: SearchResultProps) {
   return (
     <button
       onClick={props.onClick}
-      class="w-full overflow-hidden rounded-lg bg-card transition-colors hover:bg-card/80"
+      class="bg-card hover:bg-card/80 w-full overflow-hidden rounded-lg transition-colors"
     >
       <div class="grid grid-cols-[120px_1fr] gap-4 p-4 md:p-6">
         <img
@@ -39,7 +40,7 @@ function SearchResult(props: SearchResultProps) {
               {props.metadata.title}
             </h3>
           </div>
-          <p class="line-clamp-2 text-left text-sm text-muted-foreground">
+          <p class="text-muted-foreground line-clamp-2 text-left text-sm">
             {props.metadata.plot}
           </p>
           <div class="h-10 w-10">
@@ -66,12 +67,14 @@ export default function FixMetadata(props: Props) {
     props.initialSearch ?? "",
   );
 
-  let searchResult = createAsync(async () => {
-    if (!props.open) return undefined;
-    return server.GET("/api/search/content", {
+  let searchResult = queryApi.useQuery(
+    "get",
+    "/api/search/content",
+    () => ({
       params: { query: { search: deferredSearch() } },
-    });
-  });
+    }),
+    () => ({ enabled: props.open }),
+  );
 
   async function handleFix(provider: Schemas["MetadataProvider"], id: string) {
     await server
@@ -120,9 +123,9 @@ export default function FixMetadata(props: Props) {
           />
         </TextFieldRoot>
         <div class="flex-1 overflow-auto">
-          <Suspense fallback={<Loader />}>
+          <SuspenseLoader name="Fix metadata search results">
             <Show
-              when={searchResult()?.data}
+              when={searchResult.data}
               fallback={
                 <div class="grid size-full place-items-center">
                   <span class="text-2xl">Nothing found</span>
@@ -148,7 +151,7 @@ export default function FixMetadata(props: Props) {
                 </For>
               )}
             </Show>
-          </Suspense>
+          </SuspenseLoader>
         </div>
       </DialogContent>
     </Dialog>

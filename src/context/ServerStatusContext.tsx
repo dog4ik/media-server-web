@@ -8,7 +8,6 @@ import {
 import { revalidatePath, Schemas } from "../utils/serverApi";
 import { useRawNotifications } from "./NotificationContext";
 import { server } from "../utils/serverApi";
-import { createAsync } from "@solidjs/router";
 import { NotificationProps } from "../components/Notification";
 import {
   extendEpisode,
@@ -18,7 +17,8 @@ import {
   Media,
   Video,
 } from "@/utils/library";
-import { ServerStatus } from "@/utils/serverStatus";
+import { ServerConnection } from "@/utils/serverStatus";
+import { queryApi } from "@/utils/queryApi";
 
 type ServerStatusType = ReturnType<typeof createServerStatusContext>;
 
@@ -138,12 +138,10 @@ function notificationProps(
 function createServerStatusContext(
   notificator: ReturnType<typeof useRawNotifications>,
 ) {
-  let capabilities = createAsync(async () => {
-    let capabilities = await server
-      .GET("/api/configuration/capabilities")
-      .then((data) => data.data);
-    return capabilities;
-  });
+  let capabilities = queryApi.useQuery(
+    "get",
+    "/api/configuration/capabilities",
+  );
 
   let [isConnecting, setIsConnecting] = createSignal(true);
   let [isErrored, setIsErrored] = createSignal(false);
@@ -168,7 +166,7 @@ function createServerStatusContext(
 
   window.addEventListener("beforeunload", cleanup);
 
-  let serverStatus = new ServerStatus();
+  let serverStatus = new ServerConnection();
 
   onCleanup(() => {
     window.removeEventListener("beforeunload", cleanup);

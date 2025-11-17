@@ -1,14 +1,21 @@
-import { ComponentProps, createSignal, For, ParentProps, Show } from "solid-js";
+import {
+  ComponentProps,
+  createMemo,
+  createSignal,
+  For,
+  ParentProps,
+  Show,
+} from "solid-js";
 import VideoInformationSlider from "./VideoInformationSlider";
 import { VariantVideo, Video } from "@/utils/library";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
-import Trash2 from "lucide-solid/icons/trash-2";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/ui/collapsible";
+import Trash2 from "lucide-solid/icons/trash-2";
 import Subtitles from "lucide-solid/icons/subtitles";
 import ChevronDown from "lucide-solid/icons/chevron-down";
 import ChevronRight from "lucide-solid/icons/chevron-right";
@@ -23,14 +30,15 @@ import {
 import { useNotificationsContext } from "@/context/NotificationContext";
 import { notifyResponseErrors } from "@/utils/errors";
 import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
-import { formatDuration, formatSize } from "@/utils/formats";
+import { formatDuration, formatResolution, formatSize } from "@/utils/formats";
 import { Dialog, DialogContent } from "@/ui/dialog";
 import { UploadSubtitles } from "./UploadSubtitles";
 import promptConfirm from "../modals/ConfirmationModal";
 import RadioButton from "../RadioButton";
-import { isCompatible } from "@/utils/mediaCapabilities";
-import { createAsync } from "@solidjs/router";
+import { isCompatible, useCapabilityQuery } from "@/utils/mediaCapabilities";
 import clsx from "clsx";
+import { useQuery } from "@tanstack/solid-query";
+import { Skeleton } from "@/ui/skeleton";
 
 export type VideoSelection = {
   video_id: number;
@@ -38,23 +46,32 @@ export type VideoSelection = {
 };
 
 type CompatibilityBadgeProps = {
-  compatibility: ReturnType<typeof isCompatible>;
+  video?: Schemas["DetailedVideoTrack"];
+  audio?: Schemas["DetailedAudioTrack"];
+  videoPath: string;
 } & ParentProps &
   ComponentProps<typeof Badge>;
 
 function CompatibilityBadge(props: CompatibilityBadgeProps) {
-  let compatibility = createAsync(async () => {
-    let compatibility = await props.compatibility;
-    if (compatibility.combined) return compatibility.combined.supported;
-    if (compatibility.video) return compatibility.video.supported;
-    if (compatibility.audio) return compatibility.audio.supported;
-  });
+  let compatibility = useCapabilityQuery(
+    props.videoPath,
+    props.video,
+    props.audio,
+  );
+  let data = createMemo(() =>
+    compatibility.isSuccess ? compatibility.data : undefined,
+  );
+  let isCompatible = createMemo(
+    () =>
+      data()?.video?.supported ||
+      data()?.audio?.supported ||
+      data()?.combined?.supported,
+  );
   return (
     <Badge
       class={clsx({
-        "bg-emerald-500 hover:bg-emerald-400": compatibility() === true,
-        "bg-rose-500 hover:bg-rose-400": compatibility() === false,
-        "": compatibility() === undefined,
+        "bg-emerald-500 hover:bg-emerald-400": isCompatible() === true,
+        "bg-rose-500 hover:bg-rose-400": isCompatible() === false,
       })}
     >
       {props.children}
@@ -106,7 +123,7 @@ function Subtitle(props: SubtitleProps) {
       <div class="flex items-center gap-3">
         <Badge variant="outline">{props.subtitles.language ?? "Unknown"}</Badge>
         <Show when={props.subtitles.is_external}>
-          <code class="text-sm text-muted-foreground">
+          <code class="text-muted-foreground text-sm">
             {props.subtitles.path}
           </code>
         </Show>
@@ -143,7 +160,7 @@ function SubtitlesList(props: SubtitleListProps) {
 
   return (
     <Collapsible open={isOpen()} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger class="flex h-auto w-full items-center justify-between rounded-md px-2 py-2 hover:bg-accent hover:text-accent-foreground">
+      <CollapsibleTrigger class="hover:bg-accent hover:text-accent-foreground flex h-auto w-full items-center justify-between rounded-md px-2 py-2">
         <div class="flex items-center gap-2">
           <Subtitles class="h-4 w-4" />
           <span class="font-medium">Subtitles ({props.items.length})</span>
@@ -156,7 +173,7 @@ function SubtitlesList(props: SubtitleListProps) {
         <div class="space-y-2">
           <For
             fallback={
-              <div class="py-4 text-center text-muted-foreground">
+              <div class="text-muted-foreground py-4 text-center">
                 <p class="mb-2">No subtitles available for this video</p>
                 <Button
                   variant="outline"
@@ -218,7 +235,8 @@ function Variant(props: VariantProps) {
         <Show when={props.variant.defaultVideo()}>
           {(video) => (
             <CompatibilityBadge
-              compatibility={isCompatible(video(), undefined)}
+              videoPath={props.variant.details.path}
+              video={video()}
             >
               {formatCodec(video().codec)}
             </CompatibilityBadge>
@@ -227,14 +245,15 @@ function Variant(props: VariantProps) {
         <Show when={props.variant.defaultAudio()}>
           {(audio) => (
             <CompatibilityBadge
-              compatibility={isCompatible(undefined, audio())}
+              videoPath={props.variant.details.path}
+              audio={audio()}
             >
               {formatCodec(audio().codec)}
             </CompatibilityBadge>
           )}
         </Show>
         <Show when={props.variant.details.path}>
-          <code class="text-sm text-muted-foreground">
+          <code class="text-muted-foreground text-sm">
             {props.variant.details.path}
           </code>
         </Show>
@@ -280,7 +299,7 @@ function VariantList(props: VariantListProps) {
 
   return (
     <Collapsible open={isOpen()} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger class="flex h-auto w-full items-center justify-between rounded-md px-2 py-2 hover:bg-accent hover:text-accent-foreground">
+      <CollapsibleTrigger class="hover:bg-accent hover:text-accent-foreground flex h-auto w-full items-center justify-between rounded-md px-2 py-2">
         <div class="flex items-center gap-2">
           <VideoIcon class="h-4 w-4" />
           <span class="font-medium">Variants ({props.items.length})</span>
@@ -293,7 +312,7 @@ function VariantList(props: VariantListProps) {
         <div class="space-y-2">
           <For
             fallback={
-              <div class="py-4 text-center text-muted-foreground">
+              <div class="text-muted-foreground py-4 text-center">
                 <p class="mb-2">No variants available for this video</p>
                 <Button
                   variant="outline"
@@ -360,7 +379,7 @@ function ListItem(props: ListItemProps) {
           />
         </DialogContent>
       </Dialog>
-      <Card class="overflow-hidden bg-primary-foreground">
+      <Card class="bg-primary-foreground overflow-hidden">
         <CardHeader class="pb-3">
           <div class="flex items-start justify-between">
             <div class="flex flex-1 items-start gap-3">
@@ -372,29 +391,33 @@ function ListItem(props: ListItemProps) {
                 <CardTitle class="text-sm leading-tight">
                   {props.video.details.path}
                 </CardTitle>
-                <div class="flex flex-wrap gap-2 text-sm text-muted-foreground">
+                <div class="text-muted-foreground flex flex-wrap gap-2 text-sm">
                   <Badge variant="secondary">
                     {formatDuration(props.video.details.duration)}
                   </Badge>
                   <Badge variant="outline">
                     {formatSize(props.video.details.size)}
                   </Badge>
-                  <Badge variant="secondary">
-                    {formatDuration(props.video.details.duration)}
-                  </Badge>
                   <Show when={props.video.defaultVideo()}>
                     {(video) => (
-                      <CompatibilityBadge
-                        compatibility={isCompatible(video(), undefined)}
-                      >
-                        {formatCodec(video().codec)}
-                      </CompatibilityBadge>
+                      <>
+                        <CompatibilityBadge
+                          videoPath={props.video.details.path}
+                          video={video()}
+                        >
+                          {formatCodec(video().codec)}
+                        </CompatibilityBadge>
+                        <Badge variant="secondary">
+                          {formatResolution(video().resolution)}
+                        </Badge>
+                      </>
                     )}
                   </Show>
                   <Show when={props.video.defaultAudio()}>
                     {(audio) => (
                       <CompatibilityBadge
-                        compatibility={isCompatible(undefined, audio())}
+                        videoPath={props.video.details.path}
+                        audio={audio()}
                       >
                         {formatCodec(audio().codec)}
                       </CompatibilityBadge>
@@ -403,7 +426,7 @@ function ListItem(props: ListItemProps) {
                 </div>
               </div>
             </div>
-            <div class="flex flex-shrink-0 items-center gap-2">
+            <div class="flex shrink-0 items-center gap-2">
               <VideoInformationSlider video={props.video} />
             </div>
           </div>
@@ -426,5 +449,31 @@ function ListItem(props: ListItemProps) {
         </CardContent>
       </Card>
     </>
+  );
+}
+
+export function ListItemSkeleton() {
+  return (
+    <Card class="bg-primary-foreground overflow-hidden">
+      <CardHeader class="pb-3">
+        <div class="flex items-start justify-between pb-10">
+          <div class="flex flex-1 items-start gap-3">
+            <Skeleton class="size-6 rounded-full" />
+            <div class="min-w-0 flex-1 space-y-1">
+              <Skeleton class="h-4 w-5/6" />
+              <Skeleton class="h-4 w-1/6" />
+              <div class="text-muted-foreground flex flex-wrap gap-2 text-sm">
+                {[...Array(5)].map(() => (
+                  <Skeleton class="h-4 w-14" />
+                ))}
+              </div>
+            </div>
+          </div>
+          <div class="flex shrink-0 items-center gap-2">
+            <Skeleton class="h-8 w-30" />
+          </div>
+        </div>
+      </CardHeader>
+    </Card>
   );
 }

@@ -5,21 +5,21 @@ import { createSignal, For, ParentProps, Show } from "solid-js";
 import MoreButton, { RecursiveRow } from "../ContextMenu/MoreButton";
 import VariantMenuRow from "./VariantMenuRow";
 import PlayButton from "./PlayButton";
-import { createAsync } from "@solidjs/router";
 import { useNotifications } from "../../context/NotificationContext";
 import { TranscodeModal } from "../modals/TranscodeModal";
 import { Video } from "@/utils/library";
+import { LinkOptions } from "@tanstack/solid-router";
 
 type Props = {
   video: Video;
-  watchUrl?: string;
+  watchUrl?: LinkOptions;
 } & ParentProps;
 
 export default function VideoActions(props: Props) {
   let notificator = useNotifications();
   let [transcodeOpen, setTranscodeOpen] = createSignal(false);
 
-  let videoCompatibility = createAsync(() => props.video.videoCompatibility());
+  let videoCompatibility = props.video.useVideoCompatibility();
 
   let deletePreviews = () => {
     props.video
@@ -49,7 +49,14 @@ export default function VideoActions(props: Props) {
         video={props.video}
       />
       <Show when={props.watchUrl}>
-        {(url) => <PlayButton href={url()} canPlay={videoCompatibility()} />}
+        {(url) => (
+          <PlayButton
+            link={url()}
+            canPlay={
+              videoCompatibility.isSuccess ? videoCompatibility.data : undefined
+            }
+          />
+        )}
       </Show>
       <Show when={props.video.details.previews_count === 0}>
         <Icon tooltip="Generate previews" onClick={generatePreviews}>

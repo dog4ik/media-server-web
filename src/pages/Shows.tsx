@@ -1,30 +1,23 @@
-import { For, Show, Suspense } from "solid-js";
+import { For, Show } from "solid-js";
 import ShowCard from "../components/Cards/ShowCard";
 import PageTitle from "../components/PageTitle";
 import ElementsGrid from "../components/ElementsGrid";
-import { createAsync } from "@solidjs/router";
-import { server } from "../utils/serverApi";
 import Title from "../utils/Title";
-import { throwResponseErrors } from "@/utils/errors";
 import AddFoldersHelp from "@/components/AddFoldersHelp";
-import Loader from "@/components/Loader";
+import { queryApi } from "@/utils/queryApi";
 export default function Shows() {
-  const shows = createAsync(() =>
-    server.GET("/api/local_shows").then(throwResponseErrors),
-  );
+  const shows = queryApi.useQuery("get", "/api/local_shows");
 
   return (
     <>
       <Title text="All shows" />
       <PageTitle>Shows</PageTitle>
-      <Show when={shows() !== undefined && shows()?.length === 0}>
+      <Show when={shows.data !== undefined && shows.data.length === 0}>
         <AddFoldersHelp contentType="show" />
       </Show>
-      <Suspense fallback={<Loader />}>
-        <ElementsGrid elementSize={250}>
-          <For each={shows()}>{(show) => <ShowCard show={show} />}</For>
-        </ElementsGrid>
-      </Suspense>
+      <ElementsGrid elementSize={250}>
+        <For each={shows.data}>{(show) => <ShowCard show={show} />}</For>
+      </ElementsGrid>
     </>
   );
 }

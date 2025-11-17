@@ -1,9 +1,9 @@
-import { Button } from "@/ui/button";
-import { throwResponseErrors } from "@/utils/errors";
 import { Schemas, server } from "@/utils/serverApi";
-import { createAsync, useLocation } from "@solidjs/router";
-import { For, Show } from "solid-js";
+import { For, Show, Suspense } from "solid-js";
 import ProviderLogo from "./generic/ProviderLogo";
+import { useQuery } from "@tanstack/solid-query";
+import { Link, linkOptions } from "@tanstack/solid-router";
+import { Skeleton } from "@/ui/skeleton";
 
 type Props = {
   id: string;
@@ -11,77 +11,95 @@ type Props = {
   contentType: Schemas["ContentType"];
 };
 
-export default function ExternalLocalIdButtons(props: Props) {
-  let location = useLocation();
+export function ExternalLocalIdButtons(props: Props) {
   function navigationUrl(provider: Schemas["MetadataProvider"], id: string) {
-    let path = location.pathname.split("/");
-    let params = new URLSearchParams(location.search);
-    if (path.length < 3) {
-      throw Error("movie/show path must have more then 3 components")
-    }
-    path[2] = id;
-    params.set("provider", provider);
-    return path.join("/") + "?" + params.toString()
-  }
-  let ids = createAsync<
-    {
-      id: string;
-      provider: Schemas["MetadataProvider"];
-    }[]
-  >(async () => {
-    if (props.provider == "local") {
-      return server
-        .GET("/api/external_ids/{id}", {
-          params: {
-            query: {
-              provider: "local",
-              content_type: props.contentType,
-            },
-            path: {
-              id: props.id,
-            },
-          },
-        })
-        .then(throwResponseErrors);
+    if (props.contentType === "movie") {
+      return linkOptions({
+        to: "/movies/$id",
+        params: { id },
+        search: { provider },
+      });
     } else {
-      return server
-        .GET("/api/external_to_local/{id}", {
-          params: {
-            query: {
-              provider: props.provider,
-            },
-            path: {
-              id: props.id,
-            },
-          },
-        })
-        .then((d) => d.data)
-        .then((r) => {
-          if (props.contentType == "show" && r?.show_id) {
-            return [{ provider: "local", id: r.show_id.toString() }];
-          } else if (props.contentType == "movie" && r?.movie_id) {
-            return [{ provider: "local", id: r.movie_id.toString() }];
-          }
-          return [];
-        });
+      return linkOptions({
+        to: "/shows/$id",
+        params: { id },
+        search: { provider },
+      });
     }
-  });
+  }
+
+  let ids = useQuery(() => ({
+    queryFn: async () => {
+      if (props.provider == "local") {
+        return server
+          .GET("/api/external_ids/{id}", {
+            params: {
+              query: {
+                provider: "local",
+                content_type: props.contentType,
+              },
+              path: {
+                id: props.id,
+              },
+            },
+          })
+          .then((d) => d.data);
+      } else {
+        return server
+          .GET("/api/external_to_local/{id}", {
+            params: {
+              query: {
+                provider: props.provider,
+              },
+              path: {
+                id: props.id,
+              },
+            },
+          })
+          .then((r) => r.data)
+          .then((r) => {
+            if (props.contentType == "show" && r?.show_id) {
+              return [
+                { provider: "local", id: r.show_id.toString() },
+              ] as Schemas["ExternalIdMetadata"][];
+            } else if (props.contentType == "movie" && r?.movie_id) {
+              return [
+                { provider: "local", id: r.movie_id.toString() },
+              ] as Schemas["ExternalIdMetadata"][];
+            }
+            return [] as Schemas["ExternalIdMetadata"][];
+          });
+      }
+    },
+    queryKey: [
+      "external_to_local",
+      props.contentType,
+      props.provider,
+      props.id,
+    ],
+  }));
 
   return (
-    <For each={ids()}>
-      {(id) => (
-        <Show
-          when={
-            id.provider == "local" ||
-            id.provider == "tmdb" ||
-            id.provider == "tvdb"
-          }
-        >
-          <Button as="a" href={navigationUrl(id.provider, id.id)} class="p-1 h-10 w-10">
-            <ProviderLogo provider={id.provider} />
-          </Button>
-        </Show>
-      )}
-    </For>
+    <Suspense
+      fallback={[...Array(2)].map(() => (
+        <Skeleton class="h-10 w-10 rounded-md p-1" />
+      ))}
+    >
+      <For each={ids.data}>
+        {(id) => (
+          <Show
+            when={
+              id.provider == "local" ||
+              id.provider == "tmdb" ||
+              id.provider == "tvdb"
+            }
+          >
+            <Link class="h-10 w-10 p-1" {...navigationUrl(id.provider, id.id)}>
+              <ProviderLogo provider={id.provider} />
+            </Link>
+          </Show>
+        )}
+      </For>
+    </Suspense>
   );
 }

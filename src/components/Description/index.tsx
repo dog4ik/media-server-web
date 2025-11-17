@@ -1,13 +1,17 @@
 import { For, ParentProps, Show } from "solid-js";
 import { Schemas } from "../../utils/serverApi";
 import FallbackImage from "../FallbackImage";
-import { A } from "@solidjs/router";
 import ProgressBar from "../Cards/ProgressBar";
+import { Link, LinkOptions } from "@tanstack/solid-router";
+import { Skeleton } from "@/ui/skeleton";
+import clsx from "clsx";
 
 type AdditionalInfo = {
   info: string;
-  href?: string;
+  link: LinkOptions | undefined;
 };
+
+type ImageDirection = "horizontal" | "vertical";
 
 type Props = {
   posterList: string[];
@@ -15,7 +19,7 @@ type Props = {
   title: string;
   progress?: { history: Schemas["DbHistory"]; runtime: number };
   additionalInfo?: AdditionalInfo[];
-  imageDirection?: "horizontal" | "vertical";
+  imageDirection?: ImageDirection;
 };
 
 function Addition(props: { data: AdditionalInfo[] }) {
@@ -26,7 +30,7 @@ function Addition(props: { data: AdditionalInfo[] }) {
           let isLast = i() == props.data.length - 1;
           return (
             <Show
-              when={content.href}
+              when={content.link}
               fallback={
                 <>
                   <span class="text-sm">{content.info}</span>
@@ -38,11 +42,11 @@ function Addition(props: { data: AdditionalInfo[] }) {
             >
               {(href) => (
                 <>
-                  <A href={href()}>
+                  <Link {...href()}>
                     <span class="text-base hover:underline">
                       {content.info}
                     </span>
-                  </A>
+                  </Link>
                   <Show when={!isLast}>
                     <span>·</span>
                   </Show>
@@ -56,7 +60,7 @@ function Addition(props: { data: AdditionalInfo[] }) {
   );
 }
 
-export default function Description(props: Props & ParentProps) {
+export function Description(props: Props & ParentProps) {
   let imageDirection = () => props.imageDirection ?? "vertical";
   return (
     <div class="flex w-full flex-col gap-8 md:flex-row">
@@ -65,9 +69,9 @@ export default function Description(props: Props & ParentProps) {
       >
         <FallbackImage
           alt="Description image"
-          width={imageDirection() == "horizontal" ? 350 : 208}
+          width={imageDirection() == "horizontal" ? 320 : 208}
           class="rounded-xl"
-          height={imageDirection() == "horizontal" ? 208 : 312}
+          height={imageDirection() == "horizontal" ? 180 : 312}
           srcList={props.posterList}
         />
         <Show when={props.progress}>
@@ -84,7 +88,7 @@ export default function Description(props: Props & ParentProps) {
           <span>{props.title}</span>
         </div>
         <Show when={props.additionalInfo}>
-          <Addition data={props.additionalInfo!} />
+          {(info) => <Addition data={info()} />}
         </Show>
         <Show when={props.plot && props.plot.length > 0}>
           <p
@@ -95,6 +99,30 @@ export default function Description(props: Props & ParentProps) {
           </p>
         </Show>
         {props.children}
+      </div>
+    </div>
+  );
+}
+
+export function DescriptionSkeleton(props: { direction: ImageDirection }) {
+  return (
+    <div class="flex w-full flex-col gap-8 md:flex-row">
+      <Skeleton
+        class={clsx(
+          props.direction == "horizontal"
+            ? "h-[180px] w-[320px]"
+            : "h-[312px] w-[208px]",
+          "shrink-0",
+        )}
+      />
+      <div class="w-full flex-col space-y-4">
+        <Skeleton class="h-10 w-60" />
+        <div class="flex items-center space-x-4">
+          {[...Array(3)].map(() => (
+            <Skeleton class="h-3 w-12" />
+          ))}
+        </div>
+        <Skeleton class="h-16 w-5/6" />
       </div>
     </div>
   );

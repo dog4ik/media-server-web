@@ -6,20 +6,13 @@ import {
   revalidatePath,
   server,
 } from "../../utils/serverApi";
-import { A } from "@solidjs/router";
 import FallbackImage from "../FallbackImage";
 import useToggle from "../../utils/useToggle";
 import FixMetadata from "../FixMetadata";
 import { useNotifications } from "../../context/NotificationContext";
 import { MenuRow } from "../ContextMenu/Menu";
 import promptConfirm from "../modals/ConfirmationModal";
-
-function provider(provider: string): string {
-  if (provider === "local") {
-    return "";
-  }
-  return `?provider=${provider}`;
-}
+import { Link } from "@tanstack/solid-router";
 
 async function deleteShow(id: number, name: string) {
   try {
@@ -33,7 +26,6 @@ async function deleteShow(id: number, name: string) {
 }
 
 export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
-  let url = `/shows/${props.show.metadata_id}${provider(props.show.metadata_provider)}`;
   let [fixModal, toggleFixModal] = useToggle(false);
   let notificator = useNotifications();
   function handleFix() {
@@ -74,14 +66,19 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
         initialSearch={props.show.title}
         onClose={() => toggleFixModal(false)}
       />
-      <div class="min-w-60 max-w-60 flex-none space-y-2 overflow-hidden">
-        <A href={url} class="relative size-full">
+      <div class="max-w-60 min-w-60 flex-none space-y-2 overflow-hidden">
+        <Link
+          to={"/shows/$id"}
+          params={{ id: props.show.metadata_id }}
+          search={{ provider: props.show.metadata_provider }}
+          class="relative size-full"
+        >
           <FallbackImage
             alt="Show poster"
             srcList={[imageUrl, props.show.poster ?? undefined]}
             class="aspect-poster rounded-xl object-cover"
             width={312}
-            height={468}
+            height={415}
           />
           <Show when={props.show.episodes_amount}>
             <div
@@ -93,9 +90,14 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
               </span>
             </div>
           </Show>
-        </A>
+        </Link>
         <div class="flex items-center justify-between">
-          <A href={url} class="text-md truncate">
+          <Link
+            to={"/shows/$id"}
+            params={{ id: props.show.metadata_id }}
+            search={{ provider: props.show.metadata_provider }}
+            class="text-md truncate"
+          >
             <span class="truncate" title={props.show.title}>
               {props.show.title}
             </span>
@@ -105,7 +107,7 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
                 {props.show.seasons!.length == 1 ? "season" : "seasons"}
               </div>
             </Show>
-          </A>
+          </Link>
           <Show when={props.show.metadata_provider === "local"}>
             <MoreButton>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>

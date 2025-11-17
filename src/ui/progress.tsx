@@ -1,4 +1,4 @@
-import { cn } from "@/libs/cn";
+import { cn } from "@/lib/cn";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import type { ProgressRootProps } from "@kobalte/core/progress";
 import { Progress as ProgressPrimitive } from "@kobalte/core/progress";
@@ -29,7 +29,7 @@ export const Progress = <T extends ValidComponent = "div">(
 		>
 			{local.children}
 			<ProgressPrimitive.Track class="h-2 overflow-hidden rounded-full bg-primary/20">
-				<ProgressPrimitive.Fill class="h-full w-[--kb-progress-fill-width] bg-primary transition-all duration-500 ease-linear data-[progress=complete]:bg-primary" />
+				<ProgressPrimitive.Fill class="h-full w-(--kb-progress-fill-width) bg-primary transition-all duration-500 ease-linear data-[progress=complete]:bg-primary" />
 			</ProgressPrimitive.Track>
 		</ProgressPrimitive>
 	);

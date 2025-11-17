@@ -1007,6 +1007,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/torrent/batch_action": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Validate torrent by info hash */
+        post: operations["batch_action"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/torrent/index_magnet_link": {
         parameters: {
             query?: never;
@@ -1126,6 +1143,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/torrent/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get full session state */
+        get: operations["session_state"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/torrent/updates": {
         parameters: {
             query?: never;
@@ -1160,7 +1194,7 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/torrent/{info_hash}/file_priority": {
+    "/api/torrent/{info_hash}/files_priority": {
         parameters: {
             query?: never;
             header?: never;
@@ -1170,7 +1204,7 @@ export type paths = {
         get?: never;
         put?: never;
         /** Set file priority */
-        post: operations["set_file_priority"];
+        post: operations["set_files_priority"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1589,6 +1623,8 @@ export type paths = {
 export type webhooks = Record<string, never>;
 export type components = {
     schemas: {
+        /** @enum {string} */
+        Action: "validate" | "abort" | "resume" | "pause";
         AppError: {
             message: string;
         };
@@ -1607,6 +1643,10 @@ export type components = {
         };
         AudioCodec: "aac" | "ac3" | "eac3" | "dts" | {
             other: string;
+        };
+        BatchActionPayload: {
+            action: components["schemas"]["Action"];
+            hashes: components["schemas"]["InfoHash"][];
         };
         BrowseDirectory: {
             directories: components["schemas"]["BrowseFile"][];
@@ -1930,8 +1970,8 @@ export type components = {
             sample_rate: string;
         };
         DetailedChapter: {
-            end: string;
-            start: string;
+            end: components["schemas"]["SerdeDuration"];
+            start: components["schemas"]["SerdeDuration"];
             title?: string | null;
         };
         DetailedSubtitleTrack: {
@@ -1971,6 +2011,7 @@ export type components = {
             intro?: null | components["schemas"]["Intro"];
             path: string;
             previews_count: number;
+            /** Format: date-time */
             scan_date: string;
             /** Format: int64 */
             size: number;
@@ -1998,13 +2039,6 @@ export type components = {
         };
         DownloadError: {
             storage: components["schemas"]["StorageError"];
-        };
-        DownloadProgress: {
-            changes: components["schemas"]["StateChange"][];
-            peers: components["schemas"]["PeerDownloadStats"][];
-            /** Format: float */
-            percent: number;
-            tick_num: number;
         };
         DownloadState: {
             error: components["schemas"]["DownloadError"];
@@ -2068,6 +2102,7 @@ export type components = {
         IndexMagnetLink: {
             magnet_link: string;
         };
+        InfoHash: string;
         Intro: {
             /** Format: int64 */
             end_sec: number;
@@ -2090,12 +2125,17 @@ export type components = {
         };
         /** @enum {string} */
         Language: "en" | "es" | "de" | "fr" | "ru" | "ja" | "sr";
+        LocaleMetadata: {
+            original_language: string;
+            original_title: string;
+        };
         /** Format: uri */
         MetadataImage: string;
         /** @enum {string} */
         MetadataProvider: "local" | "tmdb" | "tvdb" | "imdb";
         MetadataSearchResult: {
             content_type: components["schemas"]["ContentType"];
+            locale_metadata?: null | components["schemas"]["LocaleMetadata"];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
             plot?: string | null;
@@ -2108,6 +2148,7 @@ export type components = {
         };
         MovieMetadata: {
             backdrop?: null | components["schemas"]["MetadataImage"];
+            locale_metadata?: null | components["schemas"]["LocaleMetadata"];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
             plot?: string | null;
@@ -2123,61 +2164,51 @@ export type components = {
              */
             activity_id: string;
         };
-        PeerDownloadStats: {
+        PeerEvent: {
+            ip: string;
+            peer_event: components["schemas"]["PeerEventKind"];
+        };
+        PeerEventKind: (components["schemas"]["PeerStateChange"] & {
+            /** @enum {string} */
+            kind: "statupdate";
+        }) | {
+            /** @enum {string} */
+            kind: "disconnect";
+        } | {
+            /** @enum {string} */
+            kind: "connect";
+            state: components["schemas"]["StatePeer"];
+        };
+        PeerStateChange: {
             /** Format: int64 */
             download_speed: number;
             /** Format: int64 */
             downloaded: number;
-            interested_amount: number;
-            ip: string;
-            pending_blocks_amount: number;
+            in_choked: boolean;
+            in_interested: boolean;
+            out_choked: boolean;
+            out_interested: boolean;
             /** Format: int64 */
             upload_speed: number;
             /** Format: int64 */
             uploaded: number;
         };
-        PeerStateChange: {
-            /** @enum {string} */
-            change_type: "connect";
-        } | {
-            /** @enum {string} */
-            change_type: "disconnect";
-        } | {
-            /** @enum {string} */
-            change_type: "inchoke";
-            value: boolean;
-        } | {
-            /** @enum {string} */
-            change_type: "outchoke";
-            value: boolean;
-        } | {
-            /** @enum {string} */
-            change_type: "ininterested";
-            value: boolean;
-        } | {
-            /** @enum {string} */
-            change_type: "outinterested";
-            value: boolean;
-        };
         PendingTorrent: {
             info_hash: number[];
             torrent_info: components["schemas"]["TorrentInfo"];
+            /** Format: int64 */
+            torrent_size: number;
         };
         /** @enum {string} */
         Priority: "disabled" | "low" | "medium" | "high";
         PriorityPayload: {
-            file: number;
+            files: number[];
             priority: components["schemas"]["Priority"];
         };
         Progress: {
-            /** @enum {string} */
-            type: "start";
-        } | (components["schemas"]["DownloadProgress"] & {
-            /** @enum {string} */
-            type: "pending";
-        }) | {
-            /** @enum {string} */
-            type: "delete";
+            changed_torrents: components["schemas"]["TorrentUpdate"][];
+            session_update?: null | components["schemas"]["SessionUpdate"];
+            tick_num: number;
         };
         ProgressChunk_IntroJob: components["schemas"]["IntroJob"] & {
             status: components["schemas"]["ProgressStatus_TupleUnit"];
@@ -2197,6 +2228,29 @@ export type components = {
         ProgressChunk_WatchTask: components["schemas"]["WatchIdentifier"] & {
             status: components["schemas"]["ProgressStatus_WatchProgress"];
         };
+        ProgressEvent: (components["schemas"]["PeerEvent"] & {
+            /** @enum {string} */
+            event_kind: "peer";
+        }) | (components["schemas"]["TorrentStateChange"] & {
+            /** @enum {string} */
+            event_kind: "state";
+        }) | (components["schemas"]["TrackerEvent"] & {
+            /** @enum {string} */
+            event_kind: "tracker";
+        }) | (components["schemas"]["StoragePieceEvent"] & {
+            /** @enum {string} */
+            event_kind: "storagepiece";
+        }) | (components["schemas"]["StorageFileEvent"] & {
+            /** @enum {string} */
+            event_kind: "storagefile";
+        }) | {
+            /** @enum {string} */
+            event_kind: "validationcomplete";
+            valid_bitfield: number[];
+        } | (components["schemas"]["SessionEvent"] & {
+            /** @enum {string} */
+            event_kind: "session";
+        });
         ProgressStatus_CompactTorrentProgress: {
             /** @enum {string} */
             progress_type: "start";
@@ -2205,11 +2259,12 @@ export type components = {
             progress_type: "finish";
         } | {
             progress: {
-                /** Format: int64 */
+                /** Format: double */
                 download_speed: number;
-                peers_amount: number;
                 /** Format: float */
                 percent: number;
+                /** Format: double */
+                upload_speed: number;
             };
             /** @enum {string} */
             progress_type: "pending";
@@ -2373,12 +2428,42 @@ export type components = {
             plot?: string | null;
             poster?: null | components["schemas"]["MetadataImage"];
             release_date?: string | null;
+            title?: string | null;
         };
         SerdeDuration: {
             /** Format: int32 */
             nanos: number;
             /** Format: int64 */
             secs: number;
+        };
+        SessionEvent: {
+            /** @enum {string} */
+            kind: "torrentadd";
+            state: components["schemas"]["TorrentState"];
+        } | {
+            info_hash: string;
+            /** @enum {string} */
+            kind: "torrentremove";
+        };
+        SessionState: {
+            session_stats: components["schemas"]["SessionStats"];
+            torrents: components["schemas"]["TorrentState"][];
+        };
+        SessionStats: {
+            /** Format: int32 */
+            connected_peers: number;
+            /** Format: double */
+            download_speed: number;
+            /** Format: double */
+            upload_speed: number;
+        };
+        SessionUpdate: {
+            /** Format: int32 */
+            connected_peers: number;
+            /** Format: double */
+            download_speed: number;
+            /** Format: double */
+            upload_speed: number;
         };
         ShowHistory: {
             episode: components["schemas"]["EpisodeMetadata"];
@@ -2389,6 +2474,7 @@ export type components = {
         ShowMetadata: {
             backdrop?: null | components["schemas"]["MetadataImage"];
             episodes_amount?: number | null;
+            locale_metadata?: null | components["schemas"]["LocaleMetadata"];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
             plot?: string | null;
@@ -2419,39 +2505,6 @@ export type components = {
         StartWatchSessionResponse: {
             /** Format: uuid */
             task_id: string;
-        };
-        StateChange: {
-            change: {
-                ip: string;
-                peer_change: components["schemas"]["PeerStateChange"];
-            };
-            /** @enum {string} */
-            type: "peerstatechange";
-        } | {
-            change: number;
-            /** @enum {string} */
-            type: "finishedpiece";
-        } | {
-            change: components["schemas"]["DownloadState"];
-            /** @enum {string} */
-            type: "downloadstatechange";
-        } | {
-            change: string;
-            /** @enum {string} */
-            type: "trackerannounce";
-        } | {
-            change: {
-                file_idx: number;
-                priority: components["schemas"]["Priority"];
-            };
-            /** @enum {string} */
-            type: "fileprioritychange";
-        } | {
-            change: {
-                bitfield: number[];
-            };
-            /** @enum {string} */
-            type: "validationresult";
         };
         StateFile: {
             end_piece: number;
@@ -2489,6 +2542,32 @@ export type components = {
         StorageError: {
             fs: string;
         } | "hash" | "bounds";
+        StorageFileEvent: {
+            file_event: components["schemas"]["StorageFileEventKind"];
+            idx: number;
+        };
+        StorageFileEventKind: {
+            /** @enum {string} */
+            kind: "prioritychange";
+            priority: components["schemas"]["Priority"];
+        };
+        StoragePieceEvent: {
+            piece: number;
+            piece_event: components["schemas"]["StoragePieceEventKind"];
+        };
+        StoragePieceEventKind: {
+            /** @enum {string} */
+            kind: "validated";
+        } | {
+            /** @enum {string} */
+            kind: "hashfailed";
+        } | {
+            /** @enum {string} */
+            kind: "savefailed";
+        } | {
+            /** @enum {string} */
+            kind: "finished";
+        };
         Stream: {
             /** @enum {string} */
             stream_type: "direct_play";
@@ -2640,6 +2719,9 @@ export type components = {
             show_metadata: components["schemas"]["ShowMetadata"];
         };
         TorrentState: {
+            /** Format: double */
+            download_speed: number;
+            /** @description This is a little too much for a state */
             downloaded_pieces: boolean[];
             files: components["schemas"]["StateFile"][];
             info_hash: string;
@@ -2649,15 +2731,45 @@ export type components = {
             /** Format: float */
             percent: number;
             state: components["schemas"]["DownloadState"];
-            tick_num: number;
             total_pieces: number;
             /** Format: int64 */
             total_size: number;
             trackers: components["schemas"]["StateTracker"][];
+            /** Format: double */
+            upload_speed: number;
+        };
+        TorrentStateChange: {
+            state: components["schemas"]["DownloadState"];
         };
         TorrentTask: {
             /** @description Hex encoded info hash */
             info_hash: string;
+        };
+        TorrentUpdate: {
+            /** Format: double */
+            download_speed: number;
+            events: components["schemas"]["ProgressEvent"][];
+            info_hash: number[];
+            state: components["schemas"]["DownloadState"];
+            /** Format: int64 */
+            total_downloaded: number;
+            /** Format: int64 */
+            total_uploaded: number;
+            /** Format: double */
+            upload_speed: number;
+        };
+        TrackerEvent: {
+            tracker_event: components["schemas"]["TrackerEventKind"];
+            url: string;
+        };
+        TrackerEventKind: {
+            interval: components["schemas"]["SerdeDuration"];
+            /** @enum {string} */
+            kind: "reannounce";
+        } | {
+            /** @enum {string} */
+            kind: "failed";
+            reason: string;
         };
         TrackerStatus: {
             /** @enum {string} */
@@ -2716,9 +2828,9 @@ export type components = {
         };
         /** @description Websockets connection output message */
         WsMessage: {
-            torrents: components["schemas"]["TorrentState"][];
+            session: components["schemas"]["SessionState"];
             /** @enum {string} */
-            type: "alltorrents";
+            type: "torrentsessionstate";
         } | {
             progress: components["schemas"]["TorrentProgress"];
             /** @enum {string} */
@@ -3012,6 +3124,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BrowseDirectory"];
+                };
+            };
+            /** @description Directory is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+            /** @description Invalid permissions, other errors */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
                 };
             };
         };
@@ -4709,6 +4839,36 @@ export interface operations {
             };
         };
     };
+    batch_action: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchActionPayload"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Torrent is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
     index_magnet_link: {
         parameters: {
             query: {
@@ -4932,6 +5092,25 @@ export interface operations {
             };
         };
     };
+    session_state: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionState"];
+                };
+            };
+        };
+    };
     updates: {
         parameters: {
             query?: never;
@@ -4980,7 +5159,7 @@ export interface operations {
             };
         };
     };
-    set_file_priority: {
+    set_files_priority: {
         parameters: {
             query?: never;
             header?: never;

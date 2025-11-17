@@ -1,6 +1,5 @@
 import SectionTitle from "../../components/Settings/SectionTitle";
 import SectionSubTitle from "../../components/Settings/SectionSubTitle";
-import { createAsync } from "@solidjs/router";
 import { Schemas, revalidatePath, server } from "../../utils/serverApi";
 import Variants from "../../components/Settings/VariantsList";
 import { Setting, SmartSetting } from "../../components/Settings/Setting";
@@ -13,6 +12,7 @@ import promptConfirm from "@/components/modals/ConfirmationModal";
 import { Button } from "@/ui/button";
 import { SETTINGS } from "@/utils/settingsDescriptors";
 import { LanguagePicker } from "@/components/Settings/LanguagePicker";
+import { queryApi } from "@/utils/queryApi";
 
 export type SettingsObject = {
   [K in Schemas["ConfigSchema"][number]["key"]]: Extract<
@@ -61,7 +61,7 @@ function GeneralSettings() {
           <SmartSetting setting="movie_folders" />
           <Setting
             data={SETTINGS["metadata_language"]}
-            remote={remoteSettings()["metadata_language"]}
+            remote={remoteSettings.data!["metadata_language"]}
           >
             <LanguagePicker
               onChange={(language) =>
@@ -69,8 +69,8 @@ function GeneralSettings() {
               }
               value={
                 changedSettings["metadata_language"] ??
-                remoteSettings()["metadata_language"].config_value ??
-                remoteSettings()["metadata_language"].default_value
+                remoteSettings.data!["metadata_language"].config_value ??
+                remoteSettings.data!["metadata_language"].default_value
               }
               placeholder="Select metadata language"
             />
@@ -97,7 +97,7 @@ function GeneralSettings() {
 
       <Show when={changesAmount()}>
         {(amount) => (
-          <div class="fixed bottom-10 right-10 z-20 flex items-center gap-8">
+          <div class="fixed right-10 bottom-10 z-20 flex items-center gap-8">
             <Button variant={"destructive"} onClick={handleReset}>
               Abort changes
             </Button>
@@ -115,21 +115,22 @@ function GeneralSettings() {
 }
 
 export default function GeneralSettingsPage() {
-  let remoteSettings = createAsync(async () => {
-    let settings = await server
-      .GET_NO_CACHE("/api/configuration")
-      .then((r) => r.data);
-    if (settings === undefined) return;
-
-    return settings.reduce((obj, setting) => {
-      // @ts-expect-error
-      obj[setting.key] = setting;
-      return obj;
-    }, {} as SettingsObject);
-  });
+  let remoteSettings = queryApi.useQuery(
+    "get",
+    "/api/configuration",
+    () => ({}),
+    () => ({
+      select: (settings) =>
+        settings.reduce((obj, setting) => {
+          // @ts-expect-error
+          obj[setting.key] = setting;
+          return obj;
+        }, {} as SettingsObject),
+    }),
+  );
 
   return (
-    <Show when={remoteSettings()}>
+    <Show when={remoteSettings.data}>
       {(settings) => (
         <div id="settings" class="flex h-full justify-between">
           <SettingsProvider initialSettings={settings()}>

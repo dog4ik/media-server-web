@@ -2,7 +2,7 @@ import { ParentProps, Show, createEffect, createSignal } from "solid-js";
 import { useBackdropContext } from "../context/BackdropContext";
 import SideBar from "../components/SideBar";
 import NavBar from "../components/NavBar";
-import GlobalErrorBoundary from "@/pages/GlobalErrorBoundary";
+import clsx from "clsx";
 
 const ANIMATION = {
   opacity: [0, 1],
@@ -14,14 +14,12 @@ const OPTIONS = {
 };
 
 export default function PageLayout(props: ParentProps) {
-  let [{ currentBackdrop }] = useBackdropContext();
+  let [{ backdropQuery }] = useBackdropContext();
   let backdropElement: HTMLImageElement = {} as any;
   let gradientElement: HTMLDivElement = {} as any;
-  let [isLoaded, setIsLoaded] = createSignal(false);
 
   createEffect(() => {
-    setIsLoaded(false);
-    if (currentBackdrop()) {
+    if (backdropQuery.isSuccess) {
       backdropElement.animate(ANIMATION, OPTIONS);
     } else {
       gradientElement.animate(ANIMATION, OPTIONS);
@@ -34,27 +32,27 @@ export default function PageLayout(props: ParentProps) {
       <NavBar />
       <div ref={backdropElement!} class="absolute inset-0">
         <div class="size-full">
-          <Show when={!currentBackdrop()}>
+          <Show when={!backdropQuery.isSuccess}>
             <div
               ref={gradientElement!}
               class="h-full w-full object-cover transition-opacity"
             ></div>
           </Show>
-          <Show when={currentBackdrop() || isLoaded()}>
+          <Show when={backdropQuery.isSuccess}>
             <img
               ref={backdropElement!}
-              onLoad={() => setIsLoaded(true)}
-              src={currentBackdrop()}
-              class={`h-full w-full object-cover ${
-                isLoaded() ? "block" : "hidden"
-              }`}
+              src={backdropQuery.isSuccess ? backdropQuery.data.src : undefined}
+              class={clsx(
+                "h-full w-full object-cover",
+                backdropQuery.isSuccess ? "block" : "hidden",
+              )}
             />
           </Show>
-          <div class="hover-hide fixed inset-0 bg-background/90" />
+          <div class="hover-hide bg-background/90 fixed inset-0" />
         </div>
       </div>
       <main class="relative z-10 flex min-h-screen w-full flex-col overflow-y-scroll rounded-md pt-16 text-white">
-        <GlobalErrorBoundary>{props.children}</GlobalErrorBoundary>
+        {props.children}
       </main>
     </>
   );

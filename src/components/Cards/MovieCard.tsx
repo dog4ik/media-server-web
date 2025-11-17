@@ -1,5 +1,4 @@
 import MoreButton from "../ContextMenu/MoreButton";
-import { A } from "@solidjs/router";
 import FallbackImage from "../FallbackImage";
 import {
   Schemas,
@@ -13,13 +12,7 @@ import useToggle from "../../utils/useToggle";
 import { Show } from "solid-js";
 import FixMetadata from "../FixMetadata";
 import promptConfirm from "../modals/ConfirmationModal";
-
-function provider(provider: string): string {
-  if (provider === "local") {
-    return "";
-  }
-  return `?provider=${provider}`;
-}
+import { Link } from "@tanstack/solid-router";
 
 async function deleteMovie(id: number, title: string) {
   try {
@@ -35,8 +28,6 @@ async function deleteMovie(id: number, title: string) {
 }
 
 export default function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
-  let url = `/movies/${props.movie.metadata_id}${provider(props.movie.metadata_provider)}`;
-
   let [fixModal, toggleFixModal] = useToggle(false);
   let notificator = useNotifications();
   function handleFix() {
@@ -64,8 +55,8 @@ export default function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
   let localUrl =
     props.movie.metadata_provider == "local"
       ? fullUrl("/api/movie/{id}/poster", {
-        path: { id: +props.movie.metadata_id },
-      })
+          path: { id: +props.movie.metadata_id },
+        })
       : undefined;
 
   return (
@@ -77,20 +68,31 @@ export default function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
         initialSearch={props.movie.title}
         onClose={() => toggleFixModal(false)}
       />
-      <div class="min-w-60 max-w-60 flex-none space-y-2 overflow-hidden">
-        <A href={url} class="relative w-full">
+      <div class="max-w-60 min-w-60 flex-none space-y-2 overflow-hidden">
+        <Link
+          to={"/movies/$id"}
+          params={{ id: props.movie.metadata_id }}
+          search={{ provider: props.movie.metadata_provider }}
+          class="relative w-full"
+        >
           <FallbackImage
             alt="Movie poster"
             srcList={[localUrl, props.movie.poster ?? undefined]}
             class="aspect-poster rounded-xl object-cover"
             width={312}
-            height={468}
+            height={415}
           />
-        </A>
+        </Link>
         <div class="flex items-center justify-between">
-          <A title={props.movie.title} class="text-md truncate" href={url}>
+          <Link
+            title={props.movie.title}
+            class="text-md truncate"
+            to={"/movies/$id"}
+            params={{ id: props.movie.metadata_id }}
+            search={{ provider: props.movie.metadata_provider }}
+          >
             {props.movie.title}
-          </A>
+          </Link>
           <Show when={props.movie.metadata_provider === "local"}>
             <MoreButton>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>

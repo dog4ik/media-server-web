@@ -1,4 +1,3 @@
-import { A, createAsync } from "@solidjs/router";
 import {
   Schemas,
   formatCodec,
@@ -27,11 +26,13 @@ import {
   TableHeader,
   TableCell,
 } from "@/ui/table";
+import { Link, LinkOptions } from "@tanstack/solid-router";
+import { useQuery } from "@tanstack/solid-query";
 
 type TableRowProps = {
   title: string;
   idx: number;
-  url: string;
+  url: LinkOptions;
   posterList: string[];
   audio?: Schemas["DetailedAudioTrack"];
   video?: Schemas["DetailedVideoTrack"];
@@ -45,11 +46,14 @@ type PlayMarkProps = {
 };
 
 function CanPlayMark(props: PlayMarkProps) {
-  let playStatus = createAsync(() => isCompatible(props.video, props.audio));
+  let playStatus = useQuery(() => ({
+    queryFn: () => isCompatible(props.video, props.audio),
+    queryKey: ["compatatability"]
+  }))
   return (
     <Show
       fallback={<div class="h-2 w-2 rounded-full bg-neutral-800" />}
-      when={playStatus()}
+      when={playStatus.data}
     >
       {(status) => (
         <Switch fallback={<div class="h-2 w-2 rounded-full bg-neutral-700" />}>
@@ -81,13 +85,13 @@ function Row(props: TableRowProps) {
         <FallbackImage
           srcList={props.posterList}
           alt="Content poster"
-          class="inline aspect-poster rounded-md"
+          class="aspect-poster inline rounded-md"
           width={60}
           height={90}
         />
-        <A class="pl-2 hover:underline" href={props.url}>
+        <Link class="pl-2 hover:underline" {...props.url}>
           {props.title}
-        </A>
+        </Link>
       </TableCell>
       <TableCell>
         {props.video?.codec ? formatCodec(props.video.codec) : "N/A"}
@@ -178,21 +182,26 @@ function NoItemsDisplay() {
 }
 
 export default function Variants() {
-  let videos = createAsync(async () => {
-    let variants = await server.GET("/api/variants").then(throwResponseErrors);
-    let promises = variants.map((video) => fetchVideoContent(video.id));
-    let settled = await Promise.allSettled(promises);
-    return variants.map((d, idx) => {
-      let settledContent = settled[idx];
-      return {
-        ...d,
-        content:
-          settledContent.status == "fulfilled"
-            ? settledContent.value
-            : undefined,
-      };
-    });
-  });
+  let videos = useQuery(() => ({
+    queryFn: async () => {
+      let variants = await server
+        .GET("/api/variants")
+        .then(throwResponseErrors);
+      let promises = variants.map((video) => fetchVideoContent(video.id));
+      let settled = await Promise.allSettled(promises);
+      return variants.map((d, idx) => {
+        let settledContent = settled[idx];
+        return {
+          ...d,
+          content:
+            settledContent.status == "fulfilled"
+              ? settledContent.value
+              : undefined,
+        };
+      });
+    },
+    queryKey: ["variants"],
+  }));
 
   async function onDelete(videoId: number, variantId: string) {
     let confirmed = await promptConfirm("Do you want to delete variant?");
@@ -208,7 +217,7 @@ export default function Variants() {
     <div class="flex flex-col gap-5">
       <ErrorBoundary fallback={(e) => <VariantsError e={e} />}>
         <Suspense>
-          <Show fallback={<NoItemsDisplay />} when={videos()?.length! > 0}>
+          <Show fallback={<NoItemsDisplay />} when={videos.data?.length! > 0}>
             <Table class="border">
               <TableHeader>
                 <TableRow>
@@ -223,7 +232,7 @@ export default function Variants() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <For each={videos()}>
+                <For each={videos.data}>
                   {(video, idx) => (
                     <VideoTranscodedVariants
                       idx={idx()}

@@ -1,6 +1,6 @@
-import { createAsync } from "@solidjs/router";
 import { Schemas } from "../../utils/serverApi";
 import { isCompatible } from "../../utils/mediaCapabilities";
+import { useQuery } from "@tanstack/solid-query";
 
 type Props = {
   variant: Schemas["DetailedVariant"];
@@ -22,11 +22,12 @@ export default function VariantMenuRow(props: Props) {
   let defaultAudio = () =>
     props.variant.audio_tracks.find((t) => t.is_default) ??
     props.variant.audio_tracks[0];
-  let checkCompatibility = createAsync(async () => {
-    return await isCompatible(defaultVideo(), defaultAudio());
-  });
+  let checkCompatibility = useQuery(() => ({
+    queryFn: () => isCompatible(defaultVideo(), defaultAudio()),
+    queryKey: ["compatabilitiy"],
+  }));
   let bgColor = () => {
-    let compatibility = checkCompatibility();
+    let compatibility = checkCompatibility.data;
     if (compatibility) {
       return compatibility.combined.supported ? "bg-green-400" : "bg-red-500";
     }

@@ -2,12 +2,13 @@ import { Match, Show, Switch, createMemo, createSignal } from "solid-js";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
-import { createAsync } from "@solidjs/router";
 import { Schemas, server } from "../../utils/serverApi";
 import { formatSize } from "../../utils/formats";
 import { Button } from "@/ui/button";
 import useDebounce from "@/utils/useDebounce";
 import { useNotifications } from "@/context/NotificationContext";
+import tracing from "@/utils/tracing";
+import { queryApi } from "@/utils/queryApi";
 
 type StepLoadingProps = {
   currentStep: number;
@@ -39,22 +40,15 @@ type Props = {
 
 export function TorrentDownloadSteps(props: Props) {
   let [currentStep, setCurrentStep] = createSignal(0);
-  let [selectedProvider, setSelectedProvider] =
-    createSignal<Schemas["TorrentIndexIdentifier"]>("tpb");
-  let [query, deferredQuery, setQuery] = useDebounce(
-    300,
-    props.downloadQuery(selectedProvider()),
-  );
   let [selectedMagnetLink, setSelectedMagnetLink] = createSignal<string>();
   let [selectedFiles, setSelectedFiles] = createSignal<boolean[]>([]);
   let [outputLocation, setOutputLocation] = createSignal<string>();
   let notificator = useNotifications();
 
-  let resolvedMagnetLink = createAsync(async () => {
-    if (!selectedMagnetLink()) {
-      return undefined;
-    }
-    return await server.GET("/api/torrent/resolve_magnet_link", {
+  let resolvedMagnetLink = queryApi.useQuery(
+    "get",
+    "/api/torrent/resolve_magnet_link",
+    () => ({
       params: {
         query: {
           magnet_link: selectedMagnetLink()!,
@@ -63,36 +57,9 @@ export function TorrentDownloadSteps(props: Props) {
           metadata_provider: props.content_hint?.metadata_provider,
         },
       },
-    });
-  });
-
-  let searchAbortController: AbortController | undefined = undefined;
-
-  let torrentSearch = createAsync(async () => {
-    let abortController = new AbortController();
-    let signal = abortController.signal;
-    searchAbortController = abortController;
-    let result = await server
-      .GET("/api/torrent/search", {
-        params: {
-          query: {
-            search: deferredQuery(),
-            content_type: props.content_hint?.content_type,
-            provider: selectedProvider(),
-          },
-        },
-        signal,
-      })
-      .catch((_) => {
-        if (searchAbortController?.signal.aborted) {
-          console.log("Aborted torrent search request");
-        }
-      });
-    if (result?.data == undefined) {
-      return undefined;
-    }
-    return result;
-  });
+    }),
+    () => ({ enabled: selectedMagnetLink() !== undefined }),
+  );
 
   server.GET("/api/torrent/output_location", {}).then((res) => {
     let outputForContent = () => {
@@ -106,6 +73,8 @@ export function TorrentDownloadSteps(props: Props) {
     };
     outputLocation() || setOutputLocation(outputForContent());
   });
+
+  let outLocation = queryApi.useQuery("get", "/api/torrent/output_location");
 
   function changeStep(newStep: number) {
     if (newStep <= 0) {
@@ -141,46 +110,29 @@ export function TorrentDownloadSteps(props: Props) {
     props.onClose();
   }
 
-  async function handleProviderChange(
-    provider: Schemas["TorrentIndexIdentifier"],
-  ) {
-    if (selectedProvider() != provider) {
-      setSelectedProvider(provider);
-      setQuery(props.downloadQuery(provider));
-    }
-  }
-
   return (
     <div class="flex h-full w-full flex-col items-center">
       <div class="size-full overflow-y-auto">
         <Switch fallback={<StepLoading currentStep={currentStep()} />}>
           <Match when={currentStep() === 0}>
             <Step1
+              downloadQuery={props.downloadQuery}
+              contentHint={props.content_hint}
               onSelect={(magnet) => {
                 setSelectedMagnetLink(magnet);
                 setCurrentStep(1);
               }}
-              onProviderChange={handleProviderChange}
-              onQueryChange={(q) => {
-                if (searchAbortController) {
-                  searchAbortController.abort();
-                }
-                setQuery(q);
-              }}
-              provider={selectedProvider()}
-              query={query()}
-              searchResults={torrentSearch()?.data}
             />
           </Match>
-          <Match when={currentStep() === 1 && resolvedMagnetLink()?.data}>
+          <Match when={currentStep() === 1 && resolvedMagnetLink.latest()}>
             <Step2
               onFileSelect={setSelectedFiles}
-              content={resolvedMagnetLink()!.data!}
+              content={resolvedMagnetLink.latest()!}
             />
           </Match>
-          <Match when={currentStep() === 2 && resolvedMagnetLink()?.data}>
+          <Match when={currentStep() === 2 && resolvedMagnetLink.latest()}>
             <Step3
-              content={resolvedMagnetLink()!.data!}
+              content={resolvedMagnetLink.latest()!}
               output={outputLocation()}
               onOutputSelect={setOutputLocation}
               selectedFiles={enabledFiles()}
@@ -188,7 +140,7 @@ export function TorrentDownloadSteps(props: Props) {
           </Match>
         </Switch>
       </div>
-      <div class="absolute bottom-5 right-5 space-x-4">
+      <div class="absolute right-5 bottom-5 space-x-4">
         <Show when={currentStep() !== 0}>
           <button onClick={() => changeStep(currentStep() - 1)} class="btn">
             Back
@@ -213,7 +165,7 @@ export function TorrentDownloadSteps(props: Props) {
               {formatSize(
                 enabledFiles().reduce(
                   (acc, n) =>
-                    acc + resolvedMagnetLink()!.data!.contents.files[n].size,
+                    acc + resolvedMagnetLink.latest()!.contents.files[n].size,
                   0,
                 ),
               )}{" "}

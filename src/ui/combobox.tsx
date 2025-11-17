@@ -1,4 +1,4 @@
-import { cn } from "@/libs/cn";
+import { cn } from "@/lib/cn";
 import type {
 	ComboboxContentProps,
 	ComboboxInputProps,
@@ -98,7 +98,7 @@ export const ComboboxContent = <T extends ValidComponent = "div">(
 		<ComboboxPrimitive.Portal>
 			<ComboboxPrimitive.Content
 				class={cn(
-					"relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95 origin-[--kb-combobox-content-transform-origin]",
+					"relative z-50 min-w-32 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95 origin-(--kb-combobox-content-transform-origin)",
 					local.class,
 				)}
 				{...rest}
@@ -126,7 +126,7 @@ export const ComboboxItem = <T extends ValidComponent = "li">(
 	return (
 		<ComboboxPrimitive.Item
 			class={cn(
-				"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[disabled]:opacity-50",
+				"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none data-disabled:pointer-events-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-disabled:opacity-50",
 				local.class,
 			)}
 			{...rest}

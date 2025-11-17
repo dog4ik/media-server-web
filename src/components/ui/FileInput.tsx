@@ -1,4 +1,4 @@
-import { createSignal, Show } from "solid-js";
+import { createSignal, Show, Suspense } from "solid-js";
 import { FilePicker } from "../FilePicker";
 import { FiEdit2 } from "solid-icons/fi";
 import {
@@ -41,7 +41,7 @@ export default function FileInput(props: FileInputProps) {
           />
         </DialogContent>
       </Dialog>
-      <div class="flex h-9 w-full items-center justify-between gap-2 rounded-md border bg-background py-1 pl-3 text-sm">
+      <div class="bg-background flex h-9 w-full items-center justify-between gap-2 rounded-md border py-1 pl-3 text-sm">
         <span class="line-clamp-1" title={props.value}>
           {props.value}
         </span>

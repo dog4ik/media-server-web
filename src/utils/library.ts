@@ -2,9 +2,9 @@ import { NotificationProps } from "@/components/Notification";
 import { useRawNotifications } from "@/context/NotificationContext";
 import { formatSE } from "./formats";
 import { fullUrl, Schemas, server } from "./serverApi";
-import { createAsync } from "@solidjs/router";
 import { throwResponseErrors } from "./errors";
-import { isCompatible } from "./mediaCapabilities";
+import { isCompatible, useCapabilityQuery } from "./mediaCapabilities";
+import { linkOptions, LinkOptions } from "@tanstack/solid-router";
 
 export function defaultTrack<T extends { is_default: boolean }>(tracks: T[]) {
   return tracks.find((t) => t.is_default) ?? tracks.at(0);
@@ -37,7 +37,7 @@ export interface Media {
   metadata_id: string;
   metadata_provider: Schemas["MetadataProvider"];
   poster?: string;
-  url(): string;
+  url(): LinkOptions;
   localPoster(): string;
   friendlyTitle(): string;
   delete(): Promise<Schemas["AppError"] | undefined>;
@@ -85,7 +85,11 @@ export function extendMovie(movie: Schemas["MovieMetadata"]): ExtendedMovie {
     },
 
     url() {
-      return `/movies/${this.metadata_id}?provider=${this.metadata_provider}`;
+      return linkOptions({
+        to: "/movies/$id",
+        params: { id: this.metadata_id },
+        search: { provider: this.metadata_provider },
+      });
     },
 
     friendlyTitle() {
@@ -123,15 +127,13 @@ export async function fetchShow(
   showId: string,
   metadataProvider?: Schemas["MetadataProvider"],
 ) {
-  let showMetadata = await server
-    .GET("/api/show/{id}", {
-      params: {
-        path: { id: showId },
-        query: { provider: metadataProvider ?? "local" },
-      },
-    })
-    .then(throwResponseErrors);
-  return extendShow(showMetadata);
+  let res = await server.GET("/api/show/{id}", {
+    params: {
+      path: { id: showId },
+      query: { provider: metadataProvider ?? "local" },
+    },
+  });
+  return extendShow(throwResponseErrors(res));
 }
 
 /// We are doing things this way because stupid classes can't spread in constructor
@@ -155,7 +157,11 @@ export function extendShow(show: Schemas["ShowMetadata"]): ExtendedShow {
     },
 
     url() {
-      return `/shows/${this.metadata_id}?provider=${this.metadata_provider}`;
+      return linkOptions({
+        to: "/shows/$id",
+        params: { id: this.metadata_id },
+        search: { provider: this.metadata_provider },
+      });
     },
 
     friendlyTitle(): string {
@@ -233,7 +239,11 @@ export function extendSeason(
     },
 
     url() {
-      return `/shows/${this.metadata_id}/?season=${this.number}&provider=${this.metadata_provider}`;
+      return linkOptions({
+        to: "/shows/$id",
+        params: { id: this.metadata_id },
+        search: { provider: this.metadata_provider, season: this.number },
+      });
     },
 
     friendlyTitle(): string {
@@ -297,7 +307,15 @@ export function extendEpisode(
     },
 
     url() {
-      return `/shows/${showId}/${this.season_number}/${this.number}?provider=${this.metadata_provider}`;
+      return linkOptions({
+        to: "/shows/$id/$season/$episode",
+        params: {
+          id: showId,
+          season: this.season_number.toString(),
+          episode: this.number.toString(),
+        },
+        search: { provider: this.metadata_provider },
+      });
     },
 
     friendlyTitle(): string {
@@ -370,7 +388,7 @@ export function extendVideoContent(
       content.content_type == "movie"
         ? content.movie.metadata_provider
         : content.show.metadata_provider,
-    url(): string {
+    url(): LinkOptions {
       return this.content.url();
     },
 
@@ -435,13 +453,6 @@ export class Content<T extends Media> {
 
 export class Video {
   constructor(public details: Schemas["DetailedVideo"]) {}
-
-  /**
-   Create solidjs async signal
-   */
-  static createAsync(videoId: number) {
-    return createAsync(async () => await Video.fetch(videoId));
-  }
 
   static async fetch(videoId: number) {
     let video = await server
@@ -512,6 +523,13 @@ export class Video {
     return defaultTrack(this.details.video_tracks);
   }
 
+  useVideoCompatibility() {
+    return useCapabilityQuery(
+      this.details.path,
+      this.defaultVideo(),
+      this.defaultAudio(),
+    );
+  }
   videoCompatibility() {
     return isCompatible(this.defaultVideo(), this.defaultAudio());
   }

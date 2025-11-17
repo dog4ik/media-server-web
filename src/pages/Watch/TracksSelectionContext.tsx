@@ -1,7 +1,7 @@
 import { Video } from "@/utils/library";
 import { Schemas, server } from "@/utils/serverApi";
 import tracing from "@/utils/tracing";
-import { createAsync } from "@solidjs/router";
+import { useQuery } from "@tanstack/solid-query";
 import { ParentProps, createContext, useContext } from "solid-js";
 import { createStore, unwrap } from "solid-js/store";
 
@@ -22,17 +22,17 @@ export const useTracksSelection = () => {
 
 export type SelectedSubtitleTrack =
   | {
-    origin: "container";
-    track: Schemas["DetailedSubtitleTrack"];
-  }
+      origin: "container";
+      track: Schemas["DetailedSubtitleTrack"];
+    }
   | {
-    origin: "external";
-    id: number;
-  }
+      origin: "external";
+      id: number;
+    }
   | {
-    origin: "imported";
-    text: string;
-  };
+      origin: "imported";
+      text: string;
+    };
 
 type TracksSelection = {
   audio?: Schemas["DetailedAudioTrack"];
@@ -91,57 +91,60 @@ function createSelectionContext(video: () => Video) {
       : undefined,
   });
 
-  let fetchedSubtitles = createAsync(async () => {
-    if (!store.subtitles) return;
-    tracing.trace("Fetching subtitles");
-    if (store.subtitles && store.subtitles.origin === "container") {
-      let track = unwrap(store.subtitles.track);
-      let selectedTrackIdx = video().details.subtitle_tracks.findIndex(
-        (t) => t === track,
-      );
-      if (selectedTrackIdx == -1) {
-        tracing.warn(
-          { videoSubtitlesTracksLen: video().details.subtitle_tracks.length },
-          "Selected track is not found in video",
+  let fetchedSubtitles = useQuery(() => ({
+    queryFn: async () => {
+      if (!store.subtitles) return;
+      tracing.trace("Fetching subtitles");
+      if (store.subtitles && store.subtitles.origin === "container") {
+        let track = unwrap(store.subtitles.track);
+        let selectedTrackIdx = video().details.subtitle_tracks.findIndex(
+          (t) => t === track,
         );
-        return;
+        if (selectedTrackIdx == -1) {
+          tracing.warn(
+            { videoSubtitlesTracksLen: video().details.subtitle_tracks.length },
+            "Selected track is not found in video",
+          );
+          return;
+        }
+        tracing.debug({ selectedTrackIdx }, `Fetching container subtitles`);
+        return await server
+          .GET("/api/video/{id}/pull_subtitle", {
+            params: {
+              query: {
+                number: selectedTrackIdx,
+              },
+              path: {
+                id: video().details.id,
+              },
+            },
+            parseAs: "text",
+          })
+          .then((r) => r.data);
       }
-      tracing.debug({ selectedTrackIdx }, `Fetching container subtitles`);
-      return await server
-        .GET("/api/video/{id}/pull_subtitle", {
-          params: {
-            query: {
-              number: selectedTrackIdx,
-            },
-            path: {
-              id: video().details.id,
-            },
-          },
+
+      if (store.subtitles?.origin == "external") {
+        let id = store.subtitles.id;
+        tracing.debug({ id }, "Fetching external subtitles");
+        let res = await server.GET("/api/subtitles/{id}", {
+          params: { path: { id } },
           parseAs: "text",
-        })
-        .then((r) => r.data);
-    }
-
-    if (store.subtitles?.origin == "external") {
-      let id = store.subtitles.id;
-      tracing.debug({ id }, "Fetching external subtitles");
-      let res = await server.GET("/api/subtitles/{id}", {
-        params: { path: { id } },
-        parseAs: "text",
-      });
-      if (res.error) {
-        tracing.error(
-          { message: res.error.message },
-          "Failed to fetch external subtitles",
-        );
+        });
+        if (res.error) {
+          tracing.error(
+            { message: res.error.message },
+            "Failed to fetch external subtitles",
+          );
+        }
+        return res.data;
       }
-      return res.data;
-    }
 
-    if (store.subtitles?.origin == "imported") {
-      return store.subtitles.text;
-    }
-  });
+      if (store.subtitles?.origin == "imported") {
+        return store.subtitles.text;
+      }
+    },
+    queryKey: ["subtitles"],
+  }));
 
   function selectAudioTrack(index: number, element?: HTMLVideoElement) {
     if (index >= video().details.audio_tracks.length) {

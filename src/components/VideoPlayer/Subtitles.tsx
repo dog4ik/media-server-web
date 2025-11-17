@@ -15,7 +15,7 @@ type SubtitleChunk = {
 export default function Subtitles(props: Props) {
   let [{ fetchedSubtitles, tracks }] = useTracksSelection();
   let subs = createMemo(() => {
-    let subs = fetchedSubtitles();
+    let subs = fetchedSubtitles.data;
     if (subs) {
       return srtParser(subs);
     }

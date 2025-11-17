@@ -1,4 +1,11 @@
-import { For, Match, ParentProps, Switch, createSignal } from "solid-js";
+import {
+  For,
+  Match,
+  ParentProps,
+  Suspense,
+  Switch,
+  createSignal,
+} from "solid-js";
 import SectionSubTitle from "./SectionSubTitle";
 import { SETTINGS, Settings } from "../../utils/settingsDescriptors";
 import { Schemas } from "../../utils/serverApi";
@@ -264,27 +271,27 @@ export function SmartSetting<T extends keyof typeof SETTINGS>(
   let { remoteSettings, changedSettings, change } = useSettingsContext();
   if (
     setting.typeHint === undefined &&
-    remoteSettings()[props.setting].default_value === null
+    remoteSettings.data![props.setting].default_value === null
   ) {
     throw Error("No type hint with nullable setting");
   }
 
   function handleUpdate(value: InputPropType) {
-    let defaultValue = remoteSettings()[props.setting];
+    let defaultValue = remoteSettings.data![props.setting];
     change(props.setting, value as SettingsValuesObject[T]);
     return defaultValue;
   }
 
   return (
-    <Setting data={setting} remote={remoteSettings()[props.setting]}>
+    <Setting data={setting} remote={remoteSettings.data![props.setting]}>
       <Switch
         fallback={
           <InferredInput
             onInput={handleUpdate}
             value={
               changedSettings[props.setting] ??
-              remoteSettings()[props.setting].config_value ??
-              remoteSettings()[props.setting].default_value!
+              remoteSettings.data![props.setting].config_value ??
+              remoteSettings.data![props.setting].default_value!
             }
           />
         }
@@ -295,8 +302,8 @@ export function SmartSetting<T extends keyof typeof SETTINGS>(
             onChange={handleUpdate}
             value={
               (changedSettings[props.setting] ??
-                remoteSettings()[props.setting].config_value ??
-                remoteSettings()[props.setting].default_value) as string
+                remoteSettings.data![props.setting].config_value ??
+                remoteSettings.data![props.setting].default_value) as string
             }
           />
         </Match>
@@ -305,8 +312,8 @@ export function SmartSetting<T extends keyof typeof SETTINGS>(
             onChange={handleUpdate}
             values={
               (changedSettings[props.setting] ??
-                remoteSettings()[props.setting].config_value ??
-                remoteSettings()[props.setting].default_value!) as string[]
+                remoteSettings.data![props.setting].config_value ??
+                remoteSettings.data![props.setting].default_value!) as string[]
             }
           />
         </Match>
@@ -315,8 +322,8 @@ export function SmartSetting<T extends keyof typeof SETTINGS>(
             onChange={handleUpdate}
             value={
               (changedSettings[props.setting] ??
-                remoteSettings()[props.setting].config_value ??
-                remoteSettings()[props.setting].default_value!) as string
+                remoteSettings.data![props.setting].config_value ??
+                remoteSettings.data![props.setting].default_value!) as string
             }
           />
         </Match>

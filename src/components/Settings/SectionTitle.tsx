@@ -1,4 +1,3 @@
-import { A } from "@solidjs/router";
 import nameToHash from "../../utils/nameToHash";
 import { FiHash } from "solid-icons/fi";
 
@@ -7,7 +6,7 @@ type Props = {
 };
 export default function SectionTitle(props: Props) {
   return (
-    <A
+    <a
       class="group flex cursor-pointer items-center gap-5"
       href={`#${nameToHash(props.name)}`}
     >
@@ -18,6 +17,6 @@ export default function SectionTitle(props: Props) {
         class="opacity-0 transition-opacity group-hover:opacity-50"
         size={30}
       />
-    </A>
+    </a>
   );
 }

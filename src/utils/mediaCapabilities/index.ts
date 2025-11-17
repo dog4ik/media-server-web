@@ -1,3 +1,4 @@
+import { queryOptions, useQuery, UseQueryResult } from "@tanstack/solid-query";
 import { Schemas } from "../serverApi";
 import tracing from "../tracing";
 import { commonAACProfile, getAACAudio } from "./audio/aac";
@@ -309,4 +310,34 @@ export function containerSupport(
   }
 
   return CONTAINER_SUPPORT[container][browser] ?? false;
+}
+
+type CheckTarget = "audio" | "video" | "combined" | "neither";
+
+export function useCapabilityQuery<
+  V extends VideoTrack | undefined,
+  A extends AudioTrack | undefined,
+>(
+  path: string,
+  video: V,
+  audio: A,
+): UseQueryResult<{
+  video: V extends VideoTrack ? MediaCapabilitiesDecodingInfo : undefined;
+  audio: A extends AudioTrack ? MediaCapabilitiesDecodingInfo : undefined;
+  combined: V extends VideoTrack
+    ? A extends AudioTrack
+      ? MediaCapabilitiesDecodingInfo
+      : undefined
+    : undefined;
+}> {
+  let checkTarget: CheckTarget;
+  if (video && audio) checkTarget = "combined";
+  else if (video) checkTarget = "video";
+  else if (audio) checkTarget = "audio";
+  else checkTarget = "neither";
+
+  return useQuery(() => ({
+    queryFn: async () => isCompatible(video, audio),
+    queryKey: ["capability", path, checkTarget],
+  }));
 }

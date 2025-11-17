@@ -1,4 +1,4 @@
-import { cn } from "@/libs/cn";
+import { cn } from "@/lib/cn";
 import type { CheckboxControlProps } from "@kobalte/core/checkbox";
 import { Checkbox as CheckboxPrimitive } from "@kobalte/core/checkbox";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";

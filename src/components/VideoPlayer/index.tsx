@@ -20,6 +20,7 @@ import { Button } from "@/ui/button";
 import { useTracksSelection } from "@/pages/Watch/TracksSelectionContext";
 import tracing from "@/utils/tracing";
 import { StreamParams } from "@/pages/Watch";
+import { Link, LinkOptions } from "@tanstack/solid-router";
 
 function formatDuration(time: number) {
   let leadingZeroFormatter = new Intl.NumberFormat(undefined, {
@@ -39,7 +40,7 @@ function formatDuration(time: number) {
 
 export type NextVideo = {
   nextTitle: string;
-  url: string;
+  url: LinkOptions;
 };
 
 type Props = {
@@ -233,7 +234,11 @@ export default function VideoPlayer(props: Props) {
     }
   }
   function handleSync(curTime: number) {
-    if (!isMetadataLoading() && Math.abs(curTime - lastSynced) > 5 && !isScubbing) {
+    if (
+      !isMetadataLoading() &&
+      Math.abs(curTime - lastSynced) > 5 &&
+      !isScubbing
+    ) {
       let time = Math.floor(curTime);
       tracing.trace({ time }, "Updating video history");
       props.onHistoryUpdate(time);
@@ -451,7 +456,7 @@ export default function VideoPlayer(props: Props) {
       <Show when={tracks.subtitles !== undefined && showCaptions()}>
         <Subtitles time={Math.floor(time() * 1000)} />
       </Show>
-      <div class="absolute bottom-20 right-20">
+      <div class="absolute right-20 bottom-20">
         <Show
           when={
             !isMetadataLoading() &&
@@ -470,24 +475,22 @@ export default function VideoPlayer(props: Props) {
         <Show when={props.nextVideo}>
           {(next) => (
             <Show when={!isMetadataLoading() && duration() - time() < 120}>
-              <Button
-                as="a"
-                href={next().url}
+              <Link
                 onClick={() => setIsMetadataLoading(true)}
-                variant={"outline"}
                 class="bg-black/80 py-5 text-lg hover:bg-black"
+                {...next().url}
               >
                 Next: {next().nextTitle}
-              </Button>
+              </Link>
             </Show>
           )}
         </Show>
       </div>
       {/* This "overlay" exists to prevent click on video that causes pause after closed menu */}
       <div
-        class={`${showMenu() ? "absolute" : "hidden"} bottom-0 left-0 right-0 top-0 h-full min-h-full w-full min-w-full`}
+        class={`${showMenu() ? "absolute" : "hidden"} top-0 right-0 bottom-0 left-0 h-full min-h-full w-full min-w-full`}
       >
-        <div ref={menuRef!} class="absolute bottom-16 right-5">
+        <div ref={menuRef!} class="absolute right-5 bottom-16">
           <PlayerMenu
             videoRef={videoRef}
             onPlaybackSpeedChange={changePlaybackSpeed}
@@ -496,8 +499,9 @@ export default function VideoPlayer(props: Props) {
         </div>
       </div>
       <div
-        class={`${shouldShowControls() ? "opacity-100" : "opacity-0"
-          } transition-opacity duration-200`}
+        class={`${
+          shouldShowControls() ? "opacity-100" : "opacity-0"
+        } transition-opacity duration-200`}
       >
         <div class="h-full w-full bg-red-400">{props.children}</div>
         <div
@@ -505,7 +509,7 @@ export default function VideoPlayer(props: Props) {
             clearTimeout(showControlsTimeout);
             setShowControls(true);
           }}
-          class={`absolute bottom-0 left-0 right-0 animate-fade-in transition-opacity`}
+          class={`animate-fade-in absolute right-0 bottom-0 left-0 transition-opacity`}
         >
           <div
             class="group flex h-4 cursor-pointer items-end"
@@ -527,7 +531,7 @@ export default function VideoPlayer(props: Props) {
                     number: Math.max(
                       Math.round(
                         (previewPosition()! / timelineRef!.offsetWidth) *
-                        props.previews!.previewsAmount,
+                          props.previews!.previewsAmount,
                       ),
                       1,
                     ),
@@ -539,14 +543,14 @@ export default function VideoPlayer(props: Props) {
                   Math.max(
                     Math.round(
                       (duration() * previewPosition()!) /
-                      timelineRef!.offsetWidth,
+                        timelineRef!.offsetWidth,
                     ),
                     0,
                   ),
                 )}
               />
             </Show>
-            <div class="absolute left-0 right-0 flex h-1.5 w-full bg-neutral-900">
+            <div class="absolute right-0 left-0 flex h-1.5 w-full bg-neutral-900">
               <div
                 class="after:content-[' '] flex h-full items-center justify-end rounded-md bg-white after:translate-x-2 after:rounded-full after:bg-white after:p-2 after:opacity-0 after:transition-opacity after:duration-150 after:group-hover:opacity-100"
                 style={{
@@ -584,7 +588,7 @@ export default function VideoPlayer(props: Props) {
               </div>
             </div>
 
-            <div class="flex select-none items-center gap-5">
+            <div class="flex items-center gap-5 select-none">
               <button class={"cursor-pointer"} onClick={() => toggleCaptions()}>
                 <FaSolidClosedCaptioning
                   class={`${tracks.subtitles && showCaptions() ? "fill-white" : "fill-neutral-700"}`}

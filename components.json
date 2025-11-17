@@ -11,6 +11,6 @@
   },
   "alias": {
     "component": "src/",
-    "cn": "@/libs/cn"
+    "cn": "@/lib/cn"
   }
 }

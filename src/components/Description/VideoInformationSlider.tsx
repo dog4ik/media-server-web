@@ -40,7 +40,7 @@ export default function VideoInformationSlider(props: Props) {
           Full Details
         </Button>
       </SheetTrigger>
-      <SheetContent class="w-full sm:max-w-2xl">
+      <SheetContent class="w-full sm:max-w-xl">
         <SheetHeader>
           <SheetTitle class="flex items-center gap-2">
             <FileVideo class="h-5 w-5" />
@@ -51,7 +51,7 @@ export default function VideoInformationSlider(props: Props) {
           </SheetDescription>
         </SheetHeader>
 
-        <div class="mt-6 overflow-y-auto h-[calc(100vh-120px)]">
+        <div class="mt-6 h-[calc(100vh-120px)] overflow-y-auto">
           <div class="space-y-6">
             <Card>
               <CardHeader>
@@ -63,38 +63,35 @@ export default function VideoInformationSlider(props: Props) {
               <CardContent class="space-y-3">
                 <div class="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span >ID:</span>{" "}
-                    {props.video.details.id}
+                    <span>ID:</span> {props.video.details.id}
                   </div>
                   <div>
-                    <span >Container:</span>
+                    <span>Container:</span>
                     <Badge variant="secondary" class="ml-2">
                       {props.video.details.container}
                     </Badge>
                   </div>
                   <div>
-                    <span >Duration:</span>{" "}
+                    <span>Duration:</span>{" "}
                     {formatDuration(props.video.details.duration)}
                   </div>
                   <div>
-                    <span >Size:</span>{" "}
-                    {formatSize(props.video.details.size)}
+                    <span>Size:</span> {formatSize(props.video.details.size)}
                   </div>
                   <div class="col-span-2">
-                    <span >Path:</span>
-                    <code class="ml-2 rounded bg-muted px-2 py-1 text-xs">
+                    <span>Path:</span>
+                    <code class="bg-muted ml-2 rounded px-2 py-1 text-xs">
                       {props.video.details.path}
                     </code>
                   </div>
                   <div>
-                    <span >Scan Date:</span>{" "}
+                    <span>Scan Date:</span>{" "}
                     {new Date(
                       props.video.details.scan_date,
                     ).toLocaleDateString()}
                   </div>
                   <div>
-                    <span >Previews:</span>{" "}
-                    {props.video.details.previews_count}
+                    <span>Previews:</span> {props.video.details.previews_count}
                   </div>
                 </div>
               </CardContent>
@@ -123,27 +120,23 @@ export default function VideoInformationSlider(props: Props) {
                       </div>
                       <div class="grid grid-cols-2 gap-2 text-sm">
                         <div>
-                          <span >Codec:</span>{" "}
-                          {formatCodec(track.codec)}
+                          <span>Codec:</span> {formatCodec(track.codec)}
                         </div>
                         <div>
-                          <span >Resolution:</span>{" "}
-                          {track.resolution.width}×{track.resolution.height}
+                          <span>Resolution:</span> {track.resolution.width}×
+                          {track.resolution.height}
                         </div>
                         <div>
-                          <span >Bitrate:</span>{" "}
-                          {formatBitrate(track.bitrate)}
+                          <span>Bitrate:</span> {formatBitrate(track.bitrate)}
                         </div>
                         <div>
-                          <span >Framerate:</span>{" "}
-                          {track.framerate} fps
+                          <span>Framerate:</span> {track.framerate} fps
                         </div>
                         <div>
-                          <span >Level:</span> {track.level}
+                          <span>Level:</span> {track.level}
                         </div>
                         <div>
-                          <span >Profile:</span>{" "}
-                          {track.profile_idc}
+                          <span>Profile:</span> {track.profile_idc}
                         </div>
                       </div>
                     </div>
@@ -182,20 +175,16 @@ export default function VideoInformationSlider(props: Props) {
                       </div>
                       <div class="grid grid-cols-2 gap-2 text-sm">
                         <div>
-                          <span >Codec:</span>{" "}
-                          {formatCodec(track.codec)}
+                          <span>Codec:</span> {formatCodec(track.codec)}
                         </div>
                         <div>
-                          <span >Channels:</span>{" "}
-                          {track.channels}
+                          <span>Channels:</span> {track.channels}
                         </div>
                         <div>
-                          <span >Sample Rate:</span>{" "}
-                          {track.sample_rate} Hz
+                          <span>Sample Rate:</span> {track.sample_rate} Hz
                         </div>
                         <div>
-                          <span >Language:</span>{" "}
-                          {track.language || "Unknown"}
+                          <span>Language:</span> {track.language || "Unknown"}
                         </div>
                       </div>
                     </div>
@@ -236,11 +225,10 @@ export default function VideoInformationSlider(props: Props) {
                       </div>
                       <div class="grid grid-cols-2 gap-2 text-sm">
                         <div>
-                          <span >Codec:</span> {track.codec}
+                          <span>Codec:</span> {track.codec}
                         </div>
                         <div>
-                          <span >Language:</span>{" "}
-                          {track.language || "Unknown"}
+                          <span>Language:</span> {track.language || "Unknown"}
                         </div>
                       </div>
                     </div>
@@ -263,12 +251,11 @@ export default function VideoInformationSlider(props: Props) {
                       <div class="flex items-center justify-between rounded border p-2">
                         <div class="flex items-center gap-3">
                           <Badge variant="outline">{index + 1}</Badge>
-                          <span >
-                            {chapter.title || `Chapter ${index + 1}`}
-                          </span>
+                          <span>{chapter.title || `Chapter ${index + 1}`}</span>
                         </div>
-                        <div class="text-sm text-muted-foreground">
-                          {chapter.start} - {chapter.end}
+                        <div class="text-muted-foreground text-sm">
+                          {formatDuration(chapter.start)} -{" "}
+                          {formatDuration(chapter.end)}
                         </div>
                       </div>
                     ))}
@@ -295,16 +282,15 @@ export default function VideoInformationSlider(props: Props) {
                         </div>
                         <div class="grid grid-cols-2 gap-2 text-sm">
                           <div>
-                            <span >Duration:</span>{" "}
+                            <span>Duration:</span>{" "}
                             {formatDuration(variant.duration)}
                           </div>
                           <div>
-                            <span >Size:</span>{" "}
-                            {formatSize(variant.size)}
+                            <span>Size:</span> {formatSize(variant.size)}
                           </div>
                           <div class="col-span-2">
-                            <span >Path:</span>
-                            <code class="ml-2 rounded bg-muted px-2 py-1 text-xs">
+                            <span>Path:</span>
+                            <code class="bg-muted ml-2 rounded px-2 py-1 text-xs">
                               {variant.path}
                             </code>
                           </div>
@@ -327,7 +313,7 @@ export default function VideoInformationSlider(props: Props) {
                 <CardContent>
                   <div class="space-y-2">
                     <div class="flex items-center justify-between">
-                      <span >Progress:</span>
+                      <span>Progress:</span>
                       <Badge
                         variant={
                           props.video.details.history.is_finished
@@ -341,14 +327,14 @@ export default function VideoInformationSlider(props: Props) {
                       </Badge>
                     </div>
                     <div class="flex items-center justify-between">
-                      <span >Time Watched:</span>
+                      <span>Time Watched:</span>
                       <span>
                         {Math.floor(props.video.details.history.time / 60)}m{" "}
                         {props.video.details.history.time % 60}s
                       </span>
                     </div>
                     <div class="flex items-center justify-between">
-                      <span >Last Updated:</span>
+                      <span>Last Updated:</span>
                       <span>
                         {new Date(
                           props.video.details.history.update_time,
@@ -370,9 +356,8 @@ export default function VideoInformationSlider(props: Props) {
                 </CardHeader>
                 <CardContent>
                   <div class="text-sm">
-                    <span >Duration:</span>{" "}
-                    {props.video.details.intro.start_sec} -{" "}
-                    {props.video.details.intro.end_sec}
+                    <span>Duration:</span> {props.video.details.intro.start_sec}{" "}
+                    - {props.video.details.intro.end_sec}
                   </div>
                 </CardContent>
               </Card>

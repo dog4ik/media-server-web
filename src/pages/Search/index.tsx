@@ -1,10 +1,11 @@
 import ProviderLogo from "@/components/generic/ProviderLogo";
 import PageTitle from "@/components/PageTitle";
-import { BaseError, throwResponseErrors } from "@/utils/errors";
+import { BaseError } from "@/utils/errors";
 import { capitalize } from "@/utils/formats";
-import { Schemas, server } from "@/utils/serverApi";
-import { A, createAsync, useLocation } from "@solidjs/router";
-import { ErrorBoundary, For, Match, Show, Suspense, Switch } from "solid-js";
+import { queryApi } from "@/utils/queryApi";
+import { Schemas } from "@/utils/serverApi";
+import { getRouteApi, Link, linkOptions } from "@tanstack/solid-router";
+import { For, Match, Show, Suspense, Switch } from "solid-js";
 
 type SearchResultProps = {
   item: Schemas["MetadataSearchResult"];
@@ -12,19 +13,26 @@ type SearchResultProps = {
 
 function SearchResultRow(props: SearchResultProps) {
   let url = () => {
-    let appendix = `/${props.item.metadata_id}?provider=${props.item.metadata_provider}`;
     if (props.item.content_type == "movie") {
-      return `/movies${appendix}`;
+      return linkOptions({
+        to: "/movies/$id",
+        params: { id: props.item.metadata_id },
+        search: { provider: props.item.metadata_provider },
+      });
     }
     if (props.item.content_type == "show") {
-      return `/shows/${appendix}`;
+      return linkOptions({
+        to: "/shows/$id",
+        params: { id: props.item.metadata_id },
+        search: { provider: props.item.metadata_provider },
+      });
     }
-    throw Error(`Unknown content type: ${props.item.content_type}`);
+    throw Error(`Uhnandled content type: ${props.item.content_type}`);
   };
   return (
-    <A
-      href={url()}
+    <Link
       class="flex w-full items-center gap-6 p-2 transition-colors hover:bg-white/10"
+      {...url()}
     >
       <img
         class="aspect-poster h-40"
@@ -40,7 +48,7 @@ function SearchResultRow(props: SearchResultProps) {
       <div class="h-10 w-10">
         <ProviderLogo provider={props.item.metadata_provider} />
       </div>
-    </A>
+    </Link>
   );
 }
 
@@ -74,35 +82,22 @@ function SearchError(props: { e: any }) {
   );
 }
 
-function searchQuery() {
-  let query = useLocation().query.query;
-  if (Array.isArray(query)) {
-    return query[0];
-  }
-  return query;
-}
-
 export default function SearchPage() {
-  let query = () => searchQuery();
-  let searchResults = createAsync(() =>
-    server
-      .GET("/api/search/content", {
-        params: { query: { search: query() } },
-      })
-      .then(throwResponseErrors),
-  );
+  let route = getRouteApi("/page/search");
+  let search = route.useSearch();
+  let searchResults = queryApi.useQuery("get", "/api/search/content", () => ({
+    params: { query: { search: search().search } },
+  }));
 
   return (
     <div>
-      <PageTitle>Search results for: {query()}</PageTitle>
+      <PageTitle>Search results for: {search().search}</PageTitle>
       <div>
-        <ErrorBoundary fallback={(e) => <SearchError e={e} />}>
-          <Suspense fallback={<SearchLoading />}>
-            <For fallback={<SearchNoResults />} each={searchResults()}>
-              {(res) => <SearchResultRow item={res} />}
-            </For>
-          </Suspense>
-        </ErrorBoundary>
+        <Suspense fallback={<SearchLoading />}>
+          <For fallback={<SearchNoResults />} each={searchResults.data}>
+            {(res) => <SearchResultRow item={res} />}
+          </For>
+        </Suspense>
       </div>
     </div>
   );

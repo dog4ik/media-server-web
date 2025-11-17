@@ -1,4 +1,5 @@
-import { A } from "@solidjs/router";
+import { routeTree } from "@/routes";
+import { Link, LinkOptions, RoutePaths } from "@tanstack/solid-router";
 import clsx from "clsx";
 import { FiX } from "solid-icons/fi";
 import { createSignal, onMount, ParentProps, Show } from "solid-js";
@@ -14,16 +15,18 @@ function useClose(cb: () => void, time: number) {
   return [shouldAnimateOut, setClose] as const;
 }
 
-function HrefWrapper(props: ParentProps & { url?: string; class?: string }) {
+function HrefWrapper(
+  props: ParentProps & { url?: LinkOptions; class?: string },
+) {
   return (
     <Show
       fallback={<span class={props.class}>{props.children}</span>}
       when={props.url}
     >
       {(url) => (
-        <A class={clsx(props.class, "hover:underline")} href={url()}>
+        <Link class={clsx(props.class, "hover:underline")} {...url()}>
           {props.children}
-        </A>
+        </Link>
       )}
     </Show>
   );
@@ -32,7 +35,7 @@ function HrefWrapper(props: ParentProps & { url?: string; class?: string }) {
 export type NotificationProps = {
   message: string;
   subTitle?: string;
-  contentUrl?: string;
+  contentUrl?: LinkOptions;
   poster?: string;
   duration?: number;
   onUndo?: () => void;
@@ -71,7 +74,7 @@ export default function Notification(
       } flex items-center overflow-hidden rounded-lg`}
     >
       <div
-        class="absolute bottom-0 left-0 right-0 h-0.5 w-0 bg-white"
+        class="absolute right-0 bottom-0 left-0 h-0.5 w-0 bg-white"
         ref={timeLine!}
       ></div>
       <Show when={props.poster}>
@@ -86,17 +89,20 @@ export default function Notification(
       <div class="flex flex-col gap-1 px-2 py-4">
         <p
           title={props.message}
-          class="truncate break-all font-semibold text-white sm:text-xl"
+          class="truncate font-semibold break-all text-white sm:text-xl"
         >
           {props.message}
         </p>
         <Show when={props.subTitle}>
-          <HrefWrapper class="font-semibold text-white/70" url={props.contentUrl}>
+          <HrefWrapper
+            class="font-semibold text-white/70"
+            url={props.contentUrl}
+          >
             {props.subTitle}
           </HrefWrapper>
         </Show>
         <div
-          class="absolute right-1 top-1 cursor-pointer p-1 opacity-0 transition-opacity group-hover:opacity-100"
+          class="absolute top-1 right-1 cursor-pointer p-1 opacity-0 transition-opacity group-hover:opacity-100"
           onClick={() => close()}
         >
           <FiX size={25} class="stroke-white" />

@@ -1,10 +1,10 @@
 import tracing from "@/utils/tracing";
-import { useLocation } from "@solidjs/router";
+import { useQuery } from "@tanstack/solid-query";
+import { useRouterState } from "@tanstack/solid-router";
 import {
   ParentProps,
   Show,
   createContext,
-  createEffect,
   createSignal,
   onCleanup,
   useContext,
@@ -17,76 +17,73 @@ export const BackdropContext = createContext<BackdropContextType>();
 export const useBackdropContext = () => useContext(BackdropContext)!;
 
 export function setBackdrop(url: (string | undefined)[]) {
-  let [{ currentBackdrop }, { changeBackdrop }] = useBackdropContext();
+  let [{}, { changeBackdrop }] = useBackdropContext();
   changeBackdrop(url);
-  return currentBackdrop();
 }
 
 function createBackdropContext() {
-  let location = useLocation();
+  let routerState = useRouterState();
 
   let [backdropSrcList, setBackdropSrcList] = createSignal<
     (string | undefined)[]
   >([]);
-  let [currentBackdrop, setCurrentBackdrop] = createSignal<string>();
   let [hover, setHover] = createSignal(false);
 
-  let abortController = new AbortController();
-  let image = new Image();
-
-  function handleAbort() {
-    image.src = "";
-  }
-
-  function loadImage(index: number) {
-    if (index === backdropSrcList().length) {
-      tracing.warn("Failed to load any of image sources");
-      return;
-    }
-
-    let url = backdropSrcList()[index];
-    if (url === undefined) {
-      return loadImage(index + 1);
-    }
+  function loadImage(url: string) {
+    let { resolve, reject, promise } =
+      Promise.withResolvers<HTMLImageElement>();
     const img = new Image();
     img.src = url;
     img.onload = () => {
-      setCurrentBackdrop(url);
+      resolve(img);
     };
-    img.onerror = (e) => {
-      tracing.warn({ message: e.toString() }, "Failed to load image");
-      loadImage(index + 1);
+    img.onerror = (_) => {
+      tracing.warn("Failed to load image");
+      reject();
     };
     img.onabort = () => {
       tracing.debug({ src: img.src }, "Aborted image download");
     };
+    return promise;
+  }
+
+  async function loadImages(sources: (string | undefined)[]) {
+    for (let source of sources.filter((source) => source !== undefined)) {
+      let img = await loadImage(source).catch(() => undefined);
+      if (img) {
+        return img;
+      }
+    }
+    throw Error("Failed to load backdrop sources");
   }
 
   function changeBackdrop(url: (string | undefined)[]) {
-    abortController.abort();
-    abortController.signal.removeEventListener("abort", handleAbort);
-    abortController = new AbortController();
+    tracing.trace({ url }, "Changing backdrop source list");
     setBackdropSrcList(url);
-    loadImage(0);
-    abortController.signal.addEventListener("abort", handleAbort);
   }
 
-  createEffect(() => {
-    if (
-      !location.pathname.startsWith("/shows/") &&
-      !location.pathname.startsWith("/movies/")
-    ) {
-      removeBackdrop();
-    }
-  });
+  // createEffect(() => {
+  //   if (
+  //     !routerState().location.pathname.startsWith("/shows/") &&
+  //     !routerState().location.pathname.startsWith("/movies/")
+  //   ) {
+  //     removeBackdrop();
+  //   }
+  // });
 
   function removeBackdrop() {
     changeBackdrop([]);
-    setCurrentBackdrop(undefined);
   }
 
+  let backdropQuery = useQuery(() => ({
+    queryFn: () => {
+      return loadImages(backdropSrcList());
+    },
+    queryKey: ["backdrop", backdropSrcList()],
+  }));
+
   return [
-    { backdropSrcList, currentBackdrop, hover },
+    { hover, backdropQuery },
     { changeBackdrop, removeBackdrop, setHover },
   ] as const;
 }
@@ -123,7 +120,7 @@ export default function BackdropProvider(props: ParentProps) {
 }
 
 export function HoverArea() {
-  let [{ currentBackdrop }, { setHover }] = useBackdropContext();
+  let [{ backdropQuery }, { setHover }] = useBackdropContext();
   onCleanup(() => setHover(false));
 
   return (
@@ -133,16 +130,18 @@ export function HoverArea() {
       class="h-32 w-40 overflow-hidden rounded-2xl border-2 border-dashed border-white duration-0"
     >
       <div style={{ "clip-path": "inset(0px)" }} class="size-full">
-        <Show when={currentBackdrop()}>
-          {(backdrop) => (
-            <img
-              class="fixed left-0 top-0 size-full object-cover"
-              alt="Backdrop hole image"
-              height={window.innerHeight}
-              width={window.innerWidth}
-              src={backdrop()}
-            />
-          )}
+        <Show when={backdropQuery.data}>
+          {(backdrop) => {
+            return (
+              <img
+                class="fixed top-0 left-0 size-full object-cover"
+                alt="Backdrop hole image"
+                height={window.innerHeight}
+                width={window.innerWidth}
+                src={backdrop().src}
+              />
+            );
+          }}
         </Show>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { BiRegularMagnet } from "solid-icons/bi";
-import { capitalize, formatSize, formatTorrentIndex } from "@/utils/formats";
+import { formatSize, formatTorrentIndex } from "@/utils/formats";
 import { Schemas, server } from "@/utils/serverApi";
-import { createSignal, ErrorBoundary, For, Show } from "solid-js";
+import { createSignal, For, Show, Suspense } from "solid-js";
 import {
   Table,
   TableBody,
@@ -20,19 +20,23 @@ import {
 import { throwResponseErrors } from "@/utils/errors";
 import { Button } from "@/ui/button";
 import { TextField, TextFieldRoot } from "@/ui/textfield";
+import Loader from "../Loader";
+import useDebounce from "@/utils/useDebounce";
+import tracing from "@/utils/tracing";
+import clsx from "clsx";
+import { queryApi } from "@/utils/queryApi";
+import { Skeleton } from "@/ui/skeleton";
 
 type Props = {
-  searchResults?: Schemas["Torrent"][];
   onSelect: (magnetLink: string) => void;
-  onQueryChange: (query: string) => void;
-  onProviderChange: (provider: Schemas["TorrentIndexIdentifier"]) => void;
-  provider: Schemas["TorrentIndexIdentifier"];
-  query: string;
+  downloadQuery: (provider: Schemas["TorrentIndexIdentifier"]) => string;
+  contentHint?: Schemas["DownloadContentHint"];
 };
 
 type TorrentResultProps = {
   result: Schemas["Torrent"];
   onClick: (magnetLink: string) => void;
+  grayOut: boolean;
 };
 
 function TorrentResult(props: TorrentResultProps) {
@@ -60,14 +64,16 @@ function TorrentResult(props: TorrentResultProps) {
   }
   return (
     <TableRow
-      tabindex={0}
-      class={`cursor-pointer hover:bg-neutral-800`}
+      class={clsx(
+        "cursor-pointer transition-opacity hover:bg-neutral-800",
+        props.grayOut && "opacity-50",
+      )}
       onClick={handleClick}
     >
       <TableCell>
-        <Button variant={"link"} onClick={handleClick}>
+        <p class="line-clamp-2 h-full" title={props.result.name}>
           {props.result.name}
-        </Button>
+        </p>
       </TableCell>
       <TableCell>{props.result.author ?? ""}</TableCell>
       <TableCell>{props.result.seeders}</TableCell>
@@ -98,6 +104,16 @@ function TorrentResult(props: TorrentResultProps) {
   );
 }
 
+function TableRowSkeleton() {
+  return (
+    <TableRow>
+      <TableCell colSpan={6}>
+        <Skeleton class="h-14 w-full" />
+      </TableCell>
+    </TableRow>
+  );
+}
+
 function SearchError(props: { message: string }) {
   return (
     <div class="flex size-full items-center justify-center">
@@ -107,21 +123,52 @@ function SearchError(props: { message: string }) {
 }
 
 export default function Step1(props: Props) {
+  let [selectedProvider, setSelectedProvider] =
+    createSignal<Schemas["TorrentIndexIdentifier"]>("tpb");
+
+  let [query, deferredQuery, setQuery] = useDebounce(
+    300,
+    props.downloadQuery(selectedProvider()),
+  );
+
+  let searchAbortController: AbortController | undefined = undefined;
+
+  function handleProviderChange(provider: Schemas["TorrentIndexIdentifier"]) {
+    if (selectedProvider() != provider) {
+      tracing.trace(`Changing selected provider to: ${provider}`);
+      setSelectedProvider(provider);
+      setQuery(props.downloadQuery(provider));
+    }
+  }
+
+  let torrentSearch = queryApi.useQuery(
+    "get",
+    "/api/torrent/search",
+    () => ({
+      params: {
+        query: {
+          search: deferredQuery(),
+          content_type: props.contentHint?.content_type,
+          provider: selectedProvider(),
+        },
+      },
+    }),
+    () => ({
+      placeholderData: (previousData) => previousData,
+    }),
+  );
+
   return (
     <div class="h-full overflow-y-auto">
-      <div class="flex w-full items-center space-x-2">
-        <TextFieldRoot
-          value={props.query}
-          onChange={props.onQueryChange}
-          class="w-full"
-        >
+      <div class="flex items-center space-x-2">
+        <TextFieldRoot value={query()} onChange={setQuery} class="w-full">
           <TextField />
         </TextFieldRoot>
         <Select<Schemas["TorrentIndexIdentifier"]>
           placeholder="Torrent index"
-          onChange={(p) => p && props.onProviderChange(p)}
-          defaultValue={"tpb"}
-          value={props.provider}
+          class="w-60"
+          onChange={(p) => p && handleProviderChange(p)}
+          value={selectedProvider()}
           options={["rutracker", "tpb"]}
           itemComponent={(props) => (
             <SelectItem item={props.item}>
@@ -152,21 +199,34 @@ export default function Step1(props: Props) {
             <TableHead>Magnet</TableHead>
           </TableRow>
         </TableHeader>
-        <ErrorBoundary fallback={<></>}>
-          <TableBody>
-            <For each={props.searchResults}>
-              {(res) => <TorrentResult onClick={props.onSelect} result={res} />}
+        <TableBody>
+          <Show
+            when={torrentSearch.isPlaceholderData || torrentSearch.isSuccess}
+            fallback={[...Array(10)].map(() => (
+              <TableRowSkeleton />
+            ))}
+          >
+            <For each={torrentSearch.data}>
+              {(res) => (
+                <TorrentResult
+                  grayOut={
+                    torrentSearch.isFetching && torrentSearch.isPlaceholderData
+                  }
+                  onClick={props.onSelect}
+                  result={res}
+                />
+              )}
             </For>
-          </TableBody>
-        </ErrorBoundary>
+          </Show>
+        </TableBody>
       </Table>
-      <ErrorBoundary fallback={(e) => <SearchError message={e.message} />}>
-        <Show when={props.searchResults?.length === 0}>
-          <div class="flex size-full items-center justify-center">
-            <h3 class="text-4xl text-white">No results</h3>
-          </div>
-        </Show>
-      </ErrorBoundary>
+      <Show
+        when={!torrentSearch.isFetching && torrentSearch.latest()?.length === 0}
+      >
+        <div class="flex size-full items-center justify-center">
+          <h3 class="text-4xl text-white">No results</h3>
+        </div>
+      </Show>
     </div>
   );
 }

@@ -1,4 +1,12 @@
-import { createEffect, createSignal, Show } from "solid-js";
+import { Skeleton } from "@/ui/skeleton";
+import clsx from "clsx";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+  Show,
+} from "solid-js";
 
 type Props = {
   srcList: (string | undefined)[];
@@ -10,7 +18,9 @@ type Props = {
 
 export default function FallbackImage(props: Props) {
   const [currentImage, setCurrentImage] = createSignal<string>();
-  let sources = () => [...props.srcList, "/no-photo.png"];
+  const [loading, setLoading] = createSignal(true);
+  let sources = createMemo(() => [...props.srcList, "/no-photo.png"]);
+  let active = true;
 
   function loadImage(index: number) {
     if (index === sources().length) {
@@ -23,37 +33,52 @@ export default function FallbackImage(props: Props) {
       return loadImage(index + 1);
     }
     const img = new Image();
-    img.src = url;
     img.onload = () => {
       setCurrentImage(url);
+      setLoading(false);
     };
     img.onerror = () => {
+      if (!active) return;
       loadImage(index + 1);
     };
+    img.src = url;
+    if (img.complete && img.naturalWidth !== 0) {
+      setCurrentImage(url);
+      setLoading(false);
+    }
   }
 
   createEffect(() => {
-    if (props.srcList) loadImage(0);
+    active = true;
+    setLoading(true);
+    setCurrentImage(undefined);
+    loadImage(0);
+
+    // cleanup to prevent outdated image loads from overwriting
+    onCleanup(() => {
+      active = false;
+    });
   });
 
   return (
-      <Show
-        when={currentImage()}
-        fallback={
-          <div
-            style={{ height: `${props.height}px`, width: `${props.width}px` }}
-          ></div>
-        }
-      >
-        {(src) => (
-          <img
-            src={src()}
-            height={props.height}
-            width={props.width}
-            alt={props.alt}
-            class={`${props.class}`}
-          />
-        )}
-      </Show>
+    <Show
+      when={!loading() && currentImage()}
+      fallback={
+        <Skeleton
+          style={{ height: `${props.height}px`, width: `${props.width}px` }}
+        />
+      }
+    >
+      {(_) => (
+        <img
+          src={currentImage()}
+          height={props.height}
+          width={props.width}
+          alt={props.alt}
+          class={clsx(props.class)}
+          style={{ height: `${props.height}px`, width: `${props.width}px` }}
+        />
+      )}
+    </Show>
   );
 }

@@ -1,4 +1,4 @@
-import { cn } from "@/libs/cn";
+import { cn } from "@/lib/cn";
 import type { CollapsibleContentProps } from "@kobalte/core/collapsible";
 import { Collapsible as CollapsiblePrimitive } from "@kobalte/core/collapsible";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";

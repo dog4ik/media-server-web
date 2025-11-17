@@ -1,5 +1,3 @@
-import { query, revalidate } from "@solidjs/router";
-
 import createClient, { ClientMethod, ParamsOption } from "openapi-fetch";
 import type { components, paths } from "server-types";
 import tracing from "./tracing";
@@ -29,22 +27,8 @@ const cacheMap: {
   [key in keyof paths]?: ClientMethod<paths, "get", Media>;
 } = {};
 
-export const server: typeof client & {
-  // @ts-expect-error
-  GET_NO_CACHE: ClientMethod<paths, "get", `${string}/${string}`>;
-} = {
+export const server: typeof client = {
   ...client,
-  GET(path, ...rest) {
-    let func = cacheMap[path];
-    if (func === undefined) {
-      func = query((p, ...args) => {
-        return client.GET(p, ...args);
-      }, path);
-      cacheMap[path] = func;
-    }
-    return func!(path, ...rest);
-  },
-  GET_NO_CACHE: client.GET,
 };
 
 export type GetPaths = {
@@ -56,8 +40,8 @@ export type GetPaths = {
 }[keyof paths];
 
 export async function revalidatePath(path: GetPaths) {
-  tracing.trace({ path }, "Revalidating path");
-  await revalidate(path);
+  tracing.error({ path }, "NOT Revalidating path");
+  // await revalidate(path);
 }
 
 export function fullUrl<T extends GetPaths>(

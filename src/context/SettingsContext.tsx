@@ -2,7 +2,7 @@ import { revalidatePath, Schemas, server } from "@/utils/serverApi";
 import { ParentProps, createContext, useContext } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { useNotifications } from "./NotificationContext";
-import { createAsync } from "@solidjs/router";
+import { queryApi } from "@/utils/queryApi";
 
 export type SettingsErrorObject = {
   [K in Schemas["ConfigurationApplyError"]["key"]]: Extract<
@@ -52,19 +52,21 @@ function createSettingsContext(initialSettings: SettingsObject) {
     {},
   );
 
-  let remoteSettings = createAsync(
-    async (prev) => {
-      let settings = await server.GET("/api/configuration").then((r) => r.data);
-      if (settings === undefined) return prev;
-
-      return settings.reduce((obj, setting) => {
-        // @ts-expect-error
-        obj[setting.key] = setting;
-        return obj;
-      }, {} as SettingsObject);
-    },
-    { initialValue: initialSettings },
+  let remoteSettings = queryApi.useQuery(
+    "get",
+    "/api/configuration",
+    () => ({}),
+    () => ({
+      select: (data) =>
+        data.reduce((obj, setting) => {
+          // @ts-expect-error
+          obj[setting.key] = setting;
+          return obj;
+        }, {} as SettingsObject),
+    }),
   );
+
+  let settings = () => remoteSettings.data || initialSettings;
 
   function apply() {
     resetSettingsErrors();
@@ -93,8 +95,8 @@ function createSettingsContext(initialSettings: SettingsObject) {
     key: T,
     value: (typeof changedSettings)[T],
   ) {
-    let configValue = remoteSettings()[key].config_value;
-    let defaultValue = remoteSettings()[key].default_value;
+    let configValue = settings()[key].config_value;
+    let defaultValue = settings()[key].default_value;
 
     if (value === null && configValue !== null) {
       setChangedSettings(key, null);

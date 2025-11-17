@@ -1,29 +1,32 @@
-import { createAsync, useParams } from "@solidjs/router";
-import { Show, createEffect, createSignal } from "solid-js";
-import Description from "@/components/Description";
+import { Match, Show, Switch, createEffect, createSignal, onCleanup } from "solid-js";
+import { Description, DescriptionSkeleton } from "@/components/Description";
 import { fullUrl, Schemas } from "@/utils/serverApi";
-import { useProvider } from "@/utils/metadataProviders";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
 import { setBackdrop } from "@/context/BackdropContext";
 import { formatSE } from "@/utils/formats";
-import Title from "@/utils/Title";
 import Icon from "@/components/ui/Icon";
 import { FiDownload } from "solid-icons/fi";
 import VideoActions from "@/components/Description/VideoActions";
-import { fetchEpisode, fetchShow, posterList } from "@/utils/library";
-import { ParseParamsError } from "@/utils/errors";
+import { extendEpisode, extendShow, posterList, Video } from "@/utils/library";
 import { IntroBar } from "@/components/Description/IntroBar";
-import { VideoList, VideoSelection } from "@/components/Description/VideoList";
+import {
+  ListItemSkeleton,
+  VideoList,
+  VideoSelection,
+} from "@/components/Description/VideoList";
+import { getRouteApi, linkOptions } from "@tanstack/solid-router";
+import { queryApi } from "@/utils/queryApi";
+import { useQuery } from "@tanstack/solid-query";
 
 export type SelectedSubtitles =
   | {
-    origin: "container";
-    index: number;
-  }
+      origin: "container";
+      index: number;
+    }
   | {
-    origin: "external";
-    id: number;
-  };
+      origin: "external";
+      id: number;
+    };
 
 export type TrackSelection = {
   subtitlesTrack?: SelectedSubtitles;
@@ -31,66 +34,99 @@ export type TrackSelection = {
   audioTrack?: number;
 };
 
-function parseParams() {
-  let params = useParams();
-  if (!+params.episode || !+params.season) {
-    throw new ParseParamsError("Failed to parse episode url params");
-  }
-  return [() => +params.episode, () => +params.season] as const;
-}
-
 export default function Episode() {
-  let [episodeNumber, seasonNumber] = parseParams();
-  let [showId, provider] = useProvider();
+  let route = getRouteApi("/page/shows/$id/$season/$episode");
+  let params = route.useParams();
+  let search = route.useSearch();
   let [torrentModal, setTorrentModal] = createSignal(false);
-  // [videoIndex, variantIndex]
   let [selectedVideo, setSelectedVideo] = createSignal<VideoSelection>();
 
-  let data = createAsync(async () => {
-    let episodePromise = fetchEpisode(
-      showId(),
-      seasonNumber(),
-      episodeNumber(),
-      provider(),
-    );
-    let showPromise = fetchShow(showId(), provider());
-    let [episode, show] = await Promise.all([episodePromise, showPromise]);
+  let episode = queryApi.useQuery(
+    "get",
+    "/api/show/{id}/{season}/{episode}",
+    () => ({
+      params: {
+        path: {
+          episode: +params().episode,
+          id: params().id,
+          season: +params().season,
+        },
+        query: {
+          provider: search().provider,
+        },
+      },
+    }),
+    () => ({
+      select: (episode) => extendEpisode(episode, params().id),
+    }),
+  );
 
-    if (!episode || !show) return undefined;
-    let local_id = await show.localId();
-    return {
-      episode,
-      show,
-      local_id,
-    };
-  });
+  let show = queryApi.useQuery(
+    "get",
+    "/api/show/{id}",
+    () => ({
+      params: {
+        path: { id: params().id },
+        query: { provider: search().provider },
+      },
+    }),
+    () => ({ select: extendShow }),
+  );
+
+  let local = queryApi.useQuery(
+    "get",
+    "/api/external_to_local/{id}",
+    () => ({
+      params: {
+        query: { provider: show.latest()?.metadata_provider! },
+        path: { id: show.latest()?.metadata_id! },
+      },
+    }),
+    () => ({
+      enabled: show.isSuccess && show.latest()?.metadata_provider !== "local",
+      select: (data) => data.show_id,
+      retry: false,
+    }),
+  );
+  let localId = () =>
+    show.latest()?.metadata_provider === "local"
+      ? show.latest()?.metadata_id
+      : local.latest();
 
   createEffect(() => {
-    let showData = data()?.show;
-    if (showData) {
+    if (show.data) {
       let localImage =
-        showData?.metadata_provider == "local"
+        show.data.metadata_provider == "local"
           ? fullUrl("/api/show/{id}/backdrop", {
-            path: { id: +showData.metadata_id },
-          })
+              path: { id: +show.data.metadata_id },
+            })
           : undefined;
-      setBackdrop([localImage, showData.backdrop ?? undefined]);
+      setBackdrop([localImage, show.data.backdrop ?? undefined]);
     }
   });
 
-  let videos = createAsync(async () => {
-    let episode = data()?.episode;
-    if (!episode) return undefined;
-    let videos = await episode.fetchVideos();
-    if (!videos) return undefined;
-    let firstVideo = videos.at(0);
-    if (firstVideo) {
-      setSelectedVideo({ video_id: firstVideo.details.id });
+  let videos = queryApi.useQuery(
+    "get",
+    "/api/video/by_content",
+    () => ({
+      params: {
+        query: { id: +episode.latest()?.metadata_id!, content_type: "show" },
+      },
+    }),
+    () => ({
+      select: (videos) => videos.map((v) => new Video(v)),
+      enabled: episode.latest()?.metadata_provider == "local",
+    }),
+  );
+
+  createEffect(() => {
+    if (selectedVideo() === undefined) {
+      let video = videos.data?.at(0)!;
+      setSelectedVideo(video ? { video_id: video.details.id } : undefined);
     }
-    return videos;
   });
 
-  let video = () => videos()?.at(0);
+  let video = () => videos.latest()?.at(0);
 
   let watchUrl = () => {
     let selection = selectedVideo();
@@ -98,31 +134,30 @@ export default function Episode() {
       return;
     }
     let { video_id, variant_id } = selection;
-    let video = videos()?.find((v) => v.details.id == video_id)!;
 
-    let id = provider() == "local" ? +showId() : data()?.local_id;
+    let id = localId();
     if (!id) return;
-    let params = new URLSearchParams();
-    if (variant_id !== undefined) {
-      params.append("variant", variant_id);
-    }
-    params.append("video", video.details.id.toString());
-    return `/shows/${id}/${seasonNumber()}/${episodeNumber()}/watch?${params.toString()}`;
+    return linkOptions({
+      to: "/shows/$id/$season/$episode/watch",
+      params: {
+        id: params().id,
+        season: params().season,
+        episode: params().episode,
+      },
+      search: {
+        video_id,
+        variant_id,
+      },
+    });
   };
-
-  let pageTitle = () =>
-    data()
-      ? `${data()?.show?.title} S${formatSE(data()?.episode.season_number!)}E${data()?.episode.number!}`
-      : "";
 
   return (
     <>
-      <Title text={pageTitle()} />
-      <Show when={data()}>
-        {(data) => {
+      <Show when={show.latest() && episode.latest()}>
+        {(_) => {
+          let showData = show.latest()!;
+          let episodeData = episode.latest()!;
           let torrentQuery = (provider: Schemas["TorrentIndexIdentifier"]) => {
-            let showData = data().show;
-            let episodeData = data().episode;
             if (provider == "tpb")
               return `${showData.title} S${formatSE(episodeData.season_number)}E${formatSE(episodeData.number)}`;
             if (provider == "rutracker") {
@@ -133,9 +168,9 @@ export default function Episode() {
           return (
             <DownloadTorrentModal
               open={torrentModal()}
-              metadata_id={data()!.show!.metadata_id}
+              metadata_id={showData.metadata_id}
               onClose={() => setTorrentModal(false)}
-              metadata_provider={provider()}
+              metadata_provider={search().provider}
               query={torrentQuery}
               content_type="show"
             />
@@ -143,83 +178,111 @@ export default function Episode() {
         }}
       </Show>
       <div class="space-y-5 p-4">
-        <Show when={data()?.episode}>
-          {(episode) => {
-            return (
-              <Description
-                title={episode().title}
-                posterList={posterList(episode())}
-                progress={
-                  video()?.details.history
-                    ? {
-                      history: video()!.details.history!,
-                      runtime: video()!.details.duration.secs,
-                    }
-                    : undefined
-                }
-                plot={episode().plot}
-                imageDirection="horizontal"
-                additionalInfo={[
-                  {
-                    info: `${data()?.show?.title}`,
-                    href: `/shows/${showId()}?provider=${provider()}`,
-                  },
-                  {
-                    info: `Season ${episode().season_number}`,
-                    href: `/shows/${showId()}?season=${episode().season_number}&provider=${provider()}`,
-                  },
-                  { info: `Episode ${episode().number}` },
-                  episode().release_date
-                    ? { info: episode().release_date! }
-                    : undefined,
-                ].filter((i) => i !== undefined)}
-              >
-                <div class="flex items-center gap-2">
-                  <Show
-                    when={video()}
-                    fallback={
-                      <Icon
-                        tooltip="Download"
-                        onClick={() => setTorrentModal(true)}
-                      >
-                        <FiDownload size={30} />
-                      </Icon>
-                    }
-                  >
-                    {(video) => (
-                      <VideoActions video={video()} watchUrl={watchUrl()}>
+        <Switch>
+          <Match when={episode.isLoading || show.isLoading}>
+            <DescriptionSkeleton direction="horizontal" />
+          </Match>
+          <Match when={episode.latest()}>
+            {(episode) => {
+              return (
+                <Description
+                  title={episode().title}
+                  posterList={posterList(episode())}
+                  progress={
+                    video()?.details.history
+                      ? {
+                          history: video()!.details.history!,
+                          runtime: video()!.details.duration.secs,
+                        }
+                      : undefined
+                  }
+                  plot={episode().plot}
+                  imageDirection="horizontal"
+                  additionalInfo={[
+                    {
+                      info: `${show.latest()?.title}`,
+                      link: linkOptions({
+                        to: "/shows/$id",
+                        params: {
+                          id: params().id,
+                        },
+                        search: { provider: search().provider },
+                      }),
+                    },
+                    {
+                      info: `Season ${episode().season_number}`,
+                      link: linkOptions({
+                        to: "/shows/$id",
+                        params: {
+                          id: params().id,
+                        },
+                        search: {
+                          provider: search().provider,
+                          season: +params().season,
+                        },
+                      }),
+                    },
+                    { info: `Episode ${episode().number}`, link: undefined },
+                    episode().release_date
+                      ? { info: episode().release_date!, link: undefined }
+                      : undefined,
+                  ].filter((i) => i !== undefined)}
+                >
+                  <div class="flex items-center gap-2">
+                    <Show
+                      when={video()}
+                      fallback={
                         <Icon
                           tooltip="Download"
                           onClick={() => setTorrentModal(true)}
                         >
                           <FiDownload size={30} />
                         </Icon>
-                      </VideoActions>
-                    )}
-                  </Show>
-                  <div class="w-96">
-                    <Show when={videos()?.find((v) => v.details.intro)}>
+                      }
+                    >
                       {(video) => (
-                        <IntroBar
-                          totalDuration={video().details.duration.secs}
-                          intro={video().details.intro!}
-                        />
+                        <VideoActions video={video()} watchUrl={watchUrl()}>
+                          <Icon
+                            tooltip="Download"
+                            onClick={() => setTorrentModal(true)}
+                          >
+                            <FiDownload size={30} />
+                          </Icon>
+                        </VideoActions>
                       )}
                     </Show>
+                    <div class="w-96">
+                      <Show
+                        when={videos.latest()?.find((v) => v.details.intro)}
+                      >
+                        {(video) => (
+                          <IntroBar
+                            totalDuration={video().details.duration.secs}
+                            intro={video().details.intro!}
+                          />
+                        )}
+                      </Show>
+                    </div>
                   </div>
-                </div>
-              </Description>
-            );
-          }}
-        </Show>
-        <Show when={selectedVideo()}>
-          <Show when={videos()}>
+                </Description>
+              );
+            }}
+          </Match>
+        </Switch>
+        <Switch>
+          <Match
+            when={videos.isLoading || (!videos.isEnabled && episode.isLoading)}
+          >
+            <ListItemSkeleton />
+          </Match>
+          <Match when={videos.latest()}>
             {(videos) => (
               <>
                 <Show
                   when={
-                    videos().length > 0 ||
-                    videos().some((v) => v.details.variants.length > 0)
+                    selectedVideo() &&
+                    (videos().length > 0 ||
+                      videos().some((v) => v.details.variants.length > 0))
                   }
                 >
                   <VideoList
@@ -230,8 +293,8 @@ export default function Episode() {
                 </Show>
               </>
             )}
-          </Show>
-        </Show>
+          </Match>
+        </Switch>
       </div>
     </>
   );

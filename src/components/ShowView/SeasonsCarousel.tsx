@@ -1,5 +1,10 @@
-import { useSearchParams } from "@solidjs/router";
-import { For, ParentProps, createEffect, createSignal } from "solid-js";
+import {
+  getRouteApi,
+  Link,
+  linkOptions,
+  LinkOptions,
+} from "@tanstack/solid-router";
+import { For, ParentProps } from "solid-js";
 
 type Props = {
   tabs: number[];
@@ -8,72 +13,54 @@ type Props = {
 
 type ItemProps = {
   isSelected: boolean;
+  linkOptions: LinkOptions;
   number: number;
-  onClick: () => void;
 };
 
 function Item(props: ItemProps & ParentProps) {
+  let route = getRouteApi("/page/shows/$id");
   return (
-    <button
-      onClick={props.onClick}
-      class={`flex h-8 flex-1 items-center justify-center gap-4 whitespace-nowrap rounded-xl py-8 ${
+    <route.Link
+      class={`flex h-8 flex-1 items-center justify-center gap-4 rounded-xl py-8 whitespace-nowrap ${
         props.isSelected ? "text-white" : "text-white/70"
       }`}
+      search={(prev) => ({season: props.number, provider: prev.provider})}
     >
       {props.children}
       <span class="hidden @6xl:inline">Season</span>
       <span>{props.number}</span>
-    </button>
+    </route.Link>
   );
 }
 
 export default function SeasonsCarousel(props: Props) {
-  const [searchParams, setSearchParams] = useSearchParams();
+  let route = getRouteApi("/page/shows/$id");
+  let search = route.useSearch();
+  let params = route.useParams();
 
-  let initialSelection = () => {
-    let seasonParam = searchParams.season;
-    if (
-      seasonParam &&
-      !isNaN(+seasonParam) &&
-      props.tabs.includes(+seasonParam)
-    ) {
-      return +seasonParam;
-    } else {
-      return props.tabs[0];
-    }
-  };
-
-  createEffect(() => {
-    if (searchParams.season && +searchParams.season)
-      setSelectedNumber(+searchParams.season);
-    else setSelectedNumber(initialSelection());
-    props.onChange(selectedNumber());
-  });
-
-  let [selectedNumber, setSelectedNumber] = createSignal(initialSelection());
-  function handleClick(seasonNumber: number) {
-    setSelectedNumber(seasonNumber);
-    setSearchParams({ season: seasonNumber });
-    props.onChange(seasonNumber);
-  }
   return (
-    <div class="relative flex items-center @container">
+    <div class="@container relative flex items-center">
       <div
         class="absolute bottom-0 h-1 divide-x rounded-xl bg-white transition-all duration-200"
         style={{
           width: `${100 / props.tabs.length}%`,
           left: `${
-            (props.tabs.indexOf(selectedNumber()) / props.tabs.length) * 100
+            (props.tabs.indexOf(search().season || 1) / props.tabs.length) * 100
           }%`,
         }}
       />
       <For each={props.tabs}>
         {(number) => {
+          let link = linkOptions({
+            to: "/shows/$id",
+            params: { id: params().id },
+            search: { season: number, provider: search().provider },
+          });
           return (
             <Item
               number={number}
-              isSelected={number == selectedNumber()}
-              onClick={() => handleClick(number)}
+              linkOptions={link}
+              isSelected={number == search().season}
             />
           );
         }}

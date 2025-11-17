@@ -88,7 +88,7 @@ function Child(props: ChildProps) {
       <div class="flex-1 space-y-1">
         <div class="flex">
           <span class="flex-1">{props.path}</span>
-          <div class="text-xs text-muted-foreground">
+          <div class="text-muted-foreground text-xs">
             {formatSize(props.size)}
           </div>
         </div>
@@ -140,7 +140,7 @@ function Directory(props: DirectoryProps) {
         </Button>
         <DirIcon class="inline" />
         <span class="flex-1">{props.path}</span>
-        <div class="text-xs text-muted-foreground">
+        <div class="text-muted-foreground text-xs">
           {formatSize(props.size)}
         </div>
       </div>

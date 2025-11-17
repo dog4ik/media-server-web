@@ -1,26 +1,48 @@
-import { A, useLocation } from "@solidjs/router";
-import { For } from "solid-js";
+import { For, onMount } from "solid-js";
+import Version from "./Version";
+import { Link, linkOptions, useRouterState } from "@tanstack/solid-router";
 
-const ROUTES = [
-  ["Home", "/"],
-  ["Dashboard", "/dashboard"],
-  ["Torrent", "/torrent"],
-  ["Shows", "/shows"],
-  ["Movies", "/movies"],
-  ["Settings", "/settings"],
-  ["History", "/history"],
-] as const;
+const ROUTES = linkOptions([
+  {
+    to: "/",
+    label: "Home",
+  },
+  {
+    to: "/dashboard",
+    label: "Dashboard",
+  },
+  {
+    to: "/torrent",
+    label: "Torrent",
+  },
+  {
+    to: "/shows",
+    label: "Shows",
+  },
+  {
+    to: "/movies",
+    label: "Movies",
+  },
+  {
+    to: "/settings",
+    label: "Settings",
+  },
+  {
+    to: "/history",
+    label: "History",
+  },
+]);
 
 export default function SideBar() {
-  let location = useLocation();
+  let routerState = useRouterState();
 
   let currentIndex = () => {
     return Math.max(
-      ROUTES.findIndex(([, route]) => {
-        if (location.pathname == "/" && route == "/") {
+      ROUTES.findIndex(({ to }) => {
+        if (routerState().location.pathname == "/" && to == "/") {
           return true;
-        } else if (route != "/") {
-          return location.pathname.startsWith(route);
+        } else if (to != "/") {
+          return routerState().location.pathname.startsWith(to);
         }
         return false;
       }),
@@ -32,32 +54,33 @@ export default function SideBar() {
     <div class="hover-hide z-10 flex flex-col items-center justify-between rounded-md p-2">
       <nav class="relative my-auto flex flex-col rounded-md sm:justify-center">
         <div
-          class={`absolute left-0 right-0 z-10 w-full rounded-md bg-white transition-all duration-200`}
+          class={`absolute right-0 left-0 z-10 w-full rounded-md bg-white transition-all duration-200`}
           style={{
             height: `${100 / ROUTES.length}%`,
             top: `${(currentIndex() / ROUTES.length) * 100}%`,
           }}
         />
         <For each={ROUTES}>
-          {([title, url], idx) => {
+          {(link, idx) => {
             let isActive = () => {
               return currentIndex() == idx();
             };
             return (
-              <A
-                href={url}
+              <Link
+                to={link.to}
                 class={`z-10 flex-1 rounded-lg bg-transparent px-3 py-2 font-medium ${
                   isActive()
                     ? "text-neutral-800"
                     : "text-white hover:text-neutral-200"
                 }`}
               >
-                {title}
-              </A>
+                {link.label}
+              </Link>
             );
           }}
         </For>
       </nav>
+      <Version />
     </div>
   );
 }

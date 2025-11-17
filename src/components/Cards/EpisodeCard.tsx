@@ -1,4 +1,3 @@
-import { A } from "@solidjs/router";
 import { Schemas, revalidatePath, server } from "../../utils/serverApi";
 import MoreButton from "../ContextMenu/MoreButton";
 import { Show } from "solid-js";
@@ -10,10 +9,11 @@ import { MenuRow } from "../ContextMenu/Menu";
 import { ExtendedEpisode, posterList } from "@/utils/library";
 import { useMediaNotifications } from "@/context/NotificationContext";
 import promptConfirm from "../modals/ConfirmationModal";
+import { Link, LinkOptions } from "@tanstack/solid-router";
 
 type Props = {
   episode: ExtendedEpisode;
-  url: string;
+  link: LinkOptions;
   availableLocally?: boolean;
   history?: Schemas["DbHistory"];
   video?: Schemas["DetailedVideo"];
@@ -88,17 +88,17 @@ export default function EpisodeCard(props: Props) {
 
   return (
     <div class="flex w-80 cursor-pointer flex-col">
-      <A href={props.url} class="relative w-full overflow-hidden rounded-xl">
+      <Link class="relative w-full overflow-hidden rounded-xl" {...props.link}>
         <FallbackImage
           alt="Episode poster"
           width={320}
-          height={178}
+          height={180}
           class="aspect-video rounded-xl"
           srcList={posterList(props.episode)}
         />
         <Show when={props.episode.release_date}>
           {(date) => (
-            <div class="bg-black-20 absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full">
+            <div class="bg-black-20 absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full">
               <span class="text-xl">{formatTimeBeforeRelease(date())}</span>
             </div>
           )}
@@ -106,13 +106,13 @@ export default function EpisodeCard(props: Props) {
         <Show when={props.availableLocally}>
           <div
             title="Available locally"
-            class="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-green-500"
+            class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-green-500"
           >
             <FiDownload />
           </div>
         </Show>
         <Show when={props.episode.runtime}>
-          <div class="absolute bottom-2 right-2 flex items-center justify-center bg-black/90 p-1">
+          <div class="absolute right-2 bottom-2 flex items-center justify-center bg-black/90 p-1">
             <span class="text-xs font-semibold">
               {formatDuration(props.episode.runtime!)}
             </span>
@@ -124,14 +124,14 @@ export default function EpisodeCard(props: Props) {
             runtime={props.episode.runtime!.secs}
           />
         </Show>
-      </A>
+      </Link>
       <div class="flex items-center justify-between">
-        <A href={props.url} class="flex flex-col pt-2">
+        <Link class="flex flex-col pt-2" {...props.link}>
           <span class="text-base" title={props.episode.title}>
             {props.episode.title}
           </span>
           <span class="pt-1 text-sm">Episode {props.episode.number}</span>
-        </A>
+        </Link>
         <Show when={props.video || props.episode.metadata_provider === "local"}>
           <MoreButton>
             <Show

@@ -1,4 +1,3 @@
-import { A } from "@solidjs/router";
 import textToKebab from "../../utils/nameToHash";
 import { FiHash } from "solid-icons/fi";
 
@@ -7,8 +6,8 @@ type Props = {
 };
 export default function SectionSubTitle(props: Props) {
   return (
-    <A
-      class="group flex py-4 cursor-pointer items-center gap-5"
+    <a
+      class="group flex cursor-pointer items-center gap-5 py-4"
       href={`#${textToKebab(props.name)}`}
     >
       <h3 id={textToKebab(props.name)} class="heading text-2xl">
@@ -18,6 +17,6 @@ export default function SectionSubTitle(props: Props) {
         class="opacity-0 transition-opacity group-hover:opacity-50"
         size={30}
       />
-    </A>
+    </a>
   );
 }

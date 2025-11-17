@@ -7,7 +7,7 @@ import {
 import { formatCodec, formatResolution } from "@/utils/formats";
 import { isCompatible } from "@/utils/mediaCapabilities";
 import { Schemas } from "@/utils/serverApi";
-import { createAsync } from "@solidjs/router";
+import { useQuery } from "@tanstack/solid-query";
 import { FiCheck } from "solid-icons/fi";
 import { createMemo, For, Match, Show, Switch } from "solid-js";
 import { createSignal } from "solid-js";
@@ -34,10 +34,11 @@ type MenuProps = {
 export function MenuRow(
   props: Exclude<RowParams, { type: "separator" }> & { borderBottom?: boolean },
 ) {
-  let codecSupport = createAsync(async () =>
-    props.codecSupport ? await props.codecSupport : true,
-  );
-  let isDisabled = () => !codecSupport() || props.disabled;
+  let codecSupport = useQuery(() => ({
+    queryFn: async () => (props.codecSupport ? await props.codecSupport : true),
+    queryKey: ["codec_support"],
+  }));
+  let isDisabled = () => !codecSupport.data || props.disabled;
 
   return (
     <button
@@ -68,7 +69,7 @@ export function MenuRow(
 
 export function Separator(props: Exclude<RowParams, { type: "row" }>) {
   return (
-    <div class="w-full border-b border-t py-1">
+    <div class="w-full border-t border-b py-1">
       <span class="text-xs font-bold">{props.title}</span>
     </div>
   );
@@ -259,7 +260,7 @@ export default function PlayerMenu(props: MenuProps) {
       style={{
         height: `${menuHeight()}px`,
       }}
-      class="flex w-80 flex-col overflow-hidden rounded-md bg-primary-foreground/80 px-2 transition-all"
+      class="bg-primary-foreground/80 flex w-80 flex-col overflow-hidden rounded-md px-2 transition-all"
     >
       <div class="w-full overflow-y-auto">
         <Show when={menu() !== "main"}>

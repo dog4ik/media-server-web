@@ -1,25 +1,18 @@
 import PageTitle from "../PageTitle";
-import { createAsyncStore } from "@solidjs/router";
-import { revalidatePath, server } from "@/utils/serverApi";
-import { throwResponseErrors } from "@/utils/errors";
+import { revalidatePath } from "@/utils/serverApi";
 import { TranscodeTasks } from "./TranscodeTasks";
 import { PreviewsTasks } from "./PreviewsTasks";
 import Showspense from "@/utils/Showspense";
 import { useServerStatus } from "@/context/ServerStatusContext";
 import { WatchSessions } from "./WatchSessions";
+import { queryApi } from "@/utils/queryApi";
 
 export default function Activity() {
-  let transcodeTasks = createAsyncStore(() =>
-    server.GET("/api/tasks/transcode").then(throwResponseErrors),
-  );
+  let transcodeTasks = queryApi.useQuery("get", "/api/tasks/transcode");
 
-  let previewsTasks = createAsyncStore(() =>
-    server.GET("/api/tasks/previews").then(throwResponseErrors),
-  );
+  let previewsTasks = queryApi.useQuery("get", "/api/tasks/previews");
 
-  let watchSessions = createAsyncStore(() =>
-    server.GET("/api/tasks/watch_sessions").then(throwResponseErrors),
-  );
+  let watchSessions = queryApi.useQuery("get", "/api/tasks/watch_sessions");
 
   let [{ serverStatus }] = useServerStatus();
   serverStatus.addProgressHandler("transcode", (progress) => {
@@ -32,7 +25,7 @@ export default function Activity() {
       revalidatePath("/api/tasks/transcode");
       return;
     }
-    let task = transcodeTasks.latest?.find((t) => t.id == progress.activity_id);
+    let task = transcodeTasks.data?.find((t) => t.id == progress.activity_id);
     if (task?.latest_progress) {
       task.latest_progress = progress;
     }
@@ -48,7 +41,7 @@ export default function Activity() {
       revalidatePath("/api/tasks/previews");
       return;
     }
-    let task = transcodeTasks.latest?.find((t) => t.id == progress.activity_id);
+    let task = transcodeTasks.data?.find((t) => t.id == progress.activity_id);
     if (task?.latest_progress) {
       task.latest_progress = progress;
     }
@@ -64,7 +57,7 @@ export default function Activity() {
       revalidatePath("/api/tasks/watch_sessions");
       return;
     }
-    let task = watchSessions.latest?.find((t) => t.id == progress.activity_id);
+    let task = watchSessions.data?.find((t) => t.id == progress.activity_id);
     if (task?.latest_progress) {
       task.latest_progress = progress;
     }
@@ -75,19 +68,19 @@ export default function Activity() {
       <PageTitle>Activity</PageTitle>
       <div class="w-5/6 space-y-8">
         <Showspense
-          when={watchSessions()}
+          when={watchSessions.data}
           fallback={<div>Loading watch sessions</div>}
         >
           {(tasks) => <WatchSessions tasks={tasks()} />}
         </Showspense>
         <Showspense
-          when={transcodeTasks()}
+          when={transcodeTasks.data}
           fallback={<div>Loading transcode tasks</div>}
         >
           {(tasks) => <TranscodeTasks tasks={tasks()} />}
         </Showspense>
         <Showspense
-          when={previewsTasks()}
+          when={previewsTasks.data}
           fallback={<div>Loading previews tasks</div>}
         >
           {(tasks) => <PreviewsTasks tasks={tasks()} />}

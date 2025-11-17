@@ -1,25 +1,26 @@
 import {
-  A,
-  createAsync,
-  useBeforeLeave,
-  useLocation,
-  useParams,
-} from "@solidjs/router";
-import {
   NotFoundError,
   notifyResponseErrors,
   throwResponseErrors,
 } from "../utils/errors";
 import VideoPlayer, { NextVideo } from "../components/VideoPlayer";
 import { Schemas, fullUrl, server } from "../utils/serverApi";
-import { createMemo, onCleanup, ParentProps, Show } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  onCleanup,
+  ParentProps,
+  Show,
+} from "solid-js";
 import { Meta } from "@solidjs/meta";
 import { formatSE } from "../utils/formats";
 import Title from "../utils/Title";
 import {
-  fetchEpisode,
-  fetchMovie,
-  fetchShow,
+  ExtendedEpisode,
+  ExtendedShow,
+  extendEpisode,
+  extendMovie,
+  extendShow,
   Media,
   Video,
 } from "@/utils/library";
@@ -29,6 +30,9 @@ import { useServerStatus } from "@/context/ServerStatusContext";
 import { useNotificationsContext } from "@/context/NotificationContext";
 import { containerSupport } from "@/utils/mediaCapabilities";
 import Hls from "hls.js";
+import { getRouteApi, Link, linkOptions } from "@tanstack/solid-router";
+import { queryApi } from "@/utils/queryApi";
+import { useQuery } from "@tanstack/solid-query";
 
 export type SubtitlesOrigin = "container" | "api" | "local" | "imported";
 
@@ -48,34 +52,6 @@ function directStreamUrl(videoId: number) {
     path: { id: videoId },
   });
   return url;
-}
-
-function parseShowParams() {
-  let params = useParams();
-  return {
-    showId: () => params.id,
-    season: () => +params.season,
-    episode: () => +params.episode,
-  };
-}
-
-function parseMovieParams() {
-  let params = useParams();
-  return () => params.id;
-}
-
-function parseVideoIdQuery() {
-  let l = useLocation();
-  return () => {
-    if (Array.isArray(l.query.video)) {
-      return undefined;
-    }
-    let int = parseInt(l.query.video);
-    if (isNaN(int)) {
-      return;
-    }
-    return int;
-  };
 }
 
 type WatchProps = {
@@ -109,37 +85,51 @@ function movieMediaSessionMetadata(movie: Schemas["MovieMetadata"]) {
 }
 
 export function WatchMovie() {
-  let movieId = parseMovieParams();
-  let movie = createAsync(async () => {
-    let moviePromise = fetchMovie(movieId(), "local");
-    let videoQuery = server
-      .GET("/api/video/by_content", {
-        params: { query: { id: +movieId(), content_type: "movie" } },
-      })
-      .then(throwResponseErrors)
-      .then((r) => r.map((v) => new Video(v)));
-    let [movie, videos] = await Promise.all([moviePromise, videoQuery]);
+  let route = getRouteApi("/watch/movies/$id/watch");
+  let params = route.useParams();
+  let movie = queryApi.useQuery(
+    "get",
+    "/api/movie/{id}",
+    () => ({
+      params: { path: { id: params().id }, query: { provider: "local" } },
+    }),
+    () => ({ select: extendMovie }),
+  );
 
-    if ("mediaSession" in navigator) {
-      navigator.mediaSession.metadata = movieMediaSessionMetadata(movie);
+  let videos = queryApi.useQuery(
+    "get",
+    "/api/video/by_content",
+    () => ({
+      params: { query: { content_type: "movie", id: +params().id } },
+    }),
+    () => ({
+      select: (videos) => videos.map((v) => new Video(v)),
+    }),
+  );
+
+  createEffect(() => {
+    if ("mediaSession" in navigator && movie.data) {
+      navigator.mediaSession.metadata = movieMediaSessionMetadata(movie.data);
     } else {
       tracing.warn("Media session api is not supported by the browser");
     }
-
-    return { videos, movie };
   });
 
   return (
     <>
-      <Show when={movie()}>
+      <Show when={movie.data && videos.data}>
         {(data) => (
-          <Watch media={data().movie} videos={data().videos}>
-            <div class="absolute left-5 top-5">
-              <A href={`/movies/${data().movie.metadata_id}`}>
+          <Watch media={movie.data!} videos={videos.data!}>
+            <div class="absolute top-5 left-5">
+              <Link
+                to={"/movies/$id"}
+                params={{ id: params().id }}
+                search={{ provider: movie.data!.metadata_provider }}
+              >
                 <span class="text-2xl hover:underline">
-                  {data().movie.title}
+                  {movie.data!.title}
                 </span>
-              </A>
+              </Link>
             </div>
           </Watch>
         )}
@@ -148,20 +138,10 @@ export function WatchMovie() {
   );
 }
 
-async function showMediaSessionMetadata(
-  showId: string,
-  episode: Schemas["EpisodeMetadata"],
+function showMediaSessionMetadata(
+  episode: ExtendedEpisode,
+  show: ExtendedShow,
 ) {
-  let show = await server
-    .GET("/api/show/{id}", {
-      params: {
-        query: { provider: "local" },
-        path: {
-          id: showId,
-        },
-      },
-    })
-    .then((res) => res.data);
   let posterUrl = fullUrl("/api/episode/{id}/poster", {
     path: { id: +episode.metadata_id },
   });
@@ -187,82 +167,143 @@ async function showMediaSessionMetadata(
 }
 
 export function WatchShow() {
-  let params = parseShowParams();
-  let episode = createAsync(async () => {
-    let episode = await fetchEpisode(
-      params.showId(),
-      params.season(),
-      params.episode(),
-      "local",
-    );
-    let videos = await server
-      .GET("/api/video/by_content", {
-        params: {
-          query: { id: +episode.metadata_id, content_type: "show" },
-        },
-      })
-      .then(throwResponseErrors)
-      .then((r) => r.map((v) => new Video(v)));
-    let show = await fetchShow(params.showId(), "local");
+  let route = getRouteApi("/watch/shows/$id/$season/$episode/watch");
+  let params = route.useParams();
+  let search = route.useSearch();
 
-    if ("mediaSession" in navigator) {
-      showMediaSessionMetadata(params.showId(), episode).then(
-        (data) => (navigator.mediaSession.metadata = data),
+  let episode = queryApi.useQuery(
+    "get",
+    "/api/show/{id}/{season}/{episode}",
+    () => ({
+      params: {
+        query: { provider: "local" },
+        path: {
+          id: params().id,
+          season: +params().season,
+          episode: +params().episode,
+        },
+      },
+    }),
+    () => ({
+      select: (episode) => extendEpisode(episode, params().id),
+    }),
+  );
+
+  let show = queryApi.useQuery(
+    "get",
+    "/api/show/{id}",
+    () => ({
+      params: {
+        query: { provider: "local" },
+        path: {
+          id: params().id,
+        },
+      },
+    }),
+    () => ({ select: extendShow }),
+  );
+
+  let videos = queryApi.useQuery(
+    "get",
+    "/api/video/by_content",
+    () => ({
+      params: {
+        query: { content_type: "show", id: +episode.data?.metadata_id! },
+      },
+    }),
+    () => ({
+      select: (videos) => videos.map((v) => new Video(v)),
+      enabled: !!episode,
+    }),
+  );
+
+  let nextEpisode = queryApi.useQuery(
+    "get",
+    "/api/show/{id}/{season}/{episode}",
+    () => ({
+      params: {
+        path: {
+          id: params().id,
+          season: +params().season,
+          episode: +params().episode,
+        },
+        query: { provider: "local" },
+      },
+    }),
+    () => ({
+      select: (next) => ({
+        url: linkOptions({
+          to: "/shows/$id/$season/$episode/watch",
+          params: {
+            id: params().id,
+            season: next.season_number.toString(),
+            episode: next.number.toString(),
+          },
+          // todo fix that
+          search: { video_id: 0, variant_id: undefined },
+        }),
+        nextTitle: `S${formatSE(next.season_number)}E${formatSE(next.number)}`,
+      }),
+    }),
+  );
+
+  createEffect(() => {
+    if ("mediaSession" in navigator && episode.data && show.data) {
+      navigator.mediaSession.metadata = showMediaSessionMetadata(
+        episode.data,
+        show.data,
       );
     }
-    return { videos, episode, show };
   });
 
-  let showUrl = () => `/shows/${params.showId()}`;
-  let seasonUrl = () => `/shows/${params.showId()}/?season=${params.season()}`;
-  let episodeUrl = (number: number) =>
-    `/shows/${params.showId()}/${params.season()}/${number}`;
-
-  let nextEpisode = createAsync<NextVideo | undefined>(async () => {
-    try {
-      let next = await fetchEpisode(
-        params.showId(),
-        params.season(),
-        params.episode() + 1,
-      );
-      return {
-        url: `${episodeUrl(next.number)}/watch`,
-        nextTitle: `S${formatSE(next.season_number)}E${formatSE(next.number)}`,
-      };
-    } catch { }
-  });
   return (
     <>
-      <Show when={episode()}>
+      <Show when={episode.data && videos.data}>
         {(data) => (
           <>
             <Title
-              text={`${data().show.title} S${formatSE(data().episode.season_number)}E${formatSE(data().episode.number)}`}
+              text={`${show.data!.title} S${formatSE(episode.data!.season_number)}E${formatSE(episode.data!.number)}`}
             />
-            <Meta property="og-image" content={data().episode.poster ?? ""} />
+            <Meta property="og-image" content={episode.data!.poster ?? ""} />
             <Watch
-              media={data().episode}
-              next={nextEpisode()}
-              videos={data().videos}
+              media={episode.data}
+              next={nextEpisode.data}
+              videos={videos.data!}
             >
-              <div class="absolute left-5 top-5 flex flex-col">
-                <span class="text-2xl">{data().episode.title}</span>
+              <div class="absolute top-5 left-5 flex flex-col">
+                <span class="text-2xl">{episode.data!.title}</span>
                 <div class="flex gap-2">
-                  <A href={showUrl()}>
+                  <Link
+                    to={"/shows/$id"}
+                    params={{ id: params().id }}
+                    search={{ provider: "local" }}
+                  >
                     <span class="text-sm hover:underline">
-                      {data().show.title}
+                      {show.data!.title}
                     </span>
-                  </A>
-                  <A href={seasonUrl()}>
+                  </Link>
+                  <Link
+                    to={"/shows/$id"}
+                    params={{ id: params().id }}
+                    search={{ provider: "local", season: +params().season }}
+                  >
                     <span class="text-sm hover:underline">
-                      Season {data().episode.season_number}
+                      Season {episode.data!.season_number}
                     </span>
-                  </A>
-                  <A href={episodeUrl(params.episode())}>
+                  </Link>
+                  <Link
+                    to={"/shows/$id/$season/$episode"}
+                    params={{
+                      id: params().id,
+                      season: params().season,
+                      episode: params().episode,
+                    }}
+                    search={{ provider: "local" }}
+                  >
                     <span class="text-sm hover:underline">
-                      Episode {data().episode.number}
+                      Episode {episode.data!.number}
                     </span>
-                  </A>
+                  </Link>
                 </div>
               </div>
             </Watch>
@@ -275,14 +316,14 @@ export function WatchShow() {
 
 export type StreamParams = (
   | {
-    method: "hls";
-    audioCodec?: string;
-    videoCodec?: string;
-  }
+      method: "hls";
+      audioCodec?: string;
+      videoCodec?: string;
+    }
   | {
-    method: "direct";
-    watchUrl: string;
-  }
+      method: "direct";
+      watchUrl: string;
+    }
 ) & {
   streamId: string;
 };
@@ -327,16 +368,18 @@ function initHls() {
 }
 
 function Watch(props: WatchProps) {
+  // todo: deligate a separate route
+  let route = getRouteApi("/watch");
+  let search = route.useSearch();
   let [{ serverStatus }] = useServerStatus();
   let [, { addNotification }] = useNotificationsContext();
 
   let streamPending = false;
 
-  let videoIdQuery = parseVideoIdQuery();
   let hls = initHls();
 
   let video = createMemo(() => {
-    let query = videoIdQuery();
+    let query = search().video_id;
     if (props.videos.length === 0) {
       throw new NotFoundError("videos length is 0");
     }
@@ -348,82 +391,86 @@ function Watch(props: WatchProps) {
     return props.videos[0];
   });
 
-  let streamParams = createAsync<StreamParams>(async () => {
-    if (streamPending) {
-      await handleUnload();
-    }
-    let compatibility = await video().videoCompatibility();
-    if (
-      compatibility.combined?.supported &&
-      containerSupport(video().details.container)
-    ) {
-      tracing.debug("Selected direct playback method");
-      let streamId = await server
-        .POST("/api/watch/direct/start/{id}", {
-          params: { path: { id: video().details.id } },
-          body: { variant_id: undefined },
-        })
-        .then(
-          notifyResponseErrors(
-            addNotification,
-            "start direct play job",
-            props.media,
-          ),
-        )
-        .then(throwResponseErrors)
-        .then((d) => {
-          serverStatus.trackWatchSession(d.task_id);
-          return d.task_id;
-        });
-      streamPending = true;
-      return {
-        method: "direct",
-        streamId,
-        watchUrl: directStreamUrl(video().details.id),
-      };
-    } else {
-      let audio_codec: Schemas["AudioCodec"] | undefined = undefined;
-      let video_codec: Schemas["VideoCodec"] | undefined = undefined;
-      if (!compatibility.audio?.supported) {
-        audio_codec = "aac";
+  let streamParams = useQuery(() => ({
+    queryFn: async () => {
+      if (streamPending) {
+        await handleUnload();
       }
-      if (!compatibility.video?.supported) {
-        video_codec = "h264";
-      }
-      tracing.debug(
-        {
-          video_codec,
-          audio_codec,
-        },
-        "Selected hls playback method",
-      );
-      let streamId = await server
-        .POST("/api/watch/hls/start/{id}", {
-          params: { path: { id: video().details.id } },
-          body: {
-            variant_id: undefined,
-            audio_codec,
+      let compatibility = await video().videoCompatibility();
+      if (
+        compatibility?.combined?.supported &&
+        containerSupport(video().details.container)
+      ) {
+        tracing.debug("Selected direct playback method");
+        let streamId = await server
+          .POST("/api/watch/direct/start/{id}", {
+            params: { path: { id: video().details.id } },
+            body: { variant_id: undefined },
+          })
+          .then(
+            notifyResponseErrors(
+              addNotification,
+              "start direct play job",
+              props.media,
+            ),
+          )
+          .then(throwResponseErrors)
+          .then((d) => {
+            serverStatus.trackWatchSession(d.task_id);
+            return d.task_id;
+          });
+        streamPending = true;
+        return {
+          method: "direct",
+          streamId,
+          watchUrl: directStreamUrl(video().details.id),
+        } as const;
+      } else {
+        let audio_codec: Schemas["AudioCodec"] | undefined = undefined;
+        let video_codec: Schemas["VideoCodec"] | undefined = undefined;
+        if (!compatibility.audio?.supported) {
+          audio_codec = "aac";
+        }
+        if (!compatibility.video?.supported) {
+          video_codec = "h264";
+        }
+        tracing.debug(
+          {
             video_codec,
+            audio_codec,
           },
-        })
-        .then(
-          notifyResponseErrors(addNotification, "start hls job", props.media),
-        )
-        .then(throwResponseErrors)
-        .then(({ task_id }) => {
-          serverStatus.trackWatchSession(task_id);
-          return task_id;
-        });
-      streamPending = true;
-      hls.loadSource(hlsStreamUrl(streamId));
-      return {
-        method: "hls",
-        audioCodec: audio_codec,
-        videoCodec: video_codec,
-        streamId,
-      };
-    }
-  });
+          "Selected hls playback method",
+        );
+        let streamId = await server
+          .POST("/api/watch/hls/start/{id}", {
+            params: { path: { id: video().details.id } },
+            body: {
+              variant_id: undefined,
+              audio_codec,
+              video_codec,
+            },
+          })
+          .then(
+            notifyResponseErrors(addNotification, "start hls job", props.media),
+          )
+          .then(throwResponseErrors)
+          .then(({ task_id }) => {
+            serverStatus.trackWatchSession(task_id);
+            return task_id;
+          });
+        streamPending = true;
+        hls.loadSource(hlsStreamUrl(streamId));
+        return {
+          method: "hls",
+          audioCodec: audio_codec,
+          videoCodec: video_codec,
+          streamId,
+        } as const;
+      }
+    },
+    refetchOnWindowFocus: false,
+    queryKey: ["video_capabilities"],
+  }));
 
   function handleAudioError() {
     tracing.error("audio error encountered");
@@ -434,7 +481,7 @@ function Watch(props: WatchProps) {
   }
 
   async function handleUnload() {
-    let stream = streamParams();
+    let stream = streamParams.data;
     let id = stream?.streamId;
     if (id) {
       tracing.debug({ id }, "Cleaning up stream");
@@ -455,9 +502,9 @@ function Watch(props: WatchProps) {
   }
 
   window.addEventListener("beforeunload", handleUnload);
-  useBeforeLeave(handleUnload);
   onCleanup(() => {
     window.removeEventListener("beforeunload", handleUnload);
+    handleUnload();
   });
 
   function updateHistory(time: number) {
@@ -469,14 +516,14 @@ function Watch(props: WatchProps) {
       body: { time: Math.floor(time), is_finished },
       params: {
         path: { id: video().details.id },
-        query: { id: streamParams()?.streamId },
+        query: { id: streamParams.data?.streamId },
       },
     });
   }
 
   return (
     <TracksSelectionProvider video={video()}>
-      <Show when={streamParams()}>
+      <Show when={streamParams.data}>
         {(params) => (
           <VideoPlayer
             hls={hls}
@@ -490,9 +537,9 @@ function Watch(props: WatchProps) {
             previews={
               video().details.previews_count > 0
                 ? {
-                  previewsAmount: video().details.previews_count,
-                  videoId: video().details.id,
-                }
+                    previewsAmount: video().details.previews_count,
+                    videoId: video().details.id,
+                  }
                 : undefined
             }
           >

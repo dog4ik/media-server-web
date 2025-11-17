@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tailwindcss/preflight" @tailwind utilities;
 
 @font-face {
   font-family: "Rubik";
@@ -87,3 +86,5 @@
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgba(255, 255, 255, 0.5);
 }
+
+@config "../tailwind.config.cjs";

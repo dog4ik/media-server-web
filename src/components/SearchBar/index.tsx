@@ -1,21 +1,65 @@
 import { FiX } from "solid-icons/fi";
-import { For, Match, Show, Switch, onCleanup, onMount } from "solid-js";
-import { Schemas, server } from "../../utils/serverApi";
-import { A, createAsync, useBeforeLeave, useNavigate } from "@solidjs/router";
+import {
+  For,
+  Match,
+  ParentProps,
+  Show,
+  Switch,
+  onCleanup,
+  onMount,
+} from "solid-js";
+import { Schemas } from "../../utils/serverApi";
 import ProviderLogo from "../generic/ProviderLogo";
 import useDebounce from "../../utils/useDebounce";
 import { TextField, TextFieldRoot } from "@/ui/textfield";
 import { capitalize } from "@/utils/formats";
+import { Link, useNavigate } from "@tanstack/solid-router";
+import { queryApi } from "@/utils/queryApi";
+
+function ContentTypeLink(
+  props: {
+    result: Schemas["MetadataSearchResult"];
+    class: string;
+    onClick: () => void;
+  } & ParentProps,
+) {
+  return (
+    <Switch>
+      <Match when={props.result.content_type === "show"}>
+        <Link
+          to={"/shows/$id"}
+          class={props.class}
+          onClick={props.onClick}
+          search={{ provider: props.result.metadata_provider }}
+          params={{ id: props.result.metadata_id }}
+        >
+          {props.children}
+        </Link>
+      </Match>
+      <Match when={props.result.content_type === "movie"}>
+        <Link
+          to={"/movies/$id"}
+          search={{ provider: props.result.metadata_provider }}
+          class={props.class}
+          params={{ id: props.result.metadata_id }}
+          onClick={props.onClick}
+        >
+          {props.children}
+        </Link>
+      </Match>
+    </Switch>
+  );
+}
 
 function SearchContent(props: {
   result: Schemas["MetadataSearchResult"];
   onClick: () => void;
 }) {
   return (
-    <A
+    <ContentTypeLink
       onClick={props.onClick}
-      href={`/${props.result.content_type}s/${props.result.metadata_id}?provider=${props.result.metadata_provider}`}
-      class="flex h-32 items-center gap-2 bg-background p-2 px-2 text-start"
+      result={props.result}
+      class="bg-background flex h-32 items-center gap-2 p-2 px-2 text-start"
     >
       <img
         class="aspect-poster h-full basis-20 object-cover"
@@ -40,7 +84,7 @@ function SearchContent(props: {
       <div class="h-6 w-10">
         <ProviderLogo provider={props.result.metadata_provider} />
       </div>
-    </A>
+    </ContentTypeLink>
   );
 }
 
@@ -58,22 +102,9 @@ export default function SearchBar() {
 
   let searchAbortController: AbortController | undefined = undefined;
 
-  let searchResult = createAsync(async () => {
-    let abortController = new AbortController();
-    let signal = abortController.signal;
-    searchAbortController = abortController;
-    if (!deferredInput()) return undefined;
-    return await server
-      .GET("/api/search/content", {
-        params: { query: { search: deferredInput() } },
-        signal,
-      })
-      .catch(() => {
-        if (searchAbortController?.signal.aborted) {
-          console.log("Aborted content search request");
-        }
-      });
-  });
+  let searchResult = queryApi.useQuery("get", "/api/search/content", () => ({
+    params: { query: { search: deferredInput() } },
+  }));
 
   let windowRef: HTMLDivElement = {} as any;
   let inputRef: HTMLInputElement = {} as any;
@@ -88,7 +119,10 @@ export default function SearchBar() {
   }
 
   function handleSubmit() {
-    navigator(`/search?query=${input()}`);
+    navigator({
+      to: "/search",
+      search: { provider: "local", search: input() },
+    });
   }
 
   onMount(() => {
@@ -97,11 +131,6 @@ export default function SearchBar() {
   });
   onCleanup(() => {
     document.removeEventListener("click", handleClick);
-  });
-
-  useBeforeLeave(() => {
-    windowRef.hidePopover();
-    inputRef.blur();
   });
 
   return (
@@ -118,9 +147,6 @@ export default function SearchBar() {
             <TextField
               ref={inputRef!}
               onInput={(e) => {
-                if (searchAbortController) {
-                  searchAbortController.abort();
-                }
                 setInput(e.currentTarget.value);
               }}
               onFocus={() => windowRef.showPopover()}
@@ -140,7 +166,7 @@ export default function SearchBar() {
                   inputRef.focus();
                   setInput("");
                 }}
-                class="absolute right-2 top-1/2 flex h-5 w-5 -translate-y-2/3 items-center justify-center rounded-full bg-stone-50 text-black transition-colors hover:bg-stone-300"
+                class="absolute top-1/2 right-2 flex h-5 w-5 -translate-y-2/3 items-center justify-center rounded-full bg-stone-50 text-black transition-colors hover:bg-stone-300"
               >
                 <FiX />
               </button>
@@ -150,10 +176,10 @@ export default function SearchBar() {
       </form>
       <div
         ref={windowRef!}
-        class={`m-0 h-2/3 w-2/3 translate-y-16 bg-background open:absolute ${input() ? "text-white backdrop-blur-2xl" : "hidden"}`}
+        class={`bg-background m-0 h-2/3 w-2/3 translate-y-16 open:absolute ${input() ? "text-white backdrop-blur-2xl" : "hidden"}`}
         popover="manual"
       >
-        <Show when={searchResult()?.data} fallback={<SearchLoading />}>
+        <Show when={searchResult?.data} fallback={<SearchLoading />}>
           {(data) => (
             <Switch>
               <Match when={data().length > 0}>

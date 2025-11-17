@@ -1,4 +1,3 @@
-import { A, createAsync } from "@solidjs/router";
 import { Schemas, server } from "../../utils/serverApi";
 import { For, Match, Show, Switch } from "solid-js";
 import Showspense from "../../utils/Showspense";
@@ -14,6 +13,8 @@ import {
 } from "@/utils/library";
 import { Card } from "@/ui/card";
 import { Button } from "@/ui/button";
+import { Link, linkOptions } from "@tanstack/solid-router";
+import { queryApi } from "@/utils/queryApi";
 
 type DisplayEpisodeProps = {
   metadata: Schemas["VideoContentMetadata"] & { content_type: "episode" };
@@ -26,13 +27,20 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
   let episode = () =>
     extendEpisode(props.metadata.episode, props.metadata.show.metadata_id);
   let seasonUrl = () => {
-    return `/shows/${show().metadata_id}?season=${episode().season_number}&provider=${show().metadata_provider}`;
+    return linkOptions({
+      to: "/shows/$id",
+      params: { id: show().metadata_id },
+      search: {
+        provider: show().metadata_provider,
+        season: episode().season_number,
+      },
+    });
   };
   return (
     <Card class="relative grid grid-cols-4 gap-2">
-      <A
-        href={episode().url()}
+      <Link
         class="relative aspect-video h-fit overflow-hidden rounded-xl"
+        {...episode().url()}
       >
         <FallbackImage
           width={342}
@@ -44,25 +52,25 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
         <Show when={episode().runtime}>
           {(r) => <ProgressBar runtime={r().secs} history={props.history} />}
         </Show>
-      </A>
+      </Link>
       <div class="col-span-3 flex flex-col p-2">
-        <A href={episode().url()}>
+        <Link {...episode().url()}>
           <span class="text-2xl">{episode().title}</span>
-        </A>
+        </Link>
         <div class="flex items-center gap-2 text-sm">
-          <A href={show().url()}>
+          <Link {...show().url()}>
             <span class="hover:underline">{show().title}</span>
-          </A>
+          </Link>
           <span>-</span>
-          <A href={seasonUrl()}>
+          <Link {...seasonUrl()}>
             <span class="hover:underline">
               Season {episode().season_number}
             </span>
-          </A>
+          </Link>
           <span>-</span>
-          <A href={episode().url()}>
+          <Link {...episode().url()}>
             <span class="hover:underline">Episode {episode().number}</span>
-          </A>
+          </Link>
         </div>
         <p title={episode().plot ?? undefined} class="mt-2 line-clamp-2">
           {episode().plot}
@@ -70,7 +78,7 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
       </div>
       <Button
         variant={"destructive"}
-        class="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full"
+        class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full"
         onClick={props.onRemove}
       >
         <FiX size={20} />
@@ -89,9 +97,9 @@ function DisplayMovie(props: DisplayMovieProps) {
   let movie = () => extendMovie(props.metadata.movie);
   return (
     <Card class="relative grid grid-cols-4 gap-2">
-      <A
-        href={movie().url()}
-        class="relative aspect-poster h-fit overflow-hidden rounded-xl"
+      <Link
+        class="aspect-poster relative h-fit overflow-hidden rounded-xl"
+        {...movie().url()}
       >
         <FallbackImage
           width={100}
@@ -103,15 +111,15 @@ function DisplayMovie(props: DisplayMovieProps) {
         <Show when={movie().runtime}>
           {(r) => <ProgressBar runtime={r().secs} history={props.history} />}
         </Show>
-      </A>
+      </Link>
       <div class="col-span-3 flex flex-col p-2">
-        <A href={movie().url()}>
+        <Link {...movie().url()}>
           <span class="text-2xl">{movie().friendlyTitle()}</span>
-        </A>
+        </Link>
         <div class="flex items-center gap-2 text-sm">
-          <A href={movie().url()}>
+          <Link {...movie().url()}>
             <span class="hover:underline">{movie().friendlyTitle()}</span>
-          </A>
+          </Link>
         </div>
         <p title={movie().plot ?? undefined} class="mt-2 line-clamp-6">
           {movie().plot}
@@ -119,7 +127,7 @@ function DisplayMovie(props: DisplayMovieProps) {
       </div>
       <Button
         variant={"destructive"}
-        class="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full"
+        class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full"
         onClick={props.onRemove}
       >
         <FiX size={20} />
@@ -134,15 +142,12 @@ type HistoryEntryProps = {
 };
 
 function HistoryEntry(props: HistoryEntryProps) {
-  let metadata = createAsync(async () => {
-    let metadata = await server.GET("/api/video/{id}/metadata", {
-      params: { path: { id: props.history.video_id } },
-    });
-    return metadata.data;
-  });
+  let metadata = queryApi.useQuery("get", "/api/video/{id}/metadata", () => ({
+    params: { path: { id: props.history.video_id } },
+  }));
 
   return (
-    <Showspense when={metadata()} fallback={<div>Loading</div>}>
+    <Showspense when={metadata.data} fallback={<div>Loading</div>}>
       {(data) => (
         <Switch>
           <Match when={data().content_type === "episode"}>

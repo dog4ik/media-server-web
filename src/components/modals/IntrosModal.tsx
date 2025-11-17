@@ -12,7 +12,6 @@ import { createStore, produce } from "solid-js/store";
 import { Button } from "@/ui/button";
 import { ExtendedEpisode, Video } from "@/utils/library";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
-import { createAsync } from "@solidjs/router";
 import FallbackImage from "../FallbackImage";
 import {
   NumberField,
@@ -24,6 +23,7 @@ import {
 } from "@/ui/number-field";
 import { formatDuration, parseDuration } from "@/utils/formats";
 import { FiPlusCircle, FiTrash } from "solid-icons/fi";
+import { useQuery } from "@tanstack/solid-query";
 
 type IntroRowProps = {
   index: number;
@@ -387,12 +387,15 @@ function Loading() {
 }
 
 export function IntrosModal(props: Props) {
-  let detailedVideos = createAsync(async () => {
-    let promises = props.episodes.map((e) => e.fetchVideos());
-    return (await Promise.allSettled(promises)).map((r) =>
-      r.status == "fulfilled" ? (r.value ?? []) : undefined,
-    );
-  });
+  let detailedVideos = useQuery(() => ({
+    queryFn: async () => {
+      let promises = props.episodes.map((e) => e.fetchVideos());
+      return (await Promise.allSettled(promises)).map((r) =>
+        r.status == "fulfilled" ? (r.value ?? []) : undefined,
+      );
+    },
+    queryKey: ["detailed_videos", props.show_id, props.season]
+  }));
   return (
     <Dialog
       open={props.open}
@@ -403,7 +406,7 @@ export function IntrosModal(props: Props) {
           <DialogTitle>Manage intros</DialogTitle>
         </DialogHeader>
         <Suspense fallback={<Loading />}>
-          <Show when={detailedVideos()}>
+          <Show when={detailedVideos.data}>
             {(videos) => (
               <Inner
                 season={props.season}

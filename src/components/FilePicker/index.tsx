@@ -1,5 +1,4 @@
 import { Schemas, server } from "../../utils/serverApi";
-import { createAsync } from "@solidjs/router";
 import {
   FiFileText,
   FiFolder,
@@ -7,9 +6,20 @@ import {
   FiHome,
   FiVideo,
 } from "solid-icons/fi";
-import { createEffect, createSignal, For, Match, Show, Switch } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  Match,
+  Show,
+  Suspense,
+  Switch,
+} from "solid-js";
 import { TextFieldRoot, TextField } from "@/ui/textfield";
 import { Button } from "@/ui/button";
+import Loader from "../Loader";
+import { queryApi } from "@/utils/queryApi";
 
 type FileType = "file" | "directory" | "disk" | "home" | "videos";
 
@@ -49,7 +59,7 @@ function EntryRow(props: EntryRowProps) {
     <button
       disabled={props.disabled}
       onClick={() => !props.disabled && props.onClick()}
-      class={`flex max-w-full items-center gap-2 overflow-hidden truncate whitespace-nowrap p-2 ${props.disabled ? "text-neutral-400" : "text-white"}`}
+      class={`flex max-w-full items-center gap-2 truncate overflow-hidden p-2 whitespace-nowrap ${props.disabled ? "text-neutral-400" : "text-white"}`}
       title={props.title}
     >
       <div>
@@ -58,14 +68,6 @@ function EntryRow(props: EntryRowProps) {
       <span class="truncate text-left">{props.title}</span>
     </button>
   );
-}
-
-async function exploreDirectory(key: string) {
-  return await server
-    .GET_NO_CACHE("/api/file_browser/browse/{key}", {
-      params: { path: { key } },
-    })
-    .then((d) => d.data);
 }
 
 function makeFile(path: string): Schemas["BrowseFile"] {
@@ -89,29 +91,30 @@ export function FilePicker(props: Props) {
   let [selectedDir, setSelectedDir] = createSignal<
     Schemas["BrowseFile"] | undefined
   >(initialPath);
-  let lastWorkingPath: Schemas["BrowseFile"] | undefined = undefined;
+  let [lastWorkingPath, setLastWorkingPath] =
+    createSignal<Schemas["BrowseDirectory"]>();
   let [selectedOutput, setSelectedOutput] = createSignal<
     Schemas["BrowseFile"] | undefined
   >(initialPath);
 
-  let currentDirectory = createAsync(async () => {
-    if (selectedDir()?.path) {
-      let explored = await exploreDirectory(selectedDir()!.key);
-      if (!explored && lastWorkingPath) {
-        return await exploreDirectory(lastWorkingPath.key);
-      }
-      if (explored) {
-        lastWorkingPath = selectedDir();
-      }
-      return explored;
+  let currentDirectory = queryApi.useQuery(
+    "get",
+    "/api/file_browser/browse/{key}",
+    () => ({ params: { path: { key: selectedDir()?.key ?? "" } } }),
+    () => ({ enabled: !!selectedDir() }),
+  );
+
+  createEffect(() => {
+    if (currentDirectory.data) {
+      setLastWorkingPath(currentDirectory.data);
     }
   });
 
-  let locations = createAsync(async () => {
-    return await server
-      .GET_NO_CACHE("/api/file_browser/root_dirs")
-      .then((d) => d.data);
-  });
+  let directory = createMemo(() =>
+    currentDirectory.isSuccess ? currentDirectory.data : lastWorkingPath(),
+  );
+
+  let locations = queryApi.useQuery("get", "/api/file_browser/root_dirs");
 
   function handleDirSelect(file: Schemas["BrowseFile"]) {
     setSelectedDir(file);
@@ -128,7 +131,7 @@ export function FilePicker(props: Props) {
 
   async function handleBack(currentKey: string) {
     let parent = await server
-      .GET_NO_CACHE("/api/file_browser/parent/{key}", {
+      .GET("/api/file_browser/parent/{key}", {
         params: { path: { key: currentKey } },
       })
       .then((d) => d.data);
@@ -139,7 +142,7 @@ export function FilePicker(props: Props) {
   }
 
   return (
-    <div class="w-full space-y-2 rounded-md border bg-background p-2">
+    <div class="bg-background w-full space-y-2 rounded-md border p-2">
       <div class="flex">
         <TextFieldRoot class="w-full">
           <TextField
@@ -161,7 +164,7 @@ export function FilePicker(props: Props) {
           </Button>
         </Show>
       </div>
-      <Show when={locations()}>
+      <Show when={locations.data}>
         {(locations) => (
           <div class="grid h-96 grid-cols-3 justify-between divide-x">
             <div class="grow-0 flex-col overflow-y-auto">
@@ -212,31 +215,40 @@ export function FilePicker(props: Props) {
                   />
                 )}
               </Show>
-              <Show when={currentDirectory()}>
-                {(dir) => (
-                  <>
-                    <For each={dir().directories}>
-                      {(childDir) => (
-                        <EntryRow
-                          onClick={() => handleDirSelect(childDir)}
-                          title={childDir.title}
-                          fileType="directory"
-                        />
-                      )}
-                    </For>
-                    <For each={dir().files}>
-                      {(childFile) => (
-                        <EntryRow
-                          disabled={props.disallowFiles}
-                          onClick={() => handleFileSelect(childFile)}
-                          title={childFile.title}
-                          fileType="file"
-                        />
-                      )}
-                    </For>
-                  </>
-                )}
-              </Show>
+              <Suspense fallback={<Loader showDelay={200} />}>
+                <Show when={currentDirectory?.error}>
+                  {(err) => (
+                    <div class="flex size-full items-center justify-center">
+                      Directory is unavailable: {err().message}
+                    </div>
+                  )}
+                </Show>
+                <Show when={directory()}>
+                  {(dir) => (
+                    <>
+                      <For each={dir().directories}>
+                        {(childDir) => (
+                          <EntryRow
+                            onClick={() => handleDirSelect(childDir)}
+                            title={childDir.title}
+                            fileType="directory"
+                          />
+                        )}
+                      </For>
+                      <For each={dir().files}>
+                        {(childFile) => (
+                          <EntryRow
+                            disabled={props.disallowFiles}
+                            onClick={() => handleFileSelect(childFile)}
+                            title={childFile.title}
+                            fileType="file"
+                          />
+                        )}
+                      </For>
+                    </>
+                  )}
+                </Show>
+              </Suspense>
             </div>
           </div>
         )}
