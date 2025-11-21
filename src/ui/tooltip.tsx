@@ -1,45 +1,63 @@
-import { cn } from "@/lib/cn";
-import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type {
-	TooltipContentProps,
-	TooltipRootProps,
-} from "@kobalte/core/tooltip";
+import type { ComponentProps, ValidComponent } from "solid-js";
+import { mergeProps, splitProps } from "solid-js";
 import { Tooltip as TooltipPrimitive } from "@kobalte/core/tooltip";
-import { type ValidComponent, mergeProps, splitProps } from "solid-js";
 
-export const TooltipTrigger = TooltipPrimitive.Trigger;
+import { cx } from "cva";
 
-export const Tooltip = (props: TooltipRootProps) => {
-	const merge = mergeProps<TooltipRootProps[]>(
-		{
-			gutter: 4,
-			flip: false,
-		},
-		props,
-	);
+export type TooltipProps = ComponentProps<typeof TooltipPrimitive>;
 
-	return <TooltipPrimitive {...merge} />;
+export const TooltipPortal = TooltipPrimitive.Portal;
+
+export const Tooltip = (props: TooltipProps) => {
+  const merge = mergeProps<TooltipProps[]>(
+    {
+      closeDelay: 0,
+      openDelay: 0,
+      placement: "top",
+    },
+    props,
+  );
+
+  return <TooltipPrimitive data-slot="tooltip" {...merge} />;
 };
 
-type tooltipContentProps<T extends ValidComponent = "div"> =
-	TooltipContentProps<T> & {
-		class?: string;
-	};
+export type TooltipTriggerProps<T extends ValidComponent = "button"> =
+  ComponentProps<typeof TooltipPrimitive.Trigger<T>>;
 
-export const TooltipContent = <T extends ValidComponent = "div">(
-	props: PolymorphicProps<T, tooltipContentProps<T>>,
+export const TooltipTrigger = <T extends ValidComponent = "button">(
+  props: TooltipTriggerProps<T>,
 ) => {
-	const [local, rest] = splitProps(props as tooltipContentProps, ["class"]);
+  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
+};
 
-	return (
-		<TooltipPrimitive.Portal>
-			<TooltipPrimitive.Content
-				class={cn(
-					"z-50 overflow-hidden rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95",
-					local.class,
-				)}
-				{...rest}
-			/>
-		</TooltipPrimitive.Portal>
-	);
+export type TooltipContentProps<T extends ValidComponent = "button"> =
+  ComponentProps<typeof TooltipPrimitive.Content<T>>;
+
+export const TooltipContent = <T extends ValidComponent = "button">(
+  props: TooltipContentProps<T>,
+) => {
+  const [, rest] = splitProps(props as TooltipContentProps, [
+    "class",
+    "children",
+  ]);
+
+  return (
+    <TooltipPrimitive.Content
+      data-slot="tooltip-content"
+      class={cx(
+        "bg-primary text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[closed]:animate-out data-[closed]:fade-out-0 data-[closed]:zoom-out-95 z-50 w-fit origin-(--kb-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance",
+        "[[data-popper-positioner][style*='--kb-popper-content-transform-origin:_top']>[data-slot=tooltip-content]]:slide-in-from-top-2 [[data-popper-positioner][style*='--kb-popper-content-transform-origin:_bottom']>[data-slot=tooltip-content]]:slide-in-from-bottom-2 [[data-popper-positioner][style*='--kb-popper-content-transform-origin:_left']>[data-slot=tooltip-content]]:slide-in-from-left-2 [[data-popper-positioner][style*='--kb-popper-content-transform-origin:_right']>[data-slot=tooltip-content]]:slide-in-from-right-2",
+        props.class,
+      )}
+      {...rest}
+    >
+      <TooltipPrimitive.Arrow
+        style={{
+          height: "calc(var(--spacing) * 4)",
+          width: "calc(var(--spacing) * 4)",
+        }}
+      />
+      {props.children}
+    </TooltipPrimitive.Content>
+  );
 };

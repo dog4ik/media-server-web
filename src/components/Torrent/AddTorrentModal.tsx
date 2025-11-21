@@ -11,7 +11,7 @@ import CircleAlert from "lucide-solid/icons/circle-alert";
 import { Alert, AlertDescription } from "@/ui/alert";
 import { createSignal, Show } from "solid-js";
 import { Button } from "@/ui/button";
-import { TextFieldLabel, TextFieldRoot, TextField } from "@/ui/textfield";
+import { TextFieldLabel, TextFieldInput, TextField } from "@/ui/textfield";
 import { JSX } from "solid-js/h/jsx-runtime";
 import { MEDIA_SERVER_URL } from "@/utils/serverApi";
 import FileInput from "@/components/ui/FileInput";
@@ -137,15 +137,15 @@ export function AddTorrentModal() {
           <TabsContent value="magnet">
             <form onSubmit={handleMagnetSubmit}>
               <div class="grid w-full items-center gap-4">
-                <TextFieldRoot class="flex flex-col space-y-1.5">
+                <TextField class="flex flex-col space-y-1.5">
                   <TextFieldLabel>Magnet Link</TextFieldLabel>
-                  <TextField
+                  <TextFieldInput
                     id="magnetLink"
                     placeholder="Paste your magnet link here"
                     value={magnetLink()}
                     onChange={(e) => setMagnetLink(e.target.value)}
                   />
-                </TextFieldRoot>
+                </TextField>
               </div>
               <Button type="submit" class="mt-4">
                 Add Torrent

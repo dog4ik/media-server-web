@@ -1,31 +1,46 @@
-import { cn } from "@/lib/cn";
-import type { CollapsibleContentProps } from "@kobalte/core/collapsible";
-import { Collapsible as CollapsiblePrimitive } from "@kobalte/core/collapsible";
-import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type { ValidComponent } from "solid-js";
+import type { ComponentProps, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
+import { Collapsible as CollapsiblePrimitive } from "@kobalte/core/collapsible";
 
-export const Collapsible = CollapsiblePrimitive;
+import { cx } from "cva";
 
-export const CollapsibleTrigger = CollapsiblePrimitive.Trigger;
+export type CollapsibleProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof CollapsiblePrimitive<T>
+>;
 
-type collapsibleContentProps<T extends ValidComponent = "div"> =
-	CollapsibleContentProps<T> & {
-		class?: string;
-	};
-
-export const CollapsibleContent = <T extends ValidComponent = "div">(
-	props: PolymorphicProps<T, collapsibleContentProps<T>>,
+export const Collapsible = <T extends ValidComponent = "div">(
+  props: CollapsibleProps<T>,
 ) => {
-	const [local, rest] = splitProps(props as collapsibleContentProps, ["class"]);
+  return <CollapsiblePrimitive data-slot="collapsible" {...props} />;
+};
 
-	return (
-		<CollapsiblePrimitive.Content
-			class={cn(
-				"animate-collapsible-up data-[expanded]:animate-collapsible-down",
-				local.class,
-			)}
-			{...rest}
-		/>
-	);
+export type CollapsibleTriggerProps<T extends ValidComponent = "button"> =
+  ComponentProps<typeof CollapsiblePrimitive.Trigger<T>>;
+
+export const CollapsibleTrigger = <T extends ValidComponent = "button">(
+  props: CollapsibleTriggerProps<T>,
+) => {
+  return (
+    <CollapsiblePrimitive.Trigger data-slot="collapsible-trigger" {...props} />
+  );
+};
+
+export type CollapsibleContentProps<T extends ValidComponent = "button"> =
+  ComponentProps<typeof CollapsiblePrimitive.Content<T>>;
+
+export const CollapsibleContent = <T extends ValidComponent = "button">(
+  props: CollapsibleContentProps<T>,
+) => {
+  const [, rest] = splitProps(props as CollapsibleContentProps, ["class"]);
+
+  return (
+    <CollapsiblePrimitive.Content
+      data-slot="collapsible-content"
+      class={cx(
+        "data-[closed]:animate-collapsible-up data-[expanded]:animate-collapsible-down overflow-hidden",
+        props.class,
+      )}
+      {...rest}
+    />
+  );
 };

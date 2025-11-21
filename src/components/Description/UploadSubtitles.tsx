@@ -7,7 +7,7 @@ import {
   SelectTrigger,
 } from "@/ui/select";
 import { Dialog, DialogContent, DialogTrigger } from "@/ui/dialog";
-import { TextField, TextFieldLabel, TextFieldRoot } from "@/ui/textfield";
+import { TextField, TextFieldLabel, TextFieldInput } from "@/ui/textfield";
 import { Schemas, server } from "@/utils/serverApi";
 import tracing from "@/utils/tracing";
 import { createSignal, JSX, ParentProps, Show } from "solid-js";
@@ -190,17 +190,17 @@ export function UploadSubtitles(props: Props) {
                 <div class="flex items-center gap-4">
                   <span class="text-lg">Select subtitles on the server</span>
                   <span class="text-sm">or</span>{" "}
-                  <TextFieldRoot value={""} class="flex flex-col space-y-1.5">
+                  <TextField value={""} class="flex flex-col space-y-1.5">
                     <TextFieldLabel class="cursor-pointer text-lg underline">
                       Click to upload
                     </TextFieldLabel>
-                    <TextField
+                    <TextFieldInput
                       onInput={handleFileChange}
                       class="hidden"
                       type="file"
                       accept=".srt"
                     />
-                  </TextFieldRoot>
+                  </TextField>
                   <span class="text-sm">or</span>{" "}
                   <span class="text-lg">
                     Drag and drop <code>.srt</code> file

@@ -24,7 +24,7 @@ import { TableColumnHeader } from "./ColumnHeader";
 import { formatSize } from "@/utils/formats";
 import { Badge } from "@/ui/badge";
 import { createMemo, createSignal, For, Show } from "solid-js";
-import { TextField, TextFieldRoot } from "@/ui/textfield";
+import { TextField, TextFieldInput } from "@/ui/textfield";
 import { PaginationFooter } from "./TableFooter";
 import { PersistentTableState } from "@/utils/persistent_table_state";
 
@@ -213,8 +213,8 @@ export function PeerList(props: Props) {
     <div class="w-full space-y-2.5">
       <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-          <TextFieldRoot>
-            <TextField
+          <TextField>
+            <TextFieldInput
               type="text"
               placeholder="Filter ip..."
               class="h-8"
@@ -225,7 +225,7 @@ export function PeerList(props: Props) {
                 table.getColumn("addr")?.setFilterValue(e.currentTarget.value)
               }
             />
-          </TextFieldRoot>
+          </TextField>
         </div>
       </div>
       <div class="rounded-md border">

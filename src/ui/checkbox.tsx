@@ -1,55 +1,116 @@
-import { cn } from "@/lib/cn";
-import type { CheckboxControlProps } from "@kobalte/core/checkbox";
-import { Checkbox as CheckboxPrimitive } from "@kobalte/core/checkbox";
-import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type { ValidComponent, VoidProps } from "solid-js";
-import { splitProps } from "solid-js";
+import type { ComponentProps, ValidComponent } from "solid-js"
+import { splitProps } from "solid-js"
+import { Checkbox as CheckboxPrimitive } from "@kobalte/core/checkbox"
 
-export const CheckboxLabel = CheckboxPrimitive.Label;
-export const Checkbox = CheckboxPrimitive;
-export const CheckboxErrorMessage = CheckboxPrimitive.ErrorMessage;
-export const CheckboxDescription = CheckboxPrimitive.Description;
+import { cx } from "cva"
 
-type checkboxControlProps<T extends ValidComponent = "div"> = VoidProps<
-	CheckboxControlProps<T> & { class?: string }
->;
+export type CheckboxProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof CheckboxPrimitive<T>
+>
+
+export const Checkbox = <T extends ValidComponent = "div">(
+  props: CheckboxProps<T>,
+) => {
+  return <CheckboxPrimitive data-slot="checkbox" {...props} />
+}
+
+export type CheckboxLabelProps<T extends ValidComponent = "label"> =
+  ComponentProps<typeof CheckboxPrimitive.Label<T>>
+
+export const CheckboxLabel = <T extends ValidComponent = "label">(
+  props: CheckboxLabelProps<T>,
+) => {
+  const [, rest] = splitProps(props as CheckboxLabelProps, ["class"])
+
+  return (
+    <CheckboxPrimitive.Label
+      data-slot="checkbox-label"
+      class={cx(
+        "flex items-center gap-2 text-sm leading-none font-medium select-none data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+        "data-[invalid]:text-destructive",
+        props.class,
+      )}
+      {...rest}
+    />
+  )
+}
+
+export type CheckboxDescriptionProps<T extends ValidComponent = "div"> =
+  ComponentProps<typeof CheckboxPrimitive.Description<T>>
+
+export const CheckboxDescription = <T extends ValidComponent = "div">(
+  props: CheckboxDescriptionProps<T>,
+) => {
+  const [, rest] = splitProps(props as CheckboxDescriptionProps, ["class"])
+
+  return (
+    <CheckboxPrimitive.Description
+      data-slot="checkbox-description"
+      class={cx(
+        "text-muted-foreground text-sm data-[disabled]:opacity-50",
+        props.class,
+      )}
+      {...rest}
+    />
+  )
+}
+
+export type CheckboxInputProps<T extends ValidComponent = "input"> =
+  ComponentProps<typeof CheckboxPrimitive.Input<T>>
+
+export const CheckboxInput = <T extends ValidComponent = "input">(
+  props: CheckboxInputProps<T>,
+) => {
+  const [, rest] = splitProps(props as CheckboxInputProps, ["class"])
+
+  return (
+    <CheckboxPrimitive.Input
+      data-slot="checkbox-input"
+      class={cx(
+        "[&:focus-visible+div]:ring-ring/50 peer [&:focus-visible+div]:ring-[3px]",
+        props.class,
+      )}
+      {...rest}
+    />
+  )
+}
+
+export type CheckboxControlProps<T extends ValidComponent = "div"> =
+  ComponentProps<typeof CheckboxPrimitive.Control<T>>
 
 export const CheckboxControl = <T extends ValidComponent = "div">(
-	props: PolymorphicProps<T, checkboxControlProps<T>>,
+  props: CheckboxControlProps<T>,
 ) => {
-	const [local, rest] = splitProps(props as checkboxControlProps, [
-		"class",
-		"children",
-	]);
+  const [, rest] = splitProps(props as CheckboxControlProps, ["class"])
 
-	return (
-		<>
-			<CheckboxPrimitive.Input class="[&:focus-visible+div]:outline-none [&:focus-visible+div]:ring-[1.5px] [&:focus-visible+div]:ring-ring [&:focus-visible+div]:ring-offset-2 [&:focus-visible+div]:ring-offset-background" />
-			<CheckboxPrimitive.Control
-				class={cn(
-					"h-4 w-4 shrink-0 rounded-sm border border-primary shadow transition-shadow focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring data-[disabled]:cursor-not-allowed data-[checked]:bg-primary data-[checked]:text-primary-foreground data-[disabled]:opacity-50",
-					local.class,
-				)}
-				{...rest}
-			>
-				<CheckboxPrimitive.Indicator class="flex items-center justify-center text-current">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						class="h-4 w-4"
-					>
-						<path
-							fill="none"
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="m5 12l5 5L20 7"
-						/>
-						<title>Checkbox</title>
-					</svg>
-				</CheckboxPrimitive.Indicator>
-			</CheckboxPrimitive.Control>
-		</>
-	);
-};
+  return (
+    <CheckboxPrimitive.Control
+      data-slot="checkbox-control"
+      class={cx(
+        "peer-focus-visible:border-ring border-input dark:bg-input/30 data-[checked]:bg-primary data-[checked]:text-primary-foreground dark:data-[checked]:bg-primary data-[checked]:border-primary data-invalid:ring-destructive/20 dark:data-invalid:ring-destructive/40 data-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none data-disabled:cursor-not-allowed data-disabled:opacity-50",
+        props.class,
+      )}
+      {...rest}
+    >
+      <CheckboxPrimitive.Indicator
+        data-slot="checkbox-indicator"
+        class="flex items-center justify-center text-current transition-none"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="size-3.5"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M20 6L9 17l-5-5"
+          />
+        </svg>
+      </CheckboxPrimitive.Indicator>
+    </CheckboxPrimitive.Control>
+  )
+}

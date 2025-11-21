@@ -11,7 +11,7 @@ import {
 import { Schemas } from "../../utils/serverApi";
 import ProviderLogo from "../generic/ProviderLogo";
 import useDebounce from "../../utils/useDebounce";
-import { TextField, TextFieldRoot } from "@/ui/textfield";
+import { TextField, TextFieldInput } from "@/ui/textfield";
 import { capitalize } from "@/utils/formats";
 import { Link, useNavigate } from "@tanstack/solid-router";
 import { queryApi } from "@/utils/queryApi";
@@ -143,8 +143,8 @@ export default function SearchBar() {
         }}
       >
         <label class="input input-sm input-bordered flex items-center gap-2 text-black">
-          <TextFieldRoot class="relative w-full">
-            <TextField
+          <TextField class="relative w-full">
+            <TextFieldInput
               ref={inputRef!}
               onInput={(e) => {
                 setInput(e.currentTarget.value);
@@ -171,7 +171,7 @@ export default function SearchBar() {
                 <FiX />
               </button>
             </Show>
-          </TextFieldRoot>
+          </TextField>
         </label>
       </form>
       <div

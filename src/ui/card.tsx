@@ -1,60 +1,107 @@
-import { cn } from "@/lib/cn";
-import type { ComponentProps, ParentComponent } from "solid-js";
+import type { ComponentProps } from "solid-js";
 import { splitProps } from "solid-js";
 
-export const Card = (props: ComponentProps<"div">) => {
-	const [local, rest] = splitProps(props, ["class"]);
+import { cx } from "cva";
 
-	return (
-		<div
-			class={cn(
-				"rounded-xl border bg-card text-card-foreground shadow",
-				local.class,
-			)}
-			{...rest}
-		/>
-	);
+export type CardProps = ComponentProps<"div">;
+
+export const Card = (props: CardProps) => {
+  const [, rest] = splitProps(props, ["class"]);
+
+  return (
+    <div
+      data-slot="card"
+      class={cx(
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        props.class,
+      )}
+      {...rest}
+    />
+  );
 };
 
-export const CardHeader = (props: ComponentProps<"div">) => {
-	const [local, rest] = splitProps(props, ["class"]);
+export type CardHeaderProps = ComponentProps<"div">;
 
-	return (
-		<div class={cn("flex flex-col space-y-1.5 p-6", local.class)} {...rest} />
-	);
+export const CardHeader = (props: CardHeaderProps) => {
+  const [, rest] = splitProps(props, ["class"]);
+
+  return (
+    <div
+      data-slot="card-header"
+      class={cx(
+        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
+        props.class,
+      )}
+      {...rest}
+    />
+  );
 };
 
-export const CardTitle: ParentComponent<ComponentProps<"h1">> = (props) => {
-	const [local, rest] = splitProps(props, ["class"]);
+export type CardTitleProps = ComponentProps<"div">;
 
-	return (
-		<h1
-			class={cn("font-semibold leading-none tracking-tight", local.class)}
-			{...rest}
-		/>
-	);
+export const CardTitle = (props: CardTitleProps) => {
+  const [, rest] = splitProps(props, ["class"]);
+
+  return (
+    <div
+      data-slot="card-title"
+      class={cx("leading-none font-semibold", props.class)}
+      {...rest}
+    />
+  );
 };
 
-export const CardDescription: ParentComponent<ComponentProps<"h3">> = (
-	props,
-) => {
-	const [local, rest] = splitProps(props, ["class"]);
+export type CardDescriptionProps = ComponentProps<"div">;
 
-	return (
-		<h3 class={cn("text-sm text-muted-foreground", local.class)} {...rest} />
-	);
+export const CardDescription = (props: CardDescriptionProps) => {
+  const [, rest] = splitProps(props, ["class"]);
+
+  return (
+    <div
+      data-slot="card-description"
+      class={cx("text-muted-foreground text-sm", props.class)}
+      {...rest}
+    />
+  );
 };
 
-export const CardContent = (props: ComponentProps<"div">) => {
-	const [local, rest] = splitProps(props, ["class"]);
+export type CardActionProps = ComponentProps<"div">;
 
-	return <div class={cn("p-6 pt-0", local.class)} {...rest} />;
+export const CardAction = (props: CardActionProps) => {
+  const [, rest] = splitProps(props, ["class"]);
+
+  return (
+    <div
+      data-slot="card-action"
+      class={cx(
+        "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
+        props.class,
+      )}
+      {...rest}
+    />
+  );
 };
 
-export const CardFooter = (props: ComponentProps<"div">) => {
-	const [local, rest] = splitProps(props, ["class"]);
+export type CardContentProps = ComponentProps<"div">;
 
-	return (
-		<div class={cn("flex items-center p-6 pt-0", local.class)} {...rest} />
-	);
+export const CardContent = (props: CardContentProps) => {
+  const [, rest] = splitProps(props, ["class"]);
+
+  return (
+    <div data-slot="card-content" class={cx("px-6", props.class)} {...rest} />
+  );
+};
+
+export type CardFooterProps = ComponentProps<"div">;
+
+export const CardFooter = (props: CardFooterProps) => {
+  const [, rest] = splitProps(props, ["class"]);
+
+  return (
+    <div
+      data-slot="card-footer"
+      class={cx("flex items-center px-6 [.border-t]:pt-6", props.class)}
+      {...rest}
+    />
+  );
 };

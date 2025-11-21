@@ -19,7 +19,7 @@ import {
 } from "@/ui/select";
 import { throwResponseErrors } from "@/utils/errors";
 import { Button } from "@/ui/button";
-import { TextField, TextFieldRoot } from "@/ui/textfield";
+import { TextField, TextFieldInput } from "@/ui/textfield";
 import Loader from "../Loader";
 import useDebounce from "@/utils/useDebounce";
 import tracing from "@/utils/tracing";
@@ -161,9 +161,9 @@ export default function Step1(props: Props) {
   return (
     <div class="h-full overflow-y-auto">
       <div class="flex items-center space-x-2">
-        <TextFieldRoot value={query()} onChange={setQuery} class="w-full">
-          <TextField />
-        </TextFieldRoot>
+        <TextField value={query()} onChange={setQuery} class="w-full">
+          <TextFieldInput />
+        </TextField>
         <Select<Schemas["TorrentIndexIdentifier"]>
           placeholder="Torrent index"
           class="w-60"

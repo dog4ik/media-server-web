@@ -28,7 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/ui/table";
-import { TextField, TextFieldRoot } from "@/ui/textfield";
+import { TextField, TextFieldInput } from "@/ui/textfield";
 import type { ColumnDef } from "@tanstack/solid-table";
 import { flexRender } from "@tanstack/solid-table";
 import { createMemo, For, Show } from "solid-js";
@@ -206,8 +206,8 @@ export function TorrentTable() {
     <div class="w-full space-y-2.5">
       <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-          <TextFieldRoot>
-            <TextField
+          <TextField>
+            <TextFieldInput
               type="text"
               placeholder="Filter torrents..."
               class="h-8"
@@ -218,7 +218,7 @@ export function TorrentTable() {
                 table.getColumn("name")?.setFilterValue(e.currentTarget.value)
               }
             />
-          </TextFieldRoot>
+          </TextField>
           <Button
             disabled={isActionButtonsDisabled()}
             onClick={() => selectionBatchAction("pause")}

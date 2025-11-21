@@ -16,7 +16,7 @@ import {
   Suspense,
   Switch,
 } from "solid-js";
-import { TextFieldRoot, TextField } from "@/ui/textfield";
+import { TextFieldInput, TextField } from "@/ui/textfield";
 import { Button } from "@/ui/button";
 import Loader from "../Loader";
 import { queryApi } from "@/utils/queryApi";
@@ -144,8 +144,8 @@ export function FilePicker(props: Props) {
   return (
     <div class="bg-background w-full space-y-2 rounded-md border p-2">
       <div class="flex">
-        <TextFieldRoot class="w-full">
-          <TextField
+        <TextField class="w-full">
+          <TextFieldInput
             onInput={(e) => {
               let value = e.currentTarget.value;
               let file = makeFile(value);
@@ -154,7 +154,7 @@ export function FilePicker(props: Props) {
             }}
             value={selectedOutput()?.path ?? ""}
           />
-        </TextFieldRoot>
+        </TextField>
         <Show when={props.onSubmit}>
           <Button
             onClick={() => props.onSubmit?.(selectedOutput()!.path)}

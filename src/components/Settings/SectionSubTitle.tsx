@@ -7,7 +7,7 @@ type Props = {
 export default function SectionSubTitle(props: Props) {
   return (
     <a
-      class="group flex cursor-pointer items-center gap-5 py-4"
+      class="group flex cursor-pointer items-center gap-5"
       href={`#${textToKebab(props.name)}`}
     >
       <h3 id={textToKebab(props.name)} class="heading text-2xl">

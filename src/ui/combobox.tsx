@@ -1,156 +1,263 @@
-import { cn } from "@/lib/cn";
-import type {
-	ComboboxContentProps,
-	ComboboxInputProps,
-	ComboboxItemProps,
-	ComboboxTriggerProps,
-} from "@kobalte/core/combobox";
-import { Combobox as ComboboxPrimitive } from "@kobalte/core/combobox";
-import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type { ParentProps, ValidComponent, VoidProps } from "solid-js";
+import type { ComponentProps, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
+import { Combobox as ComboboxPrimitive } from "@kobalte/core/combobox";
+import clsx from "clsx";
 
-export const Combobox = ComboboxPrimitive;
-export const ComboboxDescription = ComboboxPrimitive.Description;
-export const ComboboxErrorMessage = ComboboxPrimitive.ErrorMessage;
-export const ComboboxItemDescription = ComboboxPrimitive.ItemDescription;
-export const ComboboxHiddenSelect = ComboboxPrimitive.HiddenSelect;
+export const ComboboxPortal = ComboboxPrimitive.Portal;
 
-type comboboxInputProps<T extends ValidComponent = "input"> = VoidProps<
-	ComboboxInputProps<T> & {
-		class?: string;
-	}
->;
+export type ComboboxProps<
+  Option,
+  Group = never,
+  T extends ValidComponent = "div",
+> = ComponentProps<typeof ComboboxPrimitive<Option, Group, T>>;
+
+export const Combobox = <
+  Option,
+  Group = never,
+  T extends ValidComponent = "div",
+>(
+  props: ComboboxProps<Option, Group, T>,
+) => {
+  const [, rest] = splitProps(props as ComboboxProps<Option, Group>, ["class"]);
+
+  return (
+    <ComboboxPrimitive
+      data-slot="combobox"
+      class={clsx("space-y-2", props.class)}
+      {...rest}
+    />
+  );
+};
+
+export type ComboboxInputProps<T extends ValidComponent = "input"> =
+  ComponentProps<typeof ComboboxPrimitive.Input<T>>;
 
 export const ComboboxInput = <T extends ValidComponent = "input">(
-	props: PolymorphicProps<T, comboboxInputProps<T>>,
+  props: ComboboxInputProps<T>,
 ) => {
-	const [local, rest] = splitProps(props as comboboxInputProps, ["class"]);
+  const [, rest] = splitProps(props as ComboboxInputProps, ["class"]);
 
-	return (
-		<ComboboxPrimitive.Input
-			class={cn(
-				"h-full bg-transparent text-sm placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
-				local.class,
-			)}
-			{...rest}
-		/>
-	);
+  return (
+    <ComboboxPrimitive.Input
+      data-slot="combobox-input"
+      class={clsx(
+        "placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground pr-3 outline-none",
+        props.class,
+      )}
+      {...rest}
+    />
+  );
 };
 
-type comboboxTriggerProps<T extends ValidComponent = "button"> = ParentProps<
-	ComboboxTriggerProps<T> & {
-		class?: string;
-	}
->;
+export type ComboboxTriggerProps<T extends ValidComponent = "button"> =
+  ComponentProps<typeof ComboboxPrimitive.Trigger<T>>;
 
 export const ComboboxTrigger = <T extends ValidComponent = "button">(
-	props: PolymorphicProps<T, comboboxTriggerProps<T>>,
+  props: ComboboxTriggerProps<T>,
 ) => {
-	const [local, rest] = splitProps(props as comboboxTriggerProps, [
-		"class",
-		"children",
-	]);
+  const [, rest] = splitProps(props as ComboboxTriggerProps, ["class"]);
 
-	return (
-		<ComboboxPrimitive.Control>
-			<ComboboxPrimitive.Trigger
-				class={cn(
-					"flex h-9 w-full items-center justify-between rounded-md border border-input px-3 shadow-sm",
-					local.class,
-				)}
-				{...rest}
-			>
-				{local.children}
-				<ComboboxPrimitive.Icon class="flex h-3.5 w-3.5 items-center justify-center">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						class="h-4 w-4 opacity-50"
-					>
-						<path
-							fill="none"
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="m8 9l4-4l4 4m0 6l-4 4l-4-4"
-						/>
-						<title>Arrow</title>
-					</svg>
-				</ComboboxPrimitive.Icon>
-			</ComboboxPrimitive.Trigger>
-		</ComboboxPrimitive.Control>
-	);
+  return (
+    <ComboboxPrimitive.Trigger
+      data-slot="combobox-trigger"
+      class={clsx(
+        "[&>svg]:text-muted-foreground [&>svg]:size-3.5",
+        props.class,
+      )}
+      {...rest}
+    >
+      <ComboboxPrimitive.Icon
+        as="svg"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+      >
+        <path
+          fill="none"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="m7 15l5 5l5-5M7 9l5-5l5 5"
+        />
+      </ComboboxPrimitive.Icon>
+    </ComboboxPrimitive.Trigger>
+  );
 };
 
-type comboboxContentProps<T extends ValidComponent = "div"> =
-	ComboboxContentProps<T> & {
-		class?: string;
-	};
+export type ComboboxControlProps<
+  Option,
+  T extends ValidComponent = "div",
+> = ComponentProps<typeof ComboboxPrimitive.Control<Option, T>>;
+
+export const ComboboxControl = <Option, T extends ValidComponent = "div">(
+  props: ComboboxControlProps<Option, T>,
+) => {
+  const [, rest] = splitProps(props as ComboboxControlProps<Option>, ["class"]);
+
+  return (
+    <ComboboxPrimitive.Control
+      data-slot="combobox-control"
+      class={clsx(
+        "dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 md:text-sm",
+        "data-[invalid]:ring-destructive/20 dark:data-[invalid]:ring-destructive/40 data-[invalid]:border-destructive",
+        props.class,
+      )}
+      {...rest}
+    />
+  );
+};
+
+export type ComboboxContentProps<T extends ValidComponent = "div"> =
+  ComponentProps<typeof ComboboxPrimitive.Content<T>>;
 
 export const ComboboxContent = <T extends ValidComponent = "div">(
-	props: PolymorphicProps<T, comboboxContentProps<T>>,
+  props: ComboboxContentProps<T>,
 ) => {
-	const [local, rest] = splitProps(props as comboboxContentProps, ["class"]);
+  const [, rest] = splitProps(props as ComboboxContentProps, ["class"]);
 
-	return (
-		<ComboboxPrimitive.Portal>
-			<ComboboxPrimitive.Content
-				class={cn(
-					"relative z-50 min-w-32 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95 origin-(--kb-combobox-content-transform-origin)",
-					local.class,
-				)}
-				{...rest}
-			>
-				<ComboboxPrimitive.Listbox class="p-1" />
-			</ComboboxPrimitive.Content>
-		</ComboboxPrimitive.Portal>
-	);
+  return (
+    <ComboboxPrimitive.Content
+      data-slot="combobox-content"
+      class={clsx(
+        "bg-popover text-popover-foreground data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95 relative z-50 min-w-[8rem] origin-(--kb-combobox-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md",
+        "[[data-popper-positioner][style*='--kb-popper-content-transform-origin:_top']>[data-slot=combobox-content]]:slide-in-from-top-2 [[data-popper-positioner][style*='--kb-popper-content-transform-origin:_bottom']>[data-slot=combobox-content]]:slide-in-from-bottom-2 [[data-popper-positioner][style*='--kb-popper-content-transform-origin:_left']>[data-slot=combobox-content]]:slide-in-from-left-2 [[data-popper-positioner][style*='--kb-popper-content-transform-origin:_right']>[data-slot=combobox-content]]:slide-in-from-right-2",
+        props.class,
+      )}
+      {...rest}
+    >
+      <ComboboxPrimitive.Listbox data-slot="combobox-listbox" class="p-1" />
+    </ComboboxPrimitive.Content>
+  );
 };
 
-type comboboxItemProps<T extends ValidComponent = "li"> = ParentProps<
-	ComboboxItemProps<T> & {
-		class?: string;
-	}
->;
+export type ComboboxItemProps<T extends ValidComponent = "div"> =
+  ComponentProps<typeof ComboboxPrimitive.Item<T>>;
 
-export const ComboboxItem = <T extends ValidComponent = "li">(
-	props: PolymorphicProps<T, comboboxItemProps<T>>,
+export const ComboboxItem = <T extends ValidComponent = "div">(
+  props: ComboboxItemProps<T>,
 ) => {
-	const [local, rest] = splitProps(props as comboboxItemProps, [
-		"class",
-		"children",
-	]);
+  const [, rest] = splitProps(props as ComboboxItemProps, [
+    "class",
+    "children",
+  ]);
 
-	return (
-		<ComboboxPrimitive.Item
-			class={cn(
-				"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none data-disabled:pointer-events-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-disabled:opacity-50",
-				local.class,
-			)}
-			{...rest}
-		>
-			<ComboboxPrimitive.ItemIndicator class="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 24 24"
-					class="h-4 w-4"
-				>
-					<path
-						fill="none"
-						stroke="currentColor"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="m5 12l5 5L20 7"
-					/>
-					<title>Checked</title>
-				</svg>
-			</ComboboxPrimitive.ItemIndicator>
-			<ComboboxPrimitive.ItemLabel>
-				{local.children}
-			</ComboboxPrimitive.ItemLabel>
-		</ComboboxPrimitive.Item>
-	);
+  return (
+    <ComboboxPrimitive.Item
+      data-slot="combobox-item"
+      class={clsx(
+        "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        props.class,
+      )}
+      {...rest}
+    >
+      {props.children}
+      <ComboboxPrimitive.ItemIndicator>
+        <ComboboxPrimitive.Icon
+          as="svg"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M20 6L9 17l-5-5"
+          />
+        </ComboboxPrimitive.Icon>
+      </ComboboxPrimitive.ItemIndicator>
+    </ComboboxPrimitive.Item>
+  );
+};
+
+export type ComboboxItemLabelProps<T extends ValidComponent = "div"> =
+  ComponentProps<typeof ComboboxPrimitive.ItemLabel<T>>;
+
+export const ComboboxItemLabel = <T extends ValidComponent = "div">(
+  props: ComboboxItemLabelProps<T>,
+) => {
+  return (
+    <ComboboxPrimitive.ItemLabel data-slot="combobox-itemlabel" {...props} />
+  );
+};
+
+export type ComboboxDescriptionProps<T extends ValidComponent = "div"> =
+  ComponentProps<typeof ComboboxPrimitive.Description<T>>;
+
+export const ComboboxDescription = <T extends ValidComponent = "div">(
+  props: ComboboxDescriptionProps<T>,
+) => {
+  const [, rest] = splitProps(props as ComboboxDescriptionProps, ["class"]);
+
+  return (
+    <ComboboxPrimitive.Description
+      data-slot="combobox-description"
+      class={clsx(
+        "text-muted-foreground text-sm data-[disabled]:opacity-50",
+        props.class,
+      )}
+      {...rest}
+    />
+  );
+};
+
+export type ComboboxLabelProps<T extends ValidComponent = "label"> =
+  ComponentProps<typeof ComboboxPrimitive.Label<T>>;
+
+export const ComboboxLabel = <T extends ValidComponent = "label">(
+  props: ComboboxLabelProps<T>,
+) => {
+  const [, rest] = splitProps(props as ComboboxLabelProps, ["class"]);
+
+  return (
+    <ComboboxPrimitive.Label
+      data-slot="combobox-label"
+      class={clsx(
+        "flex items-center gap-2 text-sm leading-none font-medium select-none data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+        props.class,
+      )}
+      {...rest}
+    />
+  );
+};
+
+export type ComboboxErrorMessageProps<T extends ValidComponent = "div"> =
+  ComponentProps<typeof ComboboxPrimitive.ErrorMessage<T>>;
+
+export const ComboboxErrorMessage = <T extends ValidComponent = "div">(
+  props: ComboboxErrorMessageProps<T>,
+) => {
+  const [, rest] = splitProps(props as ComboboxErrorMessageProps, ["class"]);
+
+  return (
+    <ComboboxPrimitive.ErrorMessage
+      data-slot="combobox-errormessage"
+      class={clsx(
+        "text-destructive text-sm data-[disabled]:opacity-50",
+        props.class,
+      )}
+      {...rest}
+    />
+  );
+};
+
+export type ComboboxSectionProps<T extends ValidComponent = "li"> =
+  ComponentProps<typeof ComboboxPrimitive.Section<T>>;
+
+export const ComboboxSection = <T extends ValidComponent = "li">(
+  props: ComboboxSectionProps<T>,
+) => {
+  const [, rest] = splitProps(props as ComboboxSectionProps, ["class"]);
+
+  return (
+    <ComboboxPrimitive.Section
+      data-slot="combobox-section"
+      class={clsx(
+        "text-muted-foreground px-2 py-1.5 text-xs not-first-of-type:mt-1",
+        props.class,
+      )}
+      {...rest}
+    />
+  );
 };

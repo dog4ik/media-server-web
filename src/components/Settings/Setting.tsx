@@ -22,7 +22,7 @@ import {
   useSettingsContext,
 } from "@/context/SettingsContext";
 import clsx from "clsx";
-import { TextField, TextFieldRoot } from "@/ui/textfield";
+import { TextField, TextFieldInput } from "@/ui/textfield";
 import {
   NumberField,
   NumberFieldDecrementTrigger,
@@ -52,14 +52,14 @@ type InputProps<T extends InputPropType> = {
 export function InferredInput<T extends InputPropType>(props: InputProps<T>) {
   if (typeof props.value === "string") {
     return (
-      <TextFieldRoot class="w-full max-w-xs">
-        <TextField
+      <TextField class="w-full max-w-xs">
+        <TextFieldInput
           value={props.value}
           disabled={props.disabled}
           placeholder={props.placeholder}
           onInput={(e) => props.onInput(e.currentTarget.value as T)}
         />
-      </TextFieldRoot>
+      </TextField>
     );
   }
   if (typeof props.value == "number") {
@@ -144,13 +144,13 @@ type SecretInputProps = {
 
 export function SecretInput(props: SecretInputProps) {
   return (
-    <TextFieldRoot onChange={(s) => props.onChange(s)}>
-      <TextField
+    <TextField onChange={(s) => props.onChange(s)}>
+      <TextFieldInput
         value={props.value}
         type="password"
         placeholder={props.placeholder}
       />
-    </TextFieldRoot>
+    </TextField>
   );
 }
 
@@ -225,7 +225,7 @@ export function Setting(props: Props & ParentProps) {
     typeof (props.remote.default_value ?? props.remote.config_value) ===
     "boolean";
   return (
-    <div class="flex max-w-xl flex-col gap-2 py-10">
+    <div class="flex max-w-xl flex-col gap-2 py-4">
       <SectionSubTitle name={props.data.long_name} />
       <div
         class={clsx(
@@ -233,7 +233,7 @@ export function Setting(props: Props & ParentProps) {
           isBool() ? "items-center justify-between" : "flex-col justify-center",
         )}
       >
-        <p>{props.data.description}</p>
+        <p class="text-sm">{props.data.description}</p>
         {props.children}
       </div>
       <Switch>

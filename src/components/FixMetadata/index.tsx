@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/ui/dialog";
-import { TextField, TextFieldRoot } from "@/ui/textfield";
+import { TextField, TextFieldInput } from "@/ui/textfield";
 import Loader, { SuspenseLoader } from "../Loader";
 import { throwResponseErrors } from "@/utils/errors";
 import { queryApi } from "@/utils/queryApi";
@@ -115,13 +115,13 @@ export default function FixMetadata(props: Props) {
           </DialogDescription>
         </DialogHeader>
 
-        <TextFieldRoot>
-          <TextField
+        <TextField>
+          <TextFieldInput
             onInput={(e) => setSearch(e.currentTarget.value)}
             value={search()}
             placeholder={props.initialSearch}
           />
-        </TextFieldRoot>
+        </TextField>
         <div class="flex-1 overflow-auto">
           <SuspenseLoader name="Fix metadata search results">
             <Show

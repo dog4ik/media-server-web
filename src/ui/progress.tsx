@@ -1,36 +1,81 @@
-import { cn } from "@/lib/cn";
-import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type { ProgressRootProps } from "@kobalte/core/progress";
+import { splitProps, type ComponentProps, type ValidComponent } from "solid-js";
 import { Progress as ProgressPrimitive } from "@kobalte/core/progress";
-import type { ParentProps, ValidComponent } from "solid-js";
-import { splitProps } from "solid-js";
 
-export const ProgressLabel = ProgressPrimitive.Label;
-export const ProgressValueLabel = ProgressPrimitive.ValueLabel;
+import { cx } from "cva";
 
-type progressProps<T extends ValidComponent = "div"> = ParentProps<
-	ProgressRootProps<T> & {
-		class?: string;
-	}
+export type ProgressProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof ProgressPrimitive<T>
 >;
 
 export const Progress = <T extends ValidComponent = "div">(
-	props: PolymorphicProps<T, progressProps<T>>,
+  props: ProgressProps<T>,
 ) => {
-	const [local, rest] = splitProps(props as progressProps, [
-		"class",
-		"children",
-	]);
+  const [, rest] = splitProps(props as ProgressProps, ["class", "children"]);
 
-	return (
-		<ProgressPrimitive
-			class={cn("flex w-full flex-col gap-2", local.class)}
-			{...rest}
-		>
-			{local.children}
-			<ProgressPrimitive.Track class="h-2 overflow-hidden rounded-full bg-primary/20">
-				<ProgressPrimitive.Fill class="h-full w-(--kb-progress-fill-width) bg-primary transition-all duration-500 ease-linear data-[progress=complete]:bg-primary" />
-			</ProgressPrimitive.Track>
-		</ProgressPrimitive>
-	);
+  return (
+    <ProgressPrimitive
+      data-slot="progress"
+      class={cx("flex w-full flex-col gap-3", props.class)}
+      {...rest}
+    >
+      {props.children}
+      <ProgressPrimitive.Track
+        data-slot="progress-track"
+        class="bg-primary/20 relative h-2 w-full overflow-hidden rounded-full"
+      >
+        <ProgressPrimitive.Fill
+          data-slot="progress-fill"
+          class="bg-primary h-full w-(--kb-progress-fill-width) transition-all"
+        />
+      </ProgressPrimitive.Track>
+    </ProgressPrimitive>
+  );
+};
+
+export type ProgressGroupProps = ComponentProps<"div">;
+
+export const ProgressGroup = (props: ProgressGroupProps) => {
+  const [, rest] = splitProps(props, ["class"]);
+
+  return (
+    <div
+      data-slot="progress-group"
+      class={cx("flex justify-between", props.class)}
+      {...rest}
+    />
+  );
+};
+
+export type ProgressLabelProps<T extends ValidComponent = "span"> =
+  ComponentProps<typeof ProgressPrimitive.Label<T>>;
+
+export const ProgressLabel = <T extends ValidComponent = "span">(
+  props: ProgressLabelProps<T>,
+) => {
+  const [, rest] = splitProps(props as ProgressLabelProps, ["class"]);
+
+  return (
+    <ProgressPrimitive.Label
+      data-slot="progress-label"
+      class={cx("text-sm font-medium select-none", props.class)}
+      {...rest}
+    />
+  );
+};
+
+export type ProgressValueLabelProps<T extends ValidComponent = "span"> =
+  ComponentProps<typeof ProgressPrimitive.ValueLabel<T>>;
+
+export const ProgressValueLabel = <T extends ValidComponent = "span">(
+  props: ProgressValueLabelProps<T>,
+) => {
+  const [, rest] = splitProps(props as ProgressValueLabelProps, ["class"]);
+
+  return (
+    <ProgressPrimitive.ValueLabel
+      data-slot="progress-value-label"
+      class={cx("text-sm font-medium select-none", props.class)}
+      {...rest}
+    />
+  );
 };
