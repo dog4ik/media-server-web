@@ -1,23 +1,22 @@
-import { Button } from "@/ui/button";
-import { capitalize } from "@/utils/formats";
 import { Schemas } from "@/utils/serverApi";
+import { Link, linkOptions } from "@tanstack/solid-router";
 
 type Props = { contentType: Schemas["ContentType"] };
 
 export default function AddFoldersHelp(props: Props) {
   let url = () => {
-    let sh =
+    let hash =
       props.contentType == "show" ? "show-directories" : "movie-directories";
-    return `/settings#${sh}`;
+    return linkOptions({ to: "/settings", hash });
   };
 
   return (
     <div class="flex w-full flex-col items-center justify-center gap-4">
       <span class="text-2xl">
-        Add
-        <Button class="text-2xl underline" variant={"link"} as="a" href={url()}>
-          {capitalize(props.contentType)} Directories
-        </Button>
+        Add{" "}
+        <Link class="text-2xl capitalize underline" {...url()}>
+          {props.contentType} Directories
+        </Link>
       </span>
     </div>
   );
