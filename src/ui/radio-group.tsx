@@ -88,8 +88,8 @@ export const RadioGroupItemControl = <T extends ValidComponent = "div">(
     <RadioGroupPrimitive.ItemControl
       data-slot="radio-group-item-control"
       class={cx(
-        "border-input dark:bg-input/30 flex size-4 items-center justify-center rounded-full border shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50",
-        "data-[invalid]:ring-destructive/20 dark:data-[invalid]:ring-destructive/40 data-[invalid]:border-destructive",
+        "border-input dark:bg-input/30 flex size-4 items-center justify-center rounded-full border shadow-2xs transition-[color,box-shadow] outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+        "data-invalid:ring-destructive/20 dark:data-invalid:ring-destructive/40 data-invalid:border-destructive",
         "peer-focus-visible/radio-group:ring-ring/50 peer-focus-visible/radio-group:border-ring peer-focus-visible/radio-group:ring-[3px]",
         props.class,
       )}
@@ -110,7 +110,7 @@ export const RadioGroupItemIndicator = <T extends ValidComponent = "div">(
     <RadioGroupPrimitive.ItemIndicator
       forceMount
       data-slot="radio-group-item-indicator"
-      class={cx("data-[checked]:bg-primary size-2 rounded-full", props.class)}
+      class={cx("data-checked:bg-primary size-2 rounded-full", props.class)}
       {...rest}
     />
   );

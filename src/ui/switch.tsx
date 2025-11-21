@@ -25,10 +25,10 @@ export const SwitchControl = <T extends ValidComponent = "div">(
     <SwitchPrimitive.Control
       data-slot="switch-control"
       class={cx(
-        "bg-input inline-flex h-4.5 w-8 items-center rounded-full border border-transparent shadow-xs transition-all",
-        "data-[checked]:bg-primary",
+        "bg-input inline-flex h-4.5 w-8 items-center rounded-full border border-transparent shadow-2xs transition-all",
+        "data-checked:bg-primary",
         "peer-focus-visible/switch-input:border-ring peer-focus-visible/switch-input:ring-ring/50 peer-focus-visible/switch-input:ring-[3px]",
-        "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+        "data-disabled:cursor-not-allowed data-disabled:opacity-50",
         props.class,
       )}
       {...rest}
@@ -49,8 +49,8 @@ export const SwitchThumb = <T extends ValidComponent = "div">(
     <SwitchPrimitive.Thumb
       data-slot="switch-thumb"
       class={cx(
-        "bg-background dark:bg-foreground pointer-events-none size-4 rounded-full transition-transform data-[checked]:translate-x-[calc(100%-2px)]",
-        "dark:data-[checked]:bg-primary-foreground dark:bg-foreground",
+        "bg-background dark:bg-foreground pointer-events-none size-4 rounded-full transition-transform data-checked:translate-x-[calc(100%-2px)]",
+        "dark:data-checked:bg-primary-foreground dark:bg-foreground",
         props.class,
       )}
       {...rest}
@@ -88,8 +88,8 @@ export const SwitchLabel = <T extends ValidComponent = "label">(
       data-slot="switch-label"
       class={cx(
         "text-sm font-medium select-none",
-        "data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
-        "data-[invalid]:text-destructive",
+        "data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-50",
+        "data-invalid:text-destructive",
         props.class,
       )}
       {...rest}

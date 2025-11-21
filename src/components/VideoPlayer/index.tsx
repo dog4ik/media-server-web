@@ -552,7 +552,7 @@ export default function VideoPlayer(props: Props) {
             </Show>
             <div class="absolute right-0 left-0 flex h-1.5 w-full bg-neutral-900">
               <div
-                class="after:content-[' '] flex h-full items-center justify-end rounded-md bg-white after:translate-x-2 after:rounded-full after:bg-white after:p-2 after:opacity-0 after:transition-opacity after:duration-150 after:group-hover:opacity-100"
+                class="after:content-[' '] flex h-full items-center justify-end rounded-md bg-white after:translate-x-2 after:rounded-full after:bg-white after:p-2 after:opacity-0 after:transition-opacity after:duration-150 group-hover:after:opacity-100"
                 style={{
                   width: `${(time() / duration()) * 100}%`,
                 }}

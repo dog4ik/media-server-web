@@ -26,8 +26,8 @@ export const CheckboxLabel = <T extends ValidComponent = "label">(
     <CheckboxPrimitive.Label
       data-slot="checkbox-label"
       class={cx(
-        "flex items-center gap-2 text-sm leading-none font-medium select-none data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
-        "data-[invalid]:text-destructive",
+        "flex items-center gap-2 text-sm leading-none font-medium select-none data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-50",
+        "data-invalid:text-destructive",
         props.class,
       )}
       {...rest}
@@ -47,7 +47,7 @@ export const CheckboxDescription = <T extends ValidComponent = "div">(
     <CheckboxPrimitive.Description
       data-slot="checkbox-description"
       class={cx(
-        "text-muted-foreground text-sm data-[disabled]:opacity-50",
+        "text-muted-foreground text-sm data-disabled:opacity-50",
         props.class,
       )}
       {...rest}
@@ -87,7 +87,7 @@ export const CheckboxControl = <T extends ValidComponent = "div">(
     <CheckboxPrimitive.Control
       data-slot="checkbox-control"
       class={cx(
-        "peer-focus-visible:border-ring border-input dark:bg-input/30 data-[checked]:bg-primary data-[checked]:text-primary-foreground dark:data-[checked]:bg-primary data-[checked]:border-primary data-invalid:ring-destructive/20 dark:data-invalid:ring-destructive/40 data-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none data-disabled:cursor-not-allowed data-disabled:opacity-50",
+        "peer-focus-visible:border-ring border-input dark:bg-input/30 data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary data-checked:border-primary data-invalid:ring-destructive/20 dark:data-invalid:ring-destructive/40 data-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-2xs transition-shadow outline-hidden data-disabled:cursor-not-allowed data-disabled:opacity-50",
         props.class,
       )}
       {...rest}

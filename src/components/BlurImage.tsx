@@ -22,7 +22,7 @@ export default function BlurImage(props: Props) {
     <div
       ref={props.ref}
       class={`${
-        isLoaded() ? "blur-none" : "blur-sm"
+        isLoaded() ? "blur-none" : "blur-xs"
       } overflow-hidden duration-1000 ${props.class ? props.class : ""}`}
     >
       <Show when={!isLoaded() && props.blurData}>

@@ -56,7 +56,7 @@ export const SelectTrigger = <T extends ValidComponent = "button">(
       data-slot="select-trigger"
       data-size={props.size}
       class={cx(
-        "border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 data-[invalid]:ring-destructive/20 dark:data-[invalid]:ring-destructive/40 data-[invalid]:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "border-input data-placeholder:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 data-invalid:ring-destructive/20 dark:data-invalid:ring-destructive/40 data-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-2xs transition-[color,box-shadow] outline-hidden focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 data-[slot=select-value]:*:line-clamp-1 data-[slot=select-value]:*:flex data-[slot=select-value]:*:items-center data-[slot=select-value]:*:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         props.class,
       )}
       {...rest}
@@ -98,13 +98,13 @@ export const SelectContent = <T extends ValidComponent = "div">(
     <SelectPrimitive.Content
       data-slot="select-content"
       class={cx(
-        "bg-popover text-popover-foreground data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95 relative z-50 min-w-[8rem] origin-(--kb-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md",
+        "bg-popover text-popover-foreground data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 relative z-50 min-w-32 origin-(--kb-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md",
         "[[data-popper-positioner][style*='--kb-popper-content-transform-origin:_top']>[data-slot=select-content]]:slide-in-from-top-2 [[data-popper-positioner][style*='--kb-popper-content-transform-origin:_bottom']>[data-slot=select-content]]:slide-in-from-bottom-2 [[data-popper-positioner][style*='--kb-popper-content-transform-origin:_left']>[data-slot=select-content]]:slide-in-from-left-2 [[data-popper-positioner][style*='--kb-popper-content-transform-origin:_right']>[data-slot=select-content]]:slide-in-from-right-2",
         props.class,
       )}
       {...rest}
     >
-      <SelectPrimitive.Listbox class="p-1 outline-none" />
+      <SelectPrimitive.Listbox class="p-1 outline-hidden" />
     </SelectPrimitive.Content>
   );
 };
@@ -122,7 +122,7 @@ export const SelectItem = <T extends ValidComponent = "li">(
     <SelectPrimitive.Item
       data-slot="select-item"
       class={cx(
-        "focus:bg-accent focus:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        "focus:bg-accent focus:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 last:[span]:*:flex last:[span]:*:items-center last:[span]:*:gap-2",
         props.class,
       )}
       {...rest}
@@ -182,7 +182,7 @@ export const SelectDescription = <T extends ValidComponent = "div">(
     <SelectPrimitive.Description
       data-slot="select-description"
       class={cx(
-        "text-muted-foreground text-sm data-[disabled]:opacity-50",
+        "text-muted-foreground text-sm data-disabled:opacity-50",
         props.class,
       )}
       {...rest}
@@ -202,7 +202,7 @@ export const SelectLabel = <T extends ValidComponent = "label">(
     <SelectPrimitive.Label
       data-slot="select-label"
       class={cx(
-        "flex items-center gap-2 text-sm leading-none font-medium select-none data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+        "flex items-center gap-2 text-sm leading-none font-medium select-none data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-50",
         props.class,
       )}
       {...rest}
@@ -222,7 +222,7 @@ export const SelectErrorMessage = <T extends ValidComponent = "div">(
     <SelectPrimitive.ErrorMessage
       data-slot="select-errormessage"
       class={cx(
-        "text-destructive text-sm data-[disabled]:opacity-50",
+        "text-destructive text-sm data-disabled:opacity-50",
         props.class,
       )}
       {...rest}

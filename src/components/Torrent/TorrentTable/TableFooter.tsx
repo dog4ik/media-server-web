@@ -35,7 +35,7 @@ export function PaginationFooter<T>(props: Props<T>) {
               <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
             )}
           >
-            <SelectTrigger class="h-8 w-[4.5rem]">
+            <SelectTrigger class="h-8 w-18">
               <SelectValue<string>>
                 {(state) => state.selectedOption()}
               </SelectValue>

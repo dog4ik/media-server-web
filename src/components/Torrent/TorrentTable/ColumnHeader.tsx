@@ -38,7 +38,7 @@ export function TableColumnHeader<TData, TValue>(
                       : "Not sorted. Click to sort ascending."
                 }
                 variant="ghost"
-                class="data-[expanded]:bg-accent -ml-4 h-8"
+                class="data-expanded:bg-accent -ml-4 h-8"
                 {...props}
               >
                 <span>{local.title}</span>

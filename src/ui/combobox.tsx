@@ -41,7 +41,7 @@ export const ComboboxInput = <T extends ValidComponent = "input">(
     <ComboboxPrimitive.Input
       data-slot="combobox-input"
       class={clsx(
-        "placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground pr-3 outline-none",
+        "placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground pr-3 outline-hidden",
         props.class,
       )}
       {...rest}
@@ -98,8 +98,8 @@ export const ComboboxControl = <Option, T extends ValidComponent = "div">(
     <ComboboxPrimitive.Control
       data-slot="combobox-control"
       class={clsx(
-        "dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 md:text-sm",
-        "data-[invalid]:ring-destructive/20 dark:data-[invalid]:ring-destructive/40 data-[invalid]:border-destructive",
+        "dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-2xs transition-[color,box-shadow] data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-50 md:text-sm",
+        "data-invalid:ring-destructive/20 dark:data-invalid:ring-destructive/40 data-invalid:border-destructive",
         props.class,
       )}
       {...rest}
@@ -119,7 +119,7 @@ export const ComboboxContent = <T extends ValidComponent = "div">(
     <ComboboxPrimitive.Content
       data-slot="combobox-content"
       class={clsx(
-        "bg-popover text-popover-foreground data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95 relative z-50 min-w-[8rem] origin-(--kb-combobox-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md",
+        "bg-popover text-popover-foreground data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 relative z-50 min-w-32 origin-(--kb-combobox-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md",
         "[[data-popper-positioner][style*='--kb-popper-content-transform-origin:_top']>[data-slot=combobox-content]]:slide-in-from-top-2 [[data-popper-positioner][style*='--kb-popper-content-transform-origin:_bottom']>[data-slot=combobox-content]]:slide-in-from-bottom-2 [[data-popper-positioner][style*='--kb-popper-content-transform-origin:_left']>[data-slot=combobox-content]]:slide-in-from-left-2 [[data-popper-positioner][style*='--kb-popper-content-transform-origin:_right']>[data-slot=combobox-content]]:slide-in-from-right-2",
         props.class,
       )}
@@ -145,7 +145,7 @@ export const ComboboxItem = <T extends ValidComponent = "div">(
     <ComboboxPrimitive.Item
       data-slot="combobox-item"
       class={clsx(
-        "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "data-highlighted:bg-accent data-highlighted:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         props.class,
       )}
       {...rest}
@@ -194,7 +194,7 @@ export const ComboboxDescription = <T extends ValidComponent = "div">(
     <ComboboxPrimitive.Description
       data-slot="combobox-description"
       class={clsx(
-        "text-muted-foreground text-sm data-[disabled]:opacity-50",
+        "text-muted-foreground text-sm data-disabled:opacity-50",
         props.class,
       )}
       {...rest}
@@ -214,7 +214,7 @@ export const ComboboxLabel = <T extends ValidComponent = "label">(
     <ComboboxPrimitive.Label
       data-slot="combobox-label"
       class={clsx(
-        "flex items-center gap-2 text-sm leading-none font-medium select-none data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+        "flex items-center gap-2 text-sm leading-none font-medium select-none data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-50",
         props.class,
       )}
       {...rest}
@@ -234,7 +234,7 @@ export const ComboboxErrorMessage = <T extends ValidComponent = "div">(
     <ComboboxPrimitive.ErrorMessage
       data-slot="combobox-errormessage"
       class={clsx(
-        "text-destructive text-sm data-[disabled]:opacity-50",
+        "text-destructive text-sm data-disabled:opacity-50",
         props.class,
       )}
       {...rest}

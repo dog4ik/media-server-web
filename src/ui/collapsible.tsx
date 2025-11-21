@@ -37,7 +37,7 @@ export const CollapsibleContent = <T extends ValidComponent = "button">(
     <CollapsiblePrimitive.Content
       data-slot="collapsible-content"
       class={cx(
-        "data-[closed]:animate-collapsible-up data-[expanded]:animate-collapsible-down overflow-hidden",
+        "data-closed:animate-collapsible-up data-expanded:animate-collapsible-down overflow-hidden",
         props.class,
       )}
       {...rest}

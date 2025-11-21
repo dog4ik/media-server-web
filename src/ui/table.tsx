@@ -56,7 +56,7 @@ export const TableFooter = (props: TableFooterProps) => {
     <tfoot
       data-slot="table-footer"
       class={cx(
-        "bg-muted/50 border-t font-medium [&>tr]:last:border-b-0",
+        "bg-muted/50 border-t font-medium last:[&>tr]:border-b-0",
         props.class,
       )}
       {...rest}
@@ -90,7 +90,7 @@ export const TableHead = (props: TableHeadProps) => {
     <th
       data-slot="table-head"
       class={cx(
-        "text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-[2px]",
         props.class,
       )}
       {...rest}
@@ -107,7 +107,7 @@ export const TableCell = (props: TableCellProps) => {
     <td
       data-slot="table-cell"
       class={cx(
-        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-[2px]",
         props.class,
       )}
       {...rest}
