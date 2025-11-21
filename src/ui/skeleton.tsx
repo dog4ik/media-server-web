@@ -29,6 +29,8 @@ export const Skeleton = <T extends ValidComponent = "div">(
         props.class,
       )}
       {...rest}
+      // unset default values
+      style={{ height: undefined, width: undefined }}
     />
   );
 };

@@ -1,4 +1,4 @@
-import { For, Show, Suspense } from "solid-js";
+import { For, Show } from "solid-js";
 import { Schemas, revalidatePath, server } from "../../utils/serverApi";
 import useDebounce from "../../utils/useDebounce";
 import { useNotifications } from "../../context/NotificationContext";
@@ -11,8 +11,7 @@ import {
   DialogTitle,
 } from "@/ui/dialog";
 import { TextField, TextFieldInput } from "@/ui/textfield";
-import Loader, { SuspenseLoader } from "../Loader";
-import { throwResponseErrors } from "@/utils/errors";
+import { SuspenseLoader } from "../Loader";
 import { queryApi } from "@/utils/queryApi";
 
 type SearchResultProps = {
@@ -125,7 +124,7 @@ export default function FixMetadata(props: Props) {
         <div class="flex-1 overflow-auto">
           <SuspenseLoader name="Fix metadata search results">
             <Show
-              when={searchResult.data}
+              when={searchResult.latest()}
               fallback={
                 <div class="grid size-full place-items-center">
                   <span class="text-2xl">Nothing found</span>

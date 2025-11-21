@@ -10,6 +10,7 @@ import { ExtendedEpisode, posterList } from "@/utils/library";
 import { useMediaNotifications } from "@/context/NotificationContext";
 import promptConfirm from "../modals/ConfirmationModal";
 import { Link, LinkOptions } from "@tanstack/solid-router";
+import { Skeleton } from "@/ui/skeleton";
 
 type Props = {
   episode: ExtendedEpisode;
@@ -81,7 +82,7 @@ async function markWatchedVideo(videoId: number, force: boolean) {
   }
 }
 
-export default function EpisodeCard(props: Props) {
+export function EpisodeCard(props: Props) {
   let notificator = useMediaNotifications();
 
   let notify = (message: string) => notificator(props.episode, message);
@@ -183,6 +184,20 @@ export default function EpisodeCard(props: Props) {
             </Show>
           </MoreButton>
         </Show>
+      </div>
+    </div>
+  );
+}
+
+export function EpisodeCardSkeleton() {
+  return (
+    <div class="flex w-80 cursor-pointer flex-col">
+      <Skeleton height={180} class="aspect-video rounded-xl" />
+      <div class="flex items-center justify-between">
+        <span class="flex flex-col pt-2">
+          <Skeleton width={20} />
+          <Skeleton width={20} />
+        </span>
       </div>
     </div>
   );

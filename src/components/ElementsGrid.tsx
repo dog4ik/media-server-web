@@ -5,7 +5,7 @@ type Props = {
   elementSize: number;
   class?: string;
 };
-export default function ElementsGrid(props: ParentProps & Props) {
+export function ElementsGrid(props: ParentProps & Props) {
   return (
     <div
       style={{

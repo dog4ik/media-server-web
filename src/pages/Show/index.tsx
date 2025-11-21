@@ -146,11 +146,11 @@ export default function ShowPage() {
                         <Show when={show().metadata_provider == "local"}>
                           <Icon
                             tooltip={
-                              capabilities.data?.chromaprint_enabled
+                              capabilities.latest()?.chromaprint_enabled
                                 ? `Detect intros for season ${seasonNumber()}`
                                 : "Intro detection is not supported by local ffmpeg build"
                             }
-                            disabled={!capabilities.data?.chromaprint_enabled}
+                            disabled={!capabilities.latest()?.chromaprint_enabled}
                             onClick={() => detectIntros()}
                           >
                             <FiSkipForward size={30} />

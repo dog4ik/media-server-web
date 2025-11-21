@@ -1,4 +1,4 @@
-import { For, onMount } from "solid-js";
+import { For } from "solid-js";
 import Version from "./Version";
 import { Link, linkOptions, useRouterState } from "@tanstack/solid-router";
 

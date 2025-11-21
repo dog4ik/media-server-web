@@ -13,6 +13,7 @@ import { Show } from "solid-js";
 import FixMetadata from "../FixMetadata";
 import promptConfirm from "../modals/ConfirmationModal";
 import { Link } from "@tanstack/solid-router";
+import { Skeleton } from "@/ui/skeleton";
 
 async function deleteMovie(id: number, title: string) {
   try {
@@ -27,7 +28,7 @@ async function deleteMovie(id: number, title: string) {
   }
 }
 
-export default function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
+export function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
   let [fixModal, toggleFixModal] = useToggle(false);
   let notificator = useNotifications();
   function handleFix() {
@@ -109,5 +110,18 @@ export default function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
         </div>
       </div>
     </>
+  );
+}
+
+export function MovieCardSkeleton() {
+  return (
+    <div class="max-w-60 min-w-60 flex-none space-y-2 overflow-hidden">
+      <Skeleton class="aspect-poster h-[415px] w-full rounded-xl" />
+
+      <div class="flex items-center justify-between">
+        <Skeleton class="h-4 w-32" />
+        <Skeleton class="h-6 rounded-full" />
+      </div>
+    </div>
   );
 }

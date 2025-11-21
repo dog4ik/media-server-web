@@ -155,15 +155,15 @@ export function AddTorrentModal() {
           <TabsContent value="file">
             <form onSubmit={handleFileSubmit}>
               <div class="grid w-full items-center gap-4">
-                <TextFieldRoot class="flex flex-col space-y-1.5">
+                <TextField class="flex flex-col space-y-1.5">
                   <TextFieldLabel>Torrent File</TextFieldLabel>
-                  <TextField
+                  <TextFieldInput
                     onInput={handleFileChange}
                     value={""}
                     type="file"
                     accept=".torrent"
                   />
-                </TextFieldRoot>
+                </TextField>
               </div>
               <Button type="submit" class="mt-4">
                 Add Torrent

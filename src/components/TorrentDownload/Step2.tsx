@@ -1,6 +1,6 @@
 import { For, ParentProps, Show, createMemo } from "solid-js";
 import { Schemas } from "../../utils/serverApi";
-import ElementsGrid from "../ElementsGrid";
+import { ElementsGrid } from "../ElementsGrid";
 import { formatSize } from "../../utils/formats";
 import { createStore } from "solid-js/store";
 import { Checkbox, CheckboxControl } from "@/ui/checkbox";

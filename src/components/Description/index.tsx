@@ -111,7 +111,7 @@ export function DescriptionSkeleton(props: { direction: ImageDirection }) {
         class={clsx(
           props.direction == "horizontal"
             ? "h-[180px] w-[320px]"
-            : "h-[312px] w-[208px]",
+            : "h-[312px] w-52",
           "shrink-0",
         )}
       />

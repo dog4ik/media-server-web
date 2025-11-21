@@ -130,7 +130,7 @@ export function HoverArea() {
       class="h-32 w-40 overflow-hidden rounded-2xl border-2 border-dashed border-white duration-0"
     >
       <div style={{ "clip-path": "inset(0px)" }} class="size-full">
-        <Show when={backdropQuery.data}>
+        <Show when={backdropQuery.isSuccess && backdropQuery.data}>
           {(backdrop) => {
             return (
               <img

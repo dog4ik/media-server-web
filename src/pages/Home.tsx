@@ -1,11 +1,11 @@
 import { For, Show } from "solid-js";
 import { Schemas, server } from "../utils/serverApi";
-import EpisodeCard from "../components/Cards/EpisodeCard";
-import MovieCard from "../components/Cards/MovieCard";
+import { EpisodeCard } from "../components/Cards/EpisodeCard";
+import { MovieCard } from "../components/Cards/MovieCard";
 import Title from "../utils/Title";
 import { extendEpisode } from "@/utils/library";
-import ShowCard from "@/components/Cards/ShowCard";
-import ElementsGrid from "@/components/ElementsGrid";
+import { ShowCard } from "@/components/Cards/ShowCard";
+import { ElementsGrid } from "@/components/ElementsGrid";
 import { useQuery } from "@tanstack/solid-query";
 import { queryApi } from "@/utils/queryApi";
 import { linkOptions } from "@tanstack/solid-router";

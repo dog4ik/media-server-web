@@ -22,12 +22,11 @@ import { Schemas } from "./utils/serverApi";
 import WatchLayout from "./layouts/WatchLayout";
 import { WatchMovie, WatchShow } from "./pages/Watch";
 import tracing from "./utils/tracing";
-import { queryApi, queryClient } from "./utils/queryApi";
-import { Suspense } from "solid-js";
+import { queryClient } from "./utils/queryApi";
 import { QueryClientProvider } from "@tanstack/solid-query";
 import { SolidQueryDevtools } from "@tanstack/solid-query-devtools";
 import History from "./pages/Settings/History";
-import NotFound from "./pages/NotFound";
+import { Suspense } from "solid-js";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -158,8 +157,8 @@ const moviesRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "movies",
   loader: () => {
-    let localMoviesOptions = queryApi.queryOptions("get", "/api/local_movies");
-    queryClient.ensureQueryData(localMoviesOptions());
+    // let localMoviesOptions = queryApi.queryOptions("get", "/api/local_movies");
+    // queryClient.ensureQueryData(localMoviesOptions());
   },
   component: Movies,
 });
@@ -186,8 +185,8 @@ const showsRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "shows",
   loader: () => {
-    let localShowsOptions = queryApi.queryOptions("get", "/api/local_shows");
-    queryClient.ensureQueryData(localShowsOptions());
+    // let localShowsOptions = queryApi.queryOptions("get", "/api/local_shows");
+    // queryClient.ensureQueryData(localShowsOptions());
   },
   component: Shows,
 });

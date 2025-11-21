@@ -1,4 +1,4 @@
-import { Match, Show, Switch, createEffect, createSignal, onCleanup } from "solid-js";
+import { Match, Show, Switch, createEffect, createSignal } from "solid-js";
 import { Description, DescriptionSkeleton } from "@/components/Description";
 import { fullUrl, Schemas } from "@/utils/serverApi";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
@@ -16,7 +16,6 @@ import {
 } from "@/components/Description/VideoList";
 import { getRouteApi, linkOptions } from "@tanstack/solid-router";
 import { queryApi } from "@/utils/queryApi";
-import { useQuery } from "@tanstack/solid-query";
 
 export type SelectedSubtitles =
   | {

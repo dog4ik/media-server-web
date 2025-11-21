@@ -22,6 +22,10 @@ import type {
 } from "openapi-typescript-helpers";
 import { Accessor } from "solid-js";
 
+function sleep(time: number) {
+  return new Promise((res) => setTimeout(res, time));
+}
+
 // Helper type to dynamically infer the type from the `select` property
 type InferSelectReturnType<TData, TSelect> = TSelect extends (
   data: TData,
@@ -177,6 +181,7 @@ export default function createClient<
   }: QueryFunctionContext<QueryKey<Paths, Method, Path>>) => {
     const mth = method.toUpperCase() as Uppercase<typeof method>;
     const fn = client[mth] as ClientMethod<Paths, typeof method, Media>;
+    await sleep(300);
     const { data, error, response } = await fn(path, {
       signal,
       ...(init as any),
@@ -217,7 +222,6 @@ export default function createClient<
         init as InitWithUnknowns<typeof init>,
         options,
       );
-      type T = Debug<typeof opt>;
       // @ts-expect-error
       let query = useQuery(opt, queryClient);
       let latest = () => (query.isSuccess ? query.data : undefined);

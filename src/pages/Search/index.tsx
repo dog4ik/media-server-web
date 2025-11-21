@@ -94,7 +94,7 @@ export default function SearchPage() {
       <PageTitle>Search results for: {search().search}</PageTitle>
       <div>
         <Suspense fallback={<SearchLoading />}>
-          <For fallback={<SearchNoResults />} each={searchResults.data}>
+          <For fallback={<SearchNoResults />} each={searchResults.latest()}>
             {(res) => <SearchResultRow item={res} />}
           </For>
         </Suspense>

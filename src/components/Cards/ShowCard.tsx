@@ -13,6 +13,7 @@ import { useNotifications } from "../../context/NotificationContext";
 import { MenuRow } from "../ContextMenu/Menu";
 import promptConfirm from "../modals/ConfirmationModal";
 import { Link } from "@tanstack/solid-router";
+import { Skeleton } from "@/ui/skeleton";
 
 async function deleteShow(id: number, name: string) {
   try {
@@ -25,7 +26,7 @@ async function deleteShow(id: number, name: string) {
   }
 }
 
-export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
+export function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
   let [fixModal, toggleFixModal] = useToggle(false);
   let notificator = useNotifications();
   function handleFix() {
@@ -124,5 +125,18 @@ export default function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
         </div>
       </div>
     </>
+  );
+}
+
+export function ShowCardSkeleton() {
+  return (
+    <div class="max-w-60 min-w-60 flex-none space-y-2 overflow-hidden">
+      <Skeleton class="aspect-poster h-[415px] w-full rounded-xl" />
+
+      <div class="flex items-center justify-between">
+        <Skeleton class="h-4 w-32" />
+        <Skeleton class="h-6 rounded-full" />
+      </div>
+    </div>
   );
 }

@@ -1,5 +1,5 @@
-import EpisodeCard from "@/components/Cards/EpisodeCard";
-import ElementsGrid from "@/components/ElementsGrid";
+import { EpisodeCard } from "@/components/Cards/EpisodeCard";
+import { ElementsGrid } from "@/components/ElementsGrid";
 import FallbackImage from "@/components/FallbackImage";
 import promptConfirm from "@/components/modals/ConfirmationModal";
 import { IntrosModal } from "@/components/modals/IntrosModal";

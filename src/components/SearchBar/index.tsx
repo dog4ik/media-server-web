@@ -100,8 +100,6 @@ export default function SearchBar() {
   let [input, deferredInput, setInput] = useDebounce(500, "");
   let navigator = useNavigate();
 
-  let searchAbortController: AbortController | undefined = undefined;
-
   let searchResult = queryApi.useQuery("get", "/api/search/content", () => ({
     params: { query: { search: deferredInput() } },
   }));
@@ -179,7 +177,7 @@ export default function SearchBar() {
         class={`bg-background m-0 h-2/3 w-2/3 translate-y-16 open:absolute ${input() ? "text-white backdrop-blur-2xl" : "hidden"}`}
         popover="manual"
       >
-        <Show when={searchResult?.data} fallback={<SearchLoading />}>
+        <Show when={searchResult?.latest()} fallback={<SearchLoading />}>
           {(data) => (
             <Switch>
               <Match when={data().length > 0}>
