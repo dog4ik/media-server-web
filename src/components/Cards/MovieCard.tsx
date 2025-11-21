@@ -9,10 +9,10 @@ import {
 import { MenuRow } from "../ContextMenu/Menu";
 import { useNotifications } from "../../context/NotificationContext";
 import useToggle from "../../utils/useToggle";
-import { Show } from "solid-js";
+import { createMemo, Show } from "solid-js";
 import FixMetadata from "../FixMetadata";
 import promptConfirm from "../modals/ConfirmationModal";
-import { Link } from "@tanstack/solid-router";
+import { Link, linkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
 
 async function deleteMovie(id: number, title: string) {
@@ -60,6 +60,14 @@ export function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
         })
       : undefined;
 
+  let movieLinkOptions = createMemo(() =>
+    linkOptions({
+      to: "/movies/$id",
+      params: { id: props.movie.metadata_id },
+      search: { provider: props.movie.metadata_provider },
+    }),
+  );
+
   return (
     <>
       <FixMetadata
@@ -70,12 +78,7 @@ export function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
         onClose={() => toggleFixModal(false)}
       />
       <div class="max-w-60 min-w-60 flex-none space-y-2 overflow-hidden">
-        <Link
-          to={"/movies/$id"}
-          params={{ id: props.movie.metadata_id }}
-          search={{ provider: props.movie.metadata_provider }}
-          class="relative w-full"
-        >
+        <Link class="relative w-full" {...movieLinkOptions()}>
           <FallbackImage
             alt="Movie poster"
             srcList={[localUrl, props.movie.poster ?? undefined]}
@@ -88,9 +91,7 @@ export function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
           <Link
             title={props.movie.title}
             class="text-md truncate"
-            to={"/movies/$id"}
-            params={{ id: props.movie.metadata_id }}
-            search={{ provider: props.movie.metadata_provider }}
+            {...movieLinkOptions()}
           >
             {props.movie.title}
           </Link>

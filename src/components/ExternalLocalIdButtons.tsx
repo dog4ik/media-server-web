@@ -8,8 +8,7 @@ import { Skeleton } from "@/ui/skeleton";
 type Props = {
   id: string;
   provider: Schemas["MetadataProvider"];
-  contentType: Schemas["ContentType"];
-};
+} & ({ contentType: "movie" } | { contentType: "show"; season?: number });
 
 export function ExternalLocalIdButtons(props: Props) {
   function navigationUrl(provider: Schemas["MetadataProvider"], id: string) {
@@ -23,7 +22,7 @@ export function ExternalLocalIdButtons(props: Props) {
       return linkOptions({
         to: "/shows/$id",
         params: { id },
-        search: { provider },
+        search: { provider, season: props.season },
       });
     }
   }

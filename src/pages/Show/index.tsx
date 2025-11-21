@@ -43,7 +43,7 @@ export default function ShowPage() {
   let [downloadModal, setDownloadModal] = createSignal(false);
 
   let seasonNumber = createMemo(
-    () => search().season ?? show.latest()?.seasons?.at(0) ?? 1,
+    () => search().season ?? show.latest()?.seasons?.at(0),
   );
 
   let [{ capabilities }] = useServerStatus();
@@ -90,10 +90,10 @@ export default function ShowPage() {
   // });
 
   async function detectIntros() {
-    if (show.data?.metadata_provider === "local") {
+    if (show.data?.metadata_provider === "local" && seasonNumber() !== undefined) {
       await server.POST("/api/show/{show_id}/{season}/detect_intros", {
         params: {
-          path: { season: seasonNumber(), show_id: +show.data.metadata_id },
+          path: { season: seasonNumber()!, show_id: +show.data.metadata_id },
         },
       });
     }
@@ -159,6 +159,7 @@ export default function ShowPage() {
                         <ExternalLocalIdButtons
                           contentType="show"
                           provider={search().provider}
+                          season={seasonNumber()}
                           id={params().id}
                         />
                       </div>

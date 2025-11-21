@@ -1,5 +1,5 @@
 import MoreButton from "../ContextMenu/MoreButton";
-import { Show } from "solid-js";
+import { createMemo, Show } from "solid-js";
 import {
   Schemas,
   fullUrl,
@@ -12,7 +12,7 @@ import FixMetadata from "../FixMetadata";
 import { useNotifications } from "../../context/NotificationContext";
 import { MenuRow } from "../ContextMenu/Menu";
 import promptConfirm from "../modals/ConfirmationModal";
-import { Link } from "@tanstack/solid-router";
+import { Link, linkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
 
 async function deleteShow(id: number, name: string) {
@@ -58,6 +58,17 @@ export function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
         })
       : undefined;
 
+  let showLinkOptions = createMemo(() =>
+    linkOptions({
+      to: "/shows/$id",
+      params: { id: props.show.metadata_id },
+      search: {
+        provider: props.show.metadata_provider,
+        season: props.show.seasons?.at(0),
+      },
+    }),
+  );
+
   return (
     <>
       <FixMetadata
@@ -68,12 +79,7 @@ export function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
         onClose={() => toggleFixModal(false)}
       />
       <div class="max-w-60 min-w-60 flex-none space-y-2 overflow-hidden">
-        <Link
-          to={"/shows/$id"}
-          params={{ id: props.show.metadata_id }}
-          search={{ provider: props.show.metadata_provider }}
-          class="relative size-full"
-        >
+        <Link class="relative size-full" {...showLinkOptions()}>
           <FallbackImage
             alt="Show poster"
             srcList={[imageUrl, props.show.poster ?? undefined]}
@@ -93,12 +99,7 @@ export function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
           </Show>
         </Link>
         <div class="flex items-center justify-between">
-          <Link
-            to={"/shows/$id"}
-            params={{ id: props.show.metadata_id }}
-            search={{ provider: props.show.metadata_provider }}
-            class="text-md truncate"
-          >
+          <Link class="text-md truncate" {...showLinkOptions()}>
             <span class="truncate" title={props.show.title}>
               {props.show.title}
             </span>
