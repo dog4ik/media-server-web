@@ -1,17 +1,17 @@
-import type { ComponentProps, ValidComponent, VoidProps } from "solid-js"
-import { mergeProps, splitProps } from "solid-js"
-import { Select as SelectPrimitive } from "@kobalte/core/select"
+import type { ComponentProps, ValidComponent, VoidProps } from "solid-js";
+import { mergeProps, splitProps } from "solid-js";
+import { Select as SelectPrimitive } from "@kobalte/core/select";
 
-import { cx } from "cva"
+import { cx } from "cva";
 
-export const SelectPortal = SelectPrimitive.Portal
-export const HiddenSelect = SelectPrimitive.HiddenSelect
+export const SelectPortal = SelectPrimitive.Portal;
+export const HiddenSelect = SelectPrimitive.HiddenSelect;
 
 export type SelectProps<
   Option,
   OptGroup = never,
   T extends ValidComponent = "div",
-> = ComponentProps<typeof SelectPrimitive<Option, OptGroup, T>>
+> = ComponentProps<typeof SelectPrimitive<Option, OptGroup, T>>;
 
 export const Select = <
   Option,
@@ -20,38 +20,36 @@ export const Select = <
 >(
   props: SelectProps<Option, OptGroup, T>,
 ) => {
-  const [, rest] = splitProps(props as SelectProps<Option, OptGroup>, ["class"])
+  const [, rest] = splitProps(props as SelectProps<Option, OptGroup>, [
+    "class",
+  ]);
 
   return (
-    <SelectPrimitive
-      data-slot="select"
-      class={cx("space-y-2", props.class)}
-      {...rest}
-    />
-  )
-}
+    <SelectPrimitive data-slot="select" class={cx(props.class)} {...rest} />
+  );
+};
 
 export type SelectValueProps<
   Options,
   T extends ValidComponent = "span",
-> = ComponentProps<typeof SelectPrimitive.Value<Options, T>>
+> = ComponentProps<typeof SelectPrimitive.Value<Options, T>>;
 
 export const SelectValue = <Options, T extends ValidComponent = "span">(
   props: SelectValueProps<Options, T>,
 ) => {
-  return <SelectPrimitive.Value data-slot="select-value" {...props} />
-}
+  return <SelectPrimitive.Value data-slot="select-value" {...props} />;
+};
 
 export type SelectTriggerProps<T extends ValidComponent = "button"> =
   ComponentProps<typeof SelectPrimitive.Trigger<T>> & {
-    size?: "sm" | "default"
-  }
+    size?: "sm" | "default";
+  };
 
 export const SelectTrigger = <T extends ValidComponent = "button">(
   props: SelectTriggerProps<T>,
 ) => {
-  const merge = mergeProps({ size: "default" } as SelectTriggerProps, props)
-  const [, rest] = splitProps(merge, ["class", "size", "children"])
+  const merge = mergeProps({ size: "default" } as SelectTriggerProps, props);
+  const [, rest] = splitProps(merge, ["class", "size", "children"]);
 
   return (
     <SelectPrimitive.Trigger
@@ -84,17 +82,17 @@ export const SelectTrigger = <T extends ValidComponent = "button">(
         )}
       />
     </SelectPrimitive.Trigger>
-  )
-}
+  );
+};
 
 export type SelectContentProps<T extends ValidComponent = "div"> = VoidProps<
   ComponentProps<typeof SelectPrimitive.Content<T>>
->
+>;
 
 export const SelectContent = <T extends ValidComponent = "div">(
   props: SelectContentProps<T>,
 ) => {
-  const [, rest] = splitProps(props as SelectContentProps, ["class"])
+  const [, rest] = splitProps(props as SelectContentProps, ["class"]);
 
   return (
     <SelectPrimitive.Content
@@ -108,17 +106,17 @@ export const SelectContent = <T extends ValidComponent = "div">(
     >
       <SelectPrimitive.Listbox class="p-1 outline-none" />
     </SelectPrimitive.Content>
-  )
-}
+  );
+};
 
 export type SelectItemProps<T extends ValidComponent = "li"> = ComponentProps<
   typeof SelectPrimitive.Item<T>
->
+>;
 
 export const SelectItem = <T extends ValidComponent = "li">(
   props: SelectItemProps<T>,
 ) => {
-  const [, rest] = splitProps(props as SelectItemProps, ["class", "children"])
+  const [, rest] = splitProps(props as SelectItemProps, ["class", "children"]);
 
   return (
     <SelectPrimitive.Item
@@ -152,16 +150,16 @@ export const SelectItem = <T extends ValidComponent = "li">(
         )}
       />
     </SelectPrimitive.Item>
-  )
-}
+  );
+};
 
 export type SelectSectionProps<T extends ValidComponent = "li"> =
-  ComponentProps<typeof SelectPrimitive.Section<T>>
+  ComponentProps<typeof SelectPrimitive.Section<T>>;
 
 export const SelectSection = <T extends ValidComponent = "li">(
   props: SelectSectionProps<T>,
 ) => {
-  const [, rest] = splitProps(props as SelectSectionProps, ["class"])
+  const [, rest] = splitProps(props as SelectSectionProps, ["class"]);
 
   return (
     <SelectPrimitive.Section
@@ -169,16 +167,16 @@ export const SelectSection = <T extends ValidComponent = "li">(
       class={cx("text-muted-foreground px-2 py-1.5 text-xs", props.class)}
       {...rest}
     />
-  )
-}
+  );
+};
 
 export type SelectDescriptionProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof SelectPrimitive.Description<T>>
+  ComponentProps<typeof SelectPrimitive.Description<T>>;
 
 export const SelectDescription = <T extends ValidComponent = "div">(
   props: SelectDescriptionProps<T>,
 ) => {
-  const [, rest] = splitProps(props as SelectDescriptionProps, ["class"])
+  const [, rest] = splitProps(props as SelectDescriptionProps, ["class"]);
 
   return (
     <SelectPrimitive.Description
@@ -189,16 +187,16 @@ export const SelectDescription = <T extends ValidComponent = "div">(
       )}
       {...rest}
     />
-  )
-}
+  );
+};
 
 export type SelectLabelProps<T extends ValidComponent = "label"> =
-  ComponentProps<typeof SelectPrimitive.Label<T>>
+  ComponentProps<typeof SelectPrimitive.Label<T>>;
 
 export const SelectLabel = <T extends ValidComponent = "label">(
   props: SelectLabelProps<T>,
 ) => {
-  const [, rest] = splitProps(props as SelectLabelProps, ["class"])
+  const [, rest] = splitProps(props as SelectLabelProps, ["class"]);
 
   return (
     <SelectPrimitive.Label
@@ -209,16 +207,16 @@ export const SelectLabel = <T extends ValidComponent = "label">(
       )}
       {...rest}
     />
-  )
-}
+  );
+};
 
 export type SelectErrorMessageProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof SelectPrimitive.ErrorMessage<T>>
+  ComponentProps<typeof SelectPrimitive.ErrorMessage<T>>;
 
 export const SelectErrorMessage = <T extends ValidComponent = "div">(
   props: SelectErrorMessageProps<T>,
 ) => {
-  const [, rest] = splitProps(props as SelectErrorMessageProps, ["class"])
+  const [, rest] = splitProps(props as SelectErrorMessageProps, ["class"]);
 
   return (
     <SelectPrimitive.ErrorMessage
@@ -229,5 +227,5 @@ export const SelectErrorMessage = <T extends ValidComponent = "div">(
       )}
       {...rest}
     />
-  )
-}
+  );
+};

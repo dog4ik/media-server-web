@@ -147,7 +147,7 @@ export function SecretInput(props: SecretInputProps) {
     <TextField onChange={(s) => props.onChange(s)}>
       <TextFieldInput
         value={props.value}
-        type="password"
+        class={"[-webkit-text-security:disc]"}
         placeholder={props.placeholder}
       />
     </TextField>
