@@ -90,7 +90,10 @@ export default function ShowPage() {
   // });
 
   async function detectIntros() {
-    if (show.data?.metadata_provider === "local" && seasonNumber() !== undefined) {
+    if (
+      show.data?.metadata_provider === "local" &&
+      seasonNumber() !== undefined
+    ) {
       await server.POST("/api/show/{show_id}/{season}/detect_intros", {
         params: {
           path: { season: seasonNumber()!, show_id: +show.data.metadata_id },
@@ -150,7 +153,9 @@ export default function ShowPage() {
                                 ? `Detect intros for season ${seasonNumber()}`
                                 : "Intro detection is not supported by local ffmpeg build"
                             }
-                            disabled={!capabilities.latest()?.chromaprint_enabled}
+                            disabled={
+                              !capabilities.latest()?.chromaprint_enabled
+                            }
                             onClick={() => detectIntros()}
                           >
                             <FiSkipForward size={30} />
@@ -174,11 +179,13 @@ export default function ShowPage() {
           </Match>
         </Switch>
         <div class="hover-hide">
-          <Show when={show.latest()}>
-            <SeasonsCarousel
-              tabs={show.latest()!.seasons!}
-              onChange={(season) => setSelectedSeason(season)}
-            />
+          <Show when={show.latest()?.seasons}>
+            {(seasons) => (
+              <SeasonsCarousel
+                tabs={seasons()}
+                onChange={(season) => setSelectedSeason(season)}
+              />
+            )}
           </Show>
           <SuspenseLoader name={`"Season ${seasonNumber()}`}>
             <Show when={seasonNumber()}>
