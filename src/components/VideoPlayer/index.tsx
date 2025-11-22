@@ -342,8 +342,13 @@ export default function VideoPlayer(props: Props) {
   function handleVolumeChange(event: VideoEventType) {
     let newVolume = event.currentTarget.volume;
     let delta = newVolume - volume();
-    if (delta >= 0) dispatchAction("volumeup");
-    else dispatchAction("volumedown");
+    tracing.trace(
+      { newVolume, oldVolume: volume(), delta },
+      "Volume change event",
+    );
+
+    if (delta > 0) dispatchAction("volumeup");
+    else if (delta < 0) dispatchAction("volumedown");
 
     saveVolume(newVolume);
     setVolume(newVolume);
