@@ -13,6 +13,7 @@ type Props = {
 export default function PlayButton(props: Props) {
   return (
     <Link
+      preload={false}
       classList={{
         "flex gap-2 items-center p-2 justify-center rounded-md": true,
         "bg-green-500": props.canPlay?.combined?.supported === true,
