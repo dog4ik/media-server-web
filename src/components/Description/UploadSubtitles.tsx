@@ -1,18 +1,11 @@
 import { Button } from "@/ui/button";
-import {
-  Select,
-  SelectItem,
-  SelectValue,
-  SelectContent,
-  SelectTrigger,
-} from "@/ui/select";
 import { Dialog, DialogContent, DialogTrigger } from "@/ui/dialog";
 import { TextField, TextFieldLabel, TextFieldInput } from "@/ui/textfield";
 import { Schemas, server } from "@/utils/serverApi";
 import tracing from "@/utils/tracing";
 import { createSignal, JSX, ParentProps, Show } from "solid-js";
 import { FilePicker } from "../FilePicker";
-import { capitalize, formatSize } from "@/utils/formats";
+import { formatSize } from "@/utils/formats";
 import { FiTrash } from "solid-icons/fi";
 import { useNotificationsContext } from "@/context/NotificationContext";
 import { notifyResponseErrors } from "@/utils/errors";
@@ -22,15 +15,6 @@ type Props = {
   videoId: number;
   onClose: () => void;
 } & ParentProps;
-
-const LANGUAGE_OPTIONS: Schemas["Language"][] = [
-  "en",
-  "es",
-  "de",
-  "fr",
-  "ru",
-  "ja",
-];
 
 export function UploadSubtitlesDialog(props: Props) {
   let [open, setOpen] = createSignal(false);
@@ -51,8 +35,6 @@ export function UploadSubtitles(props: Props) {
   let [, { addNotification }] = useNotificationsContext();
   let [subtitlesFile, setSubtitlesFile] = createSignal<File>();
   let [subtitlesServerPath, setSubtitlesServerPath] = createSignal<string>();
-  let [error, setError] = createSignal<string>();
-  let [isLoading, setIsLoading] = createSignal(false);
   let [language, setLanguage] = createSignal<Schemas["Language"]>();
 
   let [isDragging, setIsDragging] = createSignal(false);
@@ -97,7 +79,6 @@ export function UploadSubtitles(props: Props) {
         .then(notifyResponseErrors(addNotification, "upload subtitles file"));
 
       setSubtitlesFile(undefined);
-      setIsLoading(false);
       props.onClose();
       return;
     }
@@ -117,10 +98,8 @@ export function UploadSubtitles(props: Props) {
     let file = e.currentTarget.files?.[0];
     if (file?.name.endsWith(".srt")) {
       setSubtitlesFile(file);
-      setError(undefined);
     } else {
       setSubtitlesFile(undefined);
-      setError("only .srt files are accepted");
     }
   };
 
@@ -190,8 +169,8 @@ export function UploadSubtitles(props: Props) {
                 <div class="flex items-center gap-4">
                   <span class="text-lg">Select subtitles on the server</span>
                   <span class="text-sm">or</span>{" "}
-                  <TextField value={""} class="flex flex-col space-y-1.5">
-                    <TextFieldLabel class="cursor-pointer text-lg underline">
+                  <TextField class="flex flex-col max-w-fit space-y-1.5">
+                    <TextFieldLabel class="cursor-pointer max-w-fit text-lg underline">
                       Click to upload
                     </TextFieldLabel>
                     <TextFieldInput

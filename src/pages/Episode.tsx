@@ -57,6 +57,8 @@ export default function Episode() {
     }),
     () => ({
       select: (episode) => extendEpisode(episode, params().id),
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
     }),
   );
 
@@ -69,7 +71,11 @@ export default function Episode() {
         query: { provider: search().provider },
       },
     }),
-    () => ({ select: extendShow }),
+    () => ({
+      select: extendShow,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    }),
   );
 
   let local = queryApi.useQuery(
@@ -115,12 +121,14 @@ export default function Episode() {
     () => ({
       select: (videos) => videos.map((v) => new Video(v)),
       enabled: episode.latest()?.metadata_provider == "local",
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
     }),
   );
 
   createEffect(() => {
     if (selectedVideo() === undefined) {
-      let video = videos.data?.at(0)!;
+      let video = videos.latest()?.at(0)!;
       setSelectedVideo(video ? { video_id: video.details.id } : undefined);
     }
   });

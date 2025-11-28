@@ -35,9 +35,8 @@ import { Dialog, DialogContent } from "@/ui/dialog";
 import { UploadSubtitles } from "./UploadSubtitles";
 import promptConfirm from "../modals/ConfirmationModal";
 import RadioButton from "../RadioButton";
-import { isCompatible, useCapabilityQuery } from "@/utils/mediaCapabilities";
+import { useCapabilityQuery } from "@/utils/mediaCapabilities";
 import clsx from "clsx";
-import { useQuery } from "@tanstack/solid-query";
 import { Skeleton } from "@/ui/skeleton";
 
 export type VideoSelection = {

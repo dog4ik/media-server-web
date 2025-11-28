@@ -5,9 +5,7 @@ import Step3 from "./Step3";
 import { Schemas, server } from "../../utils/serverApi";
 import { formatSize } from "../../utils/formats";
 import { Button } from "@/ui/button";
-import useDebounce from "@/utils/useDebounce";
 import { useNotifications } from "@/context/NotificationContext";
-import tracing from "@/utils/tracing";
 import { queryApi } from "@/utils/queryApi";
 
 type StepLoadingProps = {
@@ -73,8 +71,6 @@ export function TorrentDownloadSteps(props: Props) {
     };
     outputLocation() || setOutputLocation(outputForContent());
   });
-
-  let outLocation = queryApi.useQuery("get", "/api/torrent/output_location");
 
   function changeStep(newStep: number) {
     if (newStep <= 0) {
@@ -142,14 +138,14 @@ export function TorrentDownloadSteps(props: Props) {
       </div>
       <div class="absolute right-5 bottom-5 space-x-4">
         <Show when={currentStep() !== 0}>
-          <button onClick={() => changeStep(currentStep() - 1)} class="btn">
+          <Button onClick={() => changeStep(currentStep() - 1)} class="btn">
             Back
-          </button>
+          </Button>
         </Show>
         <Show when={currentStep() === 0 && selectedMagnetLink()}>
-          <button onClick={() => changeStep(currentStep() + 1)} class="btn">
+          <Button onClick={() => changeStep(currentStep() + 1)} class="btn">
             Next
-          </button>
+          </Button>
         </Show>
         <Show when={currentStep() === 1}>
           <Show

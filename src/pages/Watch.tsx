@@ -225,7 +225,7 @@ export function WatchShow() {
         path: {
           id: params().id,
           season: +params().season,
-          episode: +params().episode,
+          episode: +params().episode + 1,
         },
         query: { provider: "local" },
       },

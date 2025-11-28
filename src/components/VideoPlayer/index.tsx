@@ -482,7 +482,7 @@ export default function VideoPlayer(props: Props) {
             <Show when={!isMetadataLoading() && duration() - time() < 120}>
               <Link
                 onClick={() => setIsMetadataLoading(true)}
-                class="bg-black/80 py-5 text-lg hover:bg-black"
+                class="rounded-md bg-black/80 px-2 py-4 text-lg hover:bg-black"
                 {...next().url}
               >
                 Next: {next().nextTitle}
@@ -508,7 +508,7 @@ export default function VideoPlayer(props: Props) {
           shouldShowControls() ? "opacity-100" : "opacity-0"
         } transition-opacity duration-200`}
       >
-        <div class="h-full w-full bg-red-400">{props.children}</div>
+        <div class="size-full">{props.children}</div>
         <div
           onMouseMove={() => {
             clearTimeout(showControlsTimeout);

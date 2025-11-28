@@ -2,19 +2,9 @@ import { Show } from "solid-js";
 
 import { formatSize } from "@/utils/formats";
 
-import { Schemas } from "@/utils/serverApi";
 import { useTorrentContext } from "@/context/TorrentContext";
 import { TorrentTable } from "./TorrentTable";
 import { TorrentSide } from "./TorrentSide";
-
-type TorrentFileProps = {
-  idx: number;
-  size: number;
-  path: string;
-  percent: number;
-  priority: Schemas["Priority"];
-  onPriorityUpdate: (newPriority: Schemas["Priority"]) => void;
-};
 
 export function BottomBar() {
   let { sessionStats } = useTorrentContext();
@@ -28,15 +18,15 @@ export function BottomBar() {
   );
 }
 
-export default function BitTorrentClient() {
+export function BitTorrentClient() {
   let { expandedTorrent } = useTorrentContext();
   return (
-    <div class="bg-background container mx-auto h-5/6 p-4">
+    <>
       <TorrentTable />
       <Show when={expandedTorrent()}>
         {(row) => <TorrentSide torrent={row()} />}
       </Show>
       <BottomBar />
-    </div>
+    </>
   );
 }

@@ -1,5 +1,5 @@
 import Loader from "@/components/Loader";
-import BitTorrentClient from "@/components/Torrent";
+import { BitTorrentClient } from "@/components/Torrent";
 import { useServerStatus } from "@/context/ServerStatusContext";
 import { TorrentStateManager, TorrentProvider } from "@/context/TorrentContext";
 import { useQuery } from "@tanstack/solid-query";
@@ -16,20 +16,20 @@ export default function Torrent() {
       return manager;
     },
     refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     queryKey: ["torrent_state"],
   }));
 
   return (
-    <div class="size-full">
-      <Suspense fallback={<Loader showDelay={100} />}>
-        <Show when={torrentState.data}>
-          {(state) => (
-            <TorrentProvider sessionState={state()}>
-              <BitTorrentClient />
-            </TorrentProvider>
-          )}
-        </Show>
-      </Suspense>
-    </div>
+    <Suspense fallback={<Loader showDelay={100} />}>
+      <Show when={torrentState.data}>
+        {(state) => (
+          <TorrentProvider sessionState={state()}>
+            <BitTorrentClient />
+          </TorrentProvider>
+        )}
+      </Show>
+    </Suspense>
   );
 }

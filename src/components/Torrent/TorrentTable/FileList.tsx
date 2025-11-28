@@ -4,7 +4,6 @@ import {
   ExpandedState,
   createSolidTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getFilteredRowModel,
   getExpandedRowModel,
   ColumnDef,
@@ -18,7 +17,7 @@ import {
   Entry,
   File,
 } from "@/utils/torrent_file_tree";
-import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
+import { createMemo, createSignal, For, Show } from "solid-js";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/ui/table";
 import {
   Select,
@@ -211,7 +210,9 @@ export function FileList(props: Props) {
       footer: (props) => props.column.id,
     },
     {
-      accessorFn: (entry) => 100,
+      accessorFn: (entry) => {
+        return 100;
+      },
       id: "progress",
       header: (props) => (
         <TableColumnHeader column={props.column} title="Progress" />
@@ -242,7 +243,6 @@ export function FileList(props: Props) {
     onExpandedChange: setExpanded,
     getSubRows: (row) => ("children" in row ? row.children : undefined),
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
   });
@@ -282,50 +282,44 @@ export function FileList(props: Props) {
   }
 
   return (
-    <div class="p-2">
-      <div class="h-2" />
-      <Table>
-        <TableHeader>
-          <For each={table.getHeaderGroups()}>
-            {(headerGroup) => (
-              <TableRow>
-                <For each={headerGroup.headers}>
-                  {(header) => (
-                    <TableCell colSpan={header.colSpan}>
-                      <Show when={!header.isPlaceholder}>
-                        <div>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                        </div>
-                      </Show>
-                    </TableCell>
-                  )}
-                </For>
-              </TableRow>
-            )}
-          </For>
-        </TableHeader>
-        <TableBody>
-          <For each={table.getRowModel().rows}>
-            {(row) => (
-              <TableRow>
-                <For each={row.getVisibleCells()}>
-                  {(cell) => (
-                    <TableCell>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  )}
-                </For>
-              </TableRow>
-            )}
-          </For>
-        </TableBody>
-      </Table>
-    </div>
+    <Table>
+      <TableHeader>
+        <For each={table.getHeaderGroups()}>
+          {(headerGroup) => (
+            <TableRow>
+              <For each={headerGroup.headers}>
+                {(header) => (
+                  <TableCell colSpan={header.colSpan}>
+                    <Show when={!header.isPlaceholder}>
+                      <div>
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                      </div>
+                    </Show>
+                  </TableCell>
+                )}
+              </For>
+            </TableRow>
+          )}
+        </For>
+      </TableHeader>
+      <TableBody>
+        <For each={table.getRowModel().rows}>
+          {(row) => (
+            <TableRow>
+              <For each={row.getVisibleCells()}>
+                {(cell) => (
+                  <TableCell>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                )}
+              </For>
+            </TableRow>
+          )}
+        </For>
+      </TableBody>
+    </Table>
   );
 }

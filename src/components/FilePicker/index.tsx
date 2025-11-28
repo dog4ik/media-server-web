@@ -105,8 +105,8 @@ export function FilePicker(props: Props) {
   );
 
   createEffect(() => {
-    if (currentDirectory.data) {
-      setLastWorkingPath(currentDirectory.data);
+    if (currentDirectory.latest()) {
+      setLastWorkingPath(currentDirectory.latest());
     }
   });
 
@@ -142,117 +142,118 @@ export function FilePicker(props: Props) {
   }
 
   return (
-    <div class="bg-background w-full space-y-2 rounded-md border p-2">
-      <div class="flex">
-        <TextField class="w-full">
-          <TextFieldInput
-            onInput={(e) => {
-              let value = e.currentTarget.value;
-              let file = makeFile(value);
-              setSelectedOutput(file);
-              setSelectedDir(file);
-            }}
-            value={selectedOutput()?.path ?? ""}
-          />
-        </TextField>
-        <Show when={props.onSubmit}>
-          <Button
-            onClick={() => props.onSubmit?.(selectedOutput()!.path)}
-            disabled={!selectedOutput()?.path}
-          >
-            Submit
-          </Button>
+    <Suspense>
+      <div class="bg-background w-full space-y-2 rounded-md border p-2">
+        <div class="flex">
+          <TextField class="w-full">
+            <TextFieldInput
+              onInput={(e) => {
+                let value = e.currentTarget.value;
+                let file = makeFile(value);
+                setSelectedOutput(file);
+                setSelectedDir(file);
+              }}
+              value={selectedOutput()?.path ?? ""}
+            />
+          </TextField>
+          <Show when={props.onSubmit}>
+            <Button
+              onClick={() => props.onSubmit?.(selectedOutput()!.path)}
+              disabled={!selectedOutput()?.path}
+            >
+              Submit
+            </Button>
+          </Show>
+        </div>
+        <Show when={locations.latest()}>
+          {(locations) => (
+            <div class="grid h-96 grid-cols-3 justify-between divide-x">
+              <div class="grow-0 flex-col overflow-y-auto">
+                <Show when={locations().home}>
+                  {(home) => (
+                    <EntryRow
+                      fileType="home"
+                      title={home().path}
+                      onClick={() => handleDirSelect(home())}
+                    />
+                  )}
+                </Show>
+                <Show when={locations().videos}>
+                  {(videos) => (
+                    <EntryRow
+                      fileType="videos"
+                      title={videos().path}
+                      onClick={() => handleDirSelect(videos())}
+                    />
+                  )}
+                </Show>
+                <Show when={locations().root}>
+                  {(root) => (
+                    <EntryRow
+                      fileType="directory"
+                      title={root().path}
+                      onClick={() => handleDirSelect(root())}
+                    />
+                  )}
+                </Show>
+                <For each={locations().disks}>
+                  {(disk) => (
+                    <EntryRow
+                      fileType="disk"
+                      title={disk.path}
+                      onClick={() => handleDirSelect(disk)}
+                    />
+                  )}
+                </For>
+              </div>
+              <div class="col-span-2 flex-col overflow-y-auto">
+                <Show when={selectedDir()}>
+                  {(prev) => (
+                    <EntryRow
+                      fileType="directory"
+                      title="..[Back]"
+                      onClick={() => handleBack(prev().key)}
+                    />
+                  )}
+                </Show>
+                <Suspense fallback={<Loader showDelay={200} />}>
+                  <Show when={currentDirectory.isError}>
+                    <div class="flex size-full items-center justify-center">
+                      Directory is unavailable:{" "}
+                      {currentDirectory.error?.message}
+                    </div>
+                  </Show>
+                  <Show when={directory()}>
+                    {(dir) => (
+                      <>
+                        <For each={dir().directories}>
+                          {(childDir) => (
+                            <EntryRow
+                              onClick={() => handleDirSelect(childDir)}
+                              title={childDir.title}
+                              fileType="directory"
+                            />
+                          )}
+                        </For>
+                        <For each={dir().files}>
+                          {(childFile) => (
+                            <EntryRow
+                              disabled={props.disallowFiles}
+                              onClick={() => handleFileSelect(childFile)}
+                              title={childFile.title}
+                              fileType="file"
+                            />
+                          )}
+                        </For>
+                      </>
+                    )}
+                  </Show>
+                </Suspense>
+              </div>
+            </div>
+          )}
         </Show>
       </div>
-      <Show when={locations.data}>
-        {(locations) => (
-          <div class="grid h-96 grid-cols-3 justify-between divide-x">
-            <div class="grow-0 flex-col overflow-y-auto">
-              <Show when={locations().home}>
-                {(home) => (
-                  <EntryRow
-                    fileType="home"
-                    title={home().path}
-                    onClick={() => handleDirSelect(home())}
-                  />
-                )}
-              </Show>
-              <Show when={locations().videos}>
-                {(videos) => (
-                  <EntryRow
-                    fileType="videos"
-                    title={videos().path}
-                    onClick={() => handleDirSelect(videos())}
-                  />
-                )}
-              </Show>
-              <Show when={locations().root}>
-                {(root) => (
-                  <EntryRow
-                    fileType="directory"
-                    title={root().path}
-                    onClick={() => handleDirSelect(root())}
-                  />
-                )}
-              </Show>
-              <For each={locations().disks}>
-                {(disk) => (
-                  <EntryRow
-                    fileType="disk"
-                    title={disk.path}
-                    onClick={() => handleDirSelect(disk)}
-                  />
-                )}
-              </For>
-            </div>
-            <div class="col-span-2 flex-col overflow-y-auto">
-              <Show when={selectedDir()}>
-                {(prev) => (
-                  <EntryRow
-                    fileType="directory"
-                    title="..[Back]"
-                    onClick={() => handleBack(prev().key)}
-                  />
-                )}
-              </Show>
-              <Suspense fallback={<Loader showDelay={200} />}>
-                <Show when={currentDirectory?.error}>
-                  {(err) => (
-                    <div class="flex size-full items-center justify-center">
-                      Directory is unavailable: {err().message}
-                    </div>
-                  )}
-                </Show>
-                <Show when={directory()}>
-                  {(dir) => (
-                    <>
-                      <For each={dir().directories}>
-                        {(childDir) => (
-                          <EntryRow
-                            onClick={() => handleDirSelect(childDir)}
-                            title={childDir.title}
-                            fileType="directory"
-                          />
-                        )}
-                      </For>
-                      <For each={dir().files}>
-                        {(childFile) => (
-                          <EntryRow
-                            disabled={props.disallowFiles}
-                            onClick={() => handleFileSelect(childFile)}
-                            title={childFile.title}
-                            fileType="file"
-                          />
-                        )}
-                      </For>
-                    </>
-                  )}
-                </Show>
-              </Suspense>
-            </div>
-          </div>
-        )}
-      </Show>
-    </div>
+    </Suspense>
   );
 }

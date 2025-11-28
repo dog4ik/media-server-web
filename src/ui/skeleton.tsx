@@ -19,6 +19,13 @@ export const Skeleton = <T extends ValidComponent = "div">(
   );
   const [, rest] = splitProps(merge, ["class"]);
 
+  let style = () => {
+    return {
+      height: typeof props.style == "object" ? props.style.height : undefined,
+      width: typeof props.style == "object" ? props.style.width : undefined,
+    };
+  };
+
   return (
     <SkeletonPrimitive
       data-slot="skeleton"
@@ -30,7 +37,7 @@ export const Skeleton = <T extends ValidComponent = "div">(
       )}
       {...rest}
       // unset default values
-      style={{ height: undefined, width: undefined }}
+      style={style()}
     />
   );
 };

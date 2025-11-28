@@ -1,6 +1,5 @@
 import { Schemas } from "../../utils/serverApi";
-import { isCompatible } from "../../utils/mediaCapabilities";
-import { useQuery } from "@tanstack/solid-query";
+import { useCapabilityQuery } from "../../utils/mediaCapabilities";
 
 type Props = {
   variant: Schemas["DetailedVariant"];
@@ -22,12 +21,15 @@ export default function VariantMenuRow(props: Props) {
   let defaultAudio = () =>
     props.variant.audio_tracks.find((t) => t.is_default) ??
     props.variant.audio_tracks[0];
-  let checkCompatibility = useQuery(() => ({
-    queryFn: () => isCompatible(defaultVideo(), defaultAudio()),
-    queryKey: ["compatabilitiy"],
-  }));
+  let capabilityQuery = useCapabilityQuery(
+    props.variant.path,
+    defaultVideo(),
+    defaultAudio(),
+  );
+  let capabilityData = () =>
+    capabilityQuery.isSuccess ? capabilityQuery.data : undefined;
   let bgColor = () => {
-    let compatibility = checkCompatibility.data;
+    let compatibility = capabilityData();
     if (compatibility) {
       return compatibility.combined.supported ? "bg-green-400" : "bg-red-500";
     }

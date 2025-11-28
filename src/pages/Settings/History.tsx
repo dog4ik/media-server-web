@@ -1,6 +1,5 @@
 import { Schemas, server } from "../../utils/serverApi";
 import { For, Match, Show, Switch } from "solid-js";
-import Showspense from "../../utils/Showspense";
 import ProgressBar from "../../components/Cards/ProgressBar";
 import { FiX } from "solid-icons/fi";
 import FallbackImage from "../../components/FallbackImage";
@@ -11,7 +10,7 @@ import {
   extendShow,
   posterList,
 } from "@/utils/library";
-import { Card } from "@/ui/card";
+import { Card, CardContent } from "@/ui/card";
 import { Button } from "@/ui/button";
 import { Link, linkOptions } from "@tanstack/solid-router";
 import { queryApi } from "@/utils/queryApi";
@@ -37,7 +36,7 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
     });
   };
   return (
-    <Card class="relative grid grid-cols-4 gap-2">
+    <Card class="relative grid grid-cols-4 gap-2 py-0">
       <Link
         class="relative aspect-video h-fit overflow-hidden rounded-xl"
         {...episode().url()}
@@ -46,7 +45,7 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
           width={342}
           height={192}
           alt="Episode poster"
-          class="h-full w-full"
+          class="min-h-full min-w-full object-cover"
           srcList={posterList(episode())}
         />
         <Show when={episode().runtime}>
@@ -96,42 +95,44 @@ type DisplayMovieProps = {
 function DisplayMovie(props: DisplayMovieProps) {
   let movie = () => extendMovie(props.metadata.movie);
   return (
-    <Card class="relative grid grid-cols-4 gap-2">
-      <Link
-        class="aspect-poster relative h-fit overflow-hidden rounded-xl"
-        {...movie().url()}
-      >
-        <FallbackImage
-          width={100}
-          height={192}
-          alt="Movie poster"
-          class="h-full w-full"
-          srcList={posterList(movie())}
-        />
-        <Show when={movie().runtime}>
-          {(r) => <ProgressBar runtime={r().secs} history={props.history} />}
-        </Show>
-      </Link>
-      <div class="col-span-3 flex flex-col p-2">
-        <Link {...movie().url()}>
-          <span class="text-2xl">{movie().friendlyTitle()}</span>
+    <Card class="py-0">
+      <CardContent class="relative grid grid-cols-4 gap-2">
+        <Link
+          class="aspect-poster relative h-fit overflow-hidden rounded-xl"
+          {...movie().url()}
+        >
+          <FallbackImage
+            width={100}
+            height={192}
+            alt="Movie poster"
+            class="min-h-full min-w-full object-cover"
+            srcList={posterList(movie())}
+          />
+          <Show when={movie().runtime}>
+            {(r) => <ProgressBar runtime={r().secs} history={props.history} />}
+          </Show>
         </Link>
-        <div class="flex items-center gap-2 text-sm">
+        <div class="col-span-3 flex flex-col p-2">
           <Link {...movie().url()}>
-            <span class="hover:underline">{movie().friendlyTitle()}</span>
+            <span class="text-2xl">{movie().friendlyTitle()}</span>
           </Link>
+          <div class="flex items-center gap-2 text-sm">
+            <Link {...movie().url()}>
+              <span class="hover:underline">{movie().friendlyTitle()}</span>
+            </Link>
+          </div>
+          <p title={movie().plot ?? undefined} class="mt-2 line-clamp-6">
+            {movie().plot}
+          </p>
         </div>
-        <p title={movie().plot ?? undefined} class="mt-2 line-clamp-6">
-          {movie().plot}
-        </p>
-      </div>
-      <Button
-        variant={"destructive"}
-        class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full"
-        onClick={props.onRemove}
-      >
-        <FiX size={20} />
-      </Button>
+        <Button
+          variant={"destructive"}
+          class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full"
+          onClick={props.onRemove}
+        >
+          <FiX size={20} />
+        </Button>
+      </CardContent>
     </Card>
   );
 }
@@ -147,7 +148,7 @@ function HistoryEntry(props: HistoryEntryProps) {
   }));
 
   return (
-    <Showspense when={metadata.data} fallback={<div>Loading</div>}>
+    <Show when={metadata.latest()} fallback={<div>Loading</div>}>
       {(data) => (
         <Switch>
           <Match when={data().content_type === "episode"}>
@@ -178,7 +179,7 @@ function HistoryEntry(props: HistoryEntryProps) {
           </Match>
         </Switch>
       )}
-    </Showspense>
+    </Show>
   );
 }
 
