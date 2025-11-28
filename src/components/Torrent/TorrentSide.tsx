@@ -39,6 +39,7 @@ export function TorrentSide(props: Props) {
           <CardContent class="space-y-2">
             <FileList
               infoHash={props.torrent.info_hash}
+              downloadedPieces={props.torrent.downloaded_pieces}
               files={props.torrent.files}
             />
           </CardContent>

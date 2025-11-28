@@ -42,6 +42,7 @@ const PRIORITY_OPTIONS: Schemas["Priority"][] = [
 
 type Props = {
   infoHash: string;
+  downloadedPieces: boolean[];
   files: Schemas["StateFile"][];
 };
 
@@ -211,7 +212,22 @@ export function FileList(props: Props) {
     },
     {
       accessorFn: (entry) => {
-        return 100;
+        if (entry.kind === "file") {
+          let totalPieces = entry.end_piece - entry.start_piece;
+          let downloadedPieces = 0;
+          for (let i = entry.start_piece; i < entry.end_piece; ++i) {
+            if (props.downloadedPieces[i]) {
+              downloadedPieces += 1;
+            }
+          }
+          if (downloadedPieces === 0) {
+            return 0;
+          } else {
+            return (totalPieces / downloadedPieces) * 100;
+          }
+        } else {
+          return 100;
+        }
       },
       id: "progress",
       header: (props) => (
