@@ -48,7 +48,7 @@ export default function MoreButton(props: ParentProps) {
 anchor-name: --${menuId};
 `}
         id="menu-btn"
-        class="hover:bg-primary-600/50 rounded-full p-1.5 transition-colors"
+        class="hover:bg-accent/50 rounded-full p-1.5 transition-colors"
       >
         <FiMoreVertical size={20} />
       </button>
@@ -56,7 +56,7 @@ anchor-name: --${menuId};
         id={menuId}
         ref={menuRef!}
         onClick={() => menuRef.togglePopover(false)}
-        class="w-60 animate-fade-in rounded-xl bg-primary-foreground duration-200"
+        class="w-60 animate-fade-in rounded-xl bg-secondary duration-200"
         style={`
 position-anchor: --${menuId};
 position-area: right span-bottom;

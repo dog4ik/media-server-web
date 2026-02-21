@@ -1,4 +1,10 @@
-import { FiMaximize, FiPause, FiPlay, FiSettings } from "solid-icons/fi";
+import {
+  FiLoader,
+  FiMaximize,
+  FiPause,
+  FiPlay,
+  FiSettings,
+} from "solid-icons/fi";
 import {
   JSX,
   ParentProps,
@@ -14,13 +20,13 @@ import ActionIcon from "./ActionIcon";
 import Subtitles from "./Subtitles";
 import PlayerMenu from "./PlayerMenu";
 import { fullUrl, Schemas } from "../../utils/serverApi";
-import Hls from "hls.js";
 import clsx from "clsx";
 import { Button } from "@/ui/button";
 import { useTracksSelection } from "@/pages/Watch/TracksSelectionContext";
 import tracing from "@/utils/tracing";
 import { StreamParams } from "@/pages/Watch";
 import { Link, LinkOptions } from "@tanstack/solid-router";
+import { MediaSessionState } from "@/lib/mediaSession";
 
 function formatDuration(time: number) {
   let leadingZeroFormatter = new Intl.NumberFormat(undefined, {
@@ -44,20 +50,22 @@ export type NextVideo = {
 };
 
 type Props = {
+  /**
+   * Initial position of the video in seconds
+   */
   initialTime: number;
-  onVideoError: (error?: MediaError) => void;
-  onAudioError: () => void;
+  /**
+   * Initial duration of the video in seconds
+   */
+  initialDuration: number;
   onHistoryUpdate: (time: number) => void;
   previews?: { videoId: number; previewsAmount: number };
-  streamParams: StreamParams;
-  hls: Hls;
+  mediaSession: MediaSessionState;
   intro?: Schemas["Intro"];
   nextVideo?: NextVideo;
 } & ParentProps;
 
 const DEFAULT_VOLUME = 0.5;
-
-type PlaybackState = "playing" | "pause" | "buffering" | "error";
 
 export type StreamingMethod = "hls" | "direct";
 
@@ -97,36 +105,6 @@ function saveVolume(volume: number) {
 }
 
 export default function VideoPlayer(props: Props) {
-  let audioFailed = false;
-  let videoFailed = false;
-
-  function handleCodecsError(e: VideoEventType) {
-    if (audioFailed || videoFailed) {
-      return;
-    }
-    let audioDecodedBytes: number | undefined =
-      // @ts-expect-error
-      e.currentTarget?.webkitAudioDecodedByteCount;
-    let videoDecodedBytes: number | undefined =
-      // @ts-expect-error
-      e.currentTarget?.webkitVideoDecodedByteCount;
-
-    if (
-      videoDecodedBytes !== undefined &&
-      audioDecodedBytes !== undefined &&
-      e.currentTarget.duration > 0
-    ) {
-      if (videoDecodedBytes == 0) {
-        videoFailed = true;
-        props.onVideoError();
-      }
-      if (audioDecodedBytes == 0) {
-        audioFailed = true;
-        props.onAudioError();
-      }
-    }
-  }
-
   let videoRef: HTMLVideoElement = {} as any;
   let videoContainerRef: HTMLDivElement = {} as any;
   let timelineRef: HTMLDivElement = {} as any;
@@ -154,9 +132,7 @@ export default function VideoPlayer(props: Props) {
   let [volume, setVolume] = createSignal(getInitialVolume());
   let [playbackSpeed, setPlaybackSpeed] = createSignal(1);
   let [time, setTime] = createSignal(props.initialTime);
-  let [duration, setDuration] = createSignal(0);
-  let [playbackState, setPlaybackState] =
-    createSignal<PlaybackState>("buffering");
+  let [duration, setDuration] = createSignal(props.initialDuration);
 
   let shouldShowControls = () =>
     (showControls() || isScubbing || isEnded() || showMenu()) &&
@@ -187,8 +163,13 @@ export default function VideoPlayer(props: Props) {
   function togglePlay(force?: boolean) {
     resetOverlayTimeout();
     if (force !== undefined) {
-      force ? videoRef.play() : videoRef.pause();
-      force ? dispatchAction("unpause") : dispatchAction("pause");
+      if (force) {
+        videoRef.play();
+        dispatchAction("unpause");
+      } else {
+        videoRef.pause();
+        dispatchAction("pause");
+      }
       return;
     }
     if (videoRef.paused) {
@@ -287,11 +268,6 @@ export default function VideoPlayer(props: Props) {
     actionContainer.animate(animation, animationOptions);
   }
 
-  function handleVideoError() {
-    setPlaybackState("error");
-    props.onVideoError(videoRef.error ?? undefined);
-  }
-
   function handleKeyboardPress(event: KeyboardEvent) {
     if (event.code == "KeyF") {
       toggleFullScreenMode();
@@ -366,17 +342,9 @@ export default function VideoPlayer(props: Props) {
     handleScubbing(e);
   }
 
-  let directStreamUrl = () => {
-    if (props.streamParams.method == "direct") {
-      return props.streamParams.watchUrl;
-    }
-  };
   onMount(() => {
     tracing.debug("Mounted video player");
-    props.hls.attachMedia(videoRef);
-    if (props.streamParams.method == "direct") {
-      videoRef.src = props.streamParams.watchUrl;
-    }
+    props.mediaSession.start(videoRef);
     videoRef.volume = getInitialVolume();
     window.addEventListener("keydown", handleKeyboardPress);
     document.addEventListener("mouseup", handleMouseUp);
@@ -386,7 +354,6 @@ export default function VideoPlayer(props: Props) {
   onCleanup(() => {
     tracing.debug("Unmounted video player");
     setIsMetadataLoading(true);
-    props.hls.destroy();
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
     window.removeEventListener("keydown", handleKeyboardPress);
@@ -399,7 +366,6 @@ export default function VideoPlayer(props: Props) {
       class={`relative flex h-screen w-screen items-center justify-center text-white ${showControls() ? "" : "cursor-none"}`}
     >
       <video
-        src={directStreamUrl()}
         onClick={handleClick}
         onPlay={() => {
           setIsPaused(false);
@@ -421,11 +387,14 @@ export default function VideoPlayer(props: Props) {
         }}
         onPlaying={() => setIsWaiting(false)}
         onLoadedMetadata={(e) => {
-          e.currentTarget.currentTime = props.initialTime;
+          e.currentTarget.currentTime = time();
           setDuration(e.currentTarget.duration);
           setIsMetadataLoading(false);
           setIsError(false);
           setIsEnded(false);
+        }}
+        onDurationChange={(e) => {
+          setDuration(e.currentTarget.duration);
         }}
         onError={() => {
           setIsMetadataLoading(false);
@@ -452,6 +421,7 @@ export default function VideoPlayer(props: Props) {
           "h-full w-full",
           (isMetadataLoading() || isEnded()) && "hidden",
         )}
+        controls={false}
         autoplay
         draggable={false}
       >
@@ -491,6 +461,11 @@ export default function VideoPlayer(props: Props) {
           )}
         </Show>
       </div>
+      <Show when={isWaiting()}>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <FiLoader class="h-10 w-10 animate-spin" />
+        </div>
+      </Show>
       {/* This "overlay" exists to prevent click on video that causes pause after closed menu */}
       <div
         class={`${showMenu() ? "absolute" : "hidden"} top-0 right-0 bottom-0 left-0 h-full min-h-full w-full min-w-full`}

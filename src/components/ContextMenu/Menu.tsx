@@ -8,7 +8,7 @@ type RowProps = {
 export function MenuRow(props: RowProps & ParentProps) {
   return (
     <button
-      class="flex w-full cursor-pointer items-center rounded-md py-1 pl-2 transition-colors hover:bg-neutral-700"
+      class="flex w-full cursor-pointer items-center rounded-md py-1 pl-2 transition-colors hover:bg-accent"
       onClick={props.onClick}
     >
       <span class="pointer-events-none text-white">{props.children}</span>
@@ -32,7 +32,7 @@ export function ExpandRow(props: ExpandRowProps & ParentProps) {
       style={`
 anchor-name: --${props.popoverTarget};
 `}
-      class="flex w-full cursor-pointer items-center justify-between rounded-md py-1 pl-2 hover:bg-neutral-700"
+      class="flex w-full cursor-pointer items-center justify-between rounded-md py-1 pl-2 hover:bg-accent"
     >
       <span class="pointer-events-none text-white">{props.children}</span>
       <FiArrowRight size={20} class="stroke-white" />

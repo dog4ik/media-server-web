@@ -1,14 +1,12 @@
 import { useNotificationsContext } from "@/context/NotificationContext";
 import { Media } from "./library";
-import { NotificationProps } from "@/components/Notification";
 
 export type ErrorType =
   | "database"
   | "server"
   | "notfound"
   | "unavailable"
-  | "parseparams"
-  | "unknownprovider";
+  | "parseparams";
 
 export class BaseError extends Error {
   errorType: ErrorType;
@@ -39,12 +37,6 @@ export class NotFoundError extends BaseError {
 export class UnavailableError extends BaseError {
   constructor(message?: string) {
     super("unavailable", message);
-  }
-}
-
-export class UnknownProviderError extends BaseError {
-  constructor(message?: string) {
-    super("unknownprovider", message);
   }
 }
 

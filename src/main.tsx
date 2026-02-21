@@ -1,7 +1,6 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
 
-import "./index.css";
 import { createRouter, RouterProvider } from "@tanstack/solid-router";
 import { routeTree } from "./routes";
 

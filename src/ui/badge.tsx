@@ -2,6 +2,7 @@ import type { ComponentProps, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 import { Badge as BadgePrimitive } from "@kobalte/core/badge";
 import type { VariantProps } from "cva";
+import { twMerge } from "tailwind-merge";
 
 import { cva } from "cva";
 
@@ -37,10 +38,12 @@ export const Badge = <T extends ValidComponent = "span">(
   return (
     <BadgePrimitive
       data-slot="badge"
-      class={badgeVariants({
-        variant: props.variant,
-        class: props.class,
-      })}
+      class={twMerge(
+        badgeVariants({
+          variant: props.variant,
+          class: props.class,
+        }),
+      )}
       {...rest}
     />
   );

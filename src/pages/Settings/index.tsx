@@ -3,7 +3,7 @@ import SectionSubTitle from "../../components/Settings/SectionSubTitle";
 import { Schemas, revalidatePath, server } from "../../utils/serverApi";
 import Variants from "../../components/Settings/VariantsList";
 import { Setting, SmartSetting } from "../../components/Settings/Setting";
-import { Show } from "solid-js";
+import { ErrorBoundary, Show } from "solid-js";
 import { useNotifications } from "../../context/NotificationContext";
 import SettingsProvider, {
   useSettingsContext,
@@ -13,6 +13,7 @@ import { Button } from "@/ui/button";
 import { SETTINGS } from "@/utils/settingsDescriptors";
 import { LanguagePicker } from "@/components/Settings/LanguagePicker";
 import { queryApi } from "@/utils/queryApi";
+import { errorBoundaryFallback } from "@/components/Error";
 
 export type SettingsObject = {
   [K in Schemas["ConfigSchema"][number]["key"]]: Extract<
@@ -130,14 +131,16 @@ export default function GeneralSettingsPage() {
   );
 
   return (
-    <Show when={remoteSettings.data}>
-      {(settings) => (
-        <div id="settings" class="flex h-full justify-between">
-          <SettingsProvider initialSettings={settings()}>
-            <GeneralSettings />
-          </SettingsProvider>
-        </div>
-      )}
-    </Show>
+    <ErrorBoundary fallback={errorBoundaryFallback("Failed to load settings")}>
+      <Show when={remoteSettings.data}>
+        {(settings) => (
+          <div id="settings" class="flex h-full justify-between">
+            <SettingsProvider initialSettings={settings()}>
+              <GeneralSettings />
+            </SettingsProvider>
+          </div>
+        )}
+      </Show>
+    </ErrorBoundary>
   );
 }

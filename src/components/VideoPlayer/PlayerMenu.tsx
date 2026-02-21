@@ -260,7 +260,7 @@ export default function PlayerMenu(props: MenuProps) {
       style={{
         height: `${menuHeight()}px`,
       }}
-      class="bg-primary-foreground/80 flex w-80 flex-col overflow-hidden rounded-md px-2 transition-all"
+      class="bg-secondary/80 text-secondary-foreground flex w-80 flex-col overflow-hidden rounded-md px-2 transition-all"
     >
       <div class="w-full overflow-y-auto">
         <Show when={menu() !== "main"}>

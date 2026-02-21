@@ -14,7 +14,6 @@ import {
 } from "solid-js";
 import { Meta } from "@solidjs/meta";
 import { formatSE } from "../utils/formats";
-import Title from "../utils/Title";
 import {
   ExtendedEpisode,
   ExtendedShow,
@@ -33,6 +32,8 @@ import Hls from "hls.js";
 import { getRouteApi, Link, linkOptions } from "@tanstack/solid-router";
 import { queryApi } from "@/utils/queryApi";
 import { useQuery } from "@tanstack/solid-query";
+import WatchSessionProvider from "./Watch/WatchSessionContext";
+import { MediaSessionState } from "@/lib/mediaSession";
 
 export type SubtitlesOrigin = "container" | "api" | "local" | "imported";
 
@@ -108,8 +109,10 @@ export function WatchMovie() {
   );
 
   createEffect(() => {
-    if ("mediaSession" in navigator && movie.data) {
-      navigator.mediaSession.metadata = movieMediaSessionMetadata(movie.data);
+    if ("mediaSession" in navigator && movie.isSuccess) {
+      navigator.mediaSession.metadata = movieMediaSessionMetadata(
+        movie.latest()!,
+      );
     } else {
       tracing.warn("Media session api is not supported by the browser");
     }
@@ -117,22 +120,20 @@ export function WatchMovie() {
 
   return (
     <>
-      <Show when={movie.data && videos.data}>
-        {(data) => (
-          <Watch media={movie.data!} videos={videos.data!}>
-            <div class="absolute top-5 left-5">
-              <Link
-                to={"/movies/$id"}
-                params={{ id: params().id }}
-                search={{ provider: movie.data!.metadata_provider }}
-              >
-                <span class="text-2xl hover:underline">
-                  {movie.data!.title}
-                </span>
-              </Link>
-            </div>
-          </Watch>
-        )}
+      <Show when={movie.isSuccess && videos.isSuccess}>
+        <Watch media={movie.latest()!} videos={videos.latest()!}>
+          <div class="absolute top-5 left-5">
+            <Link
+              to={"/movies/$id"}
+              params={{ id: params().id }}
+              search={{ provider: movie.latest()!.metadata_provider }}
+            >
+              <span class="text-2xl hover:underline">
+                {movie.latest()!.title}
+              </span>
+            </Link>
+          </div>
+        </Watch>
       </Show>
     </>
   );
@@ -208,7 +209,7 @@ export function WatchShow() {
     "/api/video/by_content",
     () => ({
       params: {
-        query: { content_type: "show", id: +episode.data?.metadata_id! },
+        query: { content_type: "show", id: +episode.latest()?.metadata_id! },
       },
     }),
     () => ({
@@ -248,67 +249,62 @@ export function WatchShow() {
   );
 
   createEffect(() => {
-    if ("mediaSession" in navigator && episode.data && show.data) {
+    if ("mediaSession" in navigator && episode.isSuccess && show.isSuccess) {
       navigator.mediaSession.metadata = showMediaSessionMetadata(
-        episode.data,
-        show.data,
+        episode.latest()!,
+        show.latest()!,
       );
     }
   });
 
   return (
     <>
-      <Show when={episode.data && videos.data}>
-        {(data) => (
-          <>
-            <Title
-              text={`${show.data!.title} S${formatSE(episode.data!.season_number)}E${formatSE(episode.data!.number)}`}
-            />
-            <Meta property="og-image" content={episode.data!.poster ?? ""} />
-            <Watch
-              media={episode.data}
-              next={nextEpisode.data}
-              videos={videos.data!}
-            >
-              <div class="absolute top-5 left-5 flex flex-col">
-                <span class="text-2xl">{episode.data!.title}</span>
-                <div class="flex gap-2">
-                  <Link
-                    to={"/shows/$id"}
-                    params={{ id: params().id }}
-                    search={{ provider: "local" }}
-                  >
-                    <span class="text-sm hover:underline">
-                      {show.data!.title}
-                    </span>
-                  </Link>
-                  <Link
-                    to={"/shows/$id"}
-                    params={{ id: params().id }}
-                    search={{ provider: "local", season: +params().season }}
-                  >
-                    <span class="text-sm hover:underline">
-                      Season {episode.data!.season_number}
-                    </span>
-                  </Link>
-                  <Link
-                    to={"/shows/$id/$season/$episode"}
-                    params={{
-                      id: params().id,
-                      season: params().season,
-                      episode: params().episode,
-                    }}
-                    search={{ provider: "local" }}
-                  >
-                    <span class="text-sm hover:underline">
-                      Episode {episode.data!.number}
-                    </span>
-                  </Link>
-                </div>
+      <Show when={episode.latest() && videos.latest()}>
+        <>
+          <Meta property="og-image" content={episode.latest()!.poster ?? ""} />
+          <Watch
+            media={episode.latest()}
+            next={nextEpisode.latest()}
+            videos={videos.latest()!}
+          >
+            <div class="absolute top-5 left-5 flex flex-col">
+              <span class="text-2xl">{episode.latest()!.title}</span>
+              <div class="flex gap-2">
+                <Link
+                  to={"/shows/$id"}
+                  params={{ id: params().id }}
+                  search={{ provider: "local" }}
+                >
+                  <span class="text-sm hover:underline">
+                    {show.latest()!.title}
+                  </span>
+                </Link>
+                <Link
+                  to={"/shows/$id"}
+                  params={{ id: params().id }}
+                  search={{ provider: "local", season: +params().season }}
+                >
+                  <span class="text-sm hover:underline">
+                    Season {episode.latest()!.season_number}
+                  </span>
+                </Link>
+                <Link
+                  to={"/shows/$id/$season/$episode"}
+                  params={{
+                    id: params().id,
+                    season: params().season,
+                    episode: params().episode,
+                  }}
+                  search={{ provider: "local" }}
+                >
+                  <span class="text-sm hover:underline">
+                    Episode {episode.latest()!.number}
+                  </span>
+                </Link>
               </div>
-            </Watch>
-          </>
-        )}
+            </div>
+          </Watch>
+        </>
       </Show>
     </>
   );
@@ -328,55 +324,12 @@ export type StreamParams = (
   streamId: string;
 };
 
-function initHls() {
-  let hls = new Hls({
-    maxBufferLength: 30,
-    lowLatencyMode: false,
-    backBufferLength: Infinity,
-  });
-  hls.on(Hls.Events.MANIFEST_PARSED, (_event, data) => {
-    tracing.debug(
-      "Manifest loaded, found " + data.levels.length + " quality level",
-    );
-  });
-  hls.on(Hls.Events.BACK_BUFFER_REACHED, (_event, _data) => {
-    console.log("back buffer reached");
-  });
-  hls.on(Hls.Events.BUFFER_EOS, (_event, _data) => {
-    console.log("Buffer eos");
-  });
-  hls.on(Hls.Events.ERROR, (_event, data) => {
-    console.log(data);
-    if (data.fatal) {
-      switch (data.type) {
-        case Hls.ErrorTypes.MEDIA_ERROR:
-          tracing.error("Fatal media error encountered, trying to recover");
-          hls.recoverMediaError();
-          break;
-        case Hls.ErrorTypes.NETWORK_ERROR:
-          tracing.error("Fatal network error encountered trying to recover");
-          hls.startLoad();
-          break;
-        default:
-          // cannot recover
-          hls.destroy();
-          break;
-      }
-    }
-  });
-  return hls;
-}
-
 function Watch(props: WatchProps) {
   // todo: deligate a separate route
   let route = getRouteApi("/watch");
   let search = route.useSearch();
   let [{ serverStatus }] = useServerStatus();
   let [, { addNotification }] = useNotificationsContext();
-
-  let streamPending = false;
-
-  let hls = initHls();
 
   let video = createMemo(() => {
     let query = search().video_id;
@@ -391,98 +344,10 @@ function Watch(props: WatchProps) {
     return props.videos[0];
   });
 
-  let streamParams = useQuery(() => ({
-    queryFn: async () => {
-      if (streamPending) {
-        await handleUnload();
-      }
-      let compatibility = await video().videoCompatibility();
-      if (
-        compatibility?.combined?.supported &&
-        containerSupport(video().details.container)
-      ) {
-        tracing.debug("Selected direct playback method");
-        let streamId = await server
-          .POST("/api/watch/direct/start/{id}", {
-            params: { path: { id: video().details.id } },
-            body: { variant_id: undefined },
-          })
-          .then(
-            notifyResponseErrors(
-              addNotification,
-              "start direct play job",
-              props.media,
-            ),
-          )
-          .then(throwResponseErrors)
-          .then((d) => {
-            serverStatus.trackWatchSession(d.task_id);
-            return d.task_id;
-          });
-        streamPending = true;
-        return {
-          method: "direct",
-          streamId,
-          watchUrl: directStreamUrl(video().details.id),
-        } as const;
-      } else {
-        let audio_codec: Schemas["AudioCodec"] | undefined = undefined;
-        let video_codec: Schemas["VideoCodec"] | undefined = undefined;
-        if (!compatibility.audio?.supported) {
-          audio_codec = "aac";
-        }
-        if (!compatibility.video?.supported) {
-          video_codec = "h264";
-        }
-        tracing.debug(
-          {
-            video_codec,
-            audio_codec,
-          },
-          "Selected hls playback method",
-        );
-        let streamId = await server
-          .POST("/api/watch/hls/start/{id}", {
-            params: { path: { id: video().details.id } },
-            body: {
-              variant_id: undefined,
-              audio_codec,
-              video_codec,
-            },
-          })
-          .then(
-            notifyResponseErrors(addNotification, "start hls job", props.media),
-          )
-          .then(throwResponseErrors)
-          .then(({ task_id }) => {
-            serverStatus.trackWatchSession(task_id);
-            return task_id;
-          });
-        streamPending = true;
-        hls.loadSource(hlsStreamUrl(streamId));
-        return {
-          method: "hls",
-          audioCodec: audio_codec,
-          videoCodec: video_codec,
-          streamId,
-        } as const;
-      }
-    },
-    refetchOnWindowFocus: false,
-    queryKey: ["video_capabilities"],
-  }));
-
-  function handleAudioError() {
-    tracing.error("audio error encountered");
-  }
-
-  function handleVideoError() {
-    tracing.error("video error encountered");
-  }
+  let mediaSession = new MediaSessionState(video(), search().variant_id);
 
   async function handleUnload() {
-    let stream = streamParams.data;
-    let id = stream?.streamId;
+    let id = mediaSession.session?.id;
     if (id) {
       tracing.debug({ id }, "Cleaning up stream");
       await server
@@ -498,7 +363,6 @@ function Watch(props: WatchProps) {
           ),
         );
     }
-    streamPending = false;
   }
 
   window.addEventListener("beforeunload", handleUnload);
@@ -516,37 +380,33 @@ function Watch(props: WatchProps) {
       body: { time: Math.floor(time), is_finished },
       params: {
         path: { id: video().details.id },
-        query: { id: streamParams.data?.streamId },
+        query: { id: mediaSession.session?.id },
       },
     });
   }
 
   return (
-    <TracksSelectionProvider video={video()}>
-      <Show when={streamParams.data}>
-        {(params) => (
-          <VideoPlayer
-            hls={hls}
-            intro={video().details.intro ?? undefined}
-            nextVideo={props.next}
-            streamParams={params()}
-            initialTime={video().details.history?.time ?? 0}
-            onAudioError={handleAudioError}
-            onVideoError={handleVideoError}
-            onHistoryUpdate={updateHistory}
-            previews={
-              video().details.previews_count > 0
-                ? {
-                    previewsAmount: video().details.previews_count,
-                    videoId: video().details.id,
-                  }
-                : undefined
-            }
-          >
-            {props.children}
-          </VideoPlayer>
-        )}
-      </Show>
-    </TracksSelectionProvider>
+    <WatchSessionProvider>
+      <TracksSelectionProvider video={mediaSession}>
+        <VideoPlayer
+          mediaSession={mediaSession}
+          intro={video().details.intro ?? undefined}
+          nextVideo={props.next}
+          initialTime={video().details.history?.time ?? 0}
+          initialDuration={video().details.duration.secs ?? 0}
+          onHistoryUpdate={updateHistory}
+          previews={
+            video().details.previews_count > 0
+              ? {
+                  previewsAmount: video().details.previews_count,
+                  videoId: video().details.id,
+                }
+              : undefined
+          }
+        >
+          {props.children}
+        </VideoPlayer>
+      </TracksSelectionProvider>
+    </WatchSessionProvider>
   );
 }

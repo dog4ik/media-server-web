@@ -2,6 +2,7 @@ import { onCleanup } from "solid-js";
 import { fullUrl, Schemas } from "./serverApi";
 import tracing from "./tracing";
 import { useServerStatus } from "@/context/ServerStatusContext";
+import { UnavailableError } from "./errors";
 
 type EventType = Schemas["Notification"];
 
@@ -129,7 +130,12 @@ export class ServerConnection {
   }
 
   async subscribeTorrents() {
-    await this.ready;
+    await Promise.race([
+      this.ready,
+      new Promise((res) => setTimeout(res, 5_000)).then(() => {
+        throw new UnavailableError("Bittorrent timeout");
+      }),
+    ]);
     let { promise, resolve } = Promise.withResolvers<Schemas["SessionState"]>();
     this.allTorrentsPromise = resolve;
     this.send({ type: "torrentsubscribe" });
@@ -154,6 +160,7 @@ export class ServerConnection {
       }
     } else {
       tracing.warn("Socket is not ready, message is not sent");
+      throw new UnavailableError("Websocket is not ready");
     }
   }
 
@@ -201,7 +208,7 @@ export class ServerConnection {
 
   addWaker(callback: () => void) {
     if (this.socket?.readyState !== WebSocket.OPEN) {
-      tracing.debug("Registered server wakeup handler")
+      tracing.debug("Registered server wakeup handler");
       this.wakeSubscribers.add(callback);
     } else {
       callback();

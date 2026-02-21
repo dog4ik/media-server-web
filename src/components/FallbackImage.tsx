@@ -1,4 +1,5 @@
 import { Skeleton } from "@/ui/skeleton";
+import tracing from "@/utils/tracing";
 import clsx from "clsx";
 import {
   createEffect,
@@ -21,9 +22,10 @@ export default function FallbackImage(props: Props) {
   const [loading, setLoading] = createSignal(true);
   let sources = createMemo(() => [...props.srcList, "/no-photo.png"]);
   let active = true;
+  console.log("mounted fallback image");
 
   function loadImage(index: number) {
-    if (index === sources().length) {
+    if (index >= sources().length) {
       console.log("Failed to load any of image sources");
       return;
     }
@@ -32,6 +34,7 @@ export default function FallbackImage(props: Props) {
     if (url === undefined) {
       return loadImage(index + 1);
     }
+    tracing.trace({ url, sources: sources() }, "Loading image");
     const img = new Image();
     img.onload = () => {
       setCurrentImage(url);
@@ -53,11 +56,9 @@ export default function FallbackImage(props: Props) {
     setLoading(true);
     setCurrentImage(undefined);
     loadImage(0);
-
-    // cleanup to prevent outdated image loads from overwriting
-    onCleanup(() => {
-      active = false;
-    });
+  });
+  onCleanup(() => {
+    active = false;
   });
 
   return (

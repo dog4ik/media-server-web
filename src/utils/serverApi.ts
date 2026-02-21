@@ -1,6 +1,11 @@
-import createClient, { ClientMethod, ParamsOption } from "openapi-fetch";
+import createFetchClient, {
+  ClientMethod,
+  ParamsOption,
+  Middleware,
+} from "openapi-fetch";
 import type { components, paths } from "server-types";
 import tracing from "./tracing";
+import { UnavailableError } from "./errors";
 
 export function formatCodec<T extends string | { other: string }>(
   codec: T,
@@ -12,9 +17,16 @@ export const MEDIA_SERVER_URL: string = import.meta.env.PROD
   ? `${window.location.protocol}//${window.location.host}`
   : import.meta.env.VITE_MEDIA_SERVER_URL;
 
-const client = createClient<paths>({
+const client = createFetchClient<paths>({
   baseUrl: MEDIA_SERVER_URL,
 });
+
+const unavailableMiddleware: Middleware = {
+  async onError() {
+    return new UnavailableError("Network error");
+  },
+};
+client.use(unavailableMiddleware);
 
 type Media = `${string}/${string}`;
 

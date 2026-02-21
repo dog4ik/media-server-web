@@ -1,11 +1,12 @@
+import { ErrorBoundary } from "solid-js";
 import Activity from "../components/Dashboard";
-import Title from "../utils/Title";
 
 export default function Dashboard() {
   return (
     <>
-      <Title text="Dashboard" />
-      <Activity />
+      <ErrorBoundary fallback={"hello"}>
+        <Activity />
+      </ErrorBoundary>
     </>
   );
 }

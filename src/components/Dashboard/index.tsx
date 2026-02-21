@@ -6,6 +6,8 @@ import Showspense from "@/utils/Showspense";
 import { useServerStatus } from "@/context/ServerStatusContext";
 import { WatchSessions } from "./WatchSessions";
 import { queryApi } from "@/utils/queryApi";
+import { ErrorBoundary } from "solid-js";
+import { errorBoundaryFallback } from "../Error";
 
 export default function Activity() {
   let transcodeTasks = queryApi.useQuery("get", "/api/tasks/transcode");
@@ -66,26 +68,28 @@ export default function Activity() {
   return (
     <>
       <PageTitle>Activity</PageTitle>
-      <div class="w-5/6 space-y-8">
-        <Showspense
-          when={watchSessions.data}
-          fallback={<div>Loading watch sessions</div>}
-        >
-          {(tasks) => <WatchSessions tasks={tasks()} />}
-        </Showspense>
-        <Showspense
-          when={transcodeTasks.data}
-          fallback={<div>Loading transcode tasks</div>}
-        >
-          {(tasks) => <TranscodeTasks tasks={tasks()} />}
-        </Showspense>
-        <Showspense
-          when={previewsTasks.data}
-          fallback={<div>Loading previews tasks</div>}
-        >
-          {(tasks) => <PreviewsTasks tasks={tasks()} />}
-        </Showspense>
-      </div>
+      <ErrorBoundary fallback={errorBoundaryFallback()}>
+        <div class="w-5/6 space-y-8">
+          <Showspense
+            when={watchSessions.data}
+            fallback={<div>Loading watch sessions</div>}
+          >
+            {(tasks) => <WatchSessions tasks={tasks()} />}
+          </Showspense>
+          <Showspense
+            when={transcodeTasks.data}
+            fallback={<div>Loading transcode tasks</div>}
+          >
+            {(tasks) => <TranscodeTasks tasks={tasks()} />}
+          </Showspense>
+          <Showspense
+            when={previewsTasks.data}
+            fallback={<div>Loading previews tasks</div>}
+          >
+            {(tasks) => <PreviewsTasks tasks={tasks()} />}
+          </Showspense>
+        </div>
+      </ErrorBoundary>
     </>
   );
 }

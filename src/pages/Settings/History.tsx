@@ -1,9 +1,16 @@
 import { Schemas, server } from "../../utils/serverApi";
-import { For, Match, Show, Switch } from "solid-js";
+import {
+  ErrorBoundary,
+  For,
+  Match,
+  onCleanup,
+  onMount,
+  Show,
+  Switch,
+} from "solid-js";
 import ProgressBar from "../../components/Cards/ProgressBar";
 import { FiX } from "solid-icons/fi";
 import FallbackImage from "../../components/FallbackImage";
-import useInfiniteScroll from "../../utils/useInfiniteScroll";
 import {
   extendMovie,
   extendEpisode,
@@ -13,7 +20,10 @@ import {
 import { Card, CardContent } from "@/ui/card";
 import { Button } from "@/ui/button";
 import { Link, linkOptions } from "@tanstack/solid-router";
-import { queryApi } from "@/utils/queryApi";
+import { queryApi, queryClient } from "@/utils/queryApi";
+import { errorBoundaryFallback } from "@/components/Error";
+import { useInfiniteQuery } from "@tanstack/solid-query";
+import { throwResponseErrors } from "@/utils/errors";
 
 type DisplayEpisodeProps = {
   metadata: Schemas["VideoContentMetadata"] & { content_type: "episode" };
@@ -184,54 +194,75 @@ function HistoryEntry(props: HistoryEntryProps) {
 }
 
 export default function History() {
-  async function fetchHistory(
-    cursor: string | undefined | null,
-    signal: AbortSignal,
-  ) {
-    return await server
-      .GET("/api/history", {
-        params: { query: { cursor, take: 10 } },
-        signal,
-      })
-      .then((d) => d.data);
-  }
+  let observable!: HTMLDivElement;
 
-  let observable: HTMLDivElement = {} as any;
+  const history = useInfiniteQuery(() => ({
+    queryKey: ["history"],
+    queryFn: async ({ pageParam, signal }) => {
+      const res = await server
+        .GET("/api/history", {
+          params: { query: { cursor: pageParam, take: 10 } },
+          signal,
+        })
+        .then(throwResponseErrors);
+      return res;
+    },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.cursor ?? undefined,
+  }));
 
-  let [history, { isLoading, reachedEnd, removeIdx }] = useInfiniteScroll(
-    fetchHistory,
-    () => observable,
-  );
+  const allHistory = () => history.data?.pages.flatMap((p) => p.data) ?? [];
 
-  function handleRemove(idx: number) {
-    let id = history()[idx].video_id;
+  onMount(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (
+          entry.isIntersecting &&
+          history.hasNextPage &&
+          !history.isFetchingNextPage
+        ) {
+          history.fetchNextPage();
+        }
+      },
+      { threshold: 0 },
+    );
+    observer.observe(observable);
+    onCleanup(() => observer.disconnect());
+  });
+
+  function handleRemove(videoId: number) {
     server
-      .DELETE("/api/video/{id}/history", { params: { path: { id } } })
+      .DELETE("/api/video/{id}/history", {
+        params: { path: { id: videoId } },
+      })
       .then((res) => {
         if (!res.error) {
-          removeIdx(idx);
+          queryClient.invalidateQueries({ queryKey: ["history"] });
         }
       });
   }
 
   return (
-    <>
+    <ErrorBoundary fallback={errorBoundaryFallback("Failed to load history")}>
       <div class="max-w-5xl space-y-4">
-        <For each={history()}>
-          {(entry, i) => (
-            <HistoryEntry history={entry} onRemove={() => handleRemove(i())} />
+        <For each={allHistory()}>
+          {(entry) => (
+            <HistoryEntry
+              history={entry}
+              onRemove={() => handleRemove(entry.video_id)}
+            />
           )}
         </For>
       </div>
-      <Show when={isLoading()}>
+      <Show when={history.isFetchingNextPage}>
         <span class="loading loading-spinner loading-lg" />
       </Show>
-      <Show when={reachedEnd()}>
+      <Show when={history.hasNextPage === false && allHistory().length > 0}>
         <div class="mt-12 flex items-center justify-center">
           <span class="text-3xl">You are all caught up</span>
         </div>
       </Show>
       <div class="min-h-1" ref={observable!} />
-    </>
+    </ErrorBoundary>
   );
 }

@@ -3,32 +3,30 @@ import {
   NotFoundError,
   ParseParamsError,
   InternalServerError,
+  UnavailableError,
+  BaseError,
 } from "@/utils/errors";
 import { MEDIA_SERVER_URL } from "@/utils/serverApi";
 import { FiSearch, FiSmile, FiWifiOff } from "solid-icons/fi";
-import { ErrorBoundary, JSX, ParentProps, Show } from "solid-js";
-
-export default function GlobalErrorBoundary(props: ParentProps) {
-  return (
-    <ErrorBoundary fallback={ErrorDisplay}>{props.children}</ErrorBoundary>
-  );
-}
+import {
+  ComponentProps,
+  ErrorBoundary,
+  JSX,
+  ParentProps,
+  Show,
+} from "solid-js";
 
 function ErrorLayout(props: ParentProps) {
   return (
-    <div class="flex h-full w-full items-center justify-center">
+    <div class="flex size-full items-center justify-center">
       {props.children}
     </div>
   );
 }
 
-type ErrorProps = {
-  onReset: () => void;
-};
-
 function ServerUnavailable() {
   return (
-    <div class="flex max-w-md flex-col items-center gap-5 rounded-md bg-black p-6">
+    <div class="bg-card flex max-w-md flex-col items-center gap-5 rounded-md p-6">
       <span class="text-xl">Server is not available</span>
       <p class="text-center">
         Make sure it's on and reachable by url:{" "}
@@ -42,10 +40,44 @@ function ServerUnavailable() {
   );
 }
 
-function ErrorDisplay(err: Error, reset: () => void) {
-  console.error(err);
+type Props = {
+  err: Error;
+  reset: () => void;
+  context?: string;
+};
 
-  if (err instanceof TypeError && err.message == "Failed to fetch") {
+export function ApplicationErrorBoundary(
+  props: ComponentProps<typeof ErrorBoundary>,
+) {
+  return (
+    <ErrorBoundary
+      fallback={(err, reset) => {
+        if (!(err instanceof BaseError) || err instanceof UnavailableError) {
+          throw err;
+        }
+        if (typeof props.fallback === "function") {
+          return props.fallback(err, reset);
+        }
+        return props.fallback;
+      }}
+    >
+      {props.children}
+    </ErrorBoundary>
+  );
+}
+
+export function errorBoundaryFallback(
+  context?: string,
+): (err: any, reset: () => void) => JSX.Element {
+  return (err, reset) => {
+    return <ErrorComponent err={err} reset={reset} context={context} />;
+  };
+}
+
+export function ErrorComponent(props: Props) {
+  console.error(props.err);
+
+  if (props.err instanceof UnavailableError) {
     return (
       <ErrorLayout>
         <ServerUnavailable />
@@ -53,7 +85,7 @@ function ErrorDisplay(err: Error, reset: () => void) {
     );
   }
 
-  if (err instanceof ParseParamsError) {
+  if (props.err instanceof ParseParamsError) {
     return (
       <ErrorLayout>
         <GenericError title="Url params are incorrect" />
@@ -61,38 +93,40 @@ function ErrorDisplay(err: Error, reset: () => void) {
     );
   }
 
-  if (err instanceof NotFoundError) {
+  if (props.err instanceof NotFoundError) {
     return (
       <ErrorLayout>
         <GenericError
           icon={<FiSearch size={40} />}
-          message={err.message}
+          message={props.err.message}
           title="Requested resource is not found"
         />
       </ErrorLayout>
     );
   }
 
-  if (err instanceof InternalServerError) {
+  if (props.err instanceof InternalServerError) {
     return (
       <ErrorLayout>
         <GenericError
-          title="Internal server error"
-          message={err.message}
+          title="Internal server props.error"
+          message={props.err.message}
           icon={<FiSmile size={40} />}
         />
       </ErrorLayout>
     );
   }
 
-  console.error(err);
+  console.error(props.err);
 
   return (
     <ErrorLayout>
       <div class="flex flex-col">
-        <span>Unhandled error boundary</span>
-        <span>Error: {err.message}</span>
-        <Button onClick={reset}>Reset</Button>
+        <span>Unhandled props.error boundary</span>
+        <span>
+          Error: {props.context ?? props.err.message ?? "Unknown error"}
+        </span>
+        <Button onClick={props.reset}>Reset</Button>
       </div>
     </ErrorLayout>
   );
@@ -107,18 +141,14 @@ type GenericErrorProps = {
 
 function GenericError(props: GenericErrorProps) {
   return (
-    <div class="flex max-w-md flex-col items-center gap-5 rounded-md bg-black p-6">
+    <div class="bg-card flex max-w-md flex-col items-center gap-5 rounded-md p-6">
       <span class="text-xl">{props.title}</span>
       <Show when={props.message}>
         {(message) => <p class="text-center">{message()}</p>}
       </Show>
       <Show when={props.icon}>{props.icon}</Show>
       <Show when={props.retry}>
-        {(retry) => (
-          <Button onClick={retry}>
-            Try again
-          </Button>
-        )}
+        {(retry) => <Button onClick={retry}>Try again</Button>}
       </Show>
     </div>
   );

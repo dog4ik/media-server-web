@@ -530,8 +530,17 @@ export class Video {
       this.defaultAudio(),
     );
   }
-  videoCompatibility() {
-    return isCompatible(this.defaultVideo(), this.defaultAudio());
+
+  videoCompatibility(config?: { audio_track?: number; video_track?: number }) {
+    let video =
+      config?.video_track === undefined
+        ? this.defaultVideo()
+        : this.details.video_tracks[config.video_track];
+    let audio =
+      config?.audio_track === undefined
+        ? this.defaultAudio()
+        : this.details.audio_tracks[config.audio_track];
+    return isCompatible(video, audio);
   }
 
   fetchMetadata() {

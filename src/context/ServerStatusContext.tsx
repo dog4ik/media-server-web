@@ -18,7 +18,6 @@ import {
   Video,
 } from "@/utils/library";
 import { ServerConnection } from "@/utils/serverStatus";
-import { queryApi } from "@/utils/queryApi";
 
 type ServerStatusType = ReturnType<typeof createServerStatusContext>;
 
@@ -138,11 +137,6 @@ function notificationProps(
 function createServerStatusContext(
   notificator: ReturnType<typeof useRawNotifications>,
 ) {
-  let capabilities = queryApi.useQuery(
-    "get",
-    "/api/configuration/capabilities",
-  );
-
   let [isConnecting, setIsConnecting] = createSignal(true);
   let [isErrored, setIsErrored] = createSignal(false);
 
@@ -267,7 +261,6 @@ function createServerStatusContext(
     {
       isConnecting,
       isErrored,
-      capabilities,
       serverStatus,
     },
     { addWakeSubscriber, removeWakeSubscriber },

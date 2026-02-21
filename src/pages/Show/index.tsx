@@ -9,7 +9,7 @@ import {
 } from "solid-js";
 import { Description, DescriptionSkeleton } from "@/components/Description";
 import SeasonsCarousel from "@/components/ShowView/SeasonsCarousel";
-import { fullUrl, Schemas, server } from "@/utils/serverApi";
+import { fullUrl, server } from "@/utils/serverApi";
 import { HoverArea, setBackdrop } from "@/context/BackdropContext";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
 import { extendShow, posterList } from "@/utils/library";
@@ -21,6 +21,7 @@ import { queryApi } from "@/utils/queryApi";
 import { getRouteApi } from "@tanstack/solid-router";
 import { SuspenseLoader } from "@/components/Loader";
 import { ExternalLocalIdButtons } from "@/components/ExternalLocalIdButtons";
+import * as torrentQuery from "@/lib/torrentQuery";
 
 export default function ShowPage() {
   let route = getRouteApi("/page/shows/$id");
@@ -46,7 +47,10 @@ export default function ShowPage() {
     () => search().season ?? show.latest()?.seasons?.at(0),
   );
 
-  let [{ capabilities }] = useServerStatus();
+  let capabilities = queryApi.useQuery(
+    "get",
+    "/api/configuration/capabilities",
+  );
 
   createEffect(() => {
     console.log("running show backdrop effect");
@@ -108,111 +112,96 @@ export default function ShowPage() {
 
   return (
     <Suspense>
-      <div class="space-y-5 p-4">
-        <Switch>
-          <Match when={show.isLoading}>
-            <DescriptionSkeleton direction="vertical" />
-          </Match>
-          <Match when={show.latest()}>
-            {(show) => (
-              <>
-                <Suspense>
-                  <DownloadTorrentModal
-                    open={downloadModal()}
-                    onClose={() => setDownloadModal(false)}
-                    metadata_id={show().metadata_id}
-                    metadata_provider={search().provider}
-                    query={() => show().friendlyTitle()}
-                    content_type="show"
-                  />
-                </Suspense>
-                <div class="grid grid-cols-4 items-center gap-2">
-                  <div class="hover-hide col-span-3">
-                    <Description
-                      title={show().title}
-                      posterList={posterList(show())}
-                      plot={show().plot}
-                      imageDirection="vertical"
-                      additionalInfo={
-                        show().release_date
-                          ? [{ info: show().release_date!, link: undefined }]
-                          : undefined
-                      }
-                    >
-                      <div class="flex items-center gap-2">
+      <Switch>
+        <Match when={show.isLoading}>
+          <DescriptionSkeleton direction="vertical" />
+        </Match>
+        <Match when={show.latest()}>
+          {(show) => (
+            <>
+              <Suspense>
+                <DownloadTorrentModal
+                  open={downloadModal()}
+                  onClose={() => setDownloadModal(false)}
+                  metadata_id={show().metadata_id}
+                  metadata_provider={search().provider}
+                  query={(p) => torrentQuery.SHOW_FORMATTER[p](show())}
+                  content_type="show"
+                />
+              </Suspense>
+              <div class="grid grid-cols-4 items-center gap-2">
+                <div class="hover-hide col-span-3">
+                  <Description
+                    title={show().title}
+                    posterList={posterList(show())}
+                    plot={show().plot}
+                    imageDirection="vertical"
+                    additionalInfo={
+                      show().release_date
+                        ? [{ info: show().release_date!, link: undefined }]
+                        : undefined
+                    }
+                  >
+                    <div class="flex items-center gap-2">
+                      <Icon
+                        tooltip="Download"
+                        onClick={() => setDownloadModal(true)}
+                      >
+                        <FiDownload size={30} />
+                      </Icon>
+                      <Show when={show().metadata_provider == "local"}>
                         <Icon
-                          tooltip="Download"
-                          onClick={() => setDownloadModal(true)}
+                          tooltip={
+                            capabilities.latest()?.chromaprint_enabled
+                              ? `Detect intros for season ${seasonNumber()}`
+                              : "Intro detection is not supported by local ffmpeg build"
+                          }
+                          disabled={!capabilities.latest()?.chromaprint_enabled}
+                          onClick={() => detectIntros()}
                         >
-                          <FiDownload size={30} />
+                          <FiSkipForward size={30} />
                         </Icon>
-                        <Show when={show().metadata_provider == "local"}>
-                          <Icon
-                            tooltip={
-                              capabilities.latest()?.chromaprint_enabled
-                                ? `Detect intros for season ${seasonNumber()}`
-                                : "Intro detection is not supported by local ffmpeg build"
-                            }
-                            disabled={
-                              !capabilities.latest()?.chromaprint_enabled
-                            }
-                            onClick={() => detectIntros()}
-                          >
-                            <FiSkipForward size={30} />
-                          </Icon>
-                        </Show>
-                        <ExternalLocalIdButtons
-                          contentType="show"
-                          provider={search().provider}
-                          season={seasonNumber()}
-                          id={params().id}
-                        />
-                      </div>
-                    </Description>
-                  </div>
-                  <div class="z-20 col-span-1">
-                    <HoverArea />
-                  </div>
+                      </Show>
+                      <ExternalLocalIdButtons
+                        contentType="show"
+                        provider={search().provider}
+                        season={seasonNumber()}
+                        id={params().id}
+                      />
+                    </div>
+                  </Description>
                 </div>
-              </>
-            )}
-          </Match>
-        </Switch>
-        <div class="hover-hide">
-          <Show when={show.latest()?.seasons}>
-            {(seasons) => (
-              <SeasonsCarousel
-                tabs={seasons()}
-                onChange={(season) => setSelectedSeason(season)}
+                <div class="z-20 col-span-1">
+                  <HoverArea />
+                </div>
+              </div>
+            </>
+          )}
+        </Match>
+      </Switch>
+      <div class="hover-hide">
+        <Show when={show.latest()?.seasons}>
+          {(seasons) => (
+            <SeasonsCarousel
+              tabs={seasons()}
+              onChange={(season) => setSelectedSeason(season)}
+            />
+          )}
+        </Show>
+        <SuspenseLoader name={`"Season ${seasonNumber()}`}>
+          <Show when={seasonNumber()}>
+            {(season) => (
+              <Season
+                season={season()}
+                initialTorrentQuery={(p) =>
+                  torrentQuery.SEASON_FORMATTER[p](show.latest()!, season())
+                }
+                showId={params().id}
+                canDetectIntros={true}
               />
             )}
           </Show>
-          <SuspenseLoader name={`"Season ${seasonNumber()}`}>
-            <Show when={seasonNumber()}>
-              {(season) => {
-                let torrentQuery = (
-                  provider: Schemas["TorrentIndexIdentifier"],
-                ) => {
-                  if (provider == "tpb") {
-                    return `${show.latest()?.title} Season ${seasonNumber()}`;
-                  }
-                  if (provider == "rutracker") {
-                    return `${show.latest()?.title} Сезон: ${seasonNumber()}`;
-                  }
-                  throw Error(`Provider ${provider} is not supported`);
-                };
-                return (
-                  <Season
-                    season={season()}
-                    initialTorrentQuery={torrentQuery}
-                    showId={params().id}
-                    canDetectIntros={true}
-                  />
-                );
-              }}
-            </Show>
-          </SuspenseLoader>
-        </div>
+        </SuspenseLoader>
       </div>
     </Suspense>
   );

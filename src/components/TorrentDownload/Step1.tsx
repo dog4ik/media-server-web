@@ -1,7 +1,7 @@
 import { BiRegularMagnet } from "solid-icons/bi";
 import { formatSize, formatTorrentIndex } from "@/utils/formats";
 import { Schemas, server } from "@/utils/serverApi";
-import { createSignal, For, Show, Suspense } from "solid-js";
+import { createSignal, For, Match, Show, Suspense, Switch } from "solid-js";
 import {
   Table,
   TableBody,
@@ -122,6 +122,21 @@ function SearchError(props: { message: string }) {
   );
 }
 
+function TorrentListTableHeader() {
+  return (
+    <TableHeader>
+      <TableRow class="text-white">
+        <TableHead>Name</TableHead>
+        <TableHead>Author</TableHead>
+        <TableHead>Seeders</TableHead>
+        <TableHead>Leechers</TableHead>
+        <TableHead>Size</TableHead>
+        <TableHead>Magnet</TableHead>
+      </TableRow>
+    </TableHeader>
+  );
+}
+
 export default function Step1(props: Props) {
   let [selectedProvider, setSelectedProvider] =
     createSignal<Schemas["TorrentIndexIdentifier"]>("tpb");
@@ -130,8 +145,6 @@ export default function Step1(props: Props) {
     300,
     props.downloadQuery(selectedProvider()),
   );
-
-  let searchAbortController: AbortController | undefined = undefined;
 
   function handleProviderChange(provider: Schemas["TorrentIndexIdentifier"]) {
     if (selectedProvider() != provider) {
@@ -159,7 +172,7 @@ export default function Step1(props: Props) {
   );
 
   return (
-    <div class="h-full overflow-y-auto">
+    <Suspense>
       <div class="flex items-center space-x-2">
         <TextField value={query()} onChange={setQuery} class="w-full">
           <TextFieldInput />
@@ -188,45 +201,49 @@ export default function Step1(props: Props) {
           <SelectContent />
         </Select>
       </div>
-      <Table class="table">
-        <TableHeader>
-          <TableRow class="text-white">
-            <TableHead>Name</TableHead>
-            <TableHead>Author</TableHead>
-            <TableHead>Seeders</TableHead>
-            <TableHead>Leechers</TableHead>
-            <TableHead>Size</TableHead>
-            <TableHead>Magnet</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <Show
-            when={torrentSearch.isPlaceholderData || torrentSearch.isSuccess}
-            fallback={[...Array(10)].map(() => (
-              <TableRowSkeleton />
-            ))}
+      <div>
+        <Switch
+          fallback={
+            <Table class="table">
+              <TorrentListTableHeader />
+              <TableBody class="overflow-auto">
+                <For each={[...Array(10)]}>{() => <TableRowSkeleton />}</For>
+              </TableBody>
+            </Table>
+          }
+        >
+          <Match
+            when={
+              !torrentSearch.isFetching && torrentSearch.latest()?.length === 0
+            }
           >
-            <For each={torrentSearch.data}>
-              {(res) => (
-                <TorrentResult
-                  grayOut={
-                    torrentSearch.isFetching && torrentSearch.isPlaceholderData
-                  }
-                  onClick={props.onSelect}
-                  result={res}
-                />
-              )}
-            </For>
-          </Show>
-        </TableBody>
-      </Table>
-      <Show
-        when={!torrentSearch.isFetching && torrentSearch.latest()?.length === 0}
-      >
-        <div class="flex size-full items-center justify-center">
-          <h3 class="text-4xl text-white">No results</h3>
-        </div>
-      </Show>
-    </div>
+            <div class="flex size-full items-center justify-center">
+              <h3 class="text-4xl text-white">No results</h3>
+            </div>
+          </Match>
+          <Match
+            when={torrentSearch.isPlaceholderData || torrentSearch.isSuccess}
+          >
+            <Table class="table">
+              <TorrentListTableHeader />
+              <TableBody class="h-60 overflow-auto">
+                <For each={torrentSearch.latest()}>
+                  {(res) => (
+                    <TorrentResult
+                      grayOut={
+                        torrentSearch.isFetching &&
+                        torrentSearch.isPlaceholderData
+                      }
+                      onClick={props.onSelect}
+                      result={res}
+                    />
+                  )}
+                </For>
+              </TableBody>
+            </Table>
+          </Match>
+        </Switch>
+      </div>
+    </Suspense>
   );
 }

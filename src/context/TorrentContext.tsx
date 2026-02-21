@@ -19,7 +19,6 @@ import {
   getCoreRowModel,
   getExpandedRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   VisibilityState,
@@ -31,7 +30,11 @@ type TorrentContextType = ReturnType<typeof createTorrentContext>;
 
 export const TorrentContext = createContext<TorrentContextType>();
 
-export const useTorrentContext = () => useContext(TorrentContext)!;
+export const useTorrentContext = () => {
+  let ctx = useContext(TorrentContext)!;
+  if (!ctx) throw Error("torrent context is not available");
+  return ctx;
+};
 
 export type FilterType = Schemas["DownloadState"]["type"] | "all";
 
@@ -116,7 +119,6 @@ function createTorrentContext(sessionState: TorrentStateManager) {
     autoResetExpanded: true,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
   });
@@ -144,11 +146,17 @@ type ContextProps = {
   sessionState: TorrentStateManager;
 } & ParentProps;
 
+let _torrentContextValue: ReturnType<typeof createTorrentContext> | undefined;
+
 export function TorrentProvider(props: ContextProps) {
   tracing.debug("Rendering torrent context provider");
-  let context = createTorrentContext(props.sessionState);
+
+  if (!_torrentContextValue) {
+    _torrentContextValue = createTorrentContext(props.sessionState);
+  }
+
   return (
-    <TorrentContext.Provider value={context}>
+    <TorrentContext.Provider value={_torrentContextValue}>
       {props.children}
     </TorrentContext.Provider>
   );

@@ -3,20 +3,21 @@ import { splitProps } from "solid-js";
 
 import { cx } from "cva";
 
-export type TableProps = ComponentProps<"table">;
+export type TableProps = ComponentProps<"table"> & { parentClass?: string };
 
 export const Table = (props: TableProps) => {
-  const [, rest] = splitProps(props, ["class"]);
+  const [, rest] = splitProps(props, ["class", "parentClass"]);
 
   return (
-    <div data-slot="table-container" class="relative w-full">
-      <div class="overflow-x-auto">
-        <table
-          data-slot="table"
-          class={cx("w-full caption-bottom text-sm", props.class)}
-          {...rest}
-        />
-      </div>
+    <div
+      data-slot="table-container"
+      class={cx("relative w-full overflow-x-auto", props.parentClass)}
+    >
+      <table
+        data-slot="table"
+        class={cx("w-full caption-bottom text-sm", props.class)}
+        {...rest}
+      />
     </div>
   );
 };

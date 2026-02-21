@@ -60,6 +60,7 @@ function EntryRow(props: EntryRowProps) {
       disabled={props.disabled}
       onClick={() => !props.disabled && props.onClick()}
       class={`flex max-w-full items-center gap-2 truncate overflow-hidden p-2 whitespace-nowrap ${props.disabled ? "text-neutral-400" : "text-white"}`}
+      type="button"
       title={props.title}
     >
       <div>

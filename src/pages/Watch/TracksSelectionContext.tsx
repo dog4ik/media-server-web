@@ -1,8 +1,8 @@
-import { Video } from "@/utils/library";
+import { MediaSessionState } from "@/lib/mediaSession";
 import { Schemas, server } from "@/utils/serverApi";
 import tracing from "@/utils/tracing";
 import { useQuery } from "@tanstack/solid-query";
-import { ParentProps, createContext, useContext } from "solid-js";
+import { ParentProps, createContext, createMemo, useContext } from "solid-js";
 import { createStore, unwrap } from "solid-js/store";
 
 type TracksSelectionContextType = ReturnType<typeof createSelectionContext>;
@@ -82,7 +82,8 @@ export function isBrowserAudioTracksSupported() {
   return typeof "AudioTracks" != "undefined";
 }
 
-function createSelectionContext(video: () => Video) {
+function createSelectionContext(session: () => MediaSessionState) {
+  let video = createMemo(() => session().video);
   let [store, setStore] = createStore<TracksSelection>({
     video: video().defaultVideo(),
     audio: video().defaultAudio(),
@@ -158,11 +159,7 @@ function createSelectionContext(video: () => Video) {
       if (!atracks) return;
       for (let i = 0; i < atracks.length; ++i) {
         let t = atracks[i];
-        if (i == index) {
-          t.enabled = true;
-        } else {
-          t.enabled = false;
-        }
+        t.enabled = i == index;
       }
     }
     setStore("audio", video().details.audio_tracks[index]);
@@ -181,11 +178,7 @@ function createSelectionContext(video: () => Video) {
     }
     if (element) {
       elementVideoTracks(element)?.forEach((t, i) => {
-        if (i == index) {
-          t.enabled = true;
-        } else {
-          t.enabled = false;
-        }
+        t.enabled = i == index;
       });
     }
     setStore("video", video().details.video_tracks[index]);
@@ -258,7 +251,7 @@ function createSelectionContext(video: () => Video) {
   ] as const;
 }
 
-type Props = { video: Video } & ParentProps;
+type Props = { video: MediaSessionState } & ParentProps;
 
 export default function TracksSelectionProvider(props: Props) {
   let context = () => createSelectionContext(() => props.video);

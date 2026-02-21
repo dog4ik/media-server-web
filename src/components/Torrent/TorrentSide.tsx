@@ -23,7 +23,7 @@ type Props = {
 
 export function TorrentSide(props: Props) {
   return (
-    <Tabs defaultValue="files" class="w-full">
+    <Tabs defaultValue="files" class="basis-7xl overflow-auto">
       <TabsList>
         <TabsTrigger value="files">Files</TabsTrigger>
         <TabsTrigger value="peers">Peers</TabsTrigger>

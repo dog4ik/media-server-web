@@ -56,7 +56,11 @@ export function TorrentDownloadSteps(props: Props) {
         },
       },
     }),
-    () => ({ enabled: selectedMagnetLink() !== undefined }),
+    () => ({
+      enabled: selectedMagnetLink() !== undefined,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    }),
   );
 
   server.GET("/api/torrent/output_location", {}).then((res) => {
@@ -138,14 +142,10 @@ export function TorrentDownloadSteps(props: Props) {
       </div>
       <div class="absolute right-5 bottom-5 space-x-4">
         <Show when={currentStep() !== 0}>
-          <Button onClick={() => changeStep(currentStep() - 1)} class="btn">
-            Back
-          </Button>
+          <Button onClick={() => changeStep(currentStep() - 1)}>Back</Button>
         </Show>
         <Show when={currentStep() === 0 && selectedMagnetLink()}>
-          <Button onClick={() => changeStep(currentStep() + 1)} class="btn">
-            Next
-          </Button>
+          <Button onClick={() => changeStep(currentStep() + 1)}>Next</Button>
         </Show>
         <Show when={currentStep() === 1}>
           <Show
@@ -156,7 +156,7 @@ export function TorrentDownloadSteps(props: Props) {
               </Button>
             }
           >
-            <Button onClick={() => changeStep(currentStep() + 1)} class="btn">
+            <Button onClick={() => changeStep(currentStep() + 1)}>
               Selected{" "}
               {formatSize(
                 enabledFiles().reduce(

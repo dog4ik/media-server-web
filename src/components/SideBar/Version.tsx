@@ -1,7 +1,7 @@
 import { useServerStatus } from "@/context/ServerStatusContext";
 import { queryApi } from "@/utils/queryApi";
 import { revalidatePath } from "@/utils/serverApi";
-import { Match, onCleanup, Suspense, Switch } from "solid-js";
+import { ErrorBoundary, onCleanup, Show, Suspense } from "solid-js";
 
 export default function Version() {
   let [{ serverStatus }] = useServerStatus();
@@ -12,12 +12,12 @@ export default function Version() {
   }));
 
   return (
-    <Suspense fallback={<p>Fetching server version...</p>}>
-      <Switch fallback={<p>Version is not available</p>}>
-        <Match when={version?.data}>
-          {(data) => <p class="text-secondary text-xs">{data()}</p>}
-        </Match>
-      </Switch>
-    </Suspense>
+    <p class="text-secondary text-xs">
+      <ErrorBoundary fallback={<p>Version is not available</p>}>
+        <Suspense fallback={<p>Fetching server version...</p>}>
+          <Show when={version.data}>{(data) => data()}</Show>
+        </Suspense>
+      </ErrorBoundary>
+    </p>
   );
 }

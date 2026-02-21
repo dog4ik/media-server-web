@@ -26,7 +26,9 @@ import { queryClient } from "./utils/queryApi";
 import { QueryClientProvider } from "@tanstack/solid-query";
 import { SolidQueryDevtools } from "@tanstack/solid-query-devtools";
 import History from "./pages/Settings/History";
-import { Suspense } from "solid-js";
+import { ErrorBoundary, Suspense } from "solid-js";
+import { ColorSettingsPage } from "./pages/Settings/ColorSettings";
+import { errorBoundaryFallback } from "./components/Error";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -156,27 +158,12 @@ const dashboardRoute = createRoute({
 const moviesRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "movies",
-  loader: () => {
-    // let localMoviesOptions = queryApi.queryOptions("get", "/api/local_movies");
-    // queryClient.ensureQueryData(localMoviesOptions());
-  },
   component: Movies,
 });
 
 const movieRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "movies/$id",
-  // loader: ({ params, deps }) => {
-  //   let movieOptions = queryApi.queryOptions("get", "/api/movie/{id}", () => ({
-  //     params: {
-  //       path: {
-  //         id: params.id,
-  //       },
-  //       query: { provider: deps.provider },
-  //     },
-  //   }));
-  //   queryClient.ensureQueryData(movieOptions());
-  // },
   component: Movie,
   validateSearch: validateProviderParam,
 });
@@ -184,10 +171,6 @@ const movieRoute = createRoute({
 const showsRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "shows",
-  loader: () => {
-    // let localShowsOptions = queryApi.queryOptions("get", "/api/local_shows");
-    // queryClient.ensureQueryData(localShowsOptions());
-  },
   component: Shows,
 });
 
@@ -259,6 +242,12 @@ const settingsRoute = createRoute({
   component: GeneralSettingsPage,
 });
 
+const clientSettingsRoute = createRoute({
+  getParentRoute: () => pageRoute,
+  path: "settings/color",
+  component: ColorSettingsPage,
+});
+
 const searchRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "search",
@@ -313,6 +302,7 @@ export const routeTree = rootRoute.addChildren([
     torrentRoute,
     searchRoute,
     settingsRoute,
+    clientSettingsRoute,
     dashboardRoute,
     historyRoute,
     logsRoute,

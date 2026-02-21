@@ -4,7 +4,6 @@ import AddVersion from "../VersionSlider/AddVersion";
 import { canPlayAfterTranscode } from "../../utils/mediaCapabilities";
 import { createStore } from "solid-js/store";
 import { FiAlertTriangle } from "solid-icons/fi";
-import { Dialog, DialogContent } from "@/ui/dialog";
 import { Video } from "@/utils/library";
 import { Button } from "@/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/ui/alert";
@@ -75,7 +74,8 @@ export function TranscodeModal(props: Props) {
       let video = defaultTrack(variant.video_tracks);
       let audio = defaultTrack(variant.audio_tracks);
       if (
-        stringCodec(video.codec) == stringCodec(transcodePayload?.video_codec) &&
+        stringCodec(video.codec) ==
+          stringCodec(transcodePayload?.video_codec) &&
         video.resolution == transcodePayload.resolution &&
         stringCodec(audio.codec) == stringCodec(transcodePayload.audio_codec)
       ) {
@@ -121,48 +121,33 @@ export function TranscodeModal(props: Props) {
   }
 
   return (
-    <Dialog
-      onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          props.onClose && props.onClose();
-        }
-      }}
-      open={props.isOpen}
-    >
-      <DialogContent class="w-full max-w-4xl text-white">
-        <div class="flex flex-col items-center justify-center gap-4">
-          <AddVersion
-            video={willPlay()?.video}
-            selectedPayload={transcodePayload}
-            audio={willPlay()?.audio}
-            originalVideo={props.video}
-            onAudioChange={(a) => onChange("audio_codec", a)}
-            onVideoChange={(a) => onChange("video_codec", a)}
-            onResolutionChange={(a) => onChange("resolution", a)}
-          />
-          <form
-            class="flex flex-col gap-4"
-            onSubmit={handleSubmit}
-            method="dialog"
-          >
-            <Show when={redundancy()}>
-              {(r) => (
-                <Alert>
-                  <FiAlertTriangle class="h-4 w-4" />
-                  <AlertTitle>Warning: </AlertTitle>
-                  <AlertDescription>
-                    Current configuration duplicates{" "}
-                    {r().conflictIn == "source"
-                      ? "original video"
-                      : `existing variant with id: ${r().variantId}`}
-                  </AlertDescription>
-                </Alert>
-              )}
-            </Show>
-            <Button type="submit">Transcode</Button>
-          </form>
-        </div>
-      </DialogContent>
-    </Dialog>
+    <div class="flex flex-col items-center justify-center gap-4">
+      <AddVersion
+        video={willPlay()?.video}
+        selectedPayload={transcodePayload}
+        audio={willPlay()?.audio}
+        originalVideo={props.video}
+        onAudioChange={(a) => onChange("audio_codec", a)}
+        onVideoChange={(a) => onChange("video_codec", a)}
+        onResolutionChange={(a) => onChange("resolution", a)}
+      />
+      <form class="flex flex-col gap-4" onSubmit={handleSubmit} method="dialog">
+        <Show when={redundancy()}>
+          {(r) => (
+            <Alert>
+              <FiAlertTriangle class="h-4 w-4" />
+              <AlertTitle>Warning: </AlertTitle>
+              <AlertDescription>
+                Current configuration duplicates{" "}
+                {r().conflictIn == "source"
+                  ? "original video"
+                  : `existing variant with id: ${r().variantId}`}
+              </AlertDescription>
+            </Alert>
+          )}
+        </Show>
+        <Button type="submit">Transcode</Button>
+      </form>
+    </div>
   );
 }

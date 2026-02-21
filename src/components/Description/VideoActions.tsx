@@ -1,12 +1,9 @@
-import { FiImage, FiLoader } from "solid-icons/fi";
+import { FiImage } from "solid-icons/fi";
 import { revalidatePath } from "../../utils/serverApi";
 import Icon from "../ui/Icon";
-import { createSignal, For, ParentProps, Show } from "solid-js";
-import MoreButton, { RecursiveRow } from "../ContextMenu/MoreButton";
-import VariantMenuRow from "./VariantMenuRow";
+import { ParentProps, Show } from "solid-js";
 import PlayButton from "./PlayButton";
 import { useNotifications } from "../../context/NotificationContext";
-import { TranscodeModal } from "../modals/TranscodeModal";
 import { Video } from "@/utils/library";
 import { LinkOptions } from "@tanstack/solid-router";
 
@@ -17,7 +14,6 @@ type Props = {
 
 export default function VideoActions(props: Props) {
   let notificator = useNotifications();
-  let [transcodeOpen, setTranscodeOpen] = createSignal(false);
 
   let videoCompatibility = props.video.useVideoCompatibility();
 
@@ -43,11 +39,6 @@ export default function VideoActions(props: Props) {
 
   return (
     <>
-      <TranscodeModal
-        isOpen={transcodeOpen()}
-        onClose={() => setTranscodeOpen(false)}
-        video={props.video}
-      />
       <Show when={props.watchUrl}>
         {(url) => (
           <PlayButton
@@ -68,22 +59,7 @@ export default function VideoActions(props: Props) {
           </Icon>
         </Show>
       </Show>
-      <Icon tooltip={"Transcode"} onClick={() => setTranscodeOpen(true)}>
-        <FiLoader size={30} />
-      </Icon>
       {props.children}
-      <Show when={props.video.details.variants.length > 0}>
-        <MoreButton>
-          <RecursiveRow title="Watch variant">
-            <For each={props.video.details.variants}>
-              {(variant) => {
-                let href = `${props.watchUrl}?variant=${variant.id}`;
-                return <VariantMenuRow variant={variant} href={href} />;
-              }}
-            </For>
-          </RecursiveRow>
-        </MoreButton>
-      </Show>
     </>
   );
 }

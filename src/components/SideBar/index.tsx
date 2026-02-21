@@ -54,7 +54,7 @@ export default function SideBar() {
     <div class="hover-hide z-10 flex flex-col items-center justify-between rounded-md p-2">
       <nav class="relative my-auto flex flex-col rounded-md sm:justify-center">
         <div
-          class={`absolute right-0 left-0 z-10 w-full rounded-md bg-white transition-all duration-200`}
+          class={`bg-sidebar-primary absolute right-0 left-0 z-10 w-full rounded-md transition-all duration-200`}
           style={{
             height: `${100 / ROUTES.length}%`,
             top: `${(currentIndex() / ROUTES.length) * 100}%`,
@@ -68,9 +68,9 @@ export default function SideBar() {
             return (
               <Link
                 to={link.to}
-                class={`z-10 flex-1 rounded-lg bg-transparent px-3 py-2 font-medium ${
+                class={`hover:text-sidebar-accent-foreground z-10 flex-1 rounded-lg bg-transparent px-3 py-2 font-medium ${
                   isActive()
-                    ? "text-neutral-800"
+                    ? "text-sidebar-primary-foreground"
                     : "text-white hover:text-neutral-200"
                 }`}
               >

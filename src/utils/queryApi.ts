@@ -1,13 +1,11 @@
-import createFetchClient from "openapi-fetch";
 import { QueryClient } from "@tanstack/solid-query";
-import { paths } from "server-types";
 import createClient from "./openapiQuery";
-import { MEDIA_SERVER_URL } from "./serverApi";
+import { server } from "./serverApi";
 
-export const queryClient = new QueryClient();
-
-const fetchClient = createFetchClient<paths>({
-  baseUrl: MEDIA_SERVER_URL,
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { refetchOnWindowFocus: false, throwOnError: true, retry: 1 },
+  },
 });
 
-export const queryApi = createClient(fetchClient);
+export const queryApi = createClient(server);

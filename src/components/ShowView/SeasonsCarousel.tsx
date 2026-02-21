@@ -37,7 +37,7 @@ export default function SeasonsCarousel(props: Props) {
   return (
     <div class="@container relative flex items-center">
       <div
-        class="absolute bottom-0 h-1 divide-x rounded-xl bg-white transition-all duration-200"
+        class="bg-primary absolute bottom-0 h-1 divide-x rounded-xl transition-all duration-200"
         style={{
           width: `${100 / props.tabs.length}%`,
           left: `${(props.tabs.indexOf(season()) / props.tabs.length) * 100}%`,

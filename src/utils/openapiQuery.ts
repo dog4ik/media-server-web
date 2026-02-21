@@ -5,8 +5,9 @@ import {
   type UseQueryOptions,
   type UseQueryResult,
   useQuery,
-  DefinedInitialDataOptions,
-  UndefinedInitialDataOptions,
+  useMutation,
+  UseMutationOptions,
+  UseMutationResult,
 } from "@tanstack/solid-query";
 import type {
   ClientMethod,
@@ -21,6 +22,7 @@ import type {
   RequiredKeysOf,
 } from "openapi-typescript-helpers";
 import { Accessor } from "solid-js";
+import { queryApi } from "./queryApi";
 
 function sleep(time: number) {
   return new Promise((res) => setTimeout(res, time));
@@ -107,22 +109,14 @@ export type UseQueryMethod<
   Init extends MaybeOptionalInit<Paths[Path], Method>,
   Response extends Required<FetchResponse<Paths[Path][Method], Init, Media>>, // note: Required is used to avoid repeating NonNullable in UseQuery types
   Options extends Omit<
-    | ReturnType<
-        DefinedInitialDataOptions<
-          Response["data"],
-          Response["error"],
-          InferSelectReturnType<Response["data"], Options["select"]>,
-          QueryKey<Paths, Method, Path>
-        >
+    ReturnType<
+      UseQueryOptions<
+        Response["data"],
+        Response["error"],
+        InferSelectReturnType<Response["data"], Options["select"]>,
+        QueryKey<Paths, Method, Path>
       >
-    | ReturnType<
-        UndefinedInitialDataOptions<
-          Response["data"],
-          Response["error"],
-          InferSelectReturnType<Response["data"], Options["select"]>,
-          QueryKey<Paths, Method, Path>
-        >
-      >,
+    >,
     "queryKey" | "queryFn"
   >,
 >(
@@ -141,12 +135,34 @@ export type UseQueryMethod<
     | undefined;
 };
 
+export type UseMutationMethod<
+  Paths extends Record<string, Record<HttpMethod, {}>>,
+  Media extends MediaType,
+> = <
+  Method extends HttpMethod,
+  Path extends PathsWithMethod<Paths, Method>,
+  Init extends MaybeOptionalInit<Paths[Path], Method>,
+  Response extends Required<FetchResponse<Paths[Path][Method], Init, Media>>, // note: Required is used to avoid repeating NonNullable in UseQuery types
+  Options extends Accessor<
+    Omit<
+      ReturnType<UseMutationOptions<Response["data"], Response["error"], Init>>,
+      "mutationKey" | "mutationFn"
+    >
+  >,
+>(
+  method: Method,
+  url: Path,
+  options?: Options,
+  queryClient?: Accessor<QueryClient>,
+) => UseMutationResult<Response["data"], Response["error"], Init>;
+
 export interface OpenapiQueryClient<
   Paths extends {},
   Media extends MediaType = MediaType,
 > {
   queryOptions: QueryOptionsFunction<Paths, Media>;
   useQuery: UseQueryMethod<Paths, Media>;
+  useMutation: UseMutationMethod<Paths, Media>;
 }
 
 export type MethodResponse<
@@ -236,5 +252,26 @@ export default function createClient<
         latest: () => typeof query.data;
       };
     },
+    useMutation: (method, path, options, queryClient) =>
+      useMutation(
+        () => ({
+          mutationKey: [method, path],
+          mutationFn: async (init) => {
+            const mth = method.toUpperCase() as Uppercase<typeof method>;
+            const fn = client[mth] as ClientMethod<Paths, typeof method, Media>;
+            const { data, error } = await fn(
+              path,
+              init as InitWithUnknowns<typeof init>,
+            );
+            if (error) {
+              throw error;
+            }
+
+            return data as Exclude<typeof data, undefined>;
+          },
+          ...options?.(),
+        }),
+        queryClient,
+      ),
   };
 }

@@ -46,7 +46,7 @@ export type paths = {
             path?: never;
             cookie?: never;
         };
-        /** Server capabalities */
+        /** Server capabilities */
         get: operations["server_capabilities"];
         put?: never;
         post?: never;
@@ -1016,7 +1016,7 @@ export type paths = {
         };
         get?: never;
         put?: never;
-        /** Validate torrent by info hash */
+        /** Run action on a list of torrents */
         post: operations["batch_action"];
         delete?: never;
         options?: never;
@@ -1502,8 +1502,10 @@ export type paths = {
         };
         /** Get intro for the video */
         get: operations["video_intro"];
-        /** Update intros for the video
-         *     If into does not exist it will be created */
+        /**
+         * Update intros for the video
+         *     If into does not exist it will be created
+         */
         put: operations["update_video_intro"];
         post?: never;
         /** Delete intro for the video */
@@ -1641,7 +1643,7 @@ export type components = {
             statics_path: string;
             temp_path: string;
         };
-        AudioCodec: "aac" | "ac3" | "eac3" | "dts" | {
+        AudioCodec: "aac" | "ac3" | "eac3" | "dts" | "flac" | {
             other: string;
         };
         BatchActionPayload: {
@@ -1666,8 +1668,6 @@ export type components = {
         };
         Capabilities: {
             chromaprint_enabled: boolean;
-            codecs: components["schemas"]["Codec"][];
-            ffmpeg_version: string;
         };
         /** @enum {string} */
         ClientType: "web_client" | "upnp";
@@ -1921,11 +1921,13 @@ export type components = {
                 video_id: number;
             }[];
         };
-        /** @description `external_ids` table maps content to external movie/show metadata provider ids.
+        /**
+         * @description `external_ids` table maps content to external movie/show metadata provider ids.
          *     For example it can connect tmdb ID to specific local tv show.
          *     This is useful to crossmatch local library against different providers.
          *
-         *     Usually removed with it's _parent_ using cascade delete */
+         *     Usually removed with it's _parent_ using cascade delete
+         */
         DbExternalId: {
             /** Format: int64 */
             episode_id?: number | null;
@@ -1942,9 +1944,11 @@ export type components = {
             /** Format: int64 */
             show_id?: number | null;
         };
-        /** @description `history` table simply holds history for each video file in the library
+        /**
+         * @description `history` table simply holds history for each video file in the library
          *
-         *     Usually removed with video using cascade delete */
+         *     Usually removed with video using cascade delete
+         */
         DbHistory: {
             /** Format: int64 */
             id: number;
@@ -2086,15 +2090,19 @@ export type components = {
         };
         /** @description Encoder configuration for hls live streams */
         HlsStreamConfiguration: {
-            /** @description Audio encoder name
+            /**
+             * @description Audio encoder name
              *
-             *     If `None` selected audio track will be copied */
+             *     If `None` selected audio track will be copied
+             */
             audio_encoder?: string | null;
             /** @description Audio track index */
             audio_track: number;
-            /** @description Video encoder name
+            /**
+             * @description Video encoder name
              *
-             *     If `None` selected video track will be copied */
+             *     If `None` selected video track will be copied
+             */
             video_encoder?: string | null;
             /** @description Video track index */
             video_track: number;
@@ -2639,10 +2647,12 @@ export type components = {
             created: string;
             /** Format: uuid */
             id: string;
-            /** @description Task for watch tracking.
+            /**
+             * @description Task for watch tracking.
              *
              *     Be aware that currently watch tracking can be bypassed.
-             *     Therefore, these tasks should not be considered fully reliable. */
+             *     Therefore, these tasks should not be considered fully reliable.
+             */
             kind: {
                 client_agent: string;
                 client_type: components["schemas"]["ClientType"];
@@ -4799,10 +4809,12 @@ export interface operations {
                         created: string;
                         /** Format: uuid */
                         id: string;
-                        /** @description Task for watch tracking.
+                        /**
+                         * @description Task for watch tracking.
                          *
                          *     Be aware that currently watch tracking can be bypassed.
-                         *     Therefore, these tasks should not be considered fully reliable. */
+                         *     Therefore, these tasks should not be considered fully reliable.
+                         */
                         kind: {
                             client_agent: string;
                             client_type: components["schemas"]["ClientType"];
@@ -4857,15 +4869,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-            /** @description Torrent is not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
             };
         };
     };

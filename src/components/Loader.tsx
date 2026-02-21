@@ -21,9 +21,9 @@ export default function Loader(props: Props) {
   });
 
   return (
-    <div class="flex size-full animate-ping items-center justify-center">
+    <div class="flex size-full items-center justify-center">
       <Show when={show()}>
-        <img src="/monkaw.webp" height={60} width={60} />
+        <img class="animate-ping" src="/monkaw.webp" height={60} width={60} />
       </Show>
     </div>
   );

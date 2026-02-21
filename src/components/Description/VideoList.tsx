@@ -38,6 +38,7 @@ import RadioButton from "../RadioButton";
 import { useCapabilityQuery } from "@/utils/mediaCapabilities";
 import clsx from "clsx";
 import { Skeleton } from "@/ui/skeleton";
+import { TranscodeModal } from "../modals/TranscodeModal";
 
 export type VideoSelection = {
   video_id: number;
@@ -85,29 +86,62 @@ type Props = {
 };
 
 export function VideoList(props: Props) {
+  let [subtitlesModalVideo, setSubtitlesModalVideo] = createSignal<Video>();
+  let [transcodeModalVideo, setTrancodeModalVideo] = createSignal<Video>();
   return (
-    <div class="space-y-4">
-      <For each={props.videos}>
-        {(video) => (
-          <ListItem
-            selectedVideo={props.selectedVideo}
-            onSelect={(variantId) =>
-              props.selectedVideo.video_id == video.details.id &&
-              props.selectedVideo.variant_id == variantId
-                ? props.onVideoSelect({
-                    video_id: video.details.id,
-                    variant_id: undefined,
-                  })
-                : props.onVideoSelect({
-                    video_id: video.details.id,
-                    variant_id: variantId,
-                  })
-            }
-            video={video}
-          />
-        )}
-      </For>
-    </div>
+    <>
+      <Dialog
+        onOpenChange={(open) => !open && setSubtitlesModalVideo(undefined)}
+        open={subtitlesModalVideo() !== undefined}
+      >
+        <DialogContent class="h-5/6 w-5/6">
+          <Show when={subtitlesModalVideo()}>
+            <UploadSubtitles
+              videoId={subtitlesModalVideo()!.details.id}
+              onClose={() => setSubtitlesModalVideo(undefined)}
+            />
+          </Show>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        onOpenChange={(open) => !open && setTrancodeModalVideo(undefined)}
+        open={transcodeModalVideo() !== undefined}
+      >
+        <DialogContent class="h-5/6 w-5/6">
+          <Show when={transcodeModalVideo()}>
+            <TranscodeModal
+              isOpen={transcodeModalVideo() !== undefined}
+              video={transcodeModalVideo()!}
+              onClose={() => setTrancodeModalVideo(undefined)}
+            />
+          </Show>
+        </DialogContent>
+      </Dialog>
+      <div class="space-y-4">
+        <For each={props.videos}>
+          {(video) => (
+            <ListItem
+              selectedVideo={props.selectedVideo}
+              onTranscodeOpen={() => setTrancodeModalVideo(video)}
+              onSubtitlesOpen={() => setSubtitlesModalVideo(video)}
+              onSelect={(variantId) =>
+                props.selectedVideo.video_id == video.details.id &&
+                props.selectedVideo.variant_id == variantId
+                  ? props.onVideoSelect({
+                      video_id: video.details.id,
+                      variant_id: undefined,
+                    })
+                  : props.onVideoSelect({
+                      video_id: video.details.id,
+                      variant_id: variantId,
+                    })
+              }
+              video={video}
+            />
+          )}
+        </For>
+      </div>
+    </>
   );
 }
 
@@ -283,7 +317,7 @@ type VariantListProps = {
 
 function VariantList(props: VariantListProps) {
   let [, { addNotification }] = useNotificationsContext();
-  let [isOpen, setIsOpen] = createSignal(false);
+  let [isListOpen, setIsListOpen] = createSignal(false);
 
   async function deleteVariant(id: string) {
     if (await promptConfirm("Remove variant? This action is irreversible.")) {
@@ -297,13 +331,13 @@ function VariantList(props: VariantListProps) {
   }
 
   return (
-    <Collapsible open={isOpen()} onOpenChange={setIsOpen}>
+    <Collapsible open={isListOpen()} onOpenChange={setIsListOpen}>
       <CollapsibleTrigger class="hover:bg-accent hover:text-accent-foreground flex h-auto w-full items-center justify-between rounded-md px-2 py-2">
         <div class="flex items-center gap-2">
           <VideoIcon class="h-4 w-4" />
           <span class="font-medium">Variants ({props.items.length})</span>
         </div>
-        <Show fallback={<ChevronRight class="h-4 w-4" />} when={isOpen()}>
+        <Show fallback={<ChevronRight class="h-4 w-4" />} when={isListOpen()}>
           <ChevronDown class="h-4 w-4" />
         </Show>
       </CollapsibleTrigger>
@@ -357,28 +391,19 @@ function VariantList(props: VariantListProps) {
 type ListItemProps = {
   video: Video;
   onSelect: (variantId?: string) => void;
+  onSubtitlesOpen: () => void;
+  onTranscodeOpen: () => void;
   selectedVideo: VideoSelection;
 };
 
 function ListItem(props: ListItemProps) {
-  let [addModalOpen, setAddModalOpen] = createSignal(false);
-
   async function onAddSubtitles() {
     await revalidatePath("/api/video/by_content");
-    setAddModalOpen(false);
   }
 
   return (
     <>
-      <Dialog onOpenChange={setAddModalOpen} open={addModalOpen()}>
-        <DialogContent class="h-5/6 w-5/6">
-          <UploadSubtitles
-            videoId={props.video.details.id}
-            onClose={onAddSubtitles}
-          />
-        </DialogContent>
-      </Dialog>
-      <Card class="bg-primary-foreground overflow-hidden">
+      <Card class="overflow-hidden">
         <CardHeader class="pb-3">
           <div class="flex items-start justify-between">
             <div class="flex flex-1 items-start gap-3">
@@ -433,13 +458,13 @@ function ListItem(props: ListItemProps) {
 
         <CardContent class="space-y-4 pt-0">
           <SubtitlesList
-            onAddButtonClick={() => setAddModalOpen(true)}
+            onAddButtonClick={props.onSubtitlesOpen}
             items={props.video.details.subtitles}
           />
           <Show when={props.video.details.variants.length > 0}>
             <VariantList
               onVideoSelect={props.onSelect}
-              onAddButtonClick={() => setAddModalOpen(true)}
+              onAddButtonClick={props.onTranscodeOpen}
               items={props.video.variants()}
               videoId={props.video.details.id}
               selectedVideo={props.selectedVideo}
@@ -453,7 +478,7 @@ function ListItem(props: ListItemProps) {
 
 export function ListItemSkeleton() {
   return (
-    <Card class="bg-primary-foreground overflow-hidden">
+    <Card class="overflow-hidden">
       <CardHeader class="pb-3">
         <div class="flex items-start justify-between pb-10">
           <div class="flex flex-1 items-start gap-3">

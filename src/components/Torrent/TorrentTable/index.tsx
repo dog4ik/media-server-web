@@ -2,7 +2,6 @@ import type { DropdownMenuTriggerProps } from "@kobalte/core/dropdown-menu";
 import type { SelectTriggerProps } from "@kobalte/core/select";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
-import { Checkbox, CheckboxControl } from "@/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -31,14 +30,13 @@ import {
 import { TextField, TextFieldInput } from "@/ui/textfield";
 import type { ColumnDef } from "@tanstack/solid-table";
 import { flexRender } from "@tanstack/solid-table";
-import { createMemo, For, Show } from "solid-js";
+import { createMemo, For, onCleanup, Show } from "solid-js";
 import { Schemas } from "@/utils/serverApi";
 import RefreshCw from "lucide-solid/icons/refresh-cw";
 import Play from "lucide-solid/icons/play";
 import Pause from "lucide-solid/icons/pause";
 import { formatSize } from "@/utils/formats";
 import clsx from "clsx";
-import { Progress } from "@/ui/progress";
 import Eye from "lucide-solid/icons/eye";
 import Funnel from "lucide-solid/icons/funnel";
 import Trash from "lucide-solid/icons/trash";
@@ -72,7 +70,7 @@ export const TORRENT_TABLE_COLUMNS: ColumnDef<Schemas["TorrentState"]>[] = [
     ),
     cell: (props) => (
       <div class="flex space-x-2">
-        <span class="max-w-[250px] truncate font-medium">
+        <span class="max-w-2xl truncate font-medium">
           {props.row.getValue("name")}
         </span>
       </div>
@@ -85,7 +83,7 @@ export const TORRENT_TABLE_COLUMNS: ColumnDef<Schemas["TorrentState"]>[] = [
       <TableColumnHeader column={props.column} title="Total size" />
     ),
     cell: (props) => (
-      <div class="flex w-[100px] items-center">
+      <div class="flex w-25 items-center">
         <span class="text-center">
           {formatSize(props.row.original.total_size)}
         </span>
@@ -99,12 +97,21 @@ export const TORRENT_TABLE_COLUMNS: ColumnDef<Schemas["TorrentState"]>[] = [
       <TableColumnHeader column={props.column} title="Progress" />
     ),
     cell: (props) => (
-      <div class="flex w-[100px] items-center">
-        <Progress value={props.row.original.percent}>
-          <code class="text-center">
-            {props.row.original.percent.toFixed(1)}%
-          </code>
-        </Progress>
+      <div
+        class="relative isolate flex h-4 w-25 items-center justify-center overflow-hidden rounded-md bg-gray-200"
+        role="progressbar"
+        aria-valuenow={props.row.original.percent}
+        aria-valuemin={0}
+        aria-valuemax={100}
+      >
+        <div
+          class="absolute top-0 left-0 h-full bg-green-500"
+          style={{ width: `${props.row.original.percent}%` }}
+        />
+
+        <span class="relative z-10 font-mono text-xs">
+          {props.row.original.percent.toFixed(1)}%
+        </span>
       </div>
     ),
   },
@@ -115,7 +122,7 @@ export const TORRENT_TABLE_COLUMNS: ColumnDef<Schemas["TorrentState"]>[] = [
       <TableColumnHeader column={props.column} title="Status" />
     ),
     cell: (props) => (
-      <div class="flex w-[100px] items-center">
+      <div class="flex w-25 items-center">
         <Badge
           class={clsx(
             "text-white transition-colors",
@@ -146,7 +153,7 @@ export const TORRENT_TABLE_COLUMNS: ColumnDef<Schemas["TorrentState"]>[] = [
       <TableColumnHeader column={props.column} title="Download" />
     ),
     cell: (props) => (
-      <div class="flex w-[100px] items-center">
+      <div class="flex w-25 items-center">
         <span>{formatSize(props.row.original.download_speed)}/s</span>
       </div>
     ),
@@ -158,7 +165,7 @@ export const TORRENT_TABLE_COLUMNS: ColumnDef<Schemas["TorrentState"]>[] = [
       <TableColumnHeader column={props.column} title="Upload" />
     ),
     cell: (props) => (
-      <div class="flex w-[100px] items-center">
+      <div class="flex w-25 items-center">
         <span>{formatSize(props.row.original.upload_speed)}/s</span>
       </div>
     ),
@@ -170,7 +177,7 @@ export const TORRENT_TABLE_COLUMNS: ColumnDef<Schemas["TorrentState"]>[] = [
       <TableColumnHeader column={props.column} title="Connected peers" />
     ),
     cell: (props) => (
-      <div class="flex w-[100px] items-center">
+      <div class="flex w-25 items-center">
         <span>{props.row.original.peers.length}</span>
       </div>
     ),
@@ -202,8 +209,26 @@ export function TorrentTable() {
   let isActionButtonsDisabled = createMemo(
     () => !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected(),
   );
+
+  function handleKeyDown(event: KeyboardEvent) {
+    if ((event.ctrlKey || event.metaKey) && event.key === "a") {
+      event.preventDefault(); // prevent default browser select all
+
+      // select all rows
+      let allRowIds = table.getRowModel().rows.map((row) => row.id);
+
+      table.toggleAllRowsSelected();
+    }
+  }
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  onCleanup(() => {
+    window.removeEventListener("keydown", handleKeyDown);
+  });
+
   return (
-    <div class="w-full space-y-2.5">
+    <>
       <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-2">
           <TextField>
@@ -366,72 +391,70 @@ export function TorrentTable() {
           </DropdownMenu>
         </div>
       </div>
-      <div class="rounded-md border">
-        <Table>
-          <TableHeader>
-            <For each={table.getHeaderGroups()}>
-              {(headerGroup) => (
-                <TableRow>
-                  <For each={headerGroup.headers}>
-                    {(header) => (
-                      <TableHead>
-                        <Show when={!header.isPlaceholder}>
-                          {(_) =>
-                            flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )
-                          }
-                        </Show>
-                      </TableHead>
+      <Table parentClass="flex-1 h-full">
+        <TableHeader>
+          <For each={table.getHeaderGroups()}>
+            {(headerGroup) => (
+              <TableRow>
+                <For each={headerGroup.headers}>
+                  {(header) => (
+                    <TableHead class="bg-background sticky top-0 z-10">
+                      <Show when={!header.isPlaceholder}>
+                        {(_) =>
+                          flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )
+                        }
+                      </Show>
+                    </TableHead>
+                  )}
+                </For>
+              </TableRow>
+            )}
+          </For>
+        </TableHeader>
+        <TableBody class="max-h-96 overflow-scroll">
+          <Show
+            when={table.getRowModel().rows?.length}
+            fallback={
+              <TableRow>
+                <TableCell
+                  colSpan={TORRENT_TABLE_COLUMNS.length}
+                  class="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            }
+          >
+            <For each={table.getRowModel().rows}>
+              {(row) => (
+                <TableRow
+                  onClick={() => (
+                    table.resetRowSelection(),
+                    row.toggleSelected(),
+                    row.toggleExpanded(true)
+                  )}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  <For each={row.getVisibleCells()}>
+                    {(cell) => (
+                      <TableCell>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
                     )}
                   </For>
                 </TableRow>
               )}
             </For>
-          </TableHeader>
-          <TableBody>
-            <Show
-              when={table.getRowModel().rows?.length}
-              fallback={
-                <TableRow>
-                  <TableCell
-                    colSpan={TORRENT_TABLE_COLUMNS.length}
-                    class="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              }
-            >
-              <For each={table.getRowModel().rows}>
-                {(row) => (
-                  <TableRow
-                    onClick={() => (
-                      table.resetRowSelection(),
-                      row.toggleSelected(),
-                      row.toggleExpanded(true)
-                    )}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    <For each={row.getVisibleCells()}>
-                      {(cell) => (
-                        <TableCell>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </TableCell>
-                      )}
-                    </For>
-                  </TableRow>
-                )}
-              </For>
-            </Show>
-          </TableBody>
-        </Table>
-      </div>
+          </Show>
+        </TableBody>
+      </Table>
       <PaginationFooter table={table} />
-    </div>
+    </>
   );
 }

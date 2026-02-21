@@ -169,8 +169,8 @@ export function UploadSubtitles(props: Props) {
                 <div class="flex items-center gap-4">
                   <span class="text-lg">Select subtitles on the server</span>
                   <span class="text-sm">or</span>{" "}
-                  <TextField class="flex flex-col max-w-fit space-y-1.5">
-                    <TextFieldLabel class="cursor-pointer max-w-fit text-lg underline">
+                  <TextField class="flex max-w-fit flex-col space-y-1.5">
+                    <TextFieldLabel class="max-w-fit cursor-pointer text-lg underline">
                       Click to upload
                     </TextFieldLabel>
                     <TextFieldInput

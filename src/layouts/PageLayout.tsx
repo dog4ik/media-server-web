@@ -1,4 +1,4 @@
-import { ParentProps, Show, createEffect, createSignal } from "solid-js";
+import { ParentProps, Show, createEffect } from "solid-js";
 import { useBackdropContext } from "../context/BackdropContext";
 import SideBar from "../components/SideBar";
 import NavBar from "../components/NavBar";
@@ -14,6 +14,23 @@ const OPTIONS = {
 };
 
 export default function PageLayout(props: ParentProps) {
+  return (
+    <div class="">
+      <BackdropFilling />
+      <aside class="fixed inset-0 flex w-18 items-center">
+        <SideBar />
+      </aside>
+      <div class="pl-32">
+        <NavBar />
+        <main class="mx-5 my-3 flex flex-col overflow-y-auto">
+          {props.children}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function BackdropFilling() {
   let [{ backdropQuery }] = useBackdropContext();
   let backdropElement: HTMLImageElement = {} as any;
   let gradientElement: HTMLDivElement = {} as any;
@@ -25,35 +42,27 @@ export default function PageLayout(props: ParentProps) {
       gradientElement.animate(ANIMATION, OPTIONS);
     }
   });
-
   return (
-    <>
-      <SideBar />
-      <NavBar />
-      <div ref={backdropElement!} class="absolute inset-0">
-        <div class="size-full">
-          <Show when={!backdropQuery.isSuccess}>
-            <div
-              ref={gradientElement!}
-              class="h-full w-full object-cover transition-opacity"
-            ></div>
-          </Show>
-          <Show when={backdropQuery.isSuccess}>
-            <img
-              ref={backdropElement!}
-              src={backdropQuery.isSuccess ? backdropQuery.data.src : undefined}
-              class={clsx(
-                "h-full w-full object-cover",
-                backdropQuery.isSuccess ? "block" : "hidden",
-              )}
-            />
-          </Show>
-          <div class="hover-hide bg-background/90 fixed inset-0" />
-        </div>
+    <div ref={backdropElement!} class="fixed inset-0 -z-10 size-full">
+      <div class="size-full">
+        <Show when={!backdropQuery.isSuccess}>
+          <div
+            ref={gradientElement!}
+            class="h-full w-full object-cover transition-opacity"
+          ></div>
+        </Show>
+        <Show when={backdropQuery.isSuccess}>
+          <img
+            ref={backdropElement!}
+            src={backdropQuery.isSuccess ? backdropQuery.data.src : undefined}
+            class={clsx(
+              "h-full w-full object-cover",
+              backdropQuery.isSuccess ? "block" : "hidden",
+            )}
+          />
+        </Show>
+        <div class="hover-hide bg-background/90 fixed inset-0" />
       </div>
-      <main class="relative z-10 flex min-h-screen w-full flex-col overflow-y-scroll rounded-md pt-16 text-white">
-        {props.children}
-      </main>
-    </>
+    </div>
   );
 }

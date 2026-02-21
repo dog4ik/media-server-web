@@ -29,6 +29,7 @@ async function deleteMovie(id: number, title: string) {
 }
 
 export function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
+  console.log("mounting movie card");
   let [fixModal, toggleFixModal] = useToggle(false);
   let notificator = useNotifications();
   function handleFix() {
@@ -78,7 +79,7 @@ export function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
         onClose={() => toggleFixModal(false)}
       />
       <div class="max-w-60 min-w-60 flex-none space-y-2 overflow-hidden">
-        <Link class="relative w-full" {...movieLinkOptions()}>
+        <Link class="relative size-full" {...movieLinkOptions()}>
           <FallbackImage
             alt="Movie poster"
             srcList={[localUrl, props.movie.poster ?? undefined]}
@@ -86,6 +87,7 @@ export function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
             width={312}
             height={415}
           />
+          <div></div>
         </Link>
         <div class="flex items-center justify-between">
           <Link

@@ -8,6 +8,7 @@ import { getEAC3Audio } from "./audio/eac3";
 import { getAv1Codec } from "./video/av1";
 import { getAVCCodec, getMaxAVCLevel } from "./video/avc";
 import { getHevcVideo, getMaxHEVCLevel } from "./video/hevc";
+import { getFlacAudio } from "./audio/flac";
 
 export type Compatibility = {
   video: MediaCapabilitiesDecodingInfo;
@@ -67,6 +68,9 @@ export async function isCompatible<
   }
   if (audio?.codec == "eac3") {
     audioCodecs = getEAC3Audio();
+  }
+  if (audio?.codec == "flac") {
+    audioCodecs = getFlacAudio();
   }
 
   let videoConfig = () => {
@@ -185,6 +189,9 @@ export async function canPlayAfterTranscode(
   }
   if (audioConfig?.audioCodec == "eac3") {
     audioSpec = getEAC3Audio();
+  }
+  if (audioConfig?.audioCodec == "flac") {
+    audioSpec = getFlacAudio();
   }
 
   let videoQueryConfig: VideoConfiguration | undefined = undefined;
