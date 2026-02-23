@@ -423,7 +423,7 @@ export function TorrentTable() {
                   colSpan={TORRENT_TABLE_COLUMNS.length}
                   class="h-24 text-center"
                 >
-                  No results.
+                No torrents
                 </TableCell>
               </TableRow>
             }

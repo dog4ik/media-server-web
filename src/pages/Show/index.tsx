@@ -150,17 +150,21 @@ export default function ShowPage() {
                         <FiDownload size={30} />
                       </Icon>
                       <Show when={show().metadata_provider == "local"}>
-                        <Icon
-                          tooltip={
-                            capabilities.latest()?.chromaprint_enabled
-                              ? `Detect intros for season ${seasonNumber()}`
-                              : "Intro detection is not supported by local ffmpeg build"
-                          }
-                          disabled={!capabilities.latest()?.chromaprint_enabled}
-                          onClick={() => detectIntros()}
-                        >
-                          <FiSkipForward size={30} />
-                        </Icon>
+                        <Suspense>
+                          <Icon
+                            tooltip={
+                              capabilities.data?.chromaprint_enabled
+                                ? `Detect intros for season ${seasonNumber()}`
+                                : "Intro detection is not supported by local ffmpeg build"
+                            }
+                            disabled={
+                              !capabilities.data?.chromaprint_enabled
+                            }
+                            onClick={() => detectIntros()}
+                          >
+                            <FiSkipForward size={30} />
+                          </Icon>
+                        </Suspense>
                       </Show>
                       <ExternalLocalIdButtons
                         contentType="show"

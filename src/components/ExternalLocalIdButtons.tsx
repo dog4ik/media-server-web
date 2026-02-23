@@ -70,6 +70,7 @@ export function ExternalLocalIdButtons(props: Props) {
           });
       }
     },
+    throwOnError: false,
     queryKey: [
       "external_to_local",
       props.contentType,

@@ -257,7 +257,12 @@ export default function History() {
       <Show when={history.isFetchingNextPage}>
         <span class="loading loading-spinner loading-lg" />
       </Show>
-      <Show when={history.hasNextPage === false && allHistory().length > 0}>
+      <Show
+        when={
+          (history.hasNextPage === false && allHistory().length > 0) ||
+          allHistory().length === 0
+        }
+      >
         <div class="mt-12 flex items-center justify-center">
           <span class="text-3xl">You are all caught up</span>
         </div>

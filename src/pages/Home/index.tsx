@@ -2,8 +2,12 @@ import { ErrorBoundary, For, Suspense } from "solid-js";
 import { MovieCard } from "../../components/Cards/MovieCard";
 import { ShowCard, ShowCardSkeleton } from "@/components/Cards/ShowCard";
 import { ElementsGrid } from "@/components/ElementsGrid";
-import { ApplicationErrorBoundary, ErrorComponent } from "@/components/Error";
-import { queryApi, queryClient } from "@/utils/queryApi";
+import {
+  ApplicationErrorBoundary,
+  errorBoundaryFallback,
+  ErrorComponent,
+} from "@/components/Error";
+import { queryApi } from "@/utils/queryApi";
 import { ContinueWatchingSection } from "./ContinueWatching";
 
 function TrendingShows() {
@@ -15,7 +19,7 @@ function TrendingShows() {
         fallback={(err, reset) => (
           <ErrorComponent
             err={err}
-            context="trending shows"
+            context="Failed to fetch treding shows"
             reset={() => {
               trendingShows.refetch();
               reset();
@@ -89,7 +93,7 @@ export default function Home() {
       >
         <div class="p-2">
           <ContinueWatchingSection />
-          <TrendingShows />
+            <TrendingShows />
           <TrendingMovies />
         </div>
       </ErrorBoundary>

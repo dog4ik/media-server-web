@@ -1,13 +1,13 @@
 import { Button } from "@/ui/button";
 import {
   NotFoundError,
-  ParseParamsError,
   InternalServerError,
   UnavailableError,
   BaseError,
+  BadRequestError,
 } from "@/utils/errors";
 import { MEDIA_SERVER_URL } from "@/utils/serverApi";
-import { FiSearch, FiSmile, FiWifiOff } from "solid-icons/fi";
+import { FiAlertOctagon, FiSearch, FiSmile, FiWifiOff } from "solid-icons/fi";
 import {
   ComponentProps,
   ErrorBoundary,
@@ -85,10 +85,15 @@ export function ErrorComponent(props: Props) {
     );
   }
 
-  if (props.err instanceof ParseParamsError) {
+  if (props.err instanceof BadRequestError) {
     return (
       <ErrorLayout>
-        <GenericError title="Url params are incorrect" />
+        <GenericError
+          icon={<FiAlertOctagon size={40} />}
+          title="Request failed"
+          message={`${props.context ?? "Request failed"} (${props.err.message})`}
+          retry={props.reset}
+        />
       </ErrorLayout>
     );
   }
@@ -111,7 +116,7 @@ export function ErrorComponent(props: Props) {
         <GenericError
           title="Internal server props.error"
           message={props.err.message}
-          icon={<FiSmile size={40} />}
+          icon={<FiAlertOctagon size={40} />}
         />
       </ErrorLayout>
     );
@@ -122,7 +127,7 @@ export function ErrorComponent(props: Props) {
   return (
     <ErrorLayout>
       <div class="flex flex-col">
-        <span>Unhandled props.error boundary</span>
+        <span>Unhandled error fallback</span>
         <span>
           Error: {props.context ?? props.err.message ?? "Unknown error"}
         </span>

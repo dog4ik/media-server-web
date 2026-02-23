@@ -258,7 +258,7 @@ export function PeerList(props: Props) {
               fallback={
                 <TableRow>
                   <TableCell colSpan={COLUMNS.length} class="h-24 text-center">
-                    No results.
+                    No peers
                   </TableCell>
                 </TableRow>
               }

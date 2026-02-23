@@ -3,6 +3,7 @@ import { Media } from "./library";
 
 export type ErrorType =
   | "database"
+  | "badrequest"
   | "server"
   | "notfound"
   | "unavailable"
@@ -22,6 +23,12 @@ export class DatabaseError extends BaseError {
   }
 }
 
+export class BadRequestError extends BaseError {
+  constructor(message?: string) {
+    super("badrequest", message);
+  }
+}
+
 export class InternalServerError extends BaseError {
   constructor(message?: string) {
     super("server", message);
@@ -37,12 +44,6 @@ export class NotFoundError extends BaseError {
 export class UnavailableError extends BaseError {
   constructor(message?: string) {
     super("unavailable", message);
-  }
-}
-
-export class ParseParamsError extends BaseError {
-  constructor(message?: string) {
-    super("parseparams", message);
   }
 }
 

@@ -27,8 +27,8 @@ import { QueryClientProvider } from "@tanstack/solid-query";
 import { SolidQueryDevtools } from "@tanstack/solid-query-devtools";
 import History from "./pages/Settings/History";
 import { ErrorBoundary, Suspense } from "solid-js";
-import { ColorSettingsPage } from "./pages/Settings/ColorSettings";
-import { errorBoundaryFallback } from "./components/Error";
+import { ColorSettingsPage } from "@/pages/Settings/ColorSettings";
+import { errorBoundaryFallback, ErrorComponent } from "@/components/Error";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -43,9 +43,9 @@ const rootRoute = createRootRoute({
       </QueryClientProvider>
     </>
   ),
-  errorComponent: ({ error, info }) => {
+  errorComponent: ({ error, info, reset }) => {
     console.error(error, info);
-    return <div>{(error.message, info?.componentStack)}</div>;
+    return <ErrorComponent err={error} reset={reset} />;
   },
   head: (_) => {
     return {

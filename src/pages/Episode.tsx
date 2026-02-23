@@ -1,4 +1,11 @@
-import { Match, Show, Switch, createEffect, createSignal } from "solid-js";
+import {
+  ErrorBoundary,
+  Match,
+  Show,
+  Switch,
+  createEffect,
+  createSignal,
+} from "solid-js";
 import { Description, DescriptionSkeleton } from "@/components/Description";
 import { fullUrl, Schemas } from "@/utils/serverApi";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
@@ -17,6 +24,7 @@ import {
 } from "@/components/Description/VideoList";
 import { getRouteApi, linkOptions } from "@tanstack/solid-router";
 import { queryApi } from "@/utils/queryApi";
+import { errorBoundaryFallback } from "@/components/Error";
 
 export type SelectedSubtitles =
   | {
@@ -160,7 +168,7 @@ export default function Episode() {
   };
 
   return (
-    <>
+    <ErrorBoundary fallback={errorBoundaryFallback("Failed to load episode")}>
       <Show when={show.latest() && episode.latest()}>
         {(_) => (
           <DownloadTorrentModal
@@ -293,6 +301,6 @@ export default function Episode() {
           )}
         </Match>
       </Switch>
-    </>
+    </ErrorBoundary>
   );
 }

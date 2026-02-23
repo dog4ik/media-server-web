@@ -1,11 +1,12 @@
-import createFetchClient, {
-  ClientMethod,
-  ParamsOption,
-  Middleware,
-} from "openapi-fetch";
+import createFetchClient, { ParamsOption, Middleware } from "openapi-fetch";
 import type { components, paths } from "server-types";
 import tracing from "./tracing";
-import { UnavailableError } from "./errors";
+import {
+  BadRequestError,
+  InternalServerError,
+  NotFoundError,
+  UnavailableError,
+} from "./errors";
 
 export function formatCodec<T extends string | { other: string }>(
   codec: T,
@@ -17,31 +18,46 @@ export const MEDIA_SERVER_URL: string = import.meta.env.PROD
   ? `${window.location.protocol}//${window.location.host}`
   : import.meta.env.VITE_MEDIA_SERVER_URL;
 
-const client = createFetchClient<paths>({
+export const server = createFetchClient<paths>({
   baseUrl: MEDIA_SERVER_URL,
 });
 
-const unavailableMiddleware: Middleware = {
+const serverErrorMiddleware: Middleware = {
+  async onResponse({ response }) {
+    async function errorMessage() {
+      try {
+        let json = await response.clone().json();
+        let message = json["message"];
+        if (typeof message !== "string") {
+          throw Error("Message is empty");
+        }
+        return message;
+      } catch {
+        return "";
+      }
+    }
+    let message = await errorMessage();
+    if (response.status === 404) {
+      throw new NotFoundError(message);
+    }
+    if (response.status === 400) {
+      throw new BadRequestError(message);
+    }
+    if (response.status === 500) {
+      throw new InternalServerError(message);
+    }
+  },
+
   async onError() {
     return new UnavailableError("Network error");
   },
 };
-client.use(unavailableMiddleware);
 
-type Media = `${string}/${string}`;
+server.use(serverErrorMiddleware);
 
 export type LogLevel = "INFO" | "ERROR" | "DEBUG" | "TRACE";
 
 export type Schemas = components["schemas"];
-
-const cacheMap: {
-  // @ts-expect-error
-  [key in keyof paths]?: ClientMethod<paths, "get", Media>;
-} = {};
-
-export const server: typeof client = {
-  ...client,
-};
 
 export type GetPaths = {
   [Pathname in keyof paths]: paths[Pathname] extends {
