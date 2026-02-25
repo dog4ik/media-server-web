@@ -1,5 +1,4 @@
 import { Button } from "@/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/ui/dialog";
 import { TextField, TextFieldLabel, TextFieldInput } from "@/ui/textfield";
 import { Schemas, server } from "@/utils/serverApi";
 import tracing from "@/utils/tracing";
@@ -15,21 +14,6 @@ type Props = {
   videoId: number;
   onClose: () => void;
 } & ParentProps;
-
-export function UploadSubtitlesDialog(props: Props) {
-  let [open, setOpen] = createSignal(false);
-  return (
-    <Dialog open={open()}>
-      <DialogTrigger onClick={() => setOpen(true)}>Add subtitles</DialogTrigger>
-      <DialogContent class="h-5/6 w-5/6">
-        <UploadSubtitles
-          videoId={props.videoId}
-          onClose={() => setOpen(false)}
-        />
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 export function UploadSubtitles(props: Props) {
   let [, { addNotification }] = useNotificationsContext();
@@ -48,10 +32,6 @@ export function UploadSubtitles(props: Props) {
     } else if (e.dataTransfer?.files) {
       return e.dataTransfer.files.item(0);
     }
-  }
-
-  function dataTransferHaveSubrip(list: DataTransferItemList) {
-    return [...list].find((item) => item.type == "application/x-subrip");
   }
 
   let handleFileSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (

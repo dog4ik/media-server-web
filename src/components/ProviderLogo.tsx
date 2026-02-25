@@ -1,5 +1,5 @@
 import { Match, Switch } from "solid-js";
-import { Schemas } from "../../utils/serverApi";
+import { Schemas } from "../utils/serverApi";
 import { FiHardDrive } from "solid-icons/fi";
 
 type Props = {

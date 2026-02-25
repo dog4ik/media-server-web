@@ -3,7 +3,7 @@ import { useRawNotifications } from "@/context/NotificationContext";
 import { formatSE } from "./formats";
 import { fullUrl, Schemas, server } from "./serverApi";
 import { throwResponseErrors } from "./errors";
-import { isCompatible, useCapabilityQuery } from "./mediaCapabilities";
+import { containerSupport, isCompatible, useCapabilityQuery } from "./mediaCapabilities";
 import { linkOptions, LinkOptions } from "@tanstack/solid-router";
 
 export function defaultTrack<T extends { is_default: boolean }>(tracks: T[]) {
@@ -521,6 +521,10 @@ export class Video {
 
   defaultVideo() {
     return defaultTrack(this.details.video_tracks);
+  }
+
+  isContainerSupported() {
+    return containerSupport(this.details.container);
   }
 
   useVideoCompatibility() {

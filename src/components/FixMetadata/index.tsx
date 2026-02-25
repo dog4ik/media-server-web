@@ -2,7 +2,7 @@ import { For, Show } from "solid-js";
 import { Schemas, revalidatePath, server } from "../../utils/serverApi";
 import useDebounce from "../../utils/useDebounce";
 import { useNotifications } from "../../context/NotificationContext";
-import ProviderLogo from "../generic/ProviderLogo";
+import ProviderLogo from "../ProviderLogo";
 import {
   Dialog,
   DialogContent,

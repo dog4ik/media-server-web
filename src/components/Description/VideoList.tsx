@@ -34,7 +34,7 @@ import { formatDuration, formatResolution, formatSize } from "@/utils/formats";
 import { Dialog, DialogContent } from "@/ui/dialog";
 import { UploadSubtitles } from "./UploadSubtitles";
 import promptConfirm from "../modals/ConfirmationModal";
-import RadioButton from "../RadioButton";
+import RadioButton from "../ui/RadioButton";
 import { useCapabilityQuery } from "@/utils/mediaCapabilities";
 import clsx from "clsx";
 import { Skeleton } from "@/ui/skeleton";

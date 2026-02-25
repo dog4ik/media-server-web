@@ -28,7 +28,7 @@ function Item(props: ItemProps & ParentProps) {
   );
 }
 
-export default function SeasonsCarousel(props: Props) {
+export function SeasonTabs(props: Props) {
   let route = getRouteApi("/page/shows/$id");
   let search = route.useSearch();
   let params = route.useParams();

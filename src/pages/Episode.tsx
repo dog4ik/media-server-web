@@ -7,10 +7,9 @@ import {
   createSignal,
 } from "solid-js";
 import { Description, DescriptionSkeleton } from "@/components/Description";
-import { fullUrl, Schemas } from "@/utils/serverApi";
+import { fullUrl } from "@/utils/serverApi";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
 import { setBackdrop } from "@/context/BackdropContext";
-import { formatSE } from "@/utils/formats";
 import Icon from "@/components/ui/Icon";
 import { FiDownload } from "solid-icons/fi";
 import VideoActions from "@/components/Description/VideoActions";

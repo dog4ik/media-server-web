@@ -48,8 +48,8 @@ type PlayMarkProps = {
 function CanPlayMark(props: PlayMarkProps) {
   let playStatus = useQuery(() => ({
     queryFn: () => isCompatible(props.video, props.audio),
-    queryKey: ["compatatability"]
-  }))
+    queryKey: ["compatatability"],
+  }));
   return (
     <Show
       fallback={<div class="h-2 w-2 rounded-full bg-neutral-800" />}
@@ -69,7 +69,7 @@ function CanPlayMark(props: PlayMarkProps) {
   );
 }
 
-function VariantsError(props: { e: any }) {
+function VariantsError() {
   return (
     <div class="flex size-full items-center justify-center">
       <span class="text-2xl">Failed to load variants</span>
@@ -215,7 +215,7 @@ export default function TranscodedVariantsList() {
 
   return (
     <div class="flex flex-col gap-5">
-      <ErrorBoundary fallback={(e) => <VariantsError e={e} />}>
+      <ErrorBoundary fallback={VariantsError}>
         <Suspense>
           <Show fallback={<NoItemsDisplay />} when={videos.data?.length! > 0}>
             <Table class="border">

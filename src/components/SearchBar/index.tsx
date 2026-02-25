@@ -9,7 +9,7 @@ import {
   onMount,
 } from "solid-js";
 import { Schemas } from "../../utils/serverApi";
-import ProviderLogo from "../generic/ProviderLogo";
+import ProviderLogo from "../ProviderLogo";
 import useDebounce from "../../utils/useDebounce";
 import { TextField, TextFieldInput } from "@/ui/textfield";
 import { capitalize } from "@/utils/formats";
@@ -140,7 +140,7 @@ export default function SearchBar() {
           handleSubmit();
         }}
       >
-        <label class="input input-sm input-bordered flex items-center gap-2 text-black">
+        <label class="flex items-center gap-2 text-black">
           <TextField class="relative w-full">
             <TextFieldInput
               ref={inputRef!}

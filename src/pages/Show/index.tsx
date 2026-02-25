@@ -8,14 +8,13 @@ import {
   Switch,
 } from "solid-js";
 import { Description, DescriptionSkeleton } from "@/components/Description";
-import SeasonsCarousel from "@/components/ShowView/SeasonsCarousel";
+import { SeasonTabs } from "@/components/SeasonTabs";
 import { fullUrl, server } from "@/utils/serverApi";
 import { HoverArea, setBackdrop } from "@/context/BackdropContext";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
 import { extendShow, posterList } from "@/utils/library";
 import Icon from "@/components/ui/Icon";
 import { FiDownload, FiSkipForward } from "solid-icons/fi";
-import { useServerStatus } from "@/context/ServerStatusContext";
 import Season from "./Season";
 import { queryApi } from "@/utils/queryApi";
 import { getRouteApi } from "@tanstack/solid-router";
@@ -157,9 +156,7 @@ export default function ShowPage() {
                                 ? `Detect intros for season ${seasonNumber()}`
                                 : "Intro detection is not supported by local ffmpeg build"
                             }
-                            disabled={
-                              !capabilities.data?.chromaprint_enabled
-                            }
+                            disabled={!capabilities.data?.chromaprint_enabled}
                             onClick={() => detectIntros()}
                           >
                             <FiSkipForward size={30} />
@@ -186,7 +183,7 @@ export default function ShowPage() {
       <div class="hover-hide">
         <Show when={show.latest()?.seasons}>
           {(seasons) => (
-            <SeasonsCarousel
+            <SeasonTabs
               tabs={seasons()}
               onChange={(season) => setSelectedSeason(season)}
             />

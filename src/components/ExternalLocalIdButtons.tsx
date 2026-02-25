@@ -1,6 +1,6 @@
 import { Schemas, server } from "@/utils/serverApi";
 import { For, Show, Suspense } from "solid-js";
-import ProviderLogo from "./generic/ProviderLogo";
+import ProviderLogo from "./ProviderLogo";
 import { useQuery } from "@tanstack/solid-query";
 import { Link, linkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";

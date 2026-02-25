@@ -1,4 +1,4 @@
-import ProviderLogo from "@/components/generic/ProviderLogo";
+import ProviderLogo from "@/components/ProviderLogo";
 import PageTitle from "@/components/PageTitle";
 import { BaseError } from "@/utils/errors";
 import { capitalize } from "@/utils/formats";

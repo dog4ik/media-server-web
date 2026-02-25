@@ -2,7 +2,7 @@ import { fullUrl, Schemas, server } from "@/utils/serverApi";
 import { HlsSession } from "./hls";
 import { ProgressiveDownload } from "./progressive_download";
 import { throwResponseErrors } from "@/utils/errors";
-import { Compatibility, containerSupport } from "@/utils/mediaCapabilities";
+import { Compatibility } from "@/utils/mediaCapabilities";
 import { Video } from "@/utils/library";
 import tracing from "@/utils/tracing";
 import {
@@ -57,7 +57,7 @@ export class MediaSessionState {
     let session_id: string;
     let can_use_direct_stream =
       compatibility.combined?.supported &&
-      containerSupport(this.video.details.container) &&
+      this.video.isContainerSupported() &&
       (this.configuration.video_track === 0 ||
         isBrowserVideoTracksSupported()) &&
       (this.configuration.audio_track === 0 || isBrowserAudioTracksSupported());
