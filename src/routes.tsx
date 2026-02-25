@@ -26,9 +26,11 @@ import { queryClient } from "./utils/queryApi";
 import { QueryClientProvider } from "@tanstack/solid-query";
 import { SolidQueryDevtools } from "@tanstack/solid-query-devtools";
 import History from "./pages/Settings/History";
-import { ErrorBoundary, Suspense } from "solid-js";
-import { ColorSettingsPage } from "@/pages/Settings/ColorSettings";
-import { errorBoundaryFallback, ErrorComponent } from "@/components/Error";
+import { Suspense } from "solid-js";
+import { ColorSettingsPage } from "@/pages/Settings/ClientSettings";
+import { ErrorComponent } from "@/components/Error";
+import { SettingsLayout } from "./layouts/SettingsLayout";
+import { ResourcesPage } from "./pages/Settings/Resources";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -238,13 +240,29 @@ const torrentRoute = createRoute({
 
 const settingsRoute = createRoute({
   getParentRoute: () => pageRoute,
-  path: "settings",
+  id: "settings",
+  component: () => (
+    <SettingsLayout>
+      <Outlet />
+    </SettingsLayout>
+  ),
+});
+
+const serverSettingsRoute = createRoute({
+  getParentRoute: () => settingsRoute,
+  path: "/settings",
   component: GeneralSettingsPage,
 });
 
+const resourcesSettingsRoute = createRoute({
+  getParentRoute: () => settingsRoute,
+  path: "settings/resources",
+  component: ResourcesPage,
+});
+
 const clientSettingsRoute = createRoute({
-  getParentRoute: () => pageRoute,
-  path: "settings/color",
+  getParentRoute: () => settingsRoute,
+  path: "settings/client",
   component: ColorSettingsPage,
 });
 
@@ -301,12 +319,16 @@ export const routeTree = rootRoute.addChildren([
 
     torrentRoute,
     searchRoute,
-    settingsRoute,
-    clientSettingsRoute,
     dashboardRoute,
     historyRoute,
     logsRoute,
     testRoute,
+
+    settingsRoute.addChildren([
+      serverSettingsRoute,
+      clientSettingsRoute,
+      resourcesSettingsRoute,
+    ]),
   ]),
 
   watchRoute.addChildren([watchMovie, watchShow]),

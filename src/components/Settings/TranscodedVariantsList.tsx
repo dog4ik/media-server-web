@@ -181,7 +181,7 @@ function NoItemsDisplay() {
   );
 }
 
-export default function Variants() {
+export default function TranscodedVariantsList() {
   let videos = useQuery(() => ({
     queryFn: async () => {
       let variants = await server

@@ -1,7 +1,7 @@
 import SectionTitle from "../../components/Settings/SectionTitle";
 import SectionSubTitle from "../../components/Settings/SectionSubTitle";
 import { Schemas, revalidatePath, server } from "../../utils/serverApi";
-import Variants from "../../components/Settings/VariantsList";
+import TranscodedVariantsList from "../../components/Settings/TranscodedVariantsList";
 import { Setting, SmartSetting } from "../../components/Settings/Setting";
 import { ErrorBoundary, Show } from "solid-js";
 import { useNotifications } from "../../context/NotificationContext";
@@ -51,10 +51,6 @@ function GeneralSettings() {
 
   return (
     <div class="flex flex-col gap-8 p-5">
-      <div>
-        <SectionSubTitle name="Transcoded variants" />
-        <Variants />
-      </div>
       <div>
         <SectionTitle name="Settings" />
         <div class="divide-y divide-neutral-500">
