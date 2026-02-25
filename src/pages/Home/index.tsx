@@ -2,11 +2,7 @@ import { ErrorBoundary, For, Suspense } from "solid-js";
 import { MovieCard } from "../../components/Cards/MovieCard";
 import { ShowCard, ShowCardSkeleton } from "@/components/Cards/ShowCard";
 import { ElementsGrid } from "@/components/ElementsGrid";
-import {
-  ApplicationErrorBoundary,
-  errorBoundaryFallback,
-  ErrorComponent,
-} from "@/components/Error";
+import { ApplicationErrorBoundary, ErrorComponent } from "@/components/Error";
 import { queryApi } from "@/utils/queryApi";
 import { ContinueWatchingSection } from "./ContinueWatching";
 
@@ -30,7 +26,7 @@ function TrendingShows() {
         <Suspense
           fallback={
             <ElementsGrid elementSize={200}>
-              {[...Array(10)].map(() => (
+              {[...Array(20)].map(() => (
                 <ShowCardSkeleton />
               ))}
             </ElementsGrid>
@@ -68,7 +64,7 @@ function TrendingMovies() {
         <Suspense
           fallback={
             <ElementsGrid elementSize={200}>
-              {[...Array(10)].map(() => (
+              {[...Array(20)].map(() => (
                 <ShowCardSkeleton />
               ))}
             </ElementsGrid>
@@ -93,7 +89,7 @@ export default function Home() {
       >
         <div class="p-2">
           <ContinueWatchingSection />
-            <TrendingShows />
+          <TrendingShows />
           <TrendingMovies />
         </div>
       </ErrorBoundary>
