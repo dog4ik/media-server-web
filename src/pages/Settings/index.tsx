@@ -1,7 +1,6 @@
 import SectionTitle from "../../components/Settings/SectionTitle";
-import SectionSubTitle from "../../components/Settings/SectionSubTitle";
-import { Schemas, revalidatePath, server } from "../../utils/serverApi";
-import TranscodedVariantsList from "../../components/Settings/TranscodedVariantsList";
+import { server } from "../../utils/serverApi";
+import { queryClient } from "@/utils/queryApi";
 import { Setting, SmartSetting } from "../../components/Settings/Setting";
 import { ErrorBoundary, Show } from "solid-js";
 import { useNotifications } from "../../context/NotificationContext";
@@ -12,27 +11,12 @@ import promptConfirm from "@/components/modals/ConfirmationModal";
 import { Button } from "@/ui/button";
 import { SETTINGS } from "@/utils/settingsDescriptors";
 import { LanguagePicker } from "@/components/Settings/LanguagePicker";
-import { queryApi } from "@/utils/queryApi";
 import { errorBoundaryFallback } from "@/components/Error";
-
-export type SettingsObject = {
-  [K in Schemas["ConfigSchema"][number]["key"]]: Extract<
-    Schemas["ConfigSchema"][number],
-    { key: K }
-  >;
-};
 
 function GeneralSettings() {
   let notificator = useNotifications();
-
-  let { changedSettings, resetChangedSettings, change, apply, remoteSettings } =
+  let { saveStatus, remoteSettings, change, changedSettings } =
     useSettingsContext();
-
-  let changesAmount = () => Object.keys(changedSettings).length;
-
-  function handleReset() {
-    resetChangedSettings();
-  }
 
   async function restoreConfiguration() {
     let confirmed = await promptConfirm("Do you want to reset configuration?");
@@ -44,99 +28,77 @@ function GeneralSettings() {
           if (r.error) notificator("Failed to reset configuration");
         })
         .finally(async () => {
-          await revalidatePath("/api/configuration");
+          await queryClient.invalidateQueries({ queryKey: ["get", "/api/configuration"] });
         });
     }
   }
 
   return (
-    <div class="flex flex-col gap-8 p-5">
-      <div>
-        <SectionTitle name="Settings" />
-        <div class="divide-y divide-neutral-500">
-          <SmartSetting setting="show_folders" />
-          <SmartSetting setting="movie_folders" />
-          <Setting
-            data={SETTINGS["metadata_language"]}
-            remote={remoteSettings.data!["metadata_language"]}
-          >
-            <LanguagePicker
-              onChange={(language) =>
-                language ? change("metadata_language", language) : null
-              }
-              value={
-                changedSettings["metadata_language"] ??
-                remoteSettings.data!["metadata_language"].config_value ??
-                remoteSettings.data!["metadata_language"].default_value
-              }
-              placeholder="Select metadata language"
-            />
-          </Setting>
-          <SmartSetting setting="upnp_enabled" />
-          <SmartSetting setting="hw_accel" />
-          <SmartSetting setting="intro_min_duration" />
-        </div>
-      </div>
-
-      <SectionTitle name="Advanced settings" />
-      <div>
-        <div class="divide-y divide-neutral-500">
-          <SmartSetting setting="port" />
-          <SmartSetting setting="tmdb_key" />
-          <SmartSetting setting="tvdb_key" />
-          <SmartSetting setting="ffmpeg_path" />
-          <SmartSetting setting="intro_detection_ffmpeg_build" />
-          <SmartSetting setting="ffprobe_path" />
-          <SmartSetting setting="web_ui_path" />
-          <SmartSetting setting="upnp_ttl" />
-        </div>
-      </div>
-
-      <Show when={changesAmount()}>
-        {(amount) => (
-          <div class="fixed right-10 bottom-10 z-20 flex items-center gap-8">
-            <Button variant={"destructive"} onClick={handleReset}>
-              Abort changes
-            </Button>
-            <Button variant={"outline"} onClick={apply}>
-              Apply {amount()} {amount() === 1 ? "change" : "changes"}
-            </Button>
+    <Show when={remoteSettings.data}>
+      <span
+        class="pointer-events-none fixed right-10 bottom-10 text-sm text-white/40 transition-opacity duration-500"
+        classList={{ "opacity-0": saveStatus() === "idle" }}
+      >
+        {saveStatus() === "pending" ? "Saving..." : "Saved"}
+      </span>
+      <div class="flex flex-col gap-8 p-5">
+        <div>
+          <SectionTitle name="Settings" />
+          <div class="divide-y divide-neutral-500">
+            <SmartSetting setting="show_folders" />
+            <SmartSetting setting="movie_folders" />
+            <Setting
+              data={SETTINGS["metadata_language"]}
+              remote={remoteSettings.data!["metadata_language"]}
+            >
+              <LanguagePicker
+                onChange={(language) =>
+                  language ? change("metadata_language", language) : null
+                }
+                value={
+                  changedSettings["metadata_language"] ??
+                  remoteSettings.data!["metadata_language"].config_value ??
+                  remoteSettings.data!["metadata_language"].default_value
+                }
+                placeholder="Select metadata language"
+              />
+            </Setting>
+            <SmartSetting setting="upnp_enabled" />
+            <SmartSetting setting="hw_accel" />
+            <SmartSetting setting="intro_min_duration" />
           </div>
-        )}
-      </Show>
-      <Button variant={"destructive"} onClick={restoreConfiguration}>
-        Restore default configuration
-      </Button>
-    </div>
+        </div>
+
+        <SectionTitle name="Advanced settings" />
+        <div>
+          <div class="divide-y divide-neutral-500">
+            <SmartSetting setting="port" />
+            <SmartSetting setting="tmdb_key" />
+            <SmartSetting setting="tvdb_key" />
+            <SmartSetting setting="ffmpeg_path" />
+            <SmartSetting setting="intro_detection_ffmpeg_build" />
+            <SmartSetting setting="ffprobe_path" />
+            <SmartSetting setting="web_ui_path" />
+            <SmartSetting setting="upnp_ttl" />
+          </div>
+        </div>
+
+        <Button variant={"destructive"} onClick={restoreConfiguration}>
+          Restore default configuration
+        </Button>
+      </div>
+    </Show>
   );
 }
 
 export default function GeneralSettingsPage() {
-  let remoteSettings = queryApi.useQuery(
-    "get",
-    "/api/configuration",
-    () => ({}),
-    () => ({
-      select: (settings) =>
-        settings.reduce((obj, setting) => {
-          // @ts-expect-error
-          obj[setting.key] = setting;
-          return obj;
-        }, {} as SettingsObject),
-    }),
-  );
-
   return (
     <ErrorBoundary fallback={errorBoundaryFallback("Failed to load settings")}>
-      <Show when={remoteSettings.data}>
-        {(settings) => (
-          <div id="settings" class="flex h-full justify-between">
-            <SettingsProvider initialSettings={settings()}>
-              <GeneralSettings />
-            </SettingsProvider>
-          </div>
-        )}
-      </Show>
+      <div id="settings" class="flex h-full justify-between">
+        <SettingsProvider>
+          <GeneralSettings />
+        </SettingsProvider>
+      </div>
     </ErrorBoundary>
   );
 }
