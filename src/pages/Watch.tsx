@@ -12,7 +12,6 @@ import {
   ParentProps,
   Show,
 } from "solid-js";
-import { Meta } from "@solidjs/meta";
 import { formatSE } from "../utils/formats";
 import {
   ExtendedEpisode,
@@ -261,7 +260,6 @@ export function WatchShow() {
     <>
       <Show when={episode.latest() && videos.latest()}>
         <>
-          <Meta property="og-image" content={episode.latest()!.poster ?? ""} />
           <Watch
             media={episode.latest()}
             next={nextEpisode.latest()}
