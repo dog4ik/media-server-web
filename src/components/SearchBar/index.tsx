@@ -1,204 +1,182 @@
 import { FiX } from "solid-icons/fi";
-import {
-  For,
-  Match,
-  ParentProps,
-  Show,
-  Switch,
-  onCleanup,
-  onMount,
-} from "solid-js";
+import { For, Match, Show, Switch, createSignal } from "solid-js";
 import { Schemas } from "../../utils/serverApi";
 import ProviderLogo from "../ProviderLogo";
 import useDebounce from "../../utils/useDebounce";
 import { TextField, TextFieldInput } from "@/ui/textfield";
+import { Button } from "@/ui/button";
+import { Skeleton } from "@/ui/skeleton";
 import { capitalize } from "@/utils/formats";
 import { Link, useNavigate } from "@tanstack/solid-router";
 import { queryApi } from "@/utils/queryApi";
 
-function ContentTypeLink(
-  props: {
-    result: Schemas["MetadataSearchResult"];
-    class: string;
-    onClick: () => void;
-  } & ParentProps,
-) {
+function SearchResultItem(props: {
+  result: Schemas["MetadataSearchResult"];
+  onSelect: () => void;
+}) {
+  const linkClass =
+    "flex h-20 items-center gap-3 rounded-sm px-3 py-2 transition-colors hover:bg-accent hover:text-accent-foreground";
+
   return (
     <Switch>
       <Match when={props.result.content_type === "show"}>
         <Link
-          to={"/shows/$id"}
-          class={props.class}
-          onClick={props.onClick}
+          to="/shows/$id"
+          class={linkClass}
+          onClick={props.onSelect}
           search={{ provider: props.result.metadata_provider }}
           params={{ id: props.result.metadata_id }}
         >
-          {props.children}
+          <ResultContent result={props.result} />
         </Link>
       </Match>
       <Match when={props.result.content_type === "movie"}>
         <Link
-          to={"/movies/$id"}
+          to="/movies/$id"
+          class={linkClass}
           search={{ provider: props.result.metadata_provider }}
-          class={props.class}
           params={{ id: props.result.metadata_id }}
-          onClick={props.onClick}
+          onClick={props.onSelect}
         >
-          {props.children}
+          <ResultContent result={props.result} />
         </Link>
       </Match>
     </Switch>
   );
 }
 
-function SearchContent(props: {
-  result: Schemas["MetadataSearchResult"];
-  onClick: () => void;
-}) {
+function ResultContent(props: { result: Schemas["MetadataSearchResult"] }) {
   return (
-    <ContentTypeLink
-      onClick={props.onClick}
-      result={props.result}
-      class="bg-background flex h-32 items-center gap-2 p-2 px-2 text-start"
-    >
+    <>
       <img
-        class="aspect-poster h-full basis-20 object-cover"
+        class="aspect-poster h-full w-12 flex-none rounded object-cover"
         src={props.result.poster || "/no-photo.png"}
-        width={40}
-        height={80}
-        alt={`Search ${props.result.content_type} poster`}
+        alt={`${props.result.title} poster`}
       />
-      <div class="flex flex-1 flex-col gap-2">
-        <span class="truncate text-lg">{props.result.title}</span>
-        <span class="truncate text-xs">
+      <div class="min-w-0 flex-1">
+        <p class="truncate text-sm font-medium">{props.result.title}</p>
+        <p class="text-muted-foreground text-xs">
           {capitalize(props.result.content_type)}
-        </span>
+        </p>
         <Show when={props.result.plot}>
           {(plot) => (
-            <p title={plot()} class="line-clamp-3">
-              {plot()}
-            </p>
+            <p class="text-muted-foreground line-clamp-2 text-xs">{plot()}</p>
           )}
         </Show>
       </div>
-      <div class="h-6 w-10">
+      <div class="h-5 w-8 flex-none">
         <ProviderLogo provider={props.result.metadata_provider} />
       </div>
-    </ContentTypeLink>
+    </>
   );
 }
 
-function SearchLoading() {
+function SearchResultsSkeleton() {
   return (
-    <div class="flex h-full w-full flex-1 items-center justify-center">
-      <span class="loading loading-dots loading-md">Loading</span>
+    <div class="space-y-1 p-1">
+      <For each={[0, 1, 2]}>
+        {() => (
+          <div class="flex h-20 items-center gap-3 px-3 py-2">
+            <Skeleton class="h-full w-12 rounded" />
+            <div class="flex-1 space-y-2">
+              <Skeleton class="h-4 w-2/3 rounded" />
+              <Skeleton class="h-3 w-1/3 rounded" />
+            </div>
+          </div>
+        )}
+      </For>
     </div>
   );
 }
 
 export default function SearchBar() {
   let [input, deferredInput, setInput] = useDebounce(500, "");
+  let [open, setOpen] = createSignal(false);
   let navigator = useNavigate();
+  let containerRef!: HTMLDivElement;
+  let inputRef!: HTMLInputElement;
 
   let searchResult = queryApi.useQuery("get", "/api/search/content", () => ({
     params: { query: { search: deferredInput() } },
   }));
 
-  let windowRef: HTMLDivElement = {} as any;
-  let inputRef: HTMLInputElement = {} as any;
-
-  function handleClick(e: MouseEvent) {
-    let target = e.target as Element;
-    if (windowRef?.contains(target) || inputRef.contains(target)) {
-      e.preventDefault();
-    } else {
-      windowRef.hidePopover();
+  function handleFocusOut(e: FocusEvent) {
+    if (!containerRef.contains(e.relatedTarget as Element)) {
+      setOpen(false);
     }
   }
 
   function handleSubmit() {
-    navigator({
-      to: "/search",
-      search: { provider: "local", search: input() },
-    });
+    setOpen(false);
+    navigator({ to: "/search", search: { provider: "local", search: input() } });
   }
 
-  onMount(() => {
-    windowRef.hidePopover();
-    document.addEventListener("click", handleClick);
-  });
-  onCleanup(() => {
-    document.removeEventListener("click", handleClick);
-  });
+  function handleSelect() {
+    setOpen(false);
+    setInput("");
+  }
 
   return (
-    <div class="relative w-full items-center gap-2">
+    <div ref={containerRef} class="relative w-full" onFocusOut={handleFocusOut}>
       <form
-        class="relative w-full"
+        class="relative"
         onSubmit={(e) => {
           e.preventDefault();
           handleSubmit();
         }}
       >
-        <label class="flex items-center gap-2 text-black">
-          <TextField class="relative w-full">
-            <TextFieldInput
-              ref={inputRef!}
-              onInput={(e) => {
-                setInput(e.currentTarget.value);
+        <TextField class="w-full">
+          <TextFieldInput
+            ref={inputRef}
+            type="text"
+            placeholder="Search shows and movies"
+            value={input()}
+            class="w-full pr-8"
+            onInput={(e) => setInput(e.currentTarget.value)}
+            onFocus={() => setOpen(true)}
+          />
+          <Show when={input().length > 0}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => {
+                setInput("");
+                inputRef.focus();
               }}
-              onFocus={() => windowRef.showPopover()}
-              onKeyPress={(e: { key: string }) => {
-                if (e.key == "Enter") {
-                  handleSubmit();
-                }
-              }}
-              type="text"
-              class="grow bg-white"
-              placeholder="Search shows and movies"
-              value={input()}
-            />
-            <Show when={input().length > 0}>
-              <button
-                onClick={() => {
-                  inputRef.focus();
-                  setInput("");
-                }}
-                class="absolute top-1/2 right-2 flex h-5 w-5 -translate-y-2/3 items-center justify-center rounded-full bg-stone-50 text-black transition-colors hover:bg-stone-300"
-              >
-                <FiX />
-              </button>
-            </Show>
-          </TextField>
-        </label>
+              class="absolute top-1/2 right-1 -translate-y-1/2"
+              aria-label="Clear search"
+            >
+              <FiX />
+            </Button>
+          </Show>
+        </TextField>
       </form>
-      <div
-        ref={windowRef!}
-        class={`bg-background m-0 h-2/3 w-2/3 translate-y-16 open:absolute ${input() ? "text-white backdrop-blur-2xl" : "hidden"}`}
-        popover="manual"
-      >
-        <Show when={searchResult?.latest()} fallback={<SearchLoading />}>
-          {(data) => (
-            <Switch>
-              <Match when={data().length > 0}>
-                <div class="divide-y overflow-y-auto">
-                  <For each={data()}>
-                    {(item) => (
-                      <SearchContent
-                        result={item}
-                        onClick={() => windowRef.hidePopover()}
-                      />
-                    )}
-                  </For>
-                </div>
-              </Match>
-              <Match when={data().length === 0}>
-                <div>No results</div>
-              </Match>
-            </Switch>
-          )}
-        </Show>
-      </div>
+
+      <Show when={open() && input().length > 0}>
+        <div class="bg-popover text-popover-foreground absolute top-full z-50 mt-1 w-full overflow-hidden rounded-md border shadow-md">
+          <Show when={searchResult?.latest()} fallback={<SearchResultsSkeleton />}>
+            {(data) => (
+              <Switch>
+                <Match when={data().length > 0}>
+                  <div class="max-h-96 divide-y overflow-y-auto p-1">
+                    <For each={data()}>
+                      {(item) => (
+                        <SearchResultItem result={item} onSelect={handleSelect} />
+                      )}
+                    </For>
+                  </div>
+                </Match>
+                <Match when={data().length === 0}>
+                  <p class="text-muted-foreground p-6 text-center text-sm">
+                    No results found
+                  </p>
+                </Match>
+              </Switch>
+            )}
+          </Show>
+        </div>
+      </Show>
     </div>
   );
 }
