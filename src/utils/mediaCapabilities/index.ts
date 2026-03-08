@@ -9,6 +9,7 @@ import { getAv1Codec } from "./video/av1";
 import { getAVCCodec, getMaxAVCLevel } from "./video/avc";
 import { getHevcVideo, getMaxHEVCLevel } from "./video/hevc";
 import { getFlacAudio } from "./audio/flac";
+import { getOpusAudio } from "./audio/opus";
 
 export type Compatibility = {
   video: MediaCapabilitiesDecodingInfo;
@@ -71,6 +72,9 @@ export async function isCompatible<
   }
   if (audio?.codec == "flac") {
     audioCodecs = getFlacAudio();
+  }
+  if (audio?.codec == "opus") {
+    audioCodecs = getOpusAudio();
   }
 
   let videoConfig = () => {
@@ -192,6 +196,9 @@ export async function canPlayAfterTranscode(
   }
   if (audioConfig?.audioCodec == "flac") {
     audioSpec = getFlacAudio();
+  }
+  if (audioConfig?.audioCodec == "opus") {
+    audioSpec = getOpusAudio();
   }
 
   let videoQueryConfig: VideoConfiguration | undefined = undefined;
