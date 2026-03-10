@@ -46,6 +46,7 @@ type Props = {
   season: number;
   initialTorrentQuery: (provider: Schemas["TorrentIndexIdentifier"]) => string;
   showId: string;
+  localShowId?: number;
   canDetectIntros: boolean;
 };
 
@@ -228,8 +229,7 @@ export default function Season(props: Props) {
                 onDelete={() => null}
                 video={undefined}
                 episode={ep}
-                availableLocally={ep.metadata_provider == "local"}
-                history={undefined}
+                localShowId={props.localShowId}
               />
             </div>
           )}

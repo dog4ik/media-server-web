@@ -130,3 +130,30 @@ export function formatBitrate(bitrate: number): string {
   }
   return `${bitrate} bps`;
 }
+
+export function timeAgo(date: Date, locale = "en-US"): string {
+  let now = Date.now();
+  let diffMs = now - date.getTime();
+  let diffSec = Math.round(diffMs / 1000);
+
+  let units: [Intl.RelativeTimeFormatUnit, number][] = [
+    ["year", 60 * 60 * 24 * 365],
+    ["month", 60 * 60 * 24 * 30],
+    ["week", 60 * 60 * 24 * 7],
+    ["day", 60 * 60 * 24],
+    ["hour", 60 * 60],
+    ["minute", 60],
+    ["second", 1],
+  ];
+
+  let rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+
+  for (let [unit, secondsInUnit] of units) {
+    if (Math.abs(diffSec) >= secondsInUnit || unit === "second") {
+      let value = Math.round(diffSec / secondsInUnit);
+      return rtf.format(-value, unit);
+    }
+  }
+
+  return rtf.format(0, "second");
+}

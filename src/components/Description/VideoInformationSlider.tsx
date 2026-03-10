@@ -9,7 +9,6 @@ import {
 } from "@/ui/sheet";
 import { Video } from "@/utils/library";
 import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
-import ChevronRight from "lucide-solid/icons/chevron-right";
 import FileVideo from "lucide-solid/icons/file-video";
 import Info from "lucide-solid/icons/info";
 import Monitor from "lucide-solid/icons/monitor";
@@ -22,7 +21,6 @@ import {
 } from "@/utils/formats";
 import Volume2 from "lucide-solid/icons/volume-2";
 import Play from "lucide-solid/icons/play";
-import History from "lucide-solid/icons/history";
 import Subtitles from "lucide-solid/icons/subtitles";
 import Clock from "lucide-solid/icons/clock";
 import HardDrive from "lucide-solid/icons/hard-drive";
@@ -297,67 +295,6 @@ export default function VideoInformationSlider(props: Props) {
                         </div>
                       </div>
                     ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {props.video.details.history && (
-              <Card>
-                <CardHeader>
-                  <CardTitle class="flex items-center gap-2 text-lg">
-                    <History class="h-4 w-4" />
-                    Viewing History
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                      <span>Progress:</span>
-                      <Badge
-                        variant={
-                          props.video.details.history.is_finished
-                            ? "default"
-                            : "secondary"
-                        }
-                      >
-                        {props.video.details.history.is_finished
-                          ? "Finished"
-                          : "In Progress"}
-                      </Badge>
-                    </div>
-                    <div class="flex items-center justify-between">
-                      <span>Time Watched:</span>
-                      <span>
-                        {Math.floor(props.video.details.history.time / 60)}m{" "}
-                        {props.video.details.history.time % 60}s
-                      </span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                      <span>Last Updated:</span>
-                      <span>
-                        {new Date(
-                          props.video.details.history.update_time,
-                        ).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {props.video.details.intro && (
-              <Card>
-                <CardHeader>
-                  <CardTitle class="flex items-center gap-2 text-lg">
-                    <ChevronRight class="h-4 w-4" />
-                    Intro Sequence
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div class="text-sm">
-                    <span>Duration:</span> {props.video.details.intro.start_sec}{" "}
-                    - {props.video.details.intro.end_sec}
                   </div>
                 </CardContent>
               </Card>

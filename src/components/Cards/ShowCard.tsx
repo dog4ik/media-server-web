@@ -1,4 +1,5 @@
 import MoreButton from "../ContextMenu/MoreButton";
+import BookCheck from "lucide-solid/icons/book-check";
 import { createMemo, Show } from "solid-js";
 import {
   Schemas,
@@ -9,11 +10,11 @@ import {
 import FallbackImage from "../FallbackImage";
 import useToggle from "../../utils/useToggle";
 import FixMetadata from "../FixMetadata";
-import { useNotifications } from "../../context/NotificationContext";
 import { MenuRow } from "../ContextMenu/Menu";
 import promptConfirm from "../modals/ConfirmationModal";
 import { Link, linkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
+import { InLibaryIcon } from "./InLibraryIcon";
 
 async function deleteShow(id: number, name: string) {
   try {
@@ -26,29 +27,10 @@ async function deleteShow(id: number, name: string) {
   }
 }
 
-export function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
+export function ShowCard(props: { show: Schemas["Show"] }) {
   let [fixModal, toggleFixModal] = useToggle(false);
-  let notificator = useNotifications();
   function handleFix() {
     toggleFixModal(true);
-  }
-
-  function handleMetadataReset() {
-    if (props.show.metadata_provider !== "local") return;
-    server
-      .POST("/api/show/{show_id}/reset_metadata", {
-        params: { path: { show_id: +props.show.metadata_id } },
-      })
-      .then((res) => {
-        if (res.error) {
-          notificator("Failed to reset metadata");
-        } else {
-          notificator("Successfully reset metadata");
-        }
-      })
-      .finally(() => {
-        revalidatePath("/api/local_shows");
-      });
   }
 
   let imageUrl =
@@ -71,15 +53,17 @@ export function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
 
   return (
     <>
-      <FixMetadata
-        open={fixModal()}
-        contentType="show"
-        targetId={props.show.metadata_id}
-        initialSearch={props.show.title}
-        onClose={() => toggleFixModal(false)}
-      />
+      <Show when={fixModal()}>
+        <FixMetadata
+          open={fixModal()}
+          contentType="show"
+          targetId={props.show.metadata_id}
+          initialSearch={props.show.title}
+          onClose={() => toggleFixModal(false)}
+        />
+      </Show>
       <div class="max-w-60 min-w-60 flex-none space-y-2 overflow-hidden">
-        <Link class="relative size-full" {...showLinkOptions()}>
+        <Link class="relative block size-full" {...showLinkOptions()}>
           <FallbackImage
             alt="Show poster"
             srcList={[imageUrl, props.show.poster ?? undefined]}
@@ -97,6 +81,19 @@ export function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
               </span>
             </div>
           </Show>
+          <Show
+            when={
+              props.show.local?.id && props.show.metadata_provider !== "local"
+            }
+          >
+            <InLibaryIcon
+              link={linkOptions({
+                to: "/shows/$id",
+                search: { provider: "local" },
+                params: { id: props.show.local!.id.toString() },
+              })}
+            />
+          </Show>
         </Link>
         <div class="flex items-center justify-between">
           <Link class="text-md truncate" {...showLinkOptions()}>
@@ -113,7 +110,6 @@ export function ShowCard(props: { show: Schemas["ShowMetadata"] }) {
           <Show when={props.show.metadata_provider === "local"}>
             <MoreButton>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
-              <MenuRow onClick={handleMetadataReset}>Reset Metadata</MenuRow>
               <MenuRow
                 onClick={() =>
                   deleteShow(+props.show.metadata_id, props.show.title)

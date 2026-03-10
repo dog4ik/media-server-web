@@ -33,7 +33,6 @@ export function ContinueWatchingSection() {
                       },
                       search: { provider: show.episode.metadata_provider },
                     })}
-                    history={show.history ?? undefined}
                     onDelete={() => null}
                     onOptimize={() => null}
                     onFixMetadata={() => null}

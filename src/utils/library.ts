@@ -3,22 +3,15 @@ import { useRawNotifications } from "@/context/NotificationContext";
 import { formatSE } from "./formats";
 import { fullUrl, Schemas, server } from "./serverApi";
 import { throwResponseErrors } from "./errors";
-import { containerSupport, isCompatible, useCapabilityQuery } from "./mediaCapabilities";
+import {
+  containerSupport,
+  isCompatible,
+  useCapabilityQuery,
+} from "./mediaCapabilities";
 import { linkOptions, LinkOptions } from "@tanstack/solid-router";
 
 export function defaultTrack<T extends { is_default: boolean }>(tracks: T[]) {
   return tracks.find((t) => t.is_default) ?? tracks.at(0);
-}
-
-async function externalToLocal<T extends Media>(content: T) {
-  return await server
-    .GET("/api/external_to_local/{id}", {
-      params: {
-        query: { provider: content.metadata_provider },
-        path: { id: content.metadata_id },
-      },
-    })
-    .then((res) => res.data);
 }
 
 export function posterList(media: Media) {
@@ -43,9 +36,8 @@ export interface Media {
   delete(): Promise<Schemas["AppError"] | undefined>;
 }
 
-export type ExtendedMovie = Schemas["MovieMetadata"] &
+export type ExtendedMovie = Schemas["Movie"] &
   Media & {
-    localId(): Promise<number | undefined>;
     fetchVideos(): Promise<Video[] | undefined>;
   };
 
@@ -65,7 +57,7 @@ export async function fetchMovie(
 }
 
 /// We are doing things this way because stupid classes can't spread in constructor
-export function extendMovie(movie: Schemas["MovieMetadata"]): ExtendedMovie {
+export function extendMovie(movie: Schemas["Movie"]): ExtendedMovie {
   return {
     ...movie,
 
@@ -109,19 +101,11 @@ export function extendMovie(movie: Schemas["MovieMetadata"]): ExtendedMovie {
       }
     },
 
-    async localId() {
-      if (this.metadata_provider !== "local")
-        return await externalToLocal(this).then(
-          (r) => r?.movie_id ?? undefined,
-        );
-      else return +this.metadata_id;
-    },
     poster: movie.poster ?? undefined,
   };
 }
 
-export type ExtendedShow = Schemas["ShowMetadata"] &
-  Media & { localId(): Promise<number | undefined> };
+export type ExtendedShow = Schemas["Show"] & Media;
 
 export async function fetchShow(
   showId: string,
@@ -137,7 +121,7 @@ export async function fetchShow(
 }
 
 /// We are doing things this way because stupid classes can't spread in constructor
-export function extendShow(show: Schemas["ShowMetadata"]): ExtendedShow {
+export function extendShow(show: Schemas["Show"]): ExtendedShow {
   return {
     ...show,
 
@@ -168,20 +152,13 @@ export function extendShow(show: Schemas["ShowMetadata"]): ExtendedShow {
       return this.title;
     },
 
-    async localId() {
-      return this.metadata_provider !== "local"
-        ? await externalToLocal(this).then((r) => r?.show_id ?? undefined)
-        : +this.metadata_id;
-    },
     poster: show.poster ?? undefined,
   };
 }
 
-export type ExtendedSeason = Schemas["SeasonMetadata"] &
+export type ExtendedSeason = Schemas["Season"] &
   Media & {
-    fetchEpisode(
-      number: number,
-    ): Promise<Schemas["EpisodeMetadata"] | undefined>;
+    fetchEpisode(number: number): Promise<Schemas["Episode"] | undefined>;
     extended_episodes: ExtendedEpisode[];
   };
 
@@ -205,7 +182,7 @@ export async function fetchSeason(
 
 /// We are doing things this way because stupid classes can't spread in constructor
 export function extendSeason(
-  season: Schemas["SeasonMetadata"],
+  season: Schemas["Season"],
   showId: string,
 ): ExtendedSeason {
   return {
@@ -253,7 +230,7 @@ export function extendSeason(
   };
 }
 
-export type ExtendedEpisode = Schemas["EpisodeMetadata"] &
+export type ExtendedEpisode = Schemas["Episode"] &
   Media & {
     fetchVideos(): Promise<Video[] | undefined>;
     /**
@@ -264,6 +241,9 @@ export type ExtendedEpisode = Schemas["EpisodeMetadata"] &
       showTitle: string,
       poster?: string,
     ): (msg: string) => void;
+    showUrl(): LinkOptions;
+    seasonUrl(): LinkOptions;
+    showId: string;
   };
 
 export async function fetchEpisode(
@@ -285,7 +265,7 @@ export async function fetchEpisode(
 
 /// We are doing things this way because stupid classes can't spread in constructor
 export function extendEpisode(
-  episode: Schemas["EpisodeMetadata"],
+  episode: Schemas["Episode"],
   showId: string,
 ): ExtendedEpisode {
   return {
@@ -315,6 +295,29 @@ export function extendEpisode(
           episode: this.number.toString(),
         },
         search: { provider: this.metadata_provider },
+      });
+    },
+
+    showUrl() {
+      return linkOptions({
+        to: "/shows/$id",
+        params: {
+          id: showId,
+        },
+        search: { provider: this.metadata_provider },
+      });
+    },
+
+    seasonUrl() {
+      return linkOptions({
+        to: "/shows/$id",
+        params: {
+          id: showId,
+        },
+        search: {
+          provider: this.metadata_provider,
+          season: this.season_number,
+        },
       });
     },
 
@@ -349,6 +352,7 @@ export function extendEpisode(
     },
 
     poster: episode.poster ?? undefined,
+    showId,
   };
 }
 

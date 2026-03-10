@@ -1,8 +1,4 @@
-import {
-  NotFoundError,
-  notifyResponseErrors,
-  throwResponseErrors,
-} from "../utils/errors";
+import { NotFoundError, notifyResponseErrors } from "../utils/errors";
 import VideoPlayer, { NextVideo } from "../components/VideoPlayer";
 import { Schemas, fullUrl, server } from "../utils/serverApi";
 import {
@@ -24,13 +20,9 @@ import {
 } from "@/utils/library";
 import tracing from "@/utils/tracing";
 import TracksSelectionProvider from "./Watch/TracksSelectionContext";
-import { useServerStatus } from "@/context/ServerStatusContext";
 import { useNotificationsContext } from "@/context/NotificationContext";
-import { containerSupport } from "@/utils/mediaCapabilities";
-import Hls from "hls.js";
 import { getRouteApi, Link, linkOptions } from "@tanstack/solid-router";
 import { queryApi } from "@/utils/queryApi";
-import { useQuery } from "@tanstack/solid-query";
 import WatchSessionProvider from "./Watch/WatchSessionContext";
 import { MediaSessionState } from "@/lib/mediaSession";
 
@@ -42,21 +34,11 @@ export type Subtitle = {
   language?: Schemas["DetailedSubtitleTrack"]["language"];
 };
 
-function hlsStreamUrl(streamId: string) {
-  return fullUrl("/api/watch/hls/{id}/manifest", { path: { id: streamId } });
-}
-
-function directStreamUrl(videoId: number) {
-  let url = fullUrl("/api/video/{id}/watch", {
-    query: undefined,
-    path: { id: videoId },
-  });
-  return url;
-}
-
 type WatchProps = {
   videos: Video[];
   media?: Media;
+  intro?: Schemas["Intro"];
+  history?: Schemas["History"];
   next?: NextVideo;
 } & ParentProps;
 
@@ -120,7 +102,11 @@ export function WatchMovie() {
   return (
     <>
       <Show when={movie.isSuccess && videos.isSuccess}>
-        <Watch media={movie.latest()!} videos={videos.latest()!}>
+        <Watch
+          history={movie.latest()?.local?.history ?? undefined}
+          media={movie.latest()!}
+          videos={videos.latest()!}
+        >
           <div class="absolute top-5 left-5">
             <Link
               to={"/movies/$id"}
@@ -169,7 +155,6 @@ function showMediaSessionMetadata(
 export function WatchShow() {
   let route = getRouteApi("/watch/shows/$id/$season/$episode/watch");
   let params = route.useParams();
-  let search = route.useSearch();
 
   let episode = queryApi.useQuery(
     "get",
@@ -261,6 +246,8 @@ export function WatchShow() {
       <Show when={episode.latest() && videos.latest()}>
         <>
           <Watch
+            history={episode.latest()?.local?.history ?? undefined}
+            intro={episode.latest()?.local?.intro ?? undefined}
             media={episode.latest()}
             next={nextEpisode.latest()}
             videos={videos.latest()!}
@@ -326,7 +313,6 @@ function Watch(props: WatchProps) {
   // todo: deligate a separate route
   let route = getRouteApi("/watch");
   let search = route.useSearch();
-  let [{ serverStatus }] = useServerStatus();
   let [, { addNotification }] = useNotificationsContext();
 
   let video = createMemo(() => {
@@ -388,9 +374,9 @@ function Watch(props: WatchProps) {
       <TracksSelectionProvider video={mediaSession}>
         <VideoPlayer
           mediaSession={mediaSession}
-          intro={video().details.intro ?? undefined}
+          intro={props.intro}
           nextVideo={props.next}
-          initialTime={video().details.history?.time ?? 0}
+          initialTime={props.history?.time ?? 0}
           initialDuration={video().details.duration.secs ?? 0}
           onHistoryUpdate={updateHistory}
           previews={

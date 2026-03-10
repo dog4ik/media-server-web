@@ -13,7 +13,6 @@ import {
   VideoList,
   VideoSelection,
 } from "@/components/Description/VideoList";
-import { useQuery } from "@tanstack/solid-query";
 import { queryApi } from "@/utils/queryApi";
 import { getRouteApi, linkOptions } from "@tanstack/solid-router";
 import * as torrentQuery from "@/lib/torrentQuery";
@@ -36,17 +35,6 @@ export default function Movie() {
     }),
     () => ({ select: extendMovie }),
   );
-
-  let local_id = useQuery(() => ({
-    queryFn: async () => movie.latest()?.localId(),
-    queryKey: [
-      "local_id",
-      movie.latest()?.metadata_id,
-      movie.latest()?.metadata_provider,
-      "movie",
-    ],
-    enabled: !!movie.latest(),
-  }));
 
   createEffect(() => {
     if (movie.data) {
@@ -90,7 +78,7 @@ export default function Movie() {
     let selection = selectedVideo();
     if (!selection) return;
     let { video_id, variant_id } = selection;
-    let id = local_id.data;
+    let id = movie.data?.local?.id;
     if (!id) return;
     return linkOptions({
       to: "/movies/$id/watch",
@@ -122,9 +110,9 @@ export default function Movie() {
                   <Description
                     title={movie().title}
                     progress={
-                      video()?.details.history
+                      movie().local?.history
                         ? {
-                            history: video()!.details.history!,
+                            history: movie().local!.history!,
                             runtime: video()!.details.duration.secs,
                           }
                         : undefined

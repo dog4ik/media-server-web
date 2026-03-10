@@ -1,9 +1,9 @@
-import { Schemas, server } from "@/utils/serverApi";
+import { Schemas } from "@/utils/serverApi";
 import { For, Show, Suspense } from "solid-js";
 import ProviderLogo from "./ProviderLogo";
-import { useQuery } from "@tanstack/solid-query";
 import { Link, linkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
+import { queryApi } from "@/utils/queryApi";
 
 type Props = {
   id: string;
@@ -27,57 +27,20 @@ export function ExternalLocalIdButtons(props: Props) {
     }
   }
 
-  let ids = useQuery(() => ({
-    queryFn: async () => {
-      if (props.provider == "local") {
-        return server
-          .GET("/api/external_ids/{id}", {
-            params: {
-              query: {
-                provider: "local",
-                content_type: props.contentType,
-              },
-              path: {
-                id: props.id,
-              },
-            },
-          })
-          .then((d) => d.data);
-      } else {
-        return server
-          .GET("/api/external_to_local/{id}", {
-            params: {
-              query: {
-                provider: props.provider,
-              },
-              path: {
-                id: props.id,
-              },
-            },
-          })
-          .then((r) => r.data)
-          .then((r) => {
-            if (props.contentType == "show" && r?.show_id) {
-              return [
-                { provider: "local", id: r.show_id.toString() },
-              ] as Schemas["ExternalIdMetadata"][];
-            } else if (props.contentType == "movie" && r?.movie_id) {
-              return [
-                { provider: "local", id: r.movie_id.toString() },
-              ] as Schemas["ExternalIdMetadata"][];
-            }
-            return [] as Schemas["ExternalIdMetadata"][];
-          });
-      }
-    },
-    throwOnError: false,
-    queryKey: [
-      "external_to_local",
-      props.contentType,
-      props.provider,
-      props.id,
-    ],
-  }));
+  let ids = queryApi.useQuery(
+    "get",
+    "/api/external_ids/{id}",
+    () => ({
+      params: {
+        path: { id: props.id },
+        query: { provider: props.provider, content_type: props.contentType },
+      },
+    }),
+    () => ({
+      throwOnError: false,
+      select: (v) => [...v, { provider: props.provider, id: props.id }],
+    }),
+  );
 
   return (
     <Suspense

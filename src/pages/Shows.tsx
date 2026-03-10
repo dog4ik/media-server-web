@@ -18,17 +18,11 @@ export default function Shows() {
         >
           <AddFoldersHelp contentType="show" />
         </Show>
-        <Suspense
-          fallback={
-            <ElementsGrid elementSize={250}>
-              {[...Array(7)].map(ShowCardSkeleton)}
-            </ElementsGrid>
-          }
-        >
-          <ElementsGrid elementSize={250}>
+        <ElementsGrid elementSize={250}>
+          <Suspense fallback={<>{[...Array(7)].map(ShowCardSkeleton)}</>}>
             <For each={shows.data}>{(show) => <ShowCard show={show} />}</For>
-          </ElementsGrid>
-        </Suspense>
+          </Suspense>
+        </ElementsGrid>
       </ErrorBoundary>
     </>
   );

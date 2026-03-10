@@ -75,32 +75,6 @@ export default function FixMetadata(props: Props) {
     () => ({ enabled: props.open }),
   );
 
-  async function handleFix(provider: Schemas["MetadataProvider"], id: string) {
-    await server
-      .POST("/api/fix_metadata/{content_id}", {
-        params: {
-          query: { id, provider, content_type: props.contentType },
-          path: { content_id: +props.targetId },
-        },
-      })
-      .then((r) => {
-        if (r.error) {
-          notificator(`Failed to fix metadata`);
-        } else {
-          notificator("Fixed metadata");
-        }
-      })
-      .finally(() => {
-        if (props.contentType == "show") {
-          revalidatePath("/api/local_shows");
-        }
-        if (props.contentType == "movie") {
-          revalidatePath("/api/local_movies");
-        }
-      });
-    props.onClose && props.onClose();
-  }
-
   return (
     <Dialog
       onOpenChange={(isClosed) => isClosed || props.onClose()}
@@ -142,9 +116,7 @@ export default function FixMetadata(props: Props) {
                   {(result) => (
                     <SearchResult
                       metadata={result}
-                      onClick={() =>
-                        handleFix(result.metadata_provider, result.metadata_id)
-                      }
+                      onClick={() => console.log("todo: fix metadata")}
                     />
                   )}
                 </For>

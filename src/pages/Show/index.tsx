@@ -64,34 +64,6 @@ export default function ShowPage() {
     }
   });
 
-  // let localSeason = createAsync(async () => {
-  //   let localId = show()?.localId?.toString();
-  //   if (!localId) return undefined;
-  //   let local_season = await fetchSeason(localId, selectedSeason(), "local");
-  //   if (!local_season) return undefined;
-  //
-  //   let settled = await Promise.allSettled(
-  //     local_season.extended_episodes.map((e) => e.fetchVideos()),
-  //   );
-  //
-  //   let videos = settled.reduce(
-  //     (acc, n) => {
-  //       n.status === "fulfilled"
-  //         ? acc.push(n.value?.at(0)?.details)
-  //         : acc.push(undefined);
-  //       return acc;
-  //     },
-  //     [] as (Schemas["DetailedVideo"] | undefined)[],
-  //   );
-  //
-  //   return {
-  //     ...local_season,
-  //     episodes: local_season.episodes.map((ep, i) => {
-  //       return { ...ep, video: videos[i] };
-  //     }),
-  //   };
-  // });
-
   async function detectIntros() {
     if (
       show.data?.metadata_provider === "local" &&
@@ -194,6 +166,7 @@ export default function ShowPage() {
             {(season) => (
               <Season
                 season={season()}
+                localShowId={show.data?.local?.id}
                 initialTorrentQuery={(p) =>
                   torrentQuery.SEASON_FORMATTER[p](show.latest()!, season())
                 }

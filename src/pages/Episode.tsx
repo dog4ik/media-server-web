@@ -86,26 +86,6 @@ export default function Episode() {
     }),
   );
 
-  let local = queryApi.useQuery(
-    "get",
-    "/api/external_to_local/{id}",
-    () => ({
-      params: {
-        query: { provider: show.latest()?.metadata_provider! },
-        path: { id: show.latest()?.metadata_id! },
-      },
-    }),
-    () => ({
-      enabled: show.isSuccess && show.latest()?.metadata_provider !== "local",
-      select: (data) => data.show_id,
-      retry: false,
-    }),
-  );
-  let localId = () =>
-    show.latest()?.metadata_provider === "local"
-      ? show.latest()?.metadata_id
-      : local.latest();
-
   createEffect(() => {
     if (show.data) {
       let localImage =
@@ -150,7 +130,7 @@ export default function Episode() {
     }
     let { video_id, variant_id } = selection;
 
-    let id = localId();
+    let id = show.data?.local?.id;
     if (!id) return;
     return linkOptions({
       to: "/shows/$id/$season/$episode/watch",
@@ -196,9 +176,9 @@ export default function Episode() {
                 title={episode().title}
                 posterList={posterList(episode())}
                 progress={
-                  video()?.details.history
+                  episode().local?.history
                     ? {
-                        history: video()!.details.history!,
+                        history: episode().local!.history!,
                         runtime: video()!.details.duration.secs,
                       }
                     : undefined
@@ -259,11 +239,11 @@ export default function Episode() {
                     )}
                   </Show>
                   <div class="w-96">
-                    <Show when={videos.latest()?.find((v) => v.details.intro)}>
+                    <Show when={episode().local?.intro && video()}>
                       {(video) => (
                         <IntroBar
                           totalDuration={video().details.duration.secs}
-                          intro={video().details.intro!}
+                          intro={episode().local!.intro!}
                         />
                       )}
                     </Show>

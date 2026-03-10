@@ -17,12 +17,19 @@ type Props = {
   alt: string;
 };
 
+// Prevent flicker when the image component remounts with the cached image
+const GlobalImageCache: Set<string> = new Set();
+
 export default function FallbackImage(props: Props) {
-  const [currentImage, setCurrentImage] = createSignal<string>();
-  const [loading, setLoading] = createSignal(true);
+  let firstImage = props.srcList.at(0);
+  let isCached = GlobalImageCache.has(firstImage ?? "");
+  const [currentImage, setCurrentImage] = createSignal<string | undefined>(
+    firstImage,
+  );
+  const [loading, setLoading] = createSignal(!isCached);
   let sources = createMemo(() => [...props.srcList, "/no-photo.png"]);
   let active = true;
-  console.log("mounted fallback image");
+  tracing.debug({ images: props.srcList }, "Mounted fallback image");
 
   function loadImage(index: number) {
     if (index >= sources().length) {
@@ -38,6 +45,7 @@ export default function FallbackImage(props: Props) {
     const img = new Image();
     img.onload = () => {
       setCurrentImage(url);
+      GlobalImageCache.add(url);
       setLoading(false);
     };
     img.onerror = () => {
@@ -53,8 +61,6 @@ export default function FallbackImage(props: Props) {
 
   createEffect(() => {
     active = true;
-    setLoading(true);
-    setCurrentImage(undefined);
     loadImage(0);
   });
   onCleanup(() => {

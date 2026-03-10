@@ -7,13 +7,13 @@ import {
   server,
 } from "../../utils/serverApi";
 import { MenuRow } from "../ContextMenu/Menu";
-import { useNotifications } from "../../context/NotificationContext";
 import useToggle from "../../utils/useToggle";
 import { createMemo, Show } from "solid-js";
 import FixMetadata from "../FixMetadata";
 import promptConfirm from "../modals/ConfirmationModal";
 import { Link, linkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
+import { InLibaryIcon } from "./InLibraryIcon";
 
 async function deleteMovie(id: number, title: string) {
   try {
@@ -28,30 +28,10 @@ async function deleteMovie(id: number, title: string) {
   }
 }
 
-export function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
-  console.log("mounting movie card");
+export function MovieCard(props: { movie: Schemas["Movie"] }) {
   let [fixModal, toggleFixModal] = useToggle(false);
-  let notificator = useNotifications();
   function handleFix() {
     toggleFixModal(true);
-  }
-
-  function handleMetadataReset() {
-    if (props.movie.metadata_provider !== "local") return;
-    server
-      .POST("/api/movie/{movie_id}/reset_metadata", {
-        params: { path: { movie_id: +props.movie.metadata_id } },
-      })
-      .then((res) => {
-        if (res.error) {
-          notificator("Failed to reset metadata");
-        } else {
-          notificator("Successfully reset metadata");
-        }
-      })
-      .finally(() => {
-        revalidatePath("/api/local_movies");
-      });
   }
 
   let localUrl =
@@ -71,13 +51,15 @@ export function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
 
   return (
     <>
-      <FixMetadata
-        open={fixModal()}
-        contentType="movie"
-        targetId={props.movie.metadata_id}
-        initialSearch={props.movie.title}
-        onClose={() => toggleFixModal(false)}
-      />
+      <Show when={fixModal()}>
+        <FixMetadata
+          open={fixModal()}
+          contentType="movie"
+          targetId={props.movie.metadata_id}
+          initialSearch={props.movie.title}
+          onClose={() => toggleFixModal(false)}
+        />
+      </Show>
       <div class="max-w-60 min-w-60 flex-none space-y-2 overflow-hidden">
         <Link class="relative size-full" {...movieLinkOptions()}>
           <FallbackImage
@@ -87,7 +69,19 @@ export function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
             width={312}
             height={415}
           />
-          <div></div>
+          <Show
+            when={
+              props.movie.local?.id && props.movie.metadata_provider !== "local"
+            }
+          >
+            <InLibaryIcon
+              link={linkOptions({
+                to: "/shows/$id",
+                search: { provider: "local" },
+                params: { id: props.movie.local!.id.toString() },
+              })}
+            />
+          </Show>
         </Link>
         <div class="flex items-center justify-between">
           <Link
@@ -100,7 +94,6 @@ export function MovieCard(props: { movie: Schemas["MovieMetadata"] }) {
           <Show when={props.movie.metadata_provider === "local"}>
             <MoreButton>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
-              <MenuRow onClick={handleMetadataReset}>Reset metadata</MenuRow>
               <MenuRow
                 onClick={() =>
                   deleteMovie(+props.movie.metadata_id, props.movie.title)

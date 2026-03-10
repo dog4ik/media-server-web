@@ -1,7 +1,7 @@
 import { For, ParentProps, Show } from "solid-js";
 import { Schemas } from "../../utils/serverApi";
 import FallbackImage from "../FallbackImage";
-import ProgressBar from "../Cards/ProgressBar";
+import { WatchProgressBar } from "../Cards/ProgressBar";
 import { Link, LinkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
 import clsx from "clsx";
@@ -17,7 +17,7 @@ type Props = {
   posterList: string[];
   plot?: string | null;
   title: string;
-  progress?: { history: Schemas["DbHistory"]; runtime: number };
+  progress?: { history: Schemas["History"]; runtime: number };
   additionalInfo?: AdditionalInfo[];
   imageDirection?: ImageDirection;
 };
@@ -76,7 +76,7 @@ export function Description(props: Props & ParentProps) {
         />
         <Show when={props.progress}>
           {(progress) => (
-            <ProgressBar
+            <WatchProgressBar
               history={progress().history}
               runtime={progress().runtime}
             />

@@ -1,5 +1,6 @@
 import { Schemas, server } from "../../utils/serverApi";
 import {
+  createMemo,
   ErrorBoundary,
   For,
   Match,
@@ -8,43 +9,35 @@ import {
   Show,
   Switch,
 } from "solid-js";
-import ProgressBar from "../../components/Cards/ProgressBar";
+import { WatchProgressBar } from "../../components/Cards/ProgressBar";
 import { FiX } from "solid-icons/fi";
 import FallbackImage from "../../components/FallbackImage";
-import {
-  extendMovie,
-  extendEpisode,
-  extendShow,
-  posterList,
-} from "@/utils/library";
+import { extendMovie, extendEpisode, posterList } from "@/utils/library";
 import { Card, CardContent } from "@/ui/card";
 import { Button } from "@/ui/button";
-import { Link, linkOptions } from "@tanstack/solid-router";
-import { queryApi, queryClient } from "@/utils/queryApi";
+import { Link } from "@tanstack/solid-router";
+import { queryClient } from "@/utils/queryApi";
 import { errorBoundaryFallback } from "@/components/Error";
 import { useInfiniteQuery } from "@tanstack/solid-query";
 import { throwResponseErrors } from "@/utils/errors";
+import { timeAgo } from "@/utils/formats";
 
 type DisplayEpisodeProps = {
-  metadata: Schemas["VideoContentMetadata"] & { content_type: "episode" };
-  history: Schemas["DbHistory"];
+  entry: Schemas["HistoryEntry"] & { type: "episode" };
   onRemove: () => void;
 };
 
 function DisplayEpisode(props: DisplayEpisodeProps) {
-  let show = () => extendShow(props.metadata.show);
-  let episode = () =>
-    extendEpisode(props.metadata.episode, props.metadata.show.metadata_id);
-  let seasonUrl = () => {
-    return linkOptions({
-      to: "/shows/$id",
-      params: { id: show().metadata_id },
-      search: {
-        provider: show().metadata_provider,
-        season: episode().season_number,
+  let episode = createMemo(() =>
+    extendEpisode(
+      {
+        ...props.entry,
+        metadata_id: props.entry.episode_id.toString(),
+        metadata_provider: "local",
       },
-    });
-  };
+      props.entry.show_id.toString(),
+    ),
+  );
   return (
     <Card class="relative grid grid-cols-4 gap-2 py-0">
       <Link
@@ -59,19 +52,27 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
           srcList={posterList(episode())}
         />
         <Show when={episode().runtime}>
-          {(r) => <ProgressBar runtime={r().secs} history={props.history} />}
+          {(r) => (
+            <WatchProgressBar
+              runtime={r().secs}
+              history={props.entry.history}
+            />
+          )}
         </Show>
       </Link>
       <div class="col-span-3 flex flex-col p-2">
-        <Link {...episode().url()}>
+        <Link class="flex items-center gap-4" {...episode().url()}>
           <span class="text-2xl">{episode().title}</span>
+          <span class="text-muted-foreground text-sm">
+            {timeAgo(new Date(props.entry.history.update_time))}
+          </span>
         </Link>
         <div class="flex items-center gap-2 text-sm">
-          <Link {...show().url()}>
-            <span class="hover:underline">{show().title}</span>
+          <Link {...episode().url()}>
+            <span class="hover:underline">{props.entry.show_title}</span>
           </Link>
           <span>-</span>
-          <Link {...seasonUrl()}>
+          <Link {...episode().seasonUrl()}>
             <span class="hover:underline">
               Season {episode().season_number}
             </span>
@@ -97,13 +98,17 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
 }
 
 type DisplayMovieProps = {
-  metadata: Schemas["VideoContentMetadata"] & { content_type: "movie" };
-  history: Schemas["DbHistory"];
+  entry: Schemas["HistoryEntry"] & { type: "movie" };
   onRemove: () => void;
 };
 
 function DisplayMovie(props: DisplayMovieProps) {
-  let movie = () => extendMovie(props.metadata.movie);
+  let movie = () =>
+    extendMovie({
+      ...props.entry,
+      metadata_provider: "local",
+      metadata_id: props.entry.movie_id.toString(),
+    });
   return (
     <Card class="py-0">
       <CardContent class="relative grid grid-cols-4 gap-2">
@@ -119,18 +124,21 @@ function DisplayMovie(props: DisplayMovieProps) {
             srcList={posterList(movie())}
           />
           <Show when={movie().runtime}>
-            {(r) => <ProgressBar runtime={r().secs} history={props.history} />}
+            {(r) => (
+              <WatchProgressBar
+                runtime={r().secs}
+                history={props.entry.history}
+              />
+            )}
           </Show>
         </Link>
         <div class="col-span-3 flex flex-col p-2">
-          <Link {...movie().url()}>
+          <Link class="flex items-center gap-4" {...movie().url()}>
             <span class="text-2xl">{movie().friendlyTitle()}</span>
+            <span class="text-muted-foreground text-sm">
+              {timeAgo(new Date(props.entry.history.update_time))}
+            </span>
           </Link>
-          <div class="flex items-center gap-2 text-sm">
-            <Link {...movie().url()}>
-              <span class="hover:underline">{movie().friendlyTitle()}</span>
-            </Link>
-          </div>
           <p title={movie().plot ?? undefined} class="mt-2 line-clamp-6">
             {movie().plot}
           </p>
@@ -148,48 +156,26 @@ function DisplayMovie(props: DisplayMovieProps) {
 }
 
 type HistoryEntryProps = {
-  history: Schemas["DbHistory"];
+  history: Schemas["HistoryEntry"];
   onRemove: () => void;
 };
 
 function HistoryEntry(props: HistoryEntryProps) {
-  let metadata = queryApi.useQuery("get", "/api/video/{id}/metadata", () => ({
-    params: { path: { id: props.history.video_id } },
-  }));
-
   return (
-    <Show when={metadata.latest()} fallback={<div>Loading</div>}>
-      {(data) => (
-        <Switch>
-          <Match when={data().content_type === "episode"}>
-            {(_) => {
-              let metadata = data();
-              if (metadata.content_type === "episode")
-                return (
-                  <DisplayEpisode
-                    onRemove={props.onRemove}
-                    history={props.history}
-                    metadata={metadata}
-                  />
-                );
-            }}
-          </Match>
-          <Match when={data().content_type === "movie"}>
-            {(_) => {
-              let metadata = data();
-              if (metadata.content_type === "movie")
-                return (
-                  <DisplayMovie
-                    onRemove={props.onRemove}
-                    history={props.history}
-                    metadata={metadata}
-                  />
-                );
-            }}
-          </Match>
-        </Switch>
-      )}
-    </Show>
+    <Switch>
+      <Match when={props.history.type === "episode"}>
+        <DisplayEpisode
+          onRemove={props.onRemove}
+          entry={props.history as Schemas["HistoryEntry"] & { type: "episode" }}
+        />
+      </Match>
+      <Match when={props.history.type === "movie"}>
+        <DisplayMovie
+          onRemove={props.onRemove}
+          entry={props.history as Schemas["HistoryEntry"] & { type: "movie" }}
+        />
+      </Match>
+    </Switch>
   );
 }
 
@@ -230,10 +216,10 @@ export default function History() {
     onCleanup(() => observer.disconnect());
   });
 
-  function handleRemove(videoId: number) {
+  function handleRemove(id: number) {
     server
-      .DELETE("/api/video/{id}/history", {
-        params: { path: { id: videoId } },
+      .DELETE("/api/history/{id}", {
+        params: { path: { id } },
       })
       .then((res) => {
         if (!res.error) {
@@ -249,7 +235,7 @@ export default function History() {
           {(entry) => (
             <HistoryEntry
               history={entry}
-              onRemove={() => handleRemove(entry.video_id)}
+              onRemove={() => handleRemove(entry.history.id)}
             />
           )}
         </For>

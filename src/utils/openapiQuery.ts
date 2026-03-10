@@ -22,11 +22,6 @@ import type {
   RequiredKeysOf,
 } from "openapi-typescript-helpers";
 import { Accessor } from "solid-js";
-import { queryApi } from "./queryApi";
-
-function sleep(time: number) {
-  return new Promise((res) => setTimeout(res, time));
-}
 
 // Helper type to dynamically infer the type from the `select` property
 type InferSelectReturnType<TData, TSelect> = TSelect extends (
@@ -36,7 +31,6 @@ type InferSelectReturnType<TData, TSelect> = TSelect extends (
   : TData;
 
 type InitWithUnknowns<Init> = Init & { [key: string]: unknown };
-type Debug<T> = { [K in keyof T]: T[K] } & {};
 
 export type QueryKey<
   Paths extends Record<string, Record<HttpMethod, {}>>,
@@ -197,7 +191,6 @@ export default function createClient<
   }: QueryFunctionContext<QueryKey<Paths, Method, Path>>) => {
     const mth = method.toUpperCase() as Uppercase<typeof method>;
     const fn = client[mth] as ClientMethod<Paths, typeof method, Media>;
-    await sleep(300);
     const { data, error, response } = await fn(path, {
       signal,
       ...(init as any),

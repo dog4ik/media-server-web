@@ -272,8 +272,7 @@ export type paths = {
             path?: never;
             cookie?: never;
         };
-        /** Get history for specific video */
-        get: operations["video_history"];
+        get?: never;
         /** Update history entry */
         put: operations["update_history"];
         post?: never;
@@ -1643,7 +1642,7 @@ export type components = {
             statics_path: string;
             temp_path: string;
         };
-        AudioCodec: "aac" | "ac3" | "eac3" | "dts" | "flac" | {
+        AudioCodec: "aac" | "ac3" | "eac3" | "dts" | "flac" | "opus" | {
             other: string;
         };
         BatchActionPayload: {
@@ -1905,21 +1904,24 @@ export type components = {
             errors: components["schemas"]["ConfigurationApplyError"][];
             require_restart: boolean;
         };
+        /** @description Any content base data */
+        Content: {
+            locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+            plot?: string | null;
+            poster?: null | components["schemas"]["MetadataImage"];
+            release_date?: string | null;
+            title: string;
+        };
         /** @enum {string} */
         ContentType: "movie" | "show";
-        CursoredResponse_DbHistory: {
+        CursoredResponse_HistoryEntry: {
             cursor?: string | null;
-            data: {
+            data: (components["schemas"]["Content"] & components["schemas"]["HistoryContentType"] & {
                 /** Format: int64 */
-                id: number;
-                is_finished: boolean;
-                /** Format: int64 */
-                time: number;
-                /** Format: date-time */
-                update_time: string;
-                /** Format: int64 */
-                video_id: number;
-            }[];
+                content_id: number;
+                history: components["schemas"]["History"];
+                runtime: components["schemas"]["SerdeDuration"];
+            })[];
         };
         /**
          * @description `external_ids` table maps content to external movie/show metadata provider ids.
@@ -1930,35 +1932,13 @@ export type components = {
          */
         DbExternalId: {
             /** Format: int64 */
-            episode_id?: number | null;
+            content_id?: number | null;
             /** Format: int64 */
             id: number;
             /** Format: int64 */
             is_prime: number;
             metadata_id: string;
-            metadata_provider: string;
-            /** Format: int64 */
-            movie_id?: number | null;
-            /** Format: int64 */
-            season_id?: number | null;
-            /** Format: int64 */
-            show_id?: number | null;
-        };
-        /**
-         * @description `history` table simply holds history for each video file in the library
-         *
-         *     Usually removed with video using cascade delete
-         */
-        DbHistory: {
-            /** Format: int64 */
-            id: number;
-            is_finished: boolean;
-            /** Format: int64 */
-            time: number;
-            /** Format: date-time */
-            update_time: string;
-            /** Format: int64 */
-            video_id: number;
+            metadata_provider: components["schemas"]["MetadataProvider"];
         };
         DetailedAudioTrack: {
             /** Format: int32 */
@@ -2009,10 +1989,8 @@ export type components = {
             chapters: components["schemas"]["DetailedChapter"][];
             container: components["schemas"]["VideoContainer"];
             duration: components["schemas"]["SerdeDuration"];
-            history?: null | components["schemas"]["DbHistory"];
             /** Format: int64 */
             id: number;
-            intro?: null | components["schemas"]["Intro"];
             path: string;
             previews_count: number;
             /** Format: date-time */
@@ -2073,6 +2051,19 @@ export type components = {
              */
             start: number;
         };
+        Episode: {
+            local?: null | components["schemas"]["LocalEpisodeData"];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            number: number;
+            plot?: string | null;
+            poster?: null | components["schemas"]["MetadataImage"];
+            release_date?: string | null;
+            runtime?: null | components["schemas"]["SerdeDuration"];
+            season_number: number;
+            title: string;
+        };
+        /** @description The unified episode data structure from any show provider */
         EpisodeMetadata: {
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
@@ -2087,6 +2078,39 @@ export type components = {
         ExternalIdMetadata: {
             id: string;
             provider: components["schemas"]["MetadataProvider"];
+        };
+        History: {
+            /** Format: int64 */
+            id: number;
+            is_finished: boolean;
+            /** Format: int64 */
+            time: number;
+            /** Format: date-time */
+            update_time: string;
+        };
+        HistoryContentType: {
+            /** Format: int64 */
+            episode_id: number;
+            /** Format: int64 */
+            number: number;
+            /** Format: int64 */
+            season_number: number;
+            /** Format: int64 */
+            show_id: number;
+            show_title: string;
+            /** @enum {string} */
+            type: "episode";
+        } | {
+            /** Format: int64 */
+            movie_id: number;
+            /** @enum {string} */
+            type: "movie";
+        };
+        HistoryEntry: components["schemas"]["Content"] & components["schemas"]["HistoryContentType"] & {
+            /** Format: int64 */
+            content_id: number;
+            history: components["schemas"]["History"];
+            runtime: components["schemas"]["SerdeDuration"];
         };
         /** @description Encoder configuration for hls live streams */
         HlsStreamConfiguration: {
@@ -2133,6 +2157,26 @@ export type components = {
         };
         /** @enum {string} */
         Language: "en" | "es" | "de" | "fr" | "ru" | "ja" | "sr";
+        LocalEpisodeData: {
+            history?: null | components["schemas"]["History"];
+            /** Format: int64 */
+            id: number;
+            intro?: null | components["schemas"]["Intro"];
+        };
+        LocalMovieData: {
+            history?: null | components["schemas"]["History"];
+            /** Format: int64 */
+            id: number;
+        };
+        LocalSeasonData: {
+            /** Format: int64 */
+            id: number;
+        };
+        LocalShowData: {
+            /** Format: int64 */
+            id: number;
+        };
+        /** @description Localization specific data */
         LocaleMetadata: {
             original_language: string;
             original_title: string;
@@ -2150,10 +2194,23 @@ export type components = {
             poster?: null | components["schemas"]["MetadataImage"];
             title: string;
         };
+        Movie: {
+            backdrop?: null | components["schemas"]["MetadataImage"];
+            local?: null | components["schemas"]["LocalMovieData"];
+            locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            plot?: string | null;
+            poster?: null | components["schemas"]["MetadataImage"];
+            release_date?: string | null;
+            runtime?: null | components["schemas"]["SerdeDuration"];
+            title: string;
+        };
         MovieHistory: {
-            history: components["schemas"]["DbHistory"];
+            history: components["schemas"]["History"];
             movie: components["schemas"]["MovieMetadata"];
         };
+        /** @description The unified movie data structure from any movie provider */
         MovieMetadata: {
             backdrop?: null | components["schemas"]["MetadataImage"];
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
@@ -2428,6 +2485,19 @@ export type components = {
             /** Format: int64 */
             size: number;
         };
+        /** @description Season API data structure */
+        Season: {
+            episodes: components["schemas"]["Episode"][];
+            local?: null | components["schemas"]["LocalSeasonData"];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            number: number;
+            plot?: string | null;
+            poster?: null | components["schemas"]["MetadataImage"];
+            release_date?: string | null;
+            title?: string | null;
+        };
+        /** @description The unified season data structure from any show provider */
         SeasonMetadata: {
             episodes: components["schemas"]["EpisodeMetadata"][];
             metadata_id: string;
@@ -2473,12 +2543,22 @@ export type components = {
             /** Format: double */
             upload_speed: number;
         };
-        ShowHistory: {
-            episode: components["schemas"]["EpisodeMetadata"];
-            history: components["schemas"]["DbHistory"];
-            /** Format: int64 */
-            show_id: number;
+        /** @description Show API data structure */
+        Show: {
+            backdrop?: null | components["schemas"]["MetadataImage"];
+            episodes_amount?: number | null;
+            local?: null | components["schemas"]["LocalShowData"];
+            locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            plot?: string | null;
+            poster?: null | components["schemas"]["MetadataImage"];
+            release_date?: string | null;
+            /** @description Array of available season numbers */
+            seasons?: number[] | null;
+            title: string;
         };
+        /** @description The unified show data structure from any show provider */
         ShowMetadata: {
             backdrop?: null | components["schemas"]["MetadataImage"];
             episodes_amount?: number | null;
@@ -2493,8 +2573,8 @@ export type components = {
             title: string;
         };
         ShowSuggestion: {
-            episode: components["schemas"]["EpisodeMetadata"];
-            history?: null | components["schemas"]["DbHistory"];
+            episode: components["schemas"]["Episode"];
+            history?: null | components["schemas"]["History"];
             /** Format: int64 */
             show_id: number;
         };
@@ -2818,12 +2898,12 @@ export type components = {
         VideoContentMetadata: {
             /** @enum {string} */
             content_type: "episode";
-            episode: components["schemas"]["EpisodeMetadata"];
-            show: components["schemas"]["ShowMetadata"];
+            episode: components["schemas"]["Episode"];
+            show: components["schemas"]["Show"];
         } | {
             /** @enum {string} */
             content_type: "movie";
-            movie: components["schemas"]["MovieMetadata"];
+            movie: components["schemas"]["Movie"];
         };
         VideoTask: {
             kind: components["schemas"]["VideoTaskKind"];
@@ -3199,15 +3279,14 @@ export interface operations {
     };
     fix_metadata: {
         parameters: {
-            query: {
-                provider: "local" | "tmdb" | "tvdb" | "imdb";
-                id: string;
-                content_type: "movie" | "show";
-            };
+            query?: never;
             header?: never;
             path: {
                 /** @description Id of the content that needs to be fixed */
-                content_id: number;
+                content_id: string;
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+                id: string;
+                content_type: "movie" | "show";
             };
             cookie?: never;
         };
@@ -3249,7 +3328,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CursoredResponse_DbHistory"];
+                    "application/json": components["schemas"]["CursoredResponse_HistoryEntry"];
                 };
             };
         };
@@ -3308,35 +3387,6 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ShowSuggestion"][];
                 };
-            };
-        };
-    };
-    video_history: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Video id */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description History of desired video */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DbHistory"][];
-                };
-            };
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -3423,7 +3473,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EpisodeMetadata"];
+                    "application/json": components["schemas"]["Episode"];
                 };
             };
         };
@@ -3540,7 +3590,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MovieMetadata"];
+                    "application/json": components["schemas"]["Movie"];
                 };
             };
         };
@@ -3704,7 +3754,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ShowMetadata"][];
+                    "application/json": components["schemas"]["Show"][];
                 };
             };
         };
@@ -3748,7 +3798,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MovieMetadata"];
+                    "application/json": components["schemas"]["Movie"];
                 };
             };
             404: {
@@ -3869,14 +3919,13 @@ export interface operations {
     };
     fix_movie_metadata: {
         parameters: {
-            query: {
-                provider: "local" | "tmdb" | "tvdb" | "imdb";
-                id: string;
-            };
+            query?: never;
             header?: never;
             path: {
                 /** @description Id of the movie that needs to be fixed */
-                movie_id: number;
+                movie_id: string;
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+                id: string;
             };
             cookie?: never;
         };
@@ -3906,7 +3955,7 @@ export interface operations {
             header?: never;
             path: {
                 /** @description Id of the movie that needs to be fixed */
-                movie_id: number;
+                movie_id: string;
             };
             cookie?: never;
         };
@@ -3922,13 +3971,12 @@ export interface operations {
     };
     reset_metadata: {
         parameters: {
-            query: {
-                content_type: "movie" | "show";
-            };
+            query?: never;
             header?: never;
             path: {
                 /** @description Id of the content that needs to be fixed */
-                content_id: number;
+                content_id: string;
+                content_type: "movie" | "show";
             };
             cookie?: never;
         };
@@ -4015,7 +4063,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MovieMetadata"][];
+                    "application/json": components["schemas"]["Movie"][];
                 };
             };
         };
@@ -4029,13 +4077,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description List of trending movies */
+            /** @description List of trending shows */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ShowMetadata"][];
+                    "application/json": components["schemas"]["Show"][];
                 };
             };
         };
@@ -4096,7 +4144,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ShowMetadata"];
+                    "application/json": components["schemas"]["Show"];
                 };
             };
             404: {
@@ -4238,7 +4286,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SeasonMetadata"];
+                    "application/json": components["schemas"]["Season"];
                 };
             };
             404: {
@@ -4311,7 +4359,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EpisodeMetadata"];
+                    "application/json": components["schemas"]["Episode"];
                 };
             };
             404: {
@@ -4364,14 +4412,13 @@ export interface operations {
     };
     fix_show_metadata: {
         parameters: {
-            query: {
-                provider: "local" | "tmdb" | "tvdb" | "imdb";
-                id: string;
-            };
+            query?: never;
             header?: never;
             path: {
                 /** @description Id of the show that needs to be fixed */
-                show_id: number;
+                show_id: string;
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+                id: string;
             };
             cookie?: never;
         };
@@ -4401,13 +4448,13 @@ export interface operations {
             header?: never;
             path: {
                 /** @description Id of the show that needs to be fixed */
-                show_id: number;
+                show_id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Succsessfully reset show metadata */
+            /** @description Successfully reset show metadata */
             200: {
                 headers: {
                     [name: string]: unknown;

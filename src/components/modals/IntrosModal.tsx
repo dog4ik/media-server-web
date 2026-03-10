@@ -1,18 +1,9 @@
-import { revalidatePath, Schemas, server } from "@/utils/serverApi";
-import {
-  createEffect,
-  createSignal,
-  For,
-  ParentProps,
-  Show,
-  Suspense,
-} from "solid-js";
+import { Schemas } from "@/utils/serverApi";
+import { createEffect, createSignal, ParentProps, Show } from "solid-js";
 import { DynamicIntro } from "../Description/IntroBar";
-import { createStore, produce } from "solid-js/store";
 import { Button } from "@/ui/button";
-import { ExtendedEpisode, Video } from "@/utils/library";
+import { ExtendedEpisode } from "@/utils/library";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
-import FallbackImage from "../FallbackImage";
 import {
   NumberField,
   NumberFieldDecrementTrigger,
@@ -23,7 +14,6 @@ import {
 } from "@/ui/number-field";
 import { formatDuration, parseDuration } from "@/utils/formats";
 import { FiPlusCircle, FiTrash } from "solid-icons/fi";
-import { useQuery } from "@tanstack/solid-query";
 
 type IntroRowProps = {
   index: number;
@@ -190,19 +180,6 @@ function IntroRow(props: IntroRowProps) {
   );
 }
 
-type IntroContent = {
-  episode: ExtendedEpisode;
-  videos?: Video[];
-};
-
-type InnerProps = {
-  content: IntroContent[];
-  show_id: number;
-  season: number;
-};
-
-type SaveStatus = "pending" | "success" | "error";
-
 function cmpIntro(
   lhs: Schemas["Intro"] | undefined,
   rhs: Schemas["Intro"] | undefined,
@@ -221,159 +198,6 @@ function cmpIntro(
   );
 }
 
-function Inner(props: InnerProps) {
-  let flattenVideos = () =>
-    props.content.flatMap((c) =>
-      c.videos
-        ? c.videos.map((v) => ({
-            id: v.details.id,
-            intro: v.details.intro,
-            episode: c.episode,
-          }))
-        : [],
-    );
-
-  let [changes, setChanges] = createStore<Record<number, Schemas["Intro"]>>({});
-
-  let [pendingSaves, setPendingSaves] = createStore<(SaveStatus | undefined)[]>(
-    flattenVideos().map((_) => undefined),
-  );
-
-  async function deleteSeasonIntros() {
-    let res = await server.DELETE("/api/show/{show_id}/{season}/intros", {
-      params: { path: { season: props.season, show_id: props.show_id } },
-    });
-
-    if (res.error !== undefined) {
-      console.warn(`Failed to delete intros: ${res.error.message}`);
-    } else {
-      await revalidatePath("/api/video/by_content");
-      setChanges({});
-    }
-  }
-
-  async function saveAll() {
-    for (let i = 0; i < flattenVideos().length; ++i) {
-      let video = flattenVideos()[i];
-      let timing = changes[video.id];
-      if (timing !== undefined && !cmpIntro(timing, video.intro ?? undefined)) {
-        setPendingSaves(i, "pending");
-        await server
-          .PUT("/api/video/{video_id}/intro", {
-            params: { path: { video_id: video.id } },
-            body: {
-              start: Math.floor(timing.start_sec),
-              end: Math.floor(timing.end_sec),
-            },
-          })
-          .then((r) =>
-            r.error !== undefined
-              ? setPendingSaves(i, "success")
-              : setPendingSaves(i, "error"),
-          )
-          .catch(() => setPendingSaves(i, "error"));
-        await revalidatePath("/api/video/by_content");
-        setChanges({});
-      }
-    }
-  }
-
-  async function saveOne(id: number) {
-    let idx = flattenVideos().findIndex((v) => v.id == id);
-    let video = flattenVideos()[idx];
-    let timing = changes[video.id];
-    if (timing !== undefined && !cmpIntro(timing, video.intro ?? undefined)) {
-      setPendingSaves(idx, "pending");
-      await server
-        .PUT("/api/video/{video_id}/intro", {
-          params: { path: { video_id: video.id } },
-          body: {
-            start: Math.floor(timing.start_sec),
-            end: Math.floor(timing.end_sec),
-          },
-        })
-        .then((r) => {
-          r.error !== undefined
-            ? setPendingSaves(idx, "success")
-            : setPendingSaves(idx, "error");
-        })
-        .catch(() => setPendingSaves(idx, "error"));
-      await revalidatePath("/api/video/by_content");
-      removeChange(id);
-    }
-  }
-
-  async function deleteOne(videoId: number) {
-    if (flattenVideos().find((v) => v.id == videoId)?.intro != undefined) {
-      let deleteResult = await server.DELETE("/api/video/{video_id}/intro", {
-        params: { path: { video_id: videoId } },
-      });
-      if (deleteResult.error !== undefined) {
-        console.warn(`Failed to delete intro: ${deleteResult.error.message}`);
-      }
-      await revalidatePath("/api/video/by_content");
-    }
-    removeChange(videoId);
-  }
-
-  function haveChange() {
-    return Object.keys(changes).length !== 0;
-  }
-
-  function removeChange(id: number) {
-    setChanges(produce((v) => delete v[id]));
-  }
-
-  return (
-    <div class="overflow-y-scroll">
-      <div class="space-y-10">
-        <For each={props.content}>
-          {(payload) => (
-            <div class="flex flex-col gap-4">
-              <FallbackImage
-                alt="Episode poster"
-                srcList={[
-                  payload.episode.localPoster(),
-                  payload.episode.poster,
-                ]}
-                width={200}
-                class="rounded-md"
-                height={120}
-              />
-              <div>{payload.episode.friendlyTitle()}</div>
-              <div class="space-y-10 divide-y-2 px-8">
-                <For each={payload.videos}>
-                  {(v, i) => (
-                    <IntroRow
-                      onSave={() => saveOne(v.details.id)}
-                      index={i()}
-                      intro={changes[v.details.id] ?? v.details.intro}
-                      totalDuration={v.details.duration.secs}
-                      onChange={(newIntro) => {
-                        if (!cmpIntro(newIntro, v.details.intro ?? undefined)) {
-                          setChanges(v.details.id, newIntro);
-                        } else {
-                          removeChange(v.details.id);
-                        }
-                      }}
-                      onDelete={() => deleteOne(v.details.id)}
-                      originalIntro={v.details.intro ?? undefined}
-                      onReset={() => removeChange(v.details.id)}
-                    />
-                  )}
-                </For>
-              </div>
-            </div>
-          )}
-        </For>
-      </div>
-      <Button onClick={saveAll} disabled={!haveChange()}>
-        Save new timings
-      </Button>
-    </div>
-  );
-}
-
 type Props = {
   episodes: ExtendedEpisode[];
   show_id: number;
@@ -382,20 +206,7 @@ type Props = {
   onClose: () => void;
 };
 
-function Loading() {
-  return <div>Loading..</div>;
-}
-
 export function IntrosModal(props: Props) {
-  let detailedVideos = useQuery(() => ({
-    queryFn: async () => {
-      let promises = props.episodes.map((e) => e.fetchVideos());
-      return (await Promise.allSettled(promises)).map((r) =>
-        r.status == "fulfilled" ? (r.value ?? []) : undefined,
-      );
-    },
-    queryKey: ["detailed_videos", props.show_id, props.season]
-  }));
   return (
     <Dialog
       open={props.open}
@@ -405,20 +216,6 @@ export function IntrosModal(props: Props) {
         <DialogHeader>
           <DialogTitle>Manage intros</DialogTitle>
         </DialogHeader>
-        <Suspense fallback={<Loading />}>
-          <Show when={detailedVideos.data}>
-            {(videos) => (
-              <Inner
-                season={props.season}
-                show_id={props.show_id}
-                content={videos().map((v, i) => ({
-                  episode: props.episodes[i],
-                  videos: v,
-                }))}
-              />
-            )}
-          </Show>
-        </Suspense>
       </DialogContent>
     </Dialog>
   );
