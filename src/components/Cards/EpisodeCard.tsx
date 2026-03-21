@@ -131,7 +131,7 @@ export function EpisodeCard(props: Props) {
         <Show when={props.episode.runtime && props.episode.local?.history}>
           <WatchProgressBar
             history={props.episode.local!.history!}
-            runtime={props.episode.runtime!.secs}
+            runtime={props.episode.runtime!}
           />
         </Show>
       </Link>

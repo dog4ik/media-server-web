@@ -33,15 +33,15 @@ function TaskRow(props: RowProps) {
       params: { path: { id: props.task.id } },
     });
   };
-  let progress = (): Schemas["SerdeDuration"] => {
+  let progress = () => {
     let progress = props.task.latest_progress.status;
     if (progress.progress_type == "pending") {
       return progress.progress.current_time;
     }
     if (progress.progress_type == "start") {
-      return { secs: 0, nanos: 0 };
+      return 0;
     }
-    return { secs: 0, nanos: 0 };
+    return 0;
   };
 
   let media = queryApi.useQuery(
@@ -80,7 +80,7 @@ function TaskRow(props: RowProps) {
       </TableCell>
       <TableCell>
         <Progress
-          value={(progress().secs / props.task.kind.total_duration.secs) * 100}
+          value={(progress() / props.task.kind.total_duration) * 100}
         />
       </TableCell>
       <TableCell class="text-right">

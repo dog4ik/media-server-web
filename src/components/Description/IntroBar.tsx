@@ -30,13 +30,13 @@ export function IntroBar(props: Props) {
         style={{ left: `${startPercent * 100}%` }}
         class="absolute bottom-0 -translate-x-1/2 translate-y-full text-sm"
       >
-        {formatDuration({ secs: props.intro.start_sec, nanos: 0 })}
+        {formatDuration(props.intro.start_sec)}
       </span>
       <span
         style={{ left: `${endPercent * 100}%` }}
         class="absolute bottom-0 -translate-x-1/2 translate-y-full text-sm"
       >
-        {formatDuration({ secs: props.intro.end_sec, nanos: 0 })}
+        {formatDuration(props.intro.end_sec)}
       </span>
       <span
         style={{
@@ -136,10 +136,10 @@ export function DynamicIntro(props: DynamicIntroProps) {
   return (
     <div ref={timelineRef!} class="relative h-10 bg-white">
       <span class="absolute -left-10">
-        {formatDuration({ secs: 0, nanos: 0 })}
+        {formatDuration(0)}
       </span>
       <span class="absolute -right-10">
-        {formatDuration({ secs: strippedDuration, nanos: 0 })}
+        {formatDuration(strippedDuration)}
       </span>
       <IntroPointer
         timelineRef={() => timelineRef!}
@@ -147,7 +147,7 @@ export function DynamicIntro(props: DynamicIntroProps) {
         onChange={changeStartPosition}
       >
         <span class="pointer-events-none absolute bottom-10">
-          {formatDuration({ nanos: 0, secs: props.start })}
+          {formatDuration(props.start)}
         </span>
         <FiArrowLeft size={ICON_SIZE} />
       </IntroPointer>
@@ -157,7 +157,7 @@ export function DynamicIntro(props: DynamicIntroProps) {
         onChange={changeEndPosition}
       >
         <span class="pointer-events-none absolute top-10">
-          {formatDuration({ nanos: 0, secs: props.end })}
+          {formatDuration(props.end)}
         </span>
         <FiArrowRight size={ICON_SIZE} />
       </IntroPointer>

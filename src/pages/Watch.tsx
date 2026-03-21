@@ -356,7 +356,9 @@ function Watch(props: WatchProps) {
   });
 
   function updateHistory(time: number) {
-    let totalDuration = video().details.duration.secs;
+    // convert to ms
+    time = time * 1000;
+    let totalDuration = video().details.duration;
     if (!totalDuration) return;
     let is_finished = (time / totalDuration) * 100 >= 90;
 
@@ -376,8 +378,8 @@ function Watch(props: WatchProps) {
           mediaSession={mediaSession}
           intro={props.intro}
           nextVideo={props.next}
-          initialTime={props.history?.time ?? 0}
-          initialDuration={video().details.duration.secs ?? 0}
+          initialTime={(props.history?.time ?? 0) / 1000}
+          initialDuration={video().details.duration}
           onHistoryUpdate={updateHistory}
           previews={
             video().details.previews_count > 0

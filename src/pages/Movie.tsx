@@ -113,7 +113,7 @@ export default function Movie() {
                       movie().local?.history
                         ? {
                             history: movie().local!.history!,
-                            runtime: video()!.details.duration.secs,
+                            runtime: video()!.details.duration,
                           }
                         : undefined
                     }

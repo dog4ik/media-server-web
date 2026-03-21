@@ -179,7 +179,7 @@ export default function Episode() {
                   episode().local?.history
                     ? {
                         history: episode().local!.history!,
-                        runtime: video()!.details.duration.secs,
+                        runtime: video()!.details.duration,
                       }
                     : undefined
                 }
@@ -242,7 +242,7 @@ export default function Episode() {
                     <Show when={episode().local?.intro && video()}>
                       {(video) => (
                         <IntroBar
-                          totalDuration={video().details.duration.secs}
+                          totalDuration={video().details.duration}
                           intro={episode().local!.intro!}
                         />
                       )}

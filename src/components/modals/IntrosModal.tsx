@@ -56,7 +56,7 @@ function defaultIntro(
 }
 
 function SecondsInput(props: SecondsInputProps) {
-  let formattedValue = () => formatDuration({ secs: props.value, nanos: 0 });
+  let formattedValue = () => formatDuration(props.value);
   let [rawValue, setRawValue] = createSignal(formattedValue());
 
   createEffect(() => setRawValue(formattedValue()));

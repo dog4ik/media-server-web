@@ -4,6 +4,23 @@
  */
 
 export type paths = {
+    "/api/actor/{id}/poster": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get actor poster */
+        get: operations["actor_poster"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/clear_db": {
         parameters: {
             query?: never;
@@ -1626,6 +1643,15 @@ export type components = {
     schemas: {
         /** @enum {string} */
         Action: "validate" | "abort" | "resume" | "pause";
+        Actor: {
+            character?: string | null;
+            imdb_id?: string | null;
+            local?: null | components["schemas"]["LocalActorData"];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            name: string;
+            poster?: string | null;
+        };
         AppError: {
             message: string;
         };
@@ -1908,7 +1934,7 @@ export type components = {
         Content: {
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
             plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
+            poster?: string | null;
             release_date?: string | null;
             title: string;
         };
@@ -1920,7 +1946,7 @@ export type components = {
                 /** Format: int64 */
                 content_id: number;
                 history: components["schemas"]["History"];
-                runtime: components["schemas"]["SerdeDuration"];
+                runtime: components["schemas"]["MediaDuration"];
             })[];
         };
         /**
@@ -1954,8 +1980,8 @@ export type components = {
             sample_rate: string;
         };
         DetailedChapter: {
-            end: components["schemas"]["SerdeDuration"];
-            start: components["schemas"]["SerdeDuration"];
+            end: components["schemas"]["MediaDuration"];
+            start: components["schemas"]["MediaDuration"];
             title?: string | null;
         };
         DetailedSubtitleTrack: {
@@ -1977,7 +2003,7 @@ export type components = {
         DetailedVariant: {
             audio_tracks: components["schemas"]["DetailedAudioTrack"][];
             container: components["schemas"]["VideoContainer"];
-            duration: components["schemas"]["SerdeDuration"];
+            duration: components["schemas"]["MediaDuration"];
             id: string;
             path: string;
             /** Format: int64 */
@@ -1988,7 +2014,7 @@ export type components = {
             audio_tracks: components["schemas"]["DetailedAudioTrack"][];
             chapters: components["schemas"]["DetailedChapter"][];
             container: components["schemas"]["VideoContainer"];
-            duration: components["schemas"]["SerdeDuration"];
+            duration: components["schemas"]["MediaDuration"];
             /** Format: int64 */
             id: number;
             path: string;
@@ -2057,24 +2083,27 @@ export type components = {
             metadata_provider: components["schemas"]["MetadataProvider"];
             number: number;
             plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
+            poster?: string | null;
             release_date?: string | null;
-            runtime?: null | components["schemas"]["SerdeDuration"];
+            runtime?: null | components["schemas"]["MediaDuration"];
             season_number: number;
             title: string;
         };
         /** @description The unified episode data structure from any show provider */
         EpisodeMetadata: {
+            cast?: components["schemas"]["PersonMetadata"][] | null;
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
             number: number;
             plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
+            poster?: string | null;
             release_date?: string | null;
-            runtime?: null | components["schemas"]["SerdeDuration"];
+            runtime?: null | components["schemas"]["MediaDuration"];
             season_number: number;
             title: string;
         };
+        /** @enum {string} */
+        Event: "start" | "finish" | "error";
         ExternalIdMetadata: {
             id: string;
             provider: components["schemas"]["MetadataProvider"];
@@ -2110,7 +2139,7 @@ export type components = {
             /** Format: int64 */
             content_id: number;
             history: components["schemas"]["History"];
-            runtime: components["schemas"]["SerdeDuration"];
+            runtime: components["schemas"]["MediaDuration"];
         };
         /** @description Encoder configuration for hls live streams */
         HlsStreamConfiguration: {
@@ -2157,6 +2186,12 @@ export type components = {
         };
         /** @enum {string} */
         Language: "en" | "es" | "de" | "fr" | "ru" | "ja" | "sr";
+        /** @default null */
+        LibraryScanTask: unknown;
+        LocalActorData: {
+            /** Format: int64 */
+            id: number;
+        };
         LocalEpisodeData: {
             history?: null | components["schemas"]["History"];
             /** Format: int64 */
@@ -2181,8 +2216,8 @@ export type components = {
             original_language: string;
             original_title: string;
         };
-        /** Format: uri */
-        MetadataImage: string;
+        /** @description Wrapper around [std::time::Duration] that is serialized in milliseconds */
+        MediaDuration: number;
         /** @enum {string} */
         MetadataProvider: "local" | "tmdb" | "tvdb" | "imdb";
         MetadataSearchResult: {
@@ -2191,19 +2226,20 @@ export type components = {
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
             plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
+            poster?: string | null;
             title: string;
         };
         Movie: {
-            backdrop?: null | components["schemas"]["MetadataImage"];
+            backdrop?: string | null;
+            cast?: components["schemas"]["Actor"][] | null;
             local?: null | components["schemas"]["LocalMovieData"];
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
             plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
+            poster?: string | null;
             release_date?: string | null;
-            runtime?: null | components["schemas"]["SerdeDuration"];
+            runtime?: null | components["schemas"]["MediaDuration"];
             title: string;
         };
         MovieHistory: {
@@ -2212,14 +2248,15 @@ export type components = {
         };
         /** @description The unified movie data structure from any movie provider */
         MovieMetadata: {
-            backdrop?: null | components["schemas"]["MetadataImage"];
+            backdrop?: string | null;
+            cast?: components["schemas"]["PersonMetadata"][] | null;
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
             plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
+            poster?: string | null;
             release_date?: string | null;
-            runtime?: null | components["schemas"]["SerdeDuration"];
+            runtime?: null | components["schemas"]["MediaDuration"];
             title: string;
         };
         Notification: components["schemas"]["TaskProgress"] & {
@@ -2229,6 +2266,11 @@ export type components = {
              */
             activity_id: string;
         };
+        /**
+         * Format: date-time
+         * @description Wrapper around `time::OffsetDateTime`
+         */
+        OffsetDateTime: string;
         PeerEvent: {
             ip: string;
             peer_event: components["schemas"]["PeerEventKind"];
@@ -2264,6 +2306,14 @@ export type components = {
             /** Format: int64 */
             torrent_size: number;
         };
+        PersonMetadata: {
+            imdb_id?: string | null;
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            name: string;
+            person_poster?: string | null;
+            role?: null | components["schemas"]["RoleMetadata"];
+        };
         /** @enum {string} */
         Priority: "disabled" | "low" | "medium" | "high";
         PriorityPayload: {
@@ -2278,8 +2328,8 @@ export type components = {
         ProgressChunk_IntroJob: components["schemas"]["IntroJob"] & {
             status: components["schemas"]["ProgressStatus_TupleUnit"];
         };
-        ProgressChunk_LibraryScanTask: components["schemas"]["TupleUnit"] & {
-            status: components["schemas"]["ProgressStatus_Vec"];
+        ProgressChunk_LibraryScanTask: components["schemas"]["LibraryScanTask"] & {
+            status: components["schemas"]["ProgressStatus_ProgressChunk"];
         };
         ProgressChunk_PendingTorrent: components["schemas"]["TorrentTask"] & {
             status: components["schemas"]["ProgressStatus_CompactTorrentProgress"];
@@ -2344,15 +2394,17 @@ export type components = {
             /** @enum {string} */
             progress_type: "pause";
         };
-        ProgressStatus_TupleUnit: {
+        ProgressStatus_ProgressChunk: {
             /** @enum {string} */
             progress_type: "start";
         } | {
             /** @enum {string} */
             progress_type: "finish";
         } | {
-            /** @default null */
-            progress: unknown;
+            progress: {
+                event: components["schemas"]["Event"];
+                progress_type: components["schemas"]["ProgressType"];
+            };
             /** @enum {string} */
             progress_type: "pending";
         } | {
@@ -2366,14 +2418,15 @@ export type components = {
             /** @enum {string} */
             progress_type: "pause";
         };
-        ProgressStatus_Vec: {
+        ProgressStatus_TupleUnit: {
             /** @enum {string} */
             progress_type: "start";
         } | {
             /** @enum {string} */
             progress_type: "finish";
         } | {
-            progress: string[];
+            /** @default null */
+            progress: unknown;
             /** @enum {string} */
             progress_type: "pending";
         } | {
@@ -2421,7 +2474,7 @@ export type components = {
             progress_type: "finish";
         } | {
             progress: {
-                current_time: components["schemas"]["SerdeDuration"];
+                current_time: components["schemas"]["MediaDuration"];
             };
             /** @enum {string} */
             progress_type: "pending";
@@ -2458,6 +2511,11 @@ export type components = {
             /** @enum {string} */
             progress_type: "pause";
         };
+        ProgressType: {
+            asset: {
+                path: string;
+            };
+        };
         ProviderOrder: {
             discover: components["schemas"]["MetadataProvider"][];
         } | {
@@ -2485,6 +2543,10 @@ export type components = {
             /** Format: int64 */
             size: number;
         };
+        RoleMetadata: {
+            character: string;
+            poster?: string | null;
+        };
         /** @description Season API data structure */
         Season: {
             episodes: components["schemas"]["Episode"][];
@@ -2493,26 +2555,21 @@ export type components = {
             metadata_provider: components["schemas"]["MetadataProvider"];
             number: number;
             plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
+            poster?: string | null;
             release_date?: string | null;
             title?: string | null;
         };
         /** @description The unified season data structure from any show provider */
         SeasonMetadata: {
+            cast?: components["schemas"]["PersonMetadata"][] | null;
             episodes: components["schemas"]["EpisodeMetadata"][];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
             number: number;
             plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
+            poster?: string | null;
             release_date?: string | null;
             title?: string | null;
-        };
-        SerdeDuration: {
-            /** Format: int32 */
-            nanos: number;
-            /** Format: int64 */
-            secs: number;
         };
         SessionEvent: {
             /** @enum {string} */
@@ -2545,14 +2602,14 @@ export type components = {
         };
         /** @description Show API data structure */
         Show: {
-            backdrop?: null | components["schemas"]["MetadataImage"];
+            backdrop?: string | null;
             episodes_amount?: number | null;
             local?: null | components["schemas"]["LocalShowData"];
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
             plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
+            poster?: string | null;
             release_date?: string | null;
             /** @description Array of available season numbers */
             seasons?: number[] | null;
@@ -2560,13 +2617,14 @@ export type components = {
         };
         /** @description The unified show data structure from any show provider */
         ShowMetadata: {
-            backdrop?: null | components["schemas"]["MetadataImage"];
+            backdrop?: string | null;
+            cast?: components["schemas"]["PersonMetadata"][] | null;
             episodes_amount?: number | null;
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
             plot?: string | null;
-            poster?: null | components["schemas"]["MetadataImage"];
+            poster?: string | null;
             release_date?: string | null;
             /** @description Array of available season numbers */
             seasons?: number[] | null;
@@ -2620,7 +2678,7 @@ export type components = {
             uploaded: number;
         };
         StateTracker: components["schemas"]["TrackerStatus"] & {
-            announce_interval: components["schemas"]["SerdeDuration"];
+            announce_interval: components["schemas"]["MediaDuration"];
             url: string;
         };
         Status: {
@@ -2738,7 +2796,7 @@ export type components = {
                 client_type: components["schemas"]["ClientType"];
                 method: components["schemas"]["StreamMethod"];
                 stream: components["schemas"]["Stream"];
-                total_duration: components["schemas"]["SerdeDuration"];
+                total_duration: components["schemas"]["MediaDuration"];
                 /** Format: uuid */
                 variant_id?: string | null;
                 /** Format: int64 */
@@ -2853,7 +2911,7 @@ export type components = {
             url: string;
         };
         TrackerEventKind: {
-            interval: components["schemas"]["SerdeDuration"];
+            interval: components["schemas"]["MediaDuration"];
             /** @enum {string} */
             kind: "reannounce";
         } | {
@@ -2883,8 +2941,6 @@ export type components = {
             resolution?: null | components["schemas"]["Resolution"];
             video_codec?: null | components["schemas"]["VideoCodec"];
         };
-        /** @default null */
-        TupleUnit: unknown;
         UpdateHistoryPayload: {
             is_finished: boolean;
             /** Format: int64 */
@@ -2958,6 +3014,42 @@ export type components = {
 };
 export type $defs = Record<string, never>;
 export interface operations {
+    actor_poster: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Actor id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": unknown;
+                };
+            };
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
     clear_db: {
         parameters: {
             query?: never;
@@ -3674,7 +3766,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MovieMetadata"][];
+                    "application/json": components["schemas"]["Movie"][];
                 };
             };
         };
@@ -4867,7 +4959,7 @@ export interface operations {
                             client_type: components["schemas"]["ClientType"];
                             method: components["schemas"]["StreamMethod"];
                             stream: components["schemas"]["Stream"];
-                            total_duration: components["schemas"]["SerdeDuration"];
+                            total_duration: components["schemas"]["MediaDuration"];
                             /** Format: uuid */
                             variant_id?: string | null;
                             /** Format: int64 */

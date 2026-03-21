@@ -53,10 +53,7 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
         />
         <Show when={episode().runtime}>
           {(r) => (
-            <WatchProgressBar
-              runtime={r().secs}
-              history={props.entry.history}
-            />
+            <WatchProgressBar runtime={r()} history={props.entry.history} />
           )}
         </Show>
       </Link>
@@ -125,10 +122,7 @@ function DisplayMovie(props: DisplayMovieProps) {
           />
           <Show when={movie().runtime}>
             {(r) => (
-              <WatchProgressBar
-                runtime={r().secs}
-                history={props.entry.history}
-              />
+              <WatchProgressBar runtime={r()} history={props.entry.history} />
             )}
           </Show>
         </Link>

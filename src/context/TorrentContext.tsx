@@ -295,7 +295,7 @@ class TorrentProgressHandler {
     if (tracker_event.kind == "reannounce") {
       tracing.trace(
         { url },
-        `Recieved reannounce event with new interval: ${tracker_event.interval.secs}`,
+        `Recieved reannounce event with new interval: ${tracker_event.interval} ms`,
       );
       tracker.status = "working";
       tracker.announce_interval = tracker_event.interval;
