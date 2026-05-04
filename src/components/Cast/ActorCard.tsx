@@ -19,7 +19,7 @@ export function ActorCard(props: Props) {
       <div class="mt-4 flex justify-between">
         <div>
           <h3 class="text-primary-foreground text-md">
-            <span>
+            <span class="text-foreground">
               <span aria-hidden="true" class="absolute inset-0" />
               {props.actor.name}
             </span>
