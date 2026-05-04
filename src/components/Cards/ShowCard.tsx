@@ -1,12 +1,6 @@
 import MoreButton from "../ContextMenu/MoreButton";
-import BookCheck from "lucide-solid/icons/book-check";
 import { createMemo, Show } from "solid-js";
-import {
-  Schemas,
-  fullUrl,
-  revalidatePath,
-  server,
-} from "../../utils/serverApi";
+import { Schemas, fullUrl, revalidatePath, server } from "../../utils/serverApi";
 import FallbackImage from "../FallbackImage";
 import useToggle from "../../utils/useToggle";
 import FixMetadata from "../FixMetadata";
@@ -76,16 +70,10 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
               title={`${props.show.episodes_amount} ${props.show.episodes_amount == 1 ? "episode" : "episodes"}`}
               class="absolute top-0 flex h-8 w-8 items-center justify-center rounded-xl bg-white"
             >
-              <span class="text-sm font-semibold text-black">
-                {props.show.episodes_amount}
-              </span>
+              <span class="text-sm font-semibold text-black">{props.show.episodes_amount}</span>
             </div>
           </Show>
-          <Show
-            when={
-              props.show.local?.id && props.show.metadata_provider !== "local"
-            }
-          >
+          <Show when={props.show.local?.id && props.show.metadata_provider !== "local"}>
             <InLibaryIcon
               link={linkOptions({
                 to: "/shows/$id",
@@ -110,11 +98,7 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
           <Show when={props.show.metadata_provider === "local"}>
             <MoreButton>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
-              <MenuRow
-                onClick={() =>
-                  deleteShow(+props.show.metadata_id, props.show.title)
-                }
-              >
+              <MenuRow onClick={() => deleteShow(+props.show.metadata_id, props.show.title)}>
                 Delete show
               </MenuRow>
             </MoreButton>

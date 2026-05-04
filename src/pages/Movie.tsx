@@ -1,4 +1,4 @@
-import { createEffect, createSignal, Match, Show, Switch } from "solid-js";
+import { createEffect, createSignal, Match, Show, Suspense, Switch } from "solid-js";
 import { fullUrl } from "@/utils/serverApi";
 import { Description, DescriptionSkeleton } from "@/components/Description";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
@@ -8,14 +8,11 @@ import { FiDownload } from "solid-icons/fi";
 import VideoActions from "@/components/Description/VideoActions";
 import { extendMovie, posterList, Video } from "@/utils/library";
 import { ExternalLocalIdButtons } from "@/components/ExternalLocalIdButtons";
-import {
-  ListItemSkeleton,
-  VideoList,
-  VideoSelection,
-} from "@/components/Description/VideoList";
+import { ListItemSkeleton, VideoList, VideoSelection } from "@/components/Description/VideoList";
 import { queryApi } from "@/utils/queryApi";
 import { getRouteApi, linkOptions } from "@tanstack/solid-router";
 import * as torrentQuery from "@/lib/torrentQuery";
+import { ActorSection } from "@/components/Cast/ActorSection";
 
 export default function Movie() {
   let route = getRouteApi("/page/movies/$id");
@@ -130,20 +127,14 @@ export default function Movie() {
                       <Show
                         when={video()}
                         fallback={
-                          <Icon
-                            tooltip="Download"
-                            onClick={() => setDownloadModal(true)}
-                          >
+                          <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
                             <FiDownload size={30} />
                           </Icon>
                         }
                       >
                         {(video) => (
                           <VideoActions video={video()} watchUrl={watchUrl()}>
-                            <Icon
-                              tooltip="Download"
-                              onClick={() => setDownloadModal(true)}
-                            >
+                            <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
                               <FiDownload size={30} />
                             </Icon>
                           </VideoActions>
@@ -151,7 +142,8 @@ export default function Movie() {
                       </Show>
                       <ExternalLocalIdButtons
                         contentType="movie"
-                        provider={search().provider}
+                        current_provider={search().provider}
+                        ids={movie().external_ids ?? []}
                         id={params().id}
                       />
                     </div>
@@ -167,9 +159,7 @@ export default function Movie() {
       </Switch>
       <div class="hover-hide mt-8">
         <Switch>
-          <Match
-            when={videos.isLoading || (!videos.isEnabled && movie.isLoading)}
-          >
+          <Match when={videos.isLoading || (!videos.isEnabled && movie.isLoading)}>
             <ListItemSkeleton />
           </Match>
           <Match when={videos.latest()}>
@@ -178,8 +168,7 @@ export default function Movie() {
                 <Show
                   when={
                     selectedVideo() &&
-                    (videos().length > 0 ||
-                      videos().some((v) => v.details.variants.length > 0))
+                    (videos().length > 0 || videos().some((v) => v.details.variants.length > 0))
                   }
                 >
                   <VideoList
@@ -192,6 +181,9 @@ export default function Movie() {
             )}
           </Match>
         </Switch>
+        <Suspense>
+          <Show when={movie.data?.cast}>{(cast) => <ActorSection actors={cast()} />}</Show>
+        </Suspense>
       </div>
     </>
   );

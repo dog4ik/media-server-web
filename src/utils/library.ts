@@ -3,11 +3,7 @@ import { useRawNotifications } from "@/context/NotificationContext";
 import { formatSE } from "./formats";
 import { fullUrl, Schemas, server } from "./serverApi";
 import { throwResponseErrors } from "./errors";
-import {
-  containerSupport,
-  isCompatible,
-  useCapabilityQuery,
-} from "./mediaCapabilities";
+import { containerSupport, isCompatible, useCapabilityQuery } from "./mediaCapabilities";
 import { linkOptions, LinkOptions } from "@tanstack/solid-router";
 
 export function defaultTrack<T extends { is_default: boolean }>(tracks: T[]) {
@@ -41,10 +37,7 @@ export type ExtendedMovie = Schemas["Movie"] &
     fetchVideos(): Promise<Video[] | undefined>;
   };
 
-export async function fetchMovie(
-  movieId: string,
-  metadataProvider?: Schemas["MetadataProvider"],
-) {
+export async function fetchMovie(movieId: string, metadataProvider?: Schemas["MetadataProvider"]) {
   let movieMetadata = await server
     .GET("/api/movie/{id}", {
       params: {
@@ -94,9 +87,7 @@ export function extendMovie(movie: Schemas["Movie"]): ExtendedMovie {
           .GET("/api/video/by_content", {
             params: { query: { content_type: "movie", id: +this.metadata_id } },
           })
-          .then((res) =>
-            res.data ? res.data.map((v) => new Video(v)) : undefined,
-          );
+          .then((res) => (res.data ? res.data.map((v) => new Video(v)) : undefined));
         return metadata;
       }
     },
@@ -107,10 +98,7 @@ export function extendMovie(movie: Schemas["Movie"]): ExtendedMovie {
 
 export type ExtendedShow = Schemas["Show"] & Media;
 
-export async function fetchShow(
-  showId: string,
-  metadataProvider?: Schemas["MetadataProvider"],
-) {
+export async function fetchShow(showId: string, metadataProvider?: Schemas["MetadataProvider"]) {
   let res = await server.GET("/api/show/{id}", {
     params: {
       path: { id: showId },
@@ -181,15 +169,10 @@ export async function fetchSeason(
 }
 
 /// We are doing things this way because stupid classes can't spread in constructor
-export function extendSeason(
-  season: Schemas["Season"],
-  showId: string,
-): ExtendedSeason {
+export function extendSeason(season: Schemas["Season"], showId: string): ExtendedSeason {
   return {
     ...season,
-    extended_episodes: season.episodes.map((episode) =>
-      extendEpisode(episode, showId),
-    ),
+    extended_episodes: season.episodes.map((episode) => extendEpisode(episode, showId)),
 
     async delete() {
       if (this.metadata_provider != "local") return;
@@ -201,12 +184,7 @@ export function extendSeason(
     },
 
     async fetchEpisode(number: number) {
-      return await fetchEpisode(
-        showId,
-        season.number,
-        number,
-        this.metadata_provider,
-      );
+      return await fetchEpisode(showId, season.number, number, this.metadata_provider);
     },
 
     localPoster() {
@@ -264,10 +242,7 @@ export async function fetchEpisode(
 }
 
 /// We are doing things this way because stupid classes can't spread in constructor
-export function extendEpisode(
-  episode: Schemas["Episode"],
-  showId: string,
-): ExtendedEpisode {
+export function extendEpisode(episode: Schemas["Episode"], showId: string): ExtendedEpisode {
   return {
     ...episode,
 
@@ -331,9 +306,7 @@ export function extendEpisode(
           .GET("/api/video/by_content", {
             params: { query: { content_type: "show", id: +this.metadata_id } },
           })
-          .then((res) =>
-            res.data ? res.data.map((v) => new Video(v)) : undefined,
-          );
+          .then((res) => (res.data ? res.data.map((v) => new Video(v)) : undefined));
         return metadata;
       }
     },
@@ -375,19 +348,13 @@ export async function fetchVideoContent(videoId: number) {
 }
 
 /// We are doing things this way because stupid classes can't spread in constructor
-export function extendVideoContent(
-  content: Schemas["VideoContentMetadata"],
-): ExtendedVideoContent {
+export function extendVideoContent(content: Schemas["VideoContentMetadata"]): ExtendedVideoContent {
   return {
     ...content,
     content:
-      content.content_type == "movie"
-        ? extendMovie(content.movie)
-        : extendShow(content.show),
+      content.content_type == "movie" ? extendMovie(content.movie) : extendShow(content.show),
     metadata_id:
-      content.content_type == "movie"
-        ? content.movie.metadata_id
-        : content.show.metadata_id,
+      content.content_type == "movie" ? content.movie.metadata_id : content.show.metadata_id,
     metadata_provider:
       content.content_type == "movie"
         ? content.movie.metadata_provider
@@ -503,10 +470,7 @@ export class Video {
     }
   }
 
-  async startLiveTranscode(
-    method: Schemas["StreamMethod"],
-    variant_id?: string,
-  ) {
+  async startLiveTranscode(method: Schemas["StreamMethod"], variant_id?: string) {
     return await server
       .POST("/api/watch/hls/start/{id}", {
         params: this.params(),
@@ -532,11 +496,7 @@ export class Video {
   }
 
   useVideoCompatibility() {
-    return useCapabilityQuery(
-      this.details.path,
-      this.defaultVideo(),
-      this.defaultAudio(),
-    );
+    return useCapabilityQuery(this.details.path, this.defaultVideo(), this.defaultAudio());
   }
 
   videoCompatibility(config?: { audio_track?: number; video_track?: number }) {
@@ -580,4 +540,22 @@ export class VariantVideo {
   videoCompatibility() {
     return isCompatible(this.defaultVideo(), this.defaultAudio());
   }
+}
+
+export type ExtendedActor = Schemas["Actor"] & { posterList: () => string[] };
+
+export function extendActor(actor: Schemas["Actor"]): ExtendedActor {
+  return {
+    ...actor,
+    posterList: () => {
+      let srcList: string[] = [];
+      if (actor.local?.id) {
+        srcList.push(fullUrl("/api/actor/{id}/poster", { path: { id: actor.local.id } }));
+      }
+      if (actor.poster) {
+        srcList.push(actor.poster);
+      }
+      return srcList;
+    },
+  };
 }

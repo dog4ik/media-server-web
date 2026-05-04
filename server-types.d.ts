@@ -4,6 +4,23 @@
  */
 
 export type paths = {
+    "/api/actor/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get actor list */
+        get: operations["actor_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/actor/{id}/poster": {
         parameters: {
             query?: never;
@@ -137,23 +154,6 @@ export type paths = {
         };
         /** List external ids for desired content */
         get: operations["external_ids"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/external_to_local/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Map external to local id */
-        get: operations["external_to_local_id"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1940,6 +1940,18 @@ export type components = {
         };
         /** @enum {string} */
         ContentType: "movie" | "show";
+        CursoredResponse_Actor: {
+            cursor?: string | null;
+            data: {
+                character?: string | null;
+                imdb_id?: string | null;
+                local?: null | components["schemas"]["LocalActorData"];
+                metadata_id: string;
+                metadata_provider: components["schemas"]["MetadataProvider"];
+                name: string;
+                poster?: string | null;
+            }[];
+        };
         CursoredResponse_HistoryEntry: {
             cursor?: string | null;
             data: (components["schemas"]["Content"] & components["schemas"]["HistoryContentType"] & {
@@ -1948,6 +1960,42 @@ export type components = {
                 history: components["schemas"]["History"];
                 runtime: components["schemas"]["MediaDuration"];
             })[];
+        };
+        CursoredResponse_Movie: {
+            cursor?: string | null;
+            data: {
+                backdrop?: string | null;
+                cast?: components["schemas"]["Actor"][] | null;
+                external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
+                local?: null | components["schemas"]["LocalMovieData"];
+                locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+                metadata_id: string;
+                metadata_provider: components["schemas"]["MetadataProvider"];
+                plot?: string | null;
+                poster?: string | null;
+                release_date?: string | null;
+                runtime?: null | components["schemas"]["MediaDuration"];
+                title: string;
+            }[];
+        };
+        CursoredResponse_Show: {
+            cursor?: string | null;
+            data: {
+                backdrop?: string | null;
+                cast?: components["schemas"]["Actor"][] | null;
+                episodes_amount?: number | null;
+                external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
+                local?: null | components["schemas"]["LocalShowData"];
+                locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+                metadata_id: string;
+                metadata_provider: components["schemas"]["MetadataProvider"];
+                plot?: string | null;
+                poster?: string | null;
+                release_date?: string | null;
+                /** @description Array of available season numbers */
+                seasons?: number[] | null;
+                title: string;
+            }[];
         };
         /**
          * @description `external_ids` table maps content to external movie/show metadata provider ids.
@@ -2078,6 +2126,7 @@ export type components = {
             start: number;
         };
         Episode: {
+            cast?: components["schemas"]["Actor"][] | null;
             local?: null | components["schemas"]["LocalEpisodeData"];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
@@ -2232,6 +2281,7 @@ export type components = {
         Movie: {
             backdrop?: string | null;
             cast?: components["schemas"]["Actor"][] | null;
+            external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
             local?: null | components["schemas"]["LocalMovieData"];
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
             metadata_id: string;
@@ -2250,6 +2300,7 @@ export type components = {
         MovieMetadata: {
             backdrop?: string | null;
             cast?: components["schemas"]["PersonMetadata"][] | null;
+            external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
@@ -2603,7 +2654,9 @@ export type components = {
         /** @description Show API data structure */
         Show: {
             backdrop?: string | null;
+            cast?: components["schemas"]["Actor"][] | null;
             episodes_amount?: number | null;
+            external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
             local?: null | components["schemas"]["LocalShowData"];
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
             metadata_id: string;
@@ -2620,6 +2673,7 @@ export type components = {
             backdrop?: string | null;
             cast?: components["schemas"]["PersonMetadata"][] | null;
             episodes_amount?: number | null;
+            external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
@@ -3014,6 +3068,29 @@ export type components = {
 };
 export type $defs = Record<string, never>;
 export interface operations {
+    actor_list: {
+        parameters: {
+            query?: {
+                take?: number | null;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Actor list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CursoredResponse_Actor"];
+                };
+            };
+        };
+    };
     actor_poster: {
         parameters: {
             query?: never;
@@ -3251,39 +3328,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExternalIdMetadata"][];
-                };
-            };
-        };
-    };
-    external_to_local_id: {
-        parameters: {
-            query: {
-                provider: "local" | "tmdb" | "tvdb" | "imdb";
-            };
-            header?: never;
-            path: {
-                /** @description External id */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DbExternalId"];
-                };
-            };
-            /** @description Local id is not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
                 };
             };
         };
@@ -3753,7 +3797,12 @@ export interface operations {
     };
     all_local_movies: {
         parameters: {
-            query?: never;
+            query?: {
+                actors?: number[];
+                search?: string | null;
+                take?: number | null;
+                cursor?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -3766,7 +3815,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Movie"][];
+                    "application/json": components["schemas"]["CursoredResponse_Movie"];
                 };
             };
         };
@@ -3833,7 +3882,12 @@ export interface operations {
     };
     all_local_shows: {
         parameters: {
-            query?: never;
+            query?: {
+                actors?: number[];
+                search?: string | null;
+                take?: number | null;
+                cursor?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -3846,7 +3900,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Show"][];
+                    "application/json": components["schemas"]["CursoredResponse_Show"];
                 };
             };
         };

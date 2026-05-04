@@ -2,7 +2,7 @@ import { Schemas } from "./serverApi";
 
 export function formatDuration(durationMs: number) {
   let str = "";
-  let durationInSeconds = Math.floor(durationMs / 100);
+  let durationInSeconds = Math.floor(durationMs / 1000);
   let hours = Math.floor(durationInSeconds / 3600);
   let minutes = Math.floor((durationInSeconds % 3600) / 60);
   let remainingSeconds = Math.floor(durationInSeconds % 60);
