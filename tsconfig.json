@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     /* Path aliases */
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"],
+      "server-types": ["./server-types.d.ts"]
     },
 
     "target": "ESNext",
