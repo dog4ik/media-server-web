@@ -15,14 +15,13 @@ type SubtitleChunk = {
 export default function Subtitles(props: Props) {
   let [{ fetchedSubtitles, tracks }] = useTracksSelection();
   let subs = createMemo(() => {
-    let subs = fetchedSubtitles.data;
+    let subs = fetchedSubtitles.isSuccess ? fetchedSubtitles.data : undefined;
     if (subs) {
       return srtParser(subs);
     }
   });
 
   let [currentIndex, setCurrentIndex] = createSignal(0);
-  seek(props.time);
   let currentChunk = () => subs()?.at(currentIndex());
 
   function seek(time: number) {

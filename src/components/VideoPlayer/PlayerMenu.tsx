@@ -1,5 +1,4 @@
 import {
-  isBrowserAudioTracksSupported,
   isBrowserVideoTracksSupported,
   SelectedSubtitleTrack,
   useTracksSelection,
@@ -211,10 +210,10 @@ export default function PlayerMenu(props: MenuProps) {
       audioTracks().map((a, i) => ({
         type: "row",
         key: `${i + 1}. ${formatAudioTrack(a)}`,
-        onClick: () => selectAudioTrack(i, props.videoRef),
+        onClick: () => selectAudioTrack(i),
         value: () => a === unwrap(tracks.audio),
         codecSupport: isCompatible(undefined, a).then((r) => r.audio.supported),
-        disabled: !isBrowserAudioTracksSupported(),
+        disabled: false,
       })),
 
     video: (): RowParams[] =>

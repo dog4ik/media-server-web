@@ -39,46 +39,32 @@ type TracksSelection = {
   subtitles?: SelectedSubtitleTrack;
 };
 
-type BrowserTrack = {
-  id: string;
-  kind: string;
-  label: string;
-  language: string;
-  enabled: boolean;
-};
-
-export function debugBrowserTracksSupport(video: HTMLVideoElement) {
-  if ("audioTracks" in video) {
-    tracing.debug("audioTracks api is supported");
-  } else {
-    tracing.warn("audioTracks api is not supported");
-  }
-
-  if ("videoTracks" in video) {
-    tracing.debug("videoTracks api is supported");
-  } else {
-    tracing.warn("videoTracks api is not supported");
-  }
-}
-
-function elementAudioTracks(video: HTMLVideoElement) {
-  if ("audioTracks" in video) {
-    return video.audioTracks as BrowserTrack[];
-  }
-}
-
 function elementVideoTracks(video: HTMLVideoElement) {
   if ("videoTracks" in video) {
-    return video.videoTracks as BrowserTrack[];
+    return video.videoTracks as { enabled: boolean }[];
   }
 }
 
 export function isBrowserVideoTracksSupported() {
-  return typeof "VideoTracks" != "undefined";
+  return "videoTracks" in HTMLVideoElement.prototype;
 }
 
 export function isBrowserAudioTracksSupported() {
-  return typeof "AudioTracks" != "undefined";
+  return "audioTracks" in HTMLVideoElement.prototype;
+}
+
+function subtitleQueryKey(
+  sub: SelectedSubtitleTrack | undefined,
+  subtitleTracks: Schemas["DetailedSubtitleTrack"][],
+) {
+  if (!sub) return ["subtitles", null];
+  if (sub.origin === "external") return ["subtitles", "external", sub.id];
+  if (sub.origin === "imported") {
+    return ["subtitles", "imported", sub.text.length, sub.text.slice(0, 200)];
+  }
+  const rawTrack = unwrap(sub as Extract<SelectedSubtitleTrack, { origin: "container" }>).track;
+  const idx = subtitleTracks.findIndex((t) => t === rawTrack);
+  return ["subtitles", "container", idx];
 }
 
 function createSelectionContext(session: () => MediaSessionState) {
@@ -91,40 +77,38 @@ function createSelectionContext(session: () => MediaSessionState) {
       : undefined,
   });
 
-  let fetchedSubtitles = useQuery(() => ({
+  const fetchedSubtitles = useQuery(() => ({
     queryFn: async () => {
-      if (!store.subtitles) return;
+      const sub = store.subtitles;
+      if (!sub) return;
       tracing.trace("Fetching subtitles");
-      if (store.subtitles && store.subtitles.origin === "container") {
-        let track = unwrap(store.subtitles.track);
-        let selectedTrackIdx = video().details.subtitle_tracks.findIndex((t) => t === track);
-        if (selectedTrackIdx == -1) {
+
+      if (sub.origin === "container") {
+        const rawTrack = unwrap(sub as Extract<SelectedSubtitleTrack, { origin: "container" }>).track;
+        const selectedTrackIdx = video().details.subtitle_tracks.findIndex((t) => t === rawTrack);
+        if (selectedTrackIdx === -1) {
           tracing.warn(
             { videoSubtitlesTracksLen: video().details.subtitle_tracks.length },
             "Selected track is not found in video",
           );
           return;
         }
-        tracing.debug({ selectedTrackIdx }, `Fetching container subtitles`);
+        tracing.debug({ selectedTrackIdx }, "Fetching container subtitles");
         return await server
           .GET("/api/video/{id}/pull_subtitle", {
             params: {
-              query: {
-                number: selectedTrackIdx,
-              },
-              path: {
-                id: video().details.id,
-              },
+              query: { number: selectedTrackIdx },
+              path: { id: video().details.id },
             },
             parseAs: "text",
           })
           .then((r) => r.data);
       }
 
-      if (store.subtitles?.origin == "external") {
-        let id = store.subtitles.id;
+      if (sub.origin === "external") {
+        const { id } = sub;
         tracing.debug({ id }, "Fetching external subtitles");
-        let res = await server.GET("/api/subtitles/{id}", {
+        const res = await server.GET("/api/subtitles/{id}", {
           params: { path: { id } },
           parseAs: "text",
         });
@@ -134,29 +118,26 @@ function createSelectionContext(session: () => MediaSessionState) {
         return res.data;
       }
 
-      if (store.subtitles?.origin == "imported") {
-        return store.subtitles.text;
+      if (sub.origin === "imported") {
+        return sub.text;
       }
     },
-    queryKey: ["subtitles"],
+    queryKey: subtitleQueryKey(store.subtitles, video().details.subtitle_tracks),
   }));
 
-  function selectAudioTrack(index: number, element?: HTMLVideoElement) {
+  function selectAudioTrack(index: number) {
     if (index >= video().details.audio_tracks.length) {
       tracing.error(
         `Selected audio track is out of bounds ${index + 1}/${video().details.audio_tracks.length}`,
       );
       return;
     }
-    if (element) {
-      let atracks = elementAudioTracks(element);
-      if (!atracks) return;
-      for (let i = 0; i < atracks.length; ++i) {
-        let t = atracks[i];
-        t.enabled = i == index;
-      }
-    }
     setStore("audio", video().details.audio_tracks[index]);
+    let videoTrackIndex = video().details.video_tracks.findIndex((t) => t === unwrap(store.video));
+    session().changeConfiguration({
+      audio_track: index,
+      video_track: videoTrackIndex === -1 ? 0 : videoTrackIndex,
+    });
   }
 
   function audioTracks() {
@@ -183,7 +164,7 @@ function createSelectionContext(session: () => MediaSessionState) {
   }
 
   function selectContainerSubtitlesTrack(index: number) {
-    tracing.trace({ index }, "Selecting container subittles");
+    tracing.trace({ index }, "Selecting container subtitles");
     if (index >= video().details.subtitle_tracks.length) {
       tracing.error(
         `Selected subtitles track is out of bounds ${index + 1}/${video().details.subtitle_tracks.length}`,
@@ -197,18 +178,12 @@ function createSelectionContext(session: () => MediaSessionState) {
   }
 
   function selectExternalSubtitlesTrack(id: number) {
-    tracing.trace({ id }, "Selecting external subittles");
-    setStore("subtitles", {
-      origin: "external",
-      id,
-    });
+    tracing.trace({ id }, "Selecting external subtitles");
+    setStore("subtitles", { origin: "external", id });
   }
 
   function selectImportedSubtitlesTrack(text: string) {
-    setStore("subtitles", {
-      origin: "imported",
-      text,
-    });
+    setStore("subtitles", { origin: "imported", text });
   }
 
   function unsetSubtitlesTrack() {
@@ -234,9 +209,7 @@ function createSelectionContext(session: () => MediaSessionState) {
     },
     {
       selectVideoTrack,
-
       selectAudioTrack,
-
       selectContainerSubtitlesTrack,
       selectExternalSubtitlesTrack,
       selectImportedSubtitlesTrack,
