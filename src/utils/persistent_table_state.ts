@@ -28,16 +28,10 @@ export class PersistentTableState {
             out[value] = false;
           }
         }
-        tracing.debug(
-          { key: this.storageKey(), out },
-          "Loaded persistant storage visibility",
-        );
+        tracing.debug({ key: this.storageKey(), out }, "Loaded persistant storage visibility");
         return out;
       }
     } catch {}
-    tracing.debug(
-      { key: this.storageKey() },
-      "Persintant storage vibility was not loaded",
-    );
+    tracing.debug({ key: this.storageKey() }, "Persintant storage vibility was not loaded");
   }
 }

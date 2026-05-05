@@ -23,7 +23,7 @@ export default function LogRow(props: Props) {
   return (
     <p class={`${bg} w-full p-2 hover:bg-neutral-950`}>
       {props.message.timestamp} {props.message.target} ({props.message.level}):{" "}
-      {props.message.fields.message as string ?? JSON.stringify(props.message.fields)}
+      {(props.message.fields.message as string) ?? JSON.stringify(props.message.fields)}
     </p>
   );
 }

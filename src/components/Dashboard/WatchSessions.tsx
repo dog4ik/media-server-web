@@ -1,21 +1,8 @@
 import { useServerStatus } from "@/context/ServerStatusContext";
 import { Button } from "@/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui/card";
 import { Progress } from "@/ui/progress";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui/table";
 import { extendEpisode, extendMovie, extendShow } from "@/utils/library";
 import { queryApi } from "@/utils/queryApi";
 import { Schemas, server } from "@/utils/serverApi";
@@ -68,9 +55,7 @@ function TaskRow(props: RowProps) {
   return (
     <TableRow>
       <TableCell class="font-medium">
-        <Show when={media.data}>
-          {(m) => <Link {...m().url}>{m().title}</Link>}
-        </Show>
+        <Show when={media.data}>{(m) => <Link {...m().url}>{m().title}</Link>}</Show>
       </TableCell>
       <TableCell>
         <span class="font-mono">{props.task.kind.method}</span>
@@ -79,9 +64,7 @@ function TaskRow(props: RowProps) {
         {props.task.kind.client_type} ({props.task.kind.client_agent})
       </TableCell>
       <TableCell>
-        <Progress
-          value={(progress() / props.task.kind.total_duration) * 100}
-        />
+        <Progress value={(progress() / props.task.kind.total_duration) * 100} />
       </TableCell>
       <TableCell class="text-right">
         <Button onClick={onCancel} variant="destructive">

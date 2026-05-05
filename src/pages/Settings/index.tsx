@@ -4,9 +4,7 @@ import { queryClient } from "@/utils/queryApi";
 import { Setting, SmartSetting } from "../../components/Settings/Setting";
 import { ErrorBoundary, Show } from "solid-js";
 import { useNotifications } from "../../context/NotificationContext";
-import SettingsProvider, {
-  useSettingsContext,
-} from "@/context/SettingsContext";
+import SettingsProvider, { useSettingsContext } from "@/context/SettingsContext";
 import promptConfirm from "@/components/modals/ConfirmationModal";
 import { Button } from "@/ui/button";
 import { SETTINGS } from "@/utils/settingsDescriptors";
@@ -15,8 +13,7 @@ import { errorBoundaryFallback } from "@/components/Error";
 
 function GeneralSettings() {
   let notificator = useNotifications();
-  let { saveStatus, remoteSettings, change, changedSettings } =
-    useSettingsContext();
+  let { saveStatus, remoteSettings, change, changedSettings } = useSettingsContext();
 
   async function restoreConfiguration() {
     let confirmed = await promptConfirm("Do you want to reset configuration?");
@@ -52,9 +49,7 @@ function GeneralSettings() {
               remote={remoteSettings.data!["metadata_language"]}
             >
               <LanguagePicker
-                onChange={(language) =>
-                  language ? change("metadata_language", language) : null
-                }
+                onChange={(language) => (language ? change("metadata_language", language) : null)}
                 value={
                   changedSettings["metadata_language"] ??
                   remoteSettings.data!["metadata_language"].config_value ??

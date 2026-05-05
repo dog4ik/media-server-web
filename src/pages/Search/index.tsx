@@ -30,20 +30,12 @@ function SearchResultRow(props: SearchResultProps) {
     throw Error(`Uhnandled content type: ${props.item.content_type}`);
   };
   return (
-    <Link
-      class="flex w-full items-center gap-6 p-2 transition-colors hover:bg-white/10"
-      {...url()}
-    >
-      <img
-        class="aspect-poster h-40"
-        src={props.item.poster || "/no-photo.png"}
-      />
+    <Link class="flex w-full items-center gap-6 p-2 transition-colors hover:bg-white/10" {...url()}>
+      <img class="aspect-poster h-40" src={props.item.poster || "/no-photo.png"} />
       <div class="flex flex-1 flex-col gap-1">
         <span class="font-bold">{props.item.title}</span>
         <span class="text-xs">{capitalize(props.item.content_type)}</span>
-        <Show when={props.item.plot}>
-          {(p) => <p class="line-clamp-3 text-sm">{p()}</p>}
-        </Show>
+        <Show when={props.item.plot}>{(p) => <p class="line-clamp-3 text-sm">{p()}</p>}</Show>
       </div>
       <div class="h-10 w-10">
         <ProviderLogo provider={props.item.metadata_provider} />
@@ -73,9 +65,7 @@ function SearchError(props: { e: any }) {
     <div class="flex size-full items-center justify-center">
       <Switch fallback={<span class="text-2xl">Search request failed</span>}>
         <Match when={props.e instanceof BaseError}>
-          <span class="text-2xl">
-            Search request failed: {(props.e as BaseError).message}
-          </span>
+          <span class="text-2xl">Search request failed: {(props.e as BaseError).message}</span>
         </Match>
       </Switch>
     </div>

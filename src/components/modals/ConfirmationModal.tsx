@@ -12,9 +12,7 @@ import { render } from "solid-js/web";
 /**
  * Returns promise with bool that indicates if user wants to continue
  */
-export default function promptConfirm(
-  prompt = "Are you sure?",
-): Promise<boolean> {
+export default function promptConfirm(prompt = "Are you sure?"): Promise<boolean> {
   let { promise, resolve } = Promise.withResolvers<boolean>();
   let [showModal, setShowModal] = createSignal(true);
 
@@ -35,10 +33,7 @@ export default function promptConfirm(
 
   render(
     () => (
-      <AlertDialog
-        open={showModal()}
-        onOpenChange={(opened) => !opened && onClose()}
-      >
+      <AlertDialog open={showModal()} onOpenChange={(opened) => !opened && onClose()}>
         <AlertDialogContent>
           <AlertDialogHeader class="text-2xl">Confirm action</AlertDialogHeader>
           <AlertDialogDescription>{prompt}</AlertDialogDescription>

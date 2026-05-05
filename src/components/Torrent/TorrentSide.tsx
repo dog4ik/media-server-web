@@ -1,17 +1,5 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsIndicator,
-  TabsList,
-  TabsTrigger,
-} from "@/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui/card";
+import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "@/ui/tabs";
 import { Schemas } from "@/utils/serverApi";
 import { PeerList } from "./TorrentTable/PeerList";
 import { TrackerList } from "./TrackerList";

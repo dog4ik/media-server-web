@@ -50,9 +50,7 @@ export function MenuRow(
       <Switch>
         <Match
           when={
-            props.value &&
-            (typeof props.value() == "string" ||
-              typeof props.value() == "number")
+            props.value && (typeof props.value() == "string" || typeof props.value() == "number")
           }
         >
           <span>{props.value && props.value()}</span>
@@ -116,13 +114,7 @@ function formatPlaybackSpeed(speed: number) {
 
 export default function PlayerMenu(props: MenuProps) {
   let [
-    {
-      tracks,
-      videoTracks,
-      audioTracks,
-      containerSubtitlesTracks,
-      externalSubtitlesTracks,
-    },
+    { tracks, videoTracks, audioTracks, containerSubtitlesTracks, externalSubtitlesTracks },
     {
       unsetSubtitlesTrack,
 
@@ -249,10 +241,7 @@ export default function PlayerMenu(props: MenuProps) {
 
   const menuHeight = createMemo(
     () =>
-      Math.min(
-        menus[menu()]().length + (menu() === "main" ? 0 : 1),
-        MAX_ROWS_BEFORE_SCROLL,
-      ) * 48,
+      Math.min(menus[menu()]().length + (menu() === "main" ? 0 : 1), MAX_ROWS_BEFORE_SCROLL) * 48,
   );
 
   return (
@@ -277,8 +266,7 @@ export default function PlayerMenu(props: MenuProps) {
             <>
               <Show when={row.type == "row"}>
                 {(_) => {
-                  let r = () =>
-                    row as Exclude<RowParams, { type: "separator" }>;
+                  let r = () => row as Exclude<RowParams, { type: "separator" }>;
                   return (
                     <MenuRow
                       type="row"

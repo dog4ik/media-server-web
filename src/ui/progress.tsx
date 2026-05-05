@@ -7,9 +7,7 @@ export type ProgressProps<T extends ValidComponent = "div"> = ComponentProps<
   typeof ProgressPrimitive<T>
 >;
 
-export const Progress = <T extends ValidComponent = "div">(
-  props: ProgressProps<T>,
-) => {
+export const Progress = <T extends ValidComponent = "div">(props: ProgressProps<T>) => {
   const [, rest] = splitProps(props as ProgressProps, ["class", "children"]);
 
   return (
@@ -38,20 +36,15 @@ export const ProgressGroup = (props: ProgressGroupProps) => {
   const [, rest] = splitProps(props, ["class"]);
 
   return (
-    <div
-      data-slot="progress-group"
-      class={cx("flex justify-between", props.class)}
-      {...rest}
-    />
+    <div data-slot="progress-group" class={cx("flex justify-between", props.class)} {...rest} />
   );
 };
 
-export type ProgressLabelProps<T extends ValidComponent = "span"> =
-  ComponentProps<typeof ProgressPrimitive.Label<T>>;
+export type ProgressLabelProps<T extends ValidComponent = "span"> = ComponentProps<
+  typeof ProgressPrimitive.Label<T>
+>;
 
-export const ProgressLabel = <T extends ValidComponent = "span">(
-  props: ProgressLabelProps<T>,
-) => {
+export const ProgressLabel = <T extends ValidComponent = "span">(props: ProgressLabelProps<T>) => {
   const [, rest] = splitProps(props as ProgressLabelProps, ["class"]);
 
   return (
@@ -63,8 +56,9 @@ export const ProgressLabel = <T extends ValidComponent = "span">(
   );
 };
 
-export type ProgressValueLabelProps<T extends ValidComponent = "span"> =
-  ComponentProps<typeof ProgressPrimitive.ValueLabel<T>>;
+export type ProgressValueLabelProps<T extends ValidComponent = "span"> = ComponentProps<
+  typeof ProgressPrimitive.ValueLabel<T>
+>;
 
 export const ProgressValueLabel = <T extends ValidComponent = "span">(
   props: ProgressValueLabelProps<T>,

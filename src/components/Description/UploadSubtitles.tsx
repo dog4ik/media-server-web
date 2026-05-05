@@ -34,16 +34,11 @@ export function UploadSubtitles(props: Props) {
     }
   }
 
-  let handleFileSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (
-    e,
-  ) => {
+  let handleFileSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (e) => {
     e.preventDefault();
     let subs = subtitlesFile();
     if (subs) {
-      tracing.debug(
-        { name: subs.name, language: language() },
-        "Uploading subtitles file",
-      );
+      tracing.debug({ name: subs.name, language: language() }, "Uploading subtitles file");
       let formData = new FormData();
       if (language()) {
         formData.append("language", language()!);
@@ -131,9 +126,7 @@ export function UploadSubtitles(props: Props) {
       onDragLeave={dragLeaveHandler}
     >
       <Show
-        fallback={
-          <div class="pointer-events-none size-full border-2 border-dashed p-2"></div>
-        }
+        fallback={<div class="pointer-events-none size-full border-2 border-dashed p-2"></div>}
         when={!isDraggedOver()}
       >
         <form onSubmit={handleFileSubmit} class="flex flex-col gap-4">
@@ -178,10 +171,7 @@ export function UploadSubtitles(props: Props) {
                   <span>{file().name}</span>
                   <span>{formatSize(file().size)}</span>
                 </div>
-                <Button
-                  onClick={() => setSubtitlesFile(undefined)}
-                  variant="destructive"
-                >
+                <Button onClick={() => setSubtitlesFile(undefined)} variant="destructive">
                   <FiTrash size={20} />
                 </Button>
               </div>
@@ -200,10 +190,7 @@ export function UploadSubtitles(props: Props) {
                     class="absolute size-full"
                   ></div>
                   <div class="pointer-events-none">
-                    <Show
-                      fallback={<p>Upload subtitles</p>}
-                      when={subtitlesFile()}
-                    >
+                    <Show fallback={<p>Upload subtitles</p>} when={subtitlesFile()}>
                       {(file) => (
                         <p>
                           {file().name} | {formatSize(file().size)}
@@ -217,11 +204,7 @@ export function UploadSubtitles(props: Props) {
               </div>
             </div>
           </Show>
-          <Button
-            disabled={!subtitlesServerPath() && !subtitlesFile()}
-            type="submit"
-            class="mt-4"
-          >
+          <Button disabled={!subtitlesServerPath() && !subtitlesFile()} type="submit" class="mt-4">
             Add Subtitles
           </Button>
         </form>

@@ -1,9 +1,4 @@
-import {
-  Schemas,
-  formatCodec,
-  revalidatePath,
-  server,
-} from "../../utils/serverApi";
+import { Schemas, formatCodec, revalidatePath, server } from "../../utils/serverApi";
 import { ErrorBoundary, For, Match, Show, Suspense, Switch } from "solid-js";
 import { throwResponseErrors } from "../../utils/errors";
 import {
@@ -18,14 +13,7 @@ import { FiTrash } from "solid-icons/fi";
 import FallbackImage from "../FallbackImage";
 import { isCompatible } from "@/utils/mediaCapabilities";
 import promptConfirm from "../modals/ConfirmationModal";
-import {
-  Table,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableHeader,
-  TableCell,
-} from "@/ui/table";
+import { Table, TableBody, TableRow, TableHead, TableHeader, TableCell } from "@/ui/table";
 import { Link, LinkOptions } from "@tanstack/solid-router";
 import { useQuery } from "@tanstack/solid-query";
 
@@ -51,10 +39,7 @@ function CanPlayMark(props: PlayMarkProps) {
     queryKey: ["compatatability"],
   }));
   return (
-    <Show
-      fallback={<div class="h-2 w-2 rounded-full bg-neutral-800" />}
-      when={playStatus.data}
-    >
+    <Show fallback={<div class="h-2 w-2 rounded-full bg-neutral-800" />} when={playStatus.data}>
       {(status) => (
         <Switch fallback={<div class="h-2 w-2 rounded-full bg-neutral-700" />}>
           <Match when={status().combined?.supported}>
@@ -93,26 +78,17 @@ function Row(props: TableRowProps) {
           {props.title}
         </Link>
       </TableCell>
+      <TableCell>{props.video?.codec ? formatCodec(props.video.codec) : "N/A"}</TableCell>
       <TableCell>
-        {props.video?.codec ? formatCodec(props.video.codec) : "N/A"}
+        {props.video?.resolution ? formatResolution(props.video.resolution) : "N/A"}
       </TableCell>
-      <TableCell>
-        {props.video?.resolution
-          ? formatResolution(props.video.resolution)
-          : "N/A"}
-      </TableCell>
-      <TableCell>
-        {props.audio?.codec ? formatCodec(props.audio.codec) : "N/A"}
-      </TableCell>
+      <TableCell>{props.audio?.codec ? formatCodec(props.audio.codec) : "N/A"}</TableCell>
       <TableCell>
         <CanPlayMark audio={props.audio} video={props.video} />
       </TableCell>
       <TableCell>{formatSize(props.size)}</TableCell>
       <TableCell>
-        <button
-          class="rounded-md p-2 transition-colors hover:bg-red-500"
-          onClick={props.onDelete}
-        >
+        <button class="rounded-md p-2 transition-colors hover:bg-red-500" onClick={props.onDelete}>
           <FiTrash size={20} />
         </button>
       </TableCell>
@@ -130,10 +106,7 @@ type VariantProps = {
 function VideoTranscodedVariants(props: VariantProps) {
   let url = () => {
     if (props.content.content_type === "episode") {
-      let episode = extendEpisode(
-        props.content.episode,
-        props.content.show.metadata_id,
-      );
+      let episode = extendEpisode(props.content.episode, props.content.show.metadata_id);
       return episode.url();
     } else {
       return props.content.url();
@@ -174,9 +147,7 @@ function NoItemsDisplay() {
   return (
     <>
       <p class="text-center text-2xl">No transcoded videos</p>
-      <p class="text-center">
-        Start transcoding videos and they will show up here
-      </p>
+      <p class="text-center">Start transcoding videos and they will show up here</p>
     </>
   );
 }
@@ -184,19 +155,14 @@ function NoItemsDisplay() {
 export default function TranscodedVariantsList() {
   let videos = useQuery(() => ({
     queryFn: async () => {
-      let variants = await server
-        .GET("/api/variants")
-        .then(throwResponseErrors);
+      let variants = await server.GET("/api/variants").then(throwResponseErrors);
       let promises = variants.map((video) => fetchVideoContent(video.id));
       let settled = await Promise.allSettled(promises);
       return variants.map((d, idx) => {
         let settledContent = settled[idx];
         return {
           ...d,
-          content:
-            settledContent.status == "fulfilled"
-              ? settledContent.value
-              : undefined,
+          content: settledContent.status == "fulfilled" ? settledContent.value : undefined,
         };
       });
     },
@@ -236,9 +202,7 @@ export default function TranscodedVariantsList() {
                   {(video, idx) => (
                     <VideoTranscodedVariants
                       idx={idx()}
-                      onDelete={(variantId: string) =>
-                        onDelete(video.id, variantId)
-                      }
+                      onDelete={(variantId: string) => onDelete(video.id, variantId)}
                       video={video}
                       // this is a lie
                       content={video.content!}

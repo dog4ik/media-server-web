@@ -42,11 +42,7 @@ export const SheetContent = <T extends ValidComponent = "div">(
   props: PolymorphicProps<T, sheetContentProps<T>>,
 ) => {
   const merge = mergeProps<sheetContentProps<T>[]>({ side: "right" }, props);
-  const [local, rest] = splitProps(merge as sheetContentProps, [
-    "class",
-    "children",
-    "side",
-  ]);
+  const [local, rest] = splitProps(merge as sheetContentProps, ["class", "children", "side"]);
 
   return (
     <DialogPrimitive.Portal>
@@ -61,11 +57,7 @@ export const SheetContent = <T extends ValidComponent = "div">(
       >
         {local.children}
         <DialogPrimitive.CloseButton class="ring-offset-background focus:ring-ring absolute top-4 right-4 rounded-sm opacity-70 transition-[opacity,box-shadow] hover:opacity-100 focus:ring-[1.5px] focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            class="h-4 w-4"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4">
             <path
               fill="none"
               stroke="currentColor"
@@ -99,10 +91,9 @@ export const SheetTitle = <T extends ValidComponent = "h2">(
   );
 };
 
-type sheetDescriptionProps<T extends ValidComponent = "p"> =
-  DialogDescriptionProps<T> & {
-    class?: string;
-  };
+type sheetDescriptionProps<T extends ValidComponent = "p"> = DialogDescriptionProps<T> & {
+  class?: string;
+};
 
 export const SheetDescription = <T extends ValidComponent = "p">(
   props: PolymorphicProps<T, sheetDescriptionProps<T>>,
@@ -121,13 +112,7 @@ export const SheetHeader = (props: ComponentProps<"div">) => {
   const [local, rest] = splitProps(props, ["class"]);
 
   return (
-    <div
-      class={cn(
-        "flex flex-col space-y-2 text-center sm:text-left",
-        local.class,
-      )}
-      {...rest}
-    />
+    <div class={cn("flex flex-col space-y-2 text-center sm:text-left", local.class)} {...rest} />
   );
 };
 
@@ -136,10 +121,7 @@ export const SheetFooter = (props: ComponentProps<"div">) => {
 
   return (
     <div
-      class={cn(
-        "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
-        local.class,
-      )}
+      class={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", local.class)}
       {...rest}
     />
   );

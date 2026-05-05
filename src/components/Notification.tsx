@@ -15,14 +15,9 @@ function useClose(cb: () => void, time: number) {
   return [shouldAnimateOut, setClose] as const;
 }
 
-function HrefWrapper(
-  props: ParentProps & { url?: LinkOptions; class?: string },
-) {
+function HrefWrapper(props: ParentProps & { url?: LinkOptions; class?: string }) {
   return (
-    <Show
-      fallback={<span class={props.class}>{props.children}</span>}
-      when={props.url}
-    >
+    <Show fallback={<span class={props.class}>{props.children}</span>} when={props.url}>
       {(url) => (
         <Link class={clsx(props.class, "hover:underline")} {...url()}>
           {props.children}
@@ -45,9 +40,7 @@ const TIMELINE_KEYFRAMES: Keyframe[] = [{ width: "100%" }, { width: "0%" }];
 
 const ANIMATION_DURATION = 5_000;
 
-export default function Notification(
-  props: NotificationProps & { onClose: () => void },
-) {
+export default function Notification(props: NotificationProps & { onClose: () => void }) {
   let [shouldAnimateOut, close] = useClose(props.onClose, 200);
   function handleHover() {
     animation.pause();
@@ -58,10 +51,7 @@ export default function Notification(
   let timeLine: HTMLDivElement = {} as any;
   let animation: Animation;
   onMount(() => {
-    animation = timeLine.animate(
-      TIMELINE_KEYFRAMES,
-      props.duration ?? ANIMATION_DURATION,
-    );
+    animation = timeLine.animate(TIMELINE_KEYFRAMES, props.duration ?? ANIMATION_DURATION);
     animation.addEventListener("finish", close);
   });
 
@@ -73,10 +63,7 @@ export default function Notification(
         shouldAnimateOut() ? "translate-x-full" : "animate-fade-in"
       } flex items-center overflow-hidden rounded-lg`}
     >
-      <div
-        class="absolute right-0 bottom-0 left-0 h-0.5 w-0 bg-white"
-        ref={timeLine!}
-      ></div>
+      <div class="absolute right-0 bottom-0 left-0 h-0.5 w-0 bg-white" ref={timeLine!}></div>
       <Show when={props.poster}>
         <img
           src={props.poster}
@@ -87,17 +74,11 @@ export default function Notification(
         />
       </Show>
       <div class="flex flex-col gap-1 px-2 py-4">
-        <p
-          title={props.message}
-          class="truncate font-semibold break-all text-white sm:text-xl"
-        >
+        <p title={props.message} class="truncate font-semibold break-all text-white sm:text-xl">
           {props.message}
         </p>
         <Show when={props.subTitle}>
-          <HrefWrapper
-            class="font-semibold text-white/70"
-            url={props.contentUrl}
-          >
+          <HrefWrapper class="font-semibold text-white/70" url={props.contentUrl}>
             {props.subTitle}
           </HrefWrapper>
         </Show>

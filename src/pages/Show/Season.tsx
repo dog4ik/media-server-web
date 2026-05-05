@@ -6,12 +6,7 @@ import { IntrosModal } from "@/components/modals/IntrosModal";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
 import Icon from "@/components/ui/Icon";
 import { Skeleton } from "@/ui/skeleton";
-import {
-  extendEpisode,
-  extendSeason,
-  Media,
-  posterList,
-} from "@/utils/library";
+import { extendEpisode, extendSeason, Media, posterList } from "@/utils/library";
 import { queryApi } from "@/utils/queryApi";
 import { revalidatePath, Schemas, server } from "@/utils/serverApi";
 import useToggle from "@/utils/useToggle";
@@ -30,11 +25,7 @@ async function detectIntros(show_id: number, season: number) {
 }
 
 async function deleteContent<T extends Media>(content: T) {
-  if (
-    await promptConfirm(
-      `Are you sure you want to delete ${content.friendlyTitle()}?`,
-    )
-  ) {
+  if (await promptConfirm(`Are you sure you want to delete ${content.friendlyTitle()}?`)) {
     let err = await content.delete();
     if (err !== undefined) {
       throw Error(err.message);
@@ -54,9 +45,7 @@ function SkeletonSeasonBar() {
   return (
     <>
       <div>
-        <Skeleton
-          style={{ width: `${POSTER_WIDTH}px`, height: `${POSTER_HEIGHT}px` }}
-        />
+        <Skeleton style={{ width: `${POSTER_WIDTH}px`, height: `${POSTER_HEIGHT}px` }} />
       </div>
       <div class="flex flex-1 flex-col gap-3">
         <div class="space-y-3">
@@ -121,9 +110,7 @@ export default function Season(props: Props) {
                 open={introsModal()}
                 onClose={setIntrosModal}
                 show_id={+props.showId}
-                episodes={season().episodes.map((e) =>
-                  extendEpisode(e, props.showId),
-                )}
+                episodes={season().episodes.map((e) => extendEpisode(e, props.showId))}
                 season={season().number}
               />
             </Show>
@@ -133,9 +120,7 @@ export default function Season(props: Props) {
       <div
         class={clsx(
           "sticky top-0 z-10 flex gap-4 rounded-xl bg-neutral-900/80 p-4 transition-opacity",
-          seasonQuery.isFetching &&
-            seasonQuery.isPlaceholderData &&
-            "opacity-50",
+          seasonQuery.isFetching && seasonQuery.isPlaceholderData && "opacity-50",
         )}
       >
         <Show when={seasonQuery.latest()} fallback={<SkeletonSeasonBar />}>
@@ -162,10 +147,7 @@ export default function Season(props: Props) {
               <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
                 <FiDownload size={30} />
               </Icon>
-              <Icon
-                tooltip="Manage intros"
-                onClick={() => setIntrosModal(true)}
-              >
+              <Icon tooltip="Manage intros" onClick={() => setIntrosModal(true)}>
                 <FiSkipForward size={30} />
               </Icon>
               <Show when={season().metadata_provider == "local"}>
@@ -183,9 +165,7 @@ export default function Season(props: Props) {
                 <Icon
                   tooltip={`Delete season ${season().number}`}
                   onClick={() =>
-                    deleteContent(season()).then(() =>
-                      revalidatePath("/api/show/{id}/{season}"),
-                    )
+                    deleteContent(season()).then(() => revalidatePath("/api/show/{id}/{season}"))
                   }
                 >
                   <FiTrash size={30} />
@@ -198,9 +178,7 @@ export default function Season(props: Props) {
       <ElementsGrid
         class={clsx(
           "transition-opacity",
-          seasonQuery.isFetching &&
-            seasonQuery.isPlaceholderData &&
-            "opacity-50",
+          seasonQuery.isFetching && seasonQuery.isPlaceholderData && "opacity-50",
         )}
         elementSize={320}
       >
@@ -209,9 +187,7 @@ export default function Season(props: Props) {
             <div
               class={clsx(
                 "transition-opacity",
-                seasonQuery.isFetching &&
-                  seasonQuery.isPlaceholderData &&
-                  "opacity-50",
+                seasonQuery.isFetching && seasonQuery.isPlaceholderData && "opacity-50",
               )}
             >
               <EpisodeCard

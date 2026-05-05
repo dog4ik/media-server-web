@@ -14,19 +14,19 @@ export const AlertDialog = (props: AlertDialogProps) => {
   return <AlertDialogPrimitive data-slot="alert-dialog" {...props} />;
 };
 
-export type AlertDialogTriggerProps<T extends ValidComponent = "button"> =
-  ComponentProps<typeof AlertDialogPrimitive.Trigger<T>>;
+export type AlertDialogTriggerProps<T extends ValidComponent = "button"> = ComponentProps<
+  typeof AlertDialogPrimitive.Trigger<T>
+>;
 
 export const AlertDialogTrigger = <T extends ValidComponent = "button">(
   props: AlertDialogTriggerProps<T>,
 ) => {
-  return (
-    <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props} />
-  );
+  return <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props} />;
 };
 
-export type AlertDialogOverlayProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof AlertDialogPrimitive.Overlay<T>>;
+export type AlertDialogOverlayProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof AlertDialogPrimitive.Overlay<T>
+>;
 
 export const AlertDialogOverlay = <T extends ValidComponent = "div">(
   props: AlertDialogOverlayProps<T>,
@@ -45,8 +45,9 @@ export const AlertDialogOverlay = <T extends ValidComponent = "div">(
   );
 };
 
-export type AlertDialogContentProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof AlertDialogPrimitive.Content<T>>;
+export type AlertDialogContentProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof AlertDialogPrimitive.Content<T>
+>;
 
 export const AlertDialogContent = <T extends ValidComponent = "div">(
   props: AlertDialogContentProps<T>,
@@ -90,17 +91,15 @@ export const AlertDialogFooter = (props: AlertDialogFooterProps) => {
   return (
     <div
       data-slot="alert-dialog-footer"
-      class={cx(
-        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
-        props.class,
-      )}
+      class={cx("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", props.class)}
       {...rest}
     />
   );
 };
 
-export type AlertDialogTitleProps<T extends ValidComponent = "h2"> =
-  ComponentProps<typeof AlertDialogPrimitive.Title<T>>;
+export type AlertDialogTitleProps<T extends ValidComponent = "h2"> = ComponentProps<
+  typeof AlertDialogPrimitive.Title<T>
+>;
 
 export const AlertDialogTitle = <T extends ValidComponent = "h2">(
   props: AlertDialogTitleProps<T>,
@@ -116,8 +115,9 @@ export const AlertDialogTitle = <T extends ValidComponent = "h2">(
   );
 };
 
-export type AlertDialogDescriptionProps<T extends ValidComponent = "p"> =
-  ComponentProps<typeof AlertDialogPrimitive.Description<T>>;
+export type AlertDialogDescriptionProps<T extends ValidComponent = "p"> = ComponentProps<
+  typeof AlertDialogPrimitive.Description<T>
+>;
 
 export const AlertDialogDescription = <T extends ValidComponent = "p">(
   props: AlertDialogDescriptionProps<T>,
@@ -133,8 +133,9 @@ export const AlertDialogDescription = <T extends ValidComponent = "p">(
   );
 };
 
-export type AlertDialogActionProps<T extends ValidComponent = "button"> =
-  ComponentProps<typeof AlertDialogPrimitive.CloseButton<T>>;
+export type AlertDialogActionProps<T extends ValidComponent = "button"> = ComponentProps<
+  typeof AlertDialogPrimitive.CloseButton<T>
+>;
 
 export const AlertDialogAction = <T extends ValidComponent = "button">(
   props: AlertDialogActionProps<T>,
@@ -151,8 +152,9 @@ export const AlertDialogAction = <T extends ValidComponent = "button">(
   );
 };
 
-export type AlertDialogCancelProps<T extends ValidComponent = "button"> =
-  ComponentProps<typeof AlertDialogPrimitive.CloseButton<T>>;
+export type AlertDialogCancelProps<T extends ValidComponent = "button"> = ComponentProps<
+  typeof AlertDialogPrimitive.CloseButton<T>
+>;
 
 export const AlertDialogCancel = <T extends ValidComponent = "button">(
   props: AlertDialogCancelProps<T>,

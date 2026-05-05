@@ -1,8 +1,5 @@
 import { errorBoundaryFallback } from "@/components/Error";
-import {
-  BitTorrentClient,
-  BittorrentClientSkeleton,
-} from "@/components/Torrent";
+import { BitTorrentClient, BittorrentClientSkeleton } from "@/components/Torrent";
 import { useServerStatus } from "@/context/ServerStatusContext";
 import { TorrentStateManager, TorrentProvider } from "@/context/TorrentContext";
 import { useQuery } from "@tanstack/solid-query";
@@ -25,9 +22,7 @@ export default function Torrent() {
   }));
 
   return (
-    <ErrorBoundary
-      fallback={errorBoundaryFallback("Failed to load bittorrent client")}
-    >
+    <ErrorBoundary fallback={errorBoundaryFallback("Failed to load bittorrent client")}>
       <Suspense fallback={<BittorrentClientSkeleton />}>
         <Show when={torrentState.data}>
           {(state) => (

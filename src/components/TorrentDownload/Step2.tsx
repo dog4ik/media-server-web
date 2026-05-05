@@ -64,10 +64,7 @@ function File(props: FileProps) {
           <span>{props.subtitle}</span>
         </div>
       </Show>
-      <div
-        title={props.title}
-        class="absolute bottom-3 left-3 w-3/4 max-w-52 truncate text-start"
-      >
+      <div title={props.title} class="absolute bottom-3 left-3 w-3/4 max-w-52 truncate text-start">
         <span class="text-lg">{props.title}</span>
       </div>
       <div class="absolute bottom-3 right-3 w-1/3 truncate text-end">
@@ -101,21 +98,16 @@ export default function Step2(props: Props) {
   let file = (idx: number) => props.content.contents.files[idx];
 
   let otherFiles = createMemo(() => {
-    if (
-      props.content.contents.content &&
-      "show" in props.content.contents.content
-    ) {
-      let allShows = Object.values(
-        props.content.contents.content.show.seasons,
-      ).flatMap((d) => d?.map((f) => f.file_idx));
+    if (props.content.contents.content && "show" in props.content.contents.content) {
+      let allShows = Object.values(props.content.contents.content.show.seasons).flatMap((d) =>
+        d?.map((f) => f.file_idx),
+      );
       return props.content.contents.files
         .map((f, i) => ({ ...f, idx: i }))
         .filter((_, idx) => !allShows.includes(idx));
     }
     if (props.content.contents.content?.movie) {
-      let allMovies = Object.values(props.content.contents.content.movie).map(
-        (d) => d.file_idx,
-      );
+      let allMovies = Object.values(props.content.contents.content.movie).map((d) => d.file_idx);
       return props.content.contents.files
         .map((f, i) => ({ ...f, idx: i }))
         .filter((_, idx) => !allMovies.includes(idx));
@@ -124,19 +116,13 @@ export default function Step2(props: Props) {
   });
 
   let show = () => {
-    if (
-      props.content.contents.content &&
-      "show" in props.content.contents.content
-    ) {
+    if (props.content.contents.content && "show" in props.content.contents.content) {
       return props.content.contents.content.show;
     }
   };
 
   let movie = () => {
-    if (
-      props.content.contents.content &&
-      "movie" in props.content.contents.content
-    ) {
+    if (props.content.contents.content && "movie" in props.content.contents.content) {
       return props.content.contents.content.movie;
     }
   };

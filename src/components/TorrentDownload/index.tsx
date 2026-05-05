@@ -17,12 +17,8 @@ function StepLoading(props: StepLoadingProps) {
     <div class="flex h-full w-full flex-col items-center justify-center gap-4">
       <span class="text-2xl">
         <Switch>
-          <Match when={props.currentStep == 0}>
-            Searching available torrents
-          </Match>
-          <Match when={props.currentStep == 1}>
-            Resolving selected torrent
-          </Match>
+          <Match when={props.currentStep == 0}>Searching available torrents</Match>
+          <Match when={props.currentStep == 1}>Resolving selected torrent</Match>
         </Switch>
       </span>
       <span class="loading loading-dots loading-lg"></span>
@@ -125,10 +121,7 @@ export function TorrentDownloadSteps(props: Props) {
             />
           </Match>
           <Match when={currentStep() === 1 && resolvedMagnetLink.latest()}>
-            <Step2
-              onFileSelect={setSelectedFiles}
-              content={resolvedMagnetLink.latest()!}
-            />
+            <Step2 onFileSelect={setSelectedFiles} content={resolvedMagnetLink.latest()!} />
           </Match>
           <Match when={currentStep() === 2 && resolvedMagnetLink.latest()}>
             <Step3
@@ -160,13 +153,11 @@ export function TorrentDownloadSteps(props: Props) {
               Selected{" "}
               {formatSize(
                 enabledFiles().reduce(
-                  (acc, n) =>
-                    acc + resolvedMagnetLink.latest()!.contents.files[n].size,
+                  (acc, n) => acc + resolvedMagnetLink.latest()!.contents.files[n].size,
                   0,
                 ),
               )}{" "}
-              ({enabledFiles().length}{" "}
-              {enabledFiles().length == 1 ? "File" : "Files"})
+              ({enabledFiles().length} {enabledFiles().length == 1 ? "File" : "Files"})
             </Button>
           </Show>
         </Show>

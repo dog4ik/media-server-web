@@ -59,9 +59,7 @@ type FetchResponse<T> =
       response: Response;
     };
 
-export function throwResponseErrors<T>(
-  response: FetchResponse<T>,
-): NonNullable<T> | never {
+export function throwResponseErrors<T>(response: FetchResponse<T>): NonNullable<T> | never {
   if (response.data !== undefined && response.error == undefined) {
     return response.data!;
   }
@@ -85,9 +83,7 @@ export function throwResponseErrors<T>(
  * or message
  */
 export function notifyResponseErrors<T>(
-  addNotification: ReturnType<
-    typeof useNotificationsContext
-  >[1]["addNotification"],
+  addNotification: ReturnType<typeof useNotificationsContext>[1]["addNotification"],
   /**
    * Format should look like `fetched shows`
    * so it will get resolved to Failed to message

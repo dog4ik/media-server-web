@@ -1,14 +1,5 @@
 import { Schemas, server } from "../../utils/serverApi";
-import {
-  createMemo,
-  ErrorBoundary,
-  For,
-  Match,
-  onCleanup,
-  onMount,
-  Show,
-  Switch,
-} from "solid-js";
+import { createMemo, ErrorBoundary, For, Match, onCleanup, onMount, Show, Switch } from "solid-js";
 import { WatchProgressBar } from "../../components/Cards/ProgressBar";
 import { FiX } from "solid-icons/fi";
 import FallbackImage from "../../components/FallbackImage";
@@ -40,10 +31,7 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
   );
   return (
     <Card class="relative grid grid-cols-4 gap-2 py-0">
-      <Link
-        class="relative aspect-video h-fit overflow-hidden rounded-xl"
-        {...episode().url()}
-      >
+      <Link class="relative aspect-video h-fit overflow-hidden rounded-xl" {...episode().url()}>
         <FallbackImage
           width={342}
           height={192}
@@ -52,9 +40,7 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
           srcList={posterList(episode())}
         />
         <Show when={episode().runtime}>
-          {(r) => (
-            <WatchProgressBar runtime={r()} history={props.entry.history} />
-          )}
+          {(r) => <WatchProgressBar runtime={r()} history={props.entry.history} />}
         </Show>
       </Link>
       <div class="col-span-3 flex flex-col p-2">
@@ -70,9 +56,7 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
           </Link>
           <span>-</span>
           <Link {...episode().seasonUrl()}>
-            <span class="hover:underline">
-              Season {episode().season_number}
-            </span>
+            <span class="hover:underline">Season {episode().season_number}</span>
           </Link>
           <span>-</span>
           <Link {...episode().url()}>
@@ -109,10 +93,7 @@ function DisplayMovie(props: DisplayMovieProps) {
   return (
     <Card class="py-0">
       <CardContent class="relative grid grid-cols-4 gap-2">
-        <Link
-          class="aspect-poster relative h-fit overflow-hidden rounded-xl"
-          {...movie().url()}
-        >
+        <Link class="aspect-poster relative h-fit overflow-hidden rounded-xl" {...movie().url()}>
           <FallbackImage
             width={100}
             height={192}
@@ -121,9 +102,7 @@ function DisplayMovie(props: DisplayMovieProps) {
             srcList={posterList(movie())}
           />
           <Show when={movie().runtime}>
-            {(r) => (
-              <WatchProgressBar runtime={r()} history={props.entry.history} />
-            )}
+            {(r) => <WatchProgressBar runtime={r()} history={props.entry.history} />}
           </Show>
         </Link>
         <div class="col-span-3 flex flex-col p-2">
@@ -196,11 +175,7 @@ export default function History() {
   onMount(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (
-          entry.isIntersecting &&
-          history.hasNextPage &&
-          !history.isFetchingNextPage
-        ) {
+        if (entry.isIntersecting && history.hasNextPage && !history.isFetchingNextPage) {
           history.fetchNextPage();
         }
       },
@@ -227,10 +202,7 @@ export default function History() {
       <div class="max-w-5xl space-y-4">
         <For each={allHistory()}>
           {(entry) => (
-            <HistoryEntry
-              history={entry}
-              onRemove={() => handleRemove(entry.history.id)}
-            />
+            <HistoryEntry history={entry} onRemove={() => handleRemove(entry.history.id)} />
           )}
         </For>
       </div>
@@ -239,8 +211,7 @@ export default function History() {
       </Show>
       <Show
         when={
-          (history.hasNextPage === false && allHistory().length > 0) ||
-          allHistory().length === 0
+          (history.hasNextPage === false && allHistory().length > 0) || allHistory().length === 0
         }
       >
         <div class="mt-12 flex items-center justify-center">

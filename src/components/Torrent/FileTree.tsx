@@ -7,13 +7,7 @@ import ChevronDown from "lucide-solid/icons/chevron-down";
 import DirIcon from "lucide-solid/icons/folder";
 import FileIcon from "lucide-solid/icons/file";
 import { capitalize, formatSize } from "@/utils/formats";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
 import { Progress } from "@/ui/progress";
 
 type Child = {
@@ -88,9 +82,7 @@ function Child(props: ChildProps) {
       <div class="flex-1 space-y-1">
         <div class="flex">
           <span class="flex-1">{props.path}</span>
-          <div class="text-muted-foreground text-xs">
-            {formatSize(props.size)}
-          </div>
+          <div class="text-muted-foreground text-xs">{formatSize(props.size)}</div>
         </div>
         <Progress value={props.fileProgress(props.file)} class="h-1" />
       </div>
@@ -98,12 +90,8 @@ function Child(props: ChildProps) {
         options={["disabled", "low", "medium", "high"]}
         defaultValue={priority()}
         value={priority()}
-        onChange={(p) =>
-          props.onPriorityUpdate(props.idx, p ?? priority() ?? "disabled")
-        }
-        itemComponent={(p) => (
-          <SelectItem item={p.item}>{capitalize(p.item.rawValue)}</SelectItem>
-        )}
+        onChange={(p) => props.onPriorityUpdate(props.idx, p ?? priority() ?? "disabled")}
+        itemComponent={(p) => <SelectItem item={p.item}>{capitalize(p.item.rawValue)}</SelectItem>}
       >
         <SelectTrigger class="w-[100px]">
           <SelectValue class="text-white">{capitalize(priority())}</SelectValue>
@@ -130,19 +118,14 @@ function Directory(props: DirectoryProps) {
   return (
     <div>
       <div class="flex items-center gap-2">
-        <Button
-          class="p-1"
-          onClick={() => props.onCollapseToggle(props.fullPath)}
-        >
+        <Button class="p-1" onClick={() => props.onCollapseToggle(props.fullPath)}>
           <Show when={props.isCollapsed} fallback={<ChevronUp />}>
             <ChevronDown />
           </Show>
         </Button>
         <DirIcon class="inline" />
         <span class="flex-1">{props.path}</span>
-        <div class="text-muted-foreground text-xs">
-          {formatSize(props.size)}
-        </div>
+        <div class="text-muted-foreground text-xs">{formatSize(props.size)}</div>
       </div>
       <Show when={!props.isCollapsed}>
         <div class="ml-2 flex flex-col gap-5">

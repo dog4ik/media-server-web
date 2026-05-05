@@ -1,32 +1,16 @@
-import {
-  ComponentProps,
-  createMemo,
-  createSignal,
-  For,
-  ParentProps,
-  Show,
-} from "solid-js";
+import { ComponentProps, createMemo, createSignal, For, ParentProps, Show } from "solid-js";
 import VideoInformationSlider from "./VideoInformationSlider";
 import { VariantVideo, Video } from "@/utils/library";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/ui/collapsible";
 import Trash2 from "lucide-solid/icons/trash-2";
 import Subtitles from "lucide-solid/icons/subtitles";
 import ChevronDown from "lucide-solid/icons/chevron-down";
 import ChevronRight from "lucide-solid/icons/chevron-right";
 import Plus from "lucide-solid/icons/plus";
 import VideoIcon from "lucide-solid/icons/video";
-import {
-  formatCodec,
-  revalidatePath,
-  Schemas,
-  server,
-} from "@/utils/serverApi";
+import { formatCodec, revalidatePath, Schemas, server } from "@/utils/serverApi";
 import { useNotificationsContext } from "@/context/NotificationContext";
 import { notifyResponseErrors } from "@/utils/errors";
 import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
@@ -53,19 +37,10 @@ type CompatibilityBadgeProps = {
   ComponentProps<typeof Badge>;
 
 function CompatibilityBadge(props: CompatibilityBadgeProps) {
-  let compatibility = useCapabilityQuery(
-    props.videoPath,
-    props.video,
-    props.audio,
-  );
-  let data = createMemo(() =>
-    compatibility.isSuccess ? compatibility.data : undefined,
-  );
+  let compatibility = useCapabilityQuery(props.videoPath, props.video, props.audio);
+  let data = createMemo(() => (compatibility.isSuccess ? compatibility.data : undefined));
   let isCompatible = createMemo(
-    () =>
-      data()?.video?.supported ||
-      data()?.audio?.supported ||
-      data()?.combined?.supported,
+    () => data()?.video?.supported || data()?.audio?.supported || data()?.combined?.supported,
   );
   return (
     <Badge
@@ -156,9 +131,7 @@ function Subtitle(props: SubtitleProps) {
       <div class="flex items-center gap-3">
         <Badge variant="outline">{props.subtitles.language ?? "Unknown"}</Badge>
         <Show when={props.subtitles.is_external}>
-          <code class="text-muted-foreground text-sm">
-            {props.subtitles.path}
-          </code>
+          <code class="text-muted-foreground text-sm">{props.subtitles.path}</code>
         </Show>
       </div>
       <Button
@@ -208,11 +181,7 @@ function SubtitlesList(props: SubtitleListProps) {
             fallback={
               <div class="text-muted-foreground py-4 text-center">
                 <p class="mb-2">No subtitles available for this video</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={props.onAddButtonClick}
-                >
+                <Button variant="outline" size="sm" onClick={props.onAddButtonClick}>
                   <Plus class="mr-1 h-4 w-4" />
                   Add Subtitle
                 </Button>
@@ -221,10 +190,7 @@ function SubtitlesList(props: SubtitleListProps) {
             each={props.items}
           >
             {(subtitle) => (
-              <Subtitle
-                subtitles={subtitle}
-                onDelete={() => deleteSubtitle(subtitle.id)}
-              />
+              <Subtitle subtitles={subtitle} onDelete={() => deleteSubtitle(subtitle.id)} />
             )}
           </For>
           <Show when={props.items.length > 0}>
@@ -259,36 +225,24 @@ function Variant(props: VariantProps) {
     >
       <RadioButton onClick={props.onSelect} checked={props.isSelected} />
       <div class="flex items-center gap-3">
-        <Badge variant="outline">
-          {formatDuration(props.variant.details.duration)}
-        </Badge>
-        <Badge variant="outline">
-          {formatSize(props.variant.details.size)}
-        </Badge>
+        <Badge variant="outline">{formatDuration(props.variant.details.duration)}</Badge>
+        <Badge variant="outline">{formatSize(props.variant.details.size)}</Badge>
         <Show when={props.variant.defaultVideo()}>
           {(video) => (
-            <CompatibilityBadge
-              videoPath={props.variant.details.path}
-              video={video()}
-            >
+            <CompatibilityBadge videoPath={props.variant.details.path} video={video()}>
               {formatCodec(video().codec)}
             </CompatibilityBadge>
           )}
         </Show>
         <Show when={props.variant.defaultAudio()}>
           {(audio) => (
-            <CompatibilityBadge
-              videoPath={props.variant.details.path}
-              audio={audio()}
-            >
+            <CompatibilityBadge videoPath={props.variant.details.path} audio={audio()}>
               {formatCodec(audio().codec)}
             </CompatibilityBadge>
           )}
         </Show>
         <Show when={props.variant.details.path}>
-          <code class="text-muted-foreground text-sm">
-            {props.variant.details.path}
-          </code>
+          <code class="text-muted-foreground text-sm">{props.variant.details.path}</code>
         </Show>
       </div>
       <Button
@@ -347,11 +301,7 @@ function VariantList(props: VariantListProps) {
             fallback={
               <div class="text-muted-foreground py-4 text-center">
                 <p class="mb-2">No variants available for this video</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={props.onAddButtonClick}
-                >
+                <Button variant="outline" size="sm" onClick={props.onAddButtonClick}>
                   <Plus class="mr-1 h-4 w-4" />
                   Add Variant
                 </Button>
@@ -397,10 +347,6 @@ type ListItemProps = {
 };
 
 function ListItem(props: ListItemProps) {
-  async function onAddSubtitles() {
-    await revalidatePath("/api/video/by_content");
-  }
-
   return (
     <>
       <Card class="overflow-hidden">
@@ -412,37 +358,23 @@ function ListItem(props: ListItemProps) {
                 onClick={() => props.onSelect(undefined)}
               />
               <div class="min-w-0 flex-1 space-y-1">
-                <CardTitle class="text-sm leading-tight">
-                  {props.video.details.path}
-                </CardTitle>
+                <CardTitle class="text-sm leading-tight">{props.video.details.path}</CardTitle>
                 <div class="text-muted-foreground flex flex-wrap gap-2 text-sm">
-                  <Badge variant="secondary">
-                    {formatDuration(props.video.details.duration)}
-                  </Badge>
-                  <Badge variant="outline">
-                    {formatSize(props.video.details.size)}
-                  </Badge>
+                  <Badge variant="secondary">{formatDuration(props.video.details.duration)}</Badge>
+                  <Badge variant="outline">{formatSize(props.video.details.size)}</Badge>
                   <Show when={props.video.defaultVideo()}>
                     {(video) => (
                       <>
-                        <CompatibilityBadge
-                          videoPath={props.video.details.path}
-                          video={video()}
-                        >
+                        <CompatibilityBadge videoPath={props.video.details.path} video={video()}>
                           {formatCodec(video().codec)}
                         </CompatibilityBadge>
-                        <Badge variant="secondary">
-                          {formatResolution(video().resolution)}
-                        </Badge>
+                        <Badge variant="secondary">{formatResolution(video().resolution)}</Badge>
                       </>
                     )}
                   </Show>
                   <Show when={props.video.defaultAudio()}>
                     {(audio) => (
-                      <CompatibilityBadge
-                        videoPath={props.video.details.path}
-                        audio={audio()}
-                      >
+                      <CompatibilityBadge videoPath={props.video.details.path} audio={audio()}>
                         {formatCodec(audio().codec)}
                       </CompatibilityBadge>
                     )}

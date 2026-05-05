@@ -56,8 +56,5 @@ export default function useInfiniteScroll<T extends InfiniteScroll>(
     setHistory("data", (items) => items.filter((_, i) => i !== idx));
   }
 
-  return [
-    () => history.data as T["data"],
-    { isLoading, reachedEnd, removeIdx },
-  ] as const;
+  return [() => history.data as T["data"], { isLoading, reachedEnd, removeIdx }] as const;
 }

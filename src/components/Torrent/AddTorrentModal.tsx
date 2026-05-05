@@ -35,13 +35,10 @@ export function AddTorrentModal() {
     formData.append("file", file);
 
     try {
-      let response = await fetch(
-        `${MEDIA_SERVER_URL}/api/torrent/open_torrent_file`,
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+      let response = await fetch(`${MEDIA_SERVER_URL}/api/torrent/open_torrent_file`, {
+        method: "POST",
+        body: formData,
+      });
 
       if (!response.ok) {
         throw new Error("Failed to upload torrent file");
@@ -56,9 +53,7 @@ export function AddTorrentModal() {
     }
   };
 
-  let handleMagnetSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = (
-    e,
-  ) => {
+  let handleMagnetSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = (e) => {
     e.preventDefault();
     if (!magnetLink) {
       setError("Please enter a magnet link");
@@ -71,9 +66,7 @@ export function AddTorrentModal() {
     setError(undefined);
   };
 
-  let handleFileSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (
-    e,
-  ) => {
+  let handleFileSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (e) => {
     e.preventDefault();
     let file = torrentFile();
     if (!file) {
@@ -119,9 +112,7 @@ export function AddTorrentModal() {
       <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add New Torrent</DialogTitle>
-          <DialogDescription>
-            Choose a method to add a new torrent to your list.
-          </DialogDescription>
+          <DialogDescription>Choose a method to add a new torrent to your list.</DialogDescription>
         </DialogHeader>
         <h4 class="text-lg">Save location</h4>
         <FileInput

@@ -12,21 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui/table";
 import { TextField, TextFieldInput } from "@/ui/textfield";
 import type { ColumnDef } from "@tanstack/solid-table";
 import { flexRender } from "@tanstack/solid-table";
@@ -49,13 +36,7 @@ export const ICON_SIZE = 15;
 
 function filteredStatusList() {
   return (
-    [
-      "paused",
-      "pending",
-      "error",
-      "seeding",
-      "validation",
-    ] as Schemas["DownloadState"]["type"][]
+    ["paused", "pending", "error", "seeding", "validation"] as Schemas["DownloadState"]["type"][]
   ).map((e) => ({
     title: e,
     value: e,
@@ -65,37 +46,27 @@ function filteredStatusList() {
 export const TORRENT_TABLE_COLUMNS: ColumnDef<Schemas["TorrentState"]>[] = [
   {
     accessorKey: "name",
-    header: (props) => (
-      <TableColumnHeader column={props.column} title="Title" />
-    ),
+    header: (props) => <TableColumnHeader column={props.column} title="Title" />,
     cell: (props) => (
       <div class="flex space-x-2">
-        <span class="max-w-2xl truncate font-medium">
-          {props.row.getValue("name")}
-        </span>
+        <span class="max-w-2xl truncate font-medium">{props.row.getValue("name")}</span>
       </div>
     ),
   },
   {
     accessorKey: "total_size",
     id: "total size",
-    header: (props) => (
-      <TableColumnHeader column={props.column} title="Total size" />
-    ),
+    header: (props) => <TableColumnHeader column={props.column} title="Total size" />,
     cell: (props) => (
       <div class="flex w-25 items-center">
-        <span class="text-center">
-          {formatSize(props.row.original.total_size)}
-        </span>
+        <span class="text-center">{formatSize(props.row.original.total_size)}</span>
       </div>
     ),
   },
   {
     accessorKey: "percent",
     id: "progress",
-    header: (props) => (
-      <TableColumnHeader column={props.column} title="Progress" />
-    ),
+    header: (props) => <TableColumnHeader column={props.column} title="Progress" />,
     cell: (props) => (
       <div
         class="relative isolate flex h-4 w-25 items-center justify-center overflow-hidden rounded-md bg-gray-200"
@@ -118,24 +89,17 @@ export const TORRENT_TABLE_COLUMNS: ColumnDef<Schemas["TorrentState"]>[] = [
   {
     accessorKey: "status",
     id: "status",
-    header: (props) => (
-      <TableColumnHeader column={props.column} title="Status" />
-    ),
+    header: (props) => <TableColumnHeader column={props.column} title="Status" />,
     cell: (props) => (
       <div class="flex w-25 items-center">
         <Badge
           class={clsx(
             "text-white transition-colors",
-            props.row.original.state.type == "pending" &&
-              "bg-green-500 hover:bg-green-400",
-            props.row.original.state.type == "seeding" &&
-              "bg-sky-500 hover:bg-sky-400",
-            props.row.original.state.type == "paused" &&
-              "bg-neutral-500 hover:bg-neutral-400",
-            props.row.original.state.type == "error" &&
-              "bg-red-500 hover:bg-red-400",
-            props.row.original.state.type == "validation" &&
-              "bg-purple-500 hover:bg-purple-400",
+            props.row.original.state.type == "pending" && "bg-green-500 hover:bg-green-400",
+            props.row.original.state.type == "seeding" && "bg-sky-500 hover:bg-sky-400",
+            props.row.original.state.type == "paused" && "bg-neutral-500 hover:bg-neutral-400",
+            props.row.original.state.type == "error" && "bg-red-500 hover:bg-red-400",
+            props.row.original.state.type == "validation" && "bg-purple-500 hover:bg-purple-400",
           )}
         >
           {props.row.original.state.type}
@@ -149,9 +113,7 @@ export const TORRENT_TABLE_COLUMNS: ColumnDef<Schemas["TorrentState"]>[] = [
   {
     accessorKey: "download_speed",
     id: "download speed",
-    header: (props) => (
-      <TableColumnHeader column={props.column} title="Download" />
-    ),
+    header: (props) => <TableColumnHeader column={props.column} title="Download" />,
     cell: (props) => (
       <div class="flex w-25 items-center">
         <span>{formatSize(props.row.original.download_speed)}/s</span>
@@ -161,9 +123,7 @@ export const TORRENT_TABLE_COLUMNS: ColumnDef<Schemas["TorrentState"]>[] = [
   {
     accessorKey: "upload_speed",
     id: "upload speed",
-    header: (props) => (
-      <TableColumnHeader column={props.column} title="Upload" />
-    ),
+    header: (props) => <TableColumnHeader column={props.column} title="Upload" />,
     cell: (props) => (
       <div class="flex w-25 items-center">
         <span>{formatSize(props.row.original.upload_speed)}/s</span>
@@ -173,9 +133,7 @@ export const TORRENT_TABLE_COLUMNS: ColumnDef<Schemas["TorrentState"]>[] = [
   {
     accessorKey: "peers.length",
     id: "connected peers",
-    header: (props) => (
-      <TableColumnHeader column={props.column} title="Connected peers" />
-    ),
+    header: (props) => <TableColumnHeader column={props.column} title="Connected peers" />,
     cell: (props) => (
       <div class="flex w-25 items-center">
         <span>{props.row.original.peers.length}</span>
@@ -236,12 +194,8 @@ export function TorrentTable() {
               type="text"
               placeholder="Filter torrents..."
               class="h-8"
-              value={
-                (table.getColumn("name")?.getFilterValue() as string) ?? ""
-              }
-              onInput={(e) =>
-                table.getColumn("name")?.setFilterValue(e.currentTarget.value)
-              }
+              value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+              onInput={(e) => table.getColumn("name")?.setFilterValue(e.currentTarget.value)}
             />
           </TextField>
           <Button
@@ -371,9 +325,7 @@ export function TorrentTable() {
                   each={table
                     .getAllColumns()
                     .filter(
-                      (column) =>
-                        typeof column.accessorFn !== "undefined" &&
-                        column.getCanHide(),
+                      (column) => typeof column.accessorFn !== "undefined" && column.getCanHide(),
                     )}
                 >
                   {(column) => (
@@ -400,12 +352,7 @@ export function TorrentTable() {
                   {(header) => (
                     <TableHead class="bg-background sticky top-0 z-10">
                       <Show when={!header.isPlaceholder}>
-                        {(_) =>
-                          flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )
-                        }
+                        {(_) => flexRender(header.column.columnDef.header, header.getContext())}
                       </Show>
                     </TableHead>
                   )}
@@ -419,11 +366,8 @@ export function TorrentTable() {
             when={table.getRowModel().rows?.length}
             fallback={
               <TableRow>
-                <TableCell
-                  colSpan={TORRENT_TABLE_COLUMNS.length}
-                  class="h-24 text-center"
-                >
-                No torrents
+                <TableCell colSpan={TORRENT_TABLE_COLUMNS.length} class="h-24 text-center">
+                  No torrents
                 </TableCell>
               </TableRow>
             }
@@ -432,19 +376,14 @@ export function TorrentTable() {
               {(row) => (
                 <TableRow
                   onClick={() => (
-                    table.resetRowSelection(),
-                    row.toggleSelected(),
-                    row.toggleExpanded(true)
+                    table.resetRowSelection(), row.toggleSelected(), row.toggleExpanded(true)
                   )}
                   data-state={row.getIsSelected() && "selected"}
                 >
                   <For each={row.getVisibleCells()}>
                     {(cell) => (
                       <TableCell>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     )}
                   </For>

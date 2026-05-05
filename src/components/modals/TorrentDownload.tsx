@@ -13,10 +13,7 @@ type Props = {
 
 export default function DownloadTorrentModal(props: Props) {
   return (
-    <Dialog
-      open={props.open}
-      onOpenChange={(isOpen) => isOpen || props.onClose()}
-    >
+    <Dialog open={props.open} onOpenChange={(isOpen) => isOpen || props.onClose()}>
       <DialogContent class="h-3/4 w-2/3">
         <div class="h-full overflow-hidden">
           <DialogHeader>

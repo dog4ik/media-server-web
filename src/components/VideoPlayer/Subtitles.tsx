@@ -50,9 +50,7 @@ export default function Subtitles(props: Props) {
             currentChunk()!.endTime > props.time
           }
         >
-          <p class="flex rounded-md text-2xl 2xl:text-4xl">
-            {currentChunk()?.text}
-          </p>
+          <p class="flex rounded-md text-2xl 2xl:text-4xl">{currentChunk()?.text}</p>
         </Show>
       </div>
     </>
@@ -73,18 +71,12 @@ const timeMs = function (val: string) {
   }
 
   // hours + minutes + seconds + ms
-  return (
-    timeParts[1] * 3600000 +
-    timeParts[2] * 60000 +
-    timeParts[3] * 1000 +
-    timeParts[4]
-  );
+  return timeParts[1] * 3600000 + timeParts[2] * 60000 + timeParts[3] * 1000 + timeParts[4];
 };
 
 function srtParser(data: string) {
   data = data.replace(/\r/g, "");
-  const regex =
-    /(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})/g;
+  const regex = /(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})/g;
   const ArrData = data.split(regex);
 
   ArrData.shift();
@@ -101,19 +93,13 @@ function srtParser(data: string) {
   return items;
 }
 
-let quickSearch = function (
-  arr: SubtitleChunk[],
-  searchIdx: number,
-  start: number,
-  end: number,
-) {
+let quickSearch = function (arr: SubtitleChunk[], searchIdx: number, start: number, end: number) {
   if (start > end) return false;
   let mid = Math.floor((start + end) / 2);
   if (arr[mid].idx === searchIdx) return true;
 
   // If element at mid is greater than x,
   // search in the left half of mid
-  if (arr[mid].idx > searchIdx)
-    return quickSearch(arr, searchIdx, start, mid - 1);
+  if (arr[mid].idx > searchIdx) return quickSearch(arr, searchIdx, start, mid - 1);
   else return quickSearch(arr, searchIdx, mid + 1, end);
 };

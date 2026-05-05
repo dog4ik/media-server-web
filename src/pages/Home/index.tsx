@@ -33,9 +33,7 @@ function TrendingShows() {
           }
         >
           <ElementsGrid elementSize={200}>
-            <For each={trendingShows.data}>
-              {(show) => <ShowCard show={show} />}
-            </For>
+            <For each={trendingShows.data}>{(show) => <ShowCard show={show} />}</For>
           </ElementsGrid>
         </Suspense>
       </ApplicationErrorBoundary>
@@ -71,9 +69,7 @@ function TrendingMovies() {
           }
         >
           <ElementsGrid elementSize={200}>
-            <For each={trendingMovies.data}>
-              {(movie) => <MovieCard movie={movie} />}
-            </For>
+            <For each={trendingMovies.data}>{(movie) => <MovieCard movie={movie} />}</For>
           </ElementsGrid>
         </Suspense>
       </ErrorBoundary>
@@ -84,9 +80,7 @@ function TrendingMovies() {
 export default function Home() {
   return (
     <>
-      <ErrorBoundary
-        fallback={(err, reset) => <ErrorComponent err={err} reset={reset} />}
-      >
+      <ErrorBoundary fallback={(err, reset) => <ErrorComponent err={err} reset={reset} />}>
         <div class="p-2">
           <ContinueWatchingSection />
           <TrendingShows />

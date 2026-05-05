@@ -36,8 +36,7 @@ export const SETTINGS: Settings = {
     typeHint: "pathArr",
   },
   port: {
-    description:
-      "The network port on which the server listens for incoming connections",
+    description: "The network port on which the server listens for incoming connections",
     name: "port",
     long_name: "Server Port",
   },
@@ -69,15 +68,13 @@ export const SETTINGS: Settings = {
     typeHint: "path",
   },
   tmdb_key: {
-    description:
-      "API key for TMDB. Allows server to authenticate with TMDB metadata provider",
+    description: "API key for TMDB. Allows server to authenticate with TMDB metadata provider",
     name: "tmdb_key",
     long_name: "TMDB key",
     typeHint: "secret",
   },
   tvdb_key: {
-    description:
-      "API key for TVDB. Allows server to authenticate with TVDB metadata provider",
+    description: "API key for TVDB. Allows server to authenticate with TVDB metadata provider",
     name: "tvdb_key",
     long_name: "TVDB key",
     typeHint: "secret",
@@ -93,8 +90,7 @@ export const SETTINGS: Settings = {
     long_name: "Provod URL",
   },
   web_ui_path: {
-    description:
-      "Path to Web UI files, useful when Web UI located in a separate directory",
+    description: "Path to Web UI files, useful when Web UI located in a separate directory",
     name: "web_ui_path",
     long_name: "Web UI path",
     typeHint: "path",
@@ -106,8 +102,7 @@ export const SETTINGS: Settings = {
     long_name: "Enable UPnP discovery",
   },
   upnp_ttl: {
-    description:
-      'Time to live of SSDP packet. (Indicates allowed amount of ip routing "hops")',
+    description: 'Time to live of SSDP packet. (Indicates allowed amount of ip routing "hops")',
     name: "upnp_ttl",
     long_name: "SSDP TTL",
   },

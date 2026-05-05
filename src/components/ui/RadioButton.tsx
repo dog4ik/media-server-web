@@ -19,9 +19,7 @@ export default function RadioButton(props: Props) {
       <div class="relative size-6">
         <div
           class={`size-6 rounded-full border-2 transition-all duration-300 ${
-            props.checked
-              ? "border-blue-500"
-              : "border-gray-300 hover:border-gray-400"
+            props.checked ? "border-blue-500" : "border-gray-300 hover:border-gray-400"
           }`}
         />
         <div

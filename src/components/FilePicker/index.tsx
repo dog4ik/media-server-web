@@ -1,11 +1,5 @@
 import { Schemas, server } from "../../utils/serverApi";
-import {
-  FiFileText,
-  FiFolder,
-  FiHardDrive,
-  FiHome,
-  FiVideo,
-} from "solid-icons/fi";
+import { FiFileText, FiFolder, FiHardDrive, FiHome, FiVideo } from "solid-icons/fi";
 import {
   createEffect,
   createMemo,
@@ -89,14 +83,11 @@ type Props = {
 
 export function FilePicker(props: Props) {
   let initialPath = props.initialDir ? makeFile(props.initialDir) : undefined;
-  let [selectedDir, setSelectedDir] = createSignal<
-    Schemas["BrowseFile"] | undefined
-  >(initialPath);
-  let [lastWorkingPath, setLastWorkingPath] =
-    createSignal<Schemas["BrowseDirectory"]>();
-  let [selectedOutput, setSelectedOutput] = createSignal<
-    Schemas["BrowseFile"] | undefined
-  >(initialPath);
+  let [selectedDir, setSelectedDir] = createSignal<Schemas["BrowseFile"] | undefined>(initialPath);
+  let [lastWorkingPath, setLastWorkingPath] = createSignal<Schemas["BrowseDirectory"]>();
+  let [selectedOutput, setSelectedOutput] = createSignal<Schemas["BrowseFile"] | undefined>(
+    initialPath,
+  );
 
   let currentDirectory = queryApi.useQuery(
     "get",
@@ -220,8 +211,7 @@ export function FilePicker(props: Props) {
                 <Suspense fallback={<Loader showDelay={200} />}>
                   <Show when={currentDirectory.isError}>
                     <div class="flex size-full items-center justify-center">
-                      Directory is unavailable:{" "}
-                      {currentDirectory.error?.message}
+                      Directory is unavailable: {currentDirectory.error?.message}
                     </div>
                   </Show>
                   <Show when={directory()}>

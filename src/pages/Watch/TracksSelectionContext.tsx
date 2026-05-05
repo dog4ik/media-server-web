@@ -7,8 +7,7 @@ import { createStore, unwrap } from "solid-js/store";
 
 type TracksSelectionContextType = ReturnType<typeof createSelectionContext>;
 
-export const TracksSelectionContext =
-  createContext<TracksSelectionContextType>();
+export const TracksSelectionContext = createContext<TracksSelectionContextType>();
 
 export const useTracksSelection = () => {
   let context = useContext(TracksSelectionContext);
@@ -98,9 +97,7 @@ function createSelectionContext(session: () => MediaSessionState) {
       tracing.trace("Fetching subtitles");
       if (store.subtitles && store.subtitles.origin === "container") {
         let track = unwrap(store.subtitles.track);
-        let selectedTrackIdx = video().details.subtitle_tracks.findIndex(
-          (t) => t === track,
-        );
+        let selectedTrackIdx = video().details.subtitle_tracks.findIndex((t) => t === track);
         if (selectedTrackIdx == -1) {
           tracing.warn(
             { videoSubtitlesTracksLen: video().details.subtitle_tracks.length },
@@ -132,10 +129,7 @@ function createSelectionContext(session: () => MediaSessionState) {
           parseAs: "text",
         });
         if (res.error) {
-          tracing.error(
-            { message: res.error.message },
-            "Failed to fetch external subtitles",
-          );
+          tracing.error({ message: res.error.message }, "Failed to fetch external subtitles");
         }
         return res.data;
       }

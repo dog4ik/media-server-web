@@ -16,8 +16,7 @@ const MAX_RECONNECT_DELAY = 30_000;
 export class ServerConnection {
   private socket: WebSocket | undefined;
   private reconnectAttempts = 0;
-  private reconnectTimeout: ReturnType<typeof setTimeout> | undefined =
-    undefined;
+  private reconnectTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
   private handlers: [
     keyof TaskProgressMap,
@@ -26,9 +25,7 @@ export class ServerConnection {
   private torrentHandler:
     | ((v: Schemas["TorrentProgress"] | Schemas["SessionState"]) => void)
     | undefined;
-  private allTorrentsPromise:
-    | ((torrents: Schemas["SessionState"]) => void)
-    | undefined;
+  private allTorrentsPromise: ((torrents: Schemas["SessionState"]) => void) | undefined;
   private ready: Promise<void>;
   private readyRes: () => void;
   private wakeSubscribers: Set<() => void>;
@@ -72,10 +69,7 @@ export class ServerConnection {
       MAX_RECONNECT_DELAY,
     );
 
-    tracing.debug(
-      { attempts: this.reconnectAttempts },
-      `Scheduled ws reconnect in ${delay} ms`,
-    );
+    tracing.debug({ attempts: this.reconnectAttempts }, `Scheduled ws reconnect in ${delay} ms`);
 
     this.reconnectTimeout = setTimeout(() => {
       this.reconnectTimeout = undefined;
@@ -195,9 +189,7 @@ export class ServerConnection {
   }
 
   setTorrentHandler(
-    handler: (
-      progress: Schemas["TorrentProgress"] | Schemas["SessionState"],
-    ) => void,
+    handler: (progress: Schemas["TorrentProgress"] | Schemas["SessionState"]) => void,
   ) {
     this.torrentHandler = handler;
   }

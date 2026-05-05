@@ -22,9 +22,7 @@ export default function PageLayout(props: ParentProps) {
       </aside>
       <div class="pl-32">
         <NavBar />
-        <main class="mx-5 my-3 flex flex-col overflow-y-auto">
-          {props.children}
-        </main>
+        <main class="mx-5 my-3 flex flex-col overflow-y-auto">{props.children}</main>
       </div>
     </div>
   );
@@ -46,19 +44,13 @@ function BackdropFilling() {
     <div ref={backdropElement!} class="fixed inset-0 -z-10 size-full">
       <div class="size-full">
         <Show when={!backdropQuery.isSuccess}>
-          <div
-            ref={gradientElement!}
-            class="h-full w-full object-cover transition-opacity"
-          ></div>
+          <div ref={gradientElement!} class="h-full w-full object-cover transition-opacity"></div>
         </Show>
         <Show when={backdropQuery.isSuccess}>
           <img
             ref={backdropElement!}
             src={backdropQuery.isSuccess ? backdropQuery.data.src : undefined}
-            class={clsx(
-              "h-full w-full object-cover",
-              backdropQuery.isSuccess ? "block" : "hidden",
-            )}
+            class={clsx("h-full w-full object-cover", backdropQuery.isSuccess ? "block" : "hidden")}
           />
         </Show>
         <div class="hover-hide bg-background/90 fixed inset-0" />

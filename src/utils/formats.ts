@@ -96,9 +96,7 @@ export function formatResolution(resolution: Schemas["Resolution"]) {
   return `${resolution.width}x${resolution.height}`;
 }
 
-export function formatCodec<T extends string | { other: string }>(
-  codec: T,
-): string {
+export function formatCodec<T extends string | { other: string }>(codec: T): string {
   if (typeof codec == "object") {
     return codec.other;
   } else {
@@ -107,9 +105,7 @@ export function formatCodec<T extends string | { other: string }>(
 }
 
 export function hexHash(hash: number[]) {
-  return hash
-    .reduce((acc, n) => acc + n.toString(16).padStart(2, "0"), "")
-    .padEnd(40, "0");
+  return hash.reduce((acc, n) => acc + n.toString(16).padStart(2, "0"), "").padEnd(40, "0");
 }
 
 export function formatTorrentIndex(index: Schemas["TorrentIndexIdentifier"]) {

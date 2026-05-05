@@ -135,20 +135,14 @@ export function DynamicIntro(props: DynamicIntroProps) {
 
   return (
     <div ref={timelineRef!} class="relative h-10 bg-white">
-      <span class="absolute -left-10">
-        {formatDuration(0)}
-      </span>
-      <span class="absolute -right-10">
-        {formatDuration(strippedDuration)}
-      </span>
+      <span class="absolute -left-10">{formatDuration(0)}</span>
+      <span class="absolute -right-10">{formatDuration(strippedDuration)}</span>
       <IntroPointer
         timelineRef={() => timelineRef!}
         positionOffset={startPercent()}
         onChange={changeStartPosition}
       >
-        <span class="pointer-events-none absolute bottom-10">
-          {formatDuration(props.start)}
-        </span>
+        <span class="pointer-events-none absolute bottom-10">{formatDuration(props.start)}</span>
         <FiArrowLeft size={ICON_SIZE} />
       </IntroPointer>
       <IntroPointer
@@ -156,9 +150,7 @@ export function DynamicIntro(props: DynamicIntroProps) {
         positionOffset={endPercent()}
         onChange={changeEndPosition}
       >
-        <span class="pointer-events-none absolute top-10">
-          {formatDuration(props.end)}
-        </span>
+        <span class="pointer-events-none absolute top-10">{formatDuration(props.end)}</span>
         <FiArrowRight size={ICON_SIZE} />
       </IntroPointer>
       <div

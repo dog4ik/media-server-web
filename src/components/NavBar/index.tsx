@@ -30,10 +30,7 @@ export default function NavBar() {
           <SearchBar />
         </div>
         <ul class="mr-10 flex items-center space-x-4 self-end">
-          <Button
-            onClick={() => mutation.mutate({})}
-            data-tip="Refresh Library"
-          >
+          <Button onClick={() => mutation.mutate({})} data-tip="Refresh Library">
             <FiRefreshCcw size={20} />
           </Button>
         </ul>

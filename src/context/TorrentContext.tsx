@@ -71,9 +71,7 @@ function createTorrentContext(sessionState: TorrentStateManager) {
     persintentVisibily.loadVisibilityState() ?? {},
   );
 
-  const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>(
-    [],
-  );
+  const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>([]);
   const [expanded, setExpanded] = createSignal<ExpandedState>({});
   const [sorting, setSorting] = createSignal<SortingState>([]);
   let table = createSolidTable({
@@ -108,13 +106,8 @@ function createTorrentContext(sessionState: TorrentStateManager) {
       persintentVisibily.saveVisibilyState(columnVisibility());
     },
     onExpandedChange: (newExpanded) => {
-      const nextExpanded =
-        typeof newExpanded === "function" ? newExpanded({}) : newExpanded;
-      setExpanded(
-        Object.keys(expanded())[0] === Object.keys(nextExpanded)[0]
-          ? {}
-          : nextExpanded,
-      );
+      const nextExpanded = typeof newExpanded === "function" ? newExpanded({}) : newExpanded;
+      setExpanded(Object.keys(expanded())[0] === Object.keys(nextExpanded)[0] ? {} : nextExpanded);
     },
     autoResetExpanded: true,
     getCoreRowModel: getCoreRowModel(),
@@ -156,9 +149,7 @@ export function TorrentProvider(props: ContextProps) {
   }
 
   return (
-    <TorrentContext.Provider value={_torrentContextValue}>
-      {props.children}
-    </TorrentContext.Provider>
+    <TorrentContext.Provider value={_torrentContextValue}>{props.children}</TorrentContext.Provider>
   );
 }
 
@@ -181,10 +172,7 @@ export class TorrentStateManager {
     tracing.debug("State manager made session context");
   }
 
-  static intoManagerState({
-    session_stats,
-    torrents,
-  }: Schemas["SessionState"]): ManagerStateType {
+  static intoManagerState({ session_stats, torrents }: Schemas["SessionState"]): ManagerStateType {
     return {
       session_stats,
       torrents: torrents.reduce(
@@ -198,9 +186,7 @@ export class TorrentStateManager {
     serverConnection.setTorrentHandler(this.torrentProgressHandler.bind(this));
   }
 
-  private torrentProgressHandler(
-    progress: Schemas["Progress"] | Schemas["SessionState"],
-  ) {
+  private torrentProgressHandler(progress: Schemas["Progress"] | Schemas["SessionState"]) {
     if ("session_stats" in progress) {
       this.setSession(TorrentStateManager.intoManagerState(progress));
       return;
@@ -210,9 +196,7 @@ export class TorrentStateManager {
     }
     this.setSession(
       "torrents",
-      produce((map) =>
-        TorrentStateManager.applyTorrentEvents(map, progress.changed_torrents),
-      ),
+      produce((map) => TorrentStateManager.applyTorrentEvents(map, progress.changed_torrents)),
     );
   }
 
@@ -225,10 +209,7 @@ export class TorrentStateManager {
       let torrent = torrentMap[hexInfoHash];
       if (!torrent) {
         let [addEvent] = torrentUpdate.events.splice(0, 1);
-        if (
-          addEvent.event_kind === "session" &&
-          addEvent.kind === "torrentadd"
-        ) {
+        if (addEvent.event_kind === "session" && addEvent.kind === "torrentadd") {
           torrent = addEvent.state;
           torrentMap[hexInfoHash] = torrent;
         } else {
@@ -244,8 +225,7 @@ export class TorrentStateManager {
       torrent.upload_speed = torrentUpdate.upload_speed;
       torrent.download_speed = torrentUpdate.download_speed;
       torrent.state = torrentUpdate.state;
-      torrent.percent =
-        (torrentUpdate.total_downloaded / torrent.total_size) * 100;
+      torrent.percent = (torrentUpdate.total_downloaded / torrent.total_size) * 100;
       for (let event of torrentUpdate.events) {
         if (event.event_kind === "session") {
           if (event.kind === "torrentremove") {
@@ -336,10 +316,7 @@ class TorrentProgressHandler {
 
   applyFileUpdate({ idx, file_event }: Schemas["StorageFileEvent"]) {
     if (file_event.kind === "prioritychange") {
-      tracing.trace(
-        { priority: file_event.priority, file_idx: idx },
-        `Priority change event`,
-      );
+      tracing.trace({ priority: file_event.priority, file_idx: idx }, `Priority change event`);
       this.torrent.files[idx].priority = file_event.priority;
     }
   }

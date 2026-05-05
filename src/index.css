@@ -153,8 +153,7 @@
   --animate-fade-in: fadein 0.5s ease-in-out;
   --animate-fade-out: fadeout 0.5s ease-in-out;
   --animate-push-in-fade-out: push-in-fade-out 0.5s ease-in-out;
-  --animate-lob:
-    blob 7s infinite, --animate-slide-from-top: slide-from-top 0.2s ease-in-out;
+  --animate-lob: blob 7s infinite, --animate-slide-from-top: slide-from-top 0.2s ease-in-out;
   --animate-slide-from-bottom: slide-from-bottom 0.2s ease-in-out;
   --animate-slide-from-left: slide-from-left 0.2s ease-in-out;
   --animate-slide-from-right: slide-from-right 0.2s ease-in-out;

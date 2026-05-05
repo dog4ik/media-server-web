@@ -11,9 +11,7 @@ export class HlsSession implements PlaybackMethod {
       backBufferLength: Infinity,
     });
     this.hls.on(Hls.Events.MANIFEST_PARSED, (_event, data) => {
-      tracing.debug(
-        "Manifest loaded, found " + data.levels.length + " quality level",
-      );
+      tracing.debug("Manifest loaded, found " + data.levels.length + " quality level");
     });
     this.hls.on(Hls.Events.BACK_BUFFER_REACHED, (_event, _data) => {
       console.log("back buffer reached");

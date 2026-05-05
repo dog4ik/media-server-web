@@ -3,9 +3,9 @@ import TranscodedVariantsList from "@/components/Settings/TranscodedVariantsList
 
 export function ResourcesPage() {
   return (
-      <div>
-        <SectionSubTitle name="Transcoded variants" />
-        <TranscodedVariantsList />
-      </div>
+    <div>
+      <SectionSubTitle name="Transcoded variants" />
+      <TranscodedVariantsList />
+    </div>
   );
 }

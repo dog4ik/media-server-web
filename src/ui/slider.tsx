@@ -8,9 +8,7 @@ export type SliderProps<T extends ValidComponent = "div"> = ComponentProps<
   typeof SliderPrimitive<T>
 >;
 
-export const Slider = <T extends ValidComponent = "div">(
-  props: SliderProps<T>,
-) => {
+export const Slider = <T extends ValidComponent = "div">(props: SliderProps<T>) => {
   const [, rest] = splitProps(props as SliderProps, ["class"]);
 
   return (
@@ -29,9 +27,7 @@ export type SliderTrackProps<T extends ValidComponent = "div"> = ComponentProps<
   typeof SliderPrimitive.Track<T>
 >;
 
-export const SliderTrack = <T extends ValidComponent = "div">(
-  props: SliderTrackProps<T>,
-) => {
+export const SliderTrack = <T extends ValidComponent = "div">(props: SliderTrackProps<T>) => {
   const [, rest] = splitProps(props as SliderTrackProps, ["class"]);
 
   return (
@@ -50,9 +46,7 @@ export type SliderFillProps<T extends ValidComponent = "div"> = VoidProps<
   ComponentProps<typeof SliderPrimitive.Fill<T>>
 >;
 
-export const SliderFill = <T extends ValidComponent = "div">(
-  props: SliderFillProps<T>,
-) => {
+export const SliderFill = <T extends ValidComponent = "div">(props: SliderFillProps<T>) => {
   const [, rest] = splitProps(props as SliderFillProps, ["class"]);
 
   return (
@@ -71,9 +65,7 @@ export type SliderThumbProps<T extends ValidComponent = "span"> = VoidProps<
   ComponentProps<typeof SliderPrimitive.Thumb<T>>
 >;
 
-export const SliderThumb = <T extends ValidComponent = "span">(
-  props: SliderThumbProps<T>,
-) => {
+export const SliderThumb = <T extends ValidComponent = "span">(props: SliderThumbProps<T>) => {
   const [, rest] = splitProps(props as SliderThumbProps, ["class"]);
 
   return (
@@ -104,12 +96,11 @@ export const SliderGroup = (props: SliderGroupProps) => {
   );
 };
 
-export type SliderLabelProps<T extends ValidComponent = "label"> =
-  ComponentProps<typeof SliderPrimitive.Label<T>>;
+export type SliderLabelProps<T extends ValidComponent = "label"> = ComponentProps<
+  typeof SliderPrimitive.Label<T>
+>;
 
-export const SliderLabel = <T extends ValidComponent = "label">(
-  props: SliderLabelProps<T>,
-) => {
+export const SliderLabel = <T extends ValidComponent = "label">(props: SliderLabelProps<T>) => {
   const [, rest] = splitProps(props as SliderLabelProps, ["class"]);
 
   return (
@@ -121,8 +112,9 @@ export const SliderLabel = <T extends ValidComponent = "label">(
   );
 };
 
-export type SliderValueLabelProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof SliderPrimitive.ValueLabel<T>>;
+export type SliderValueLabelProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof SliderPrimitive.ValueLabel<T>
+>;
 
 export const SliderValueLabel = <T extends ValidComponent = "div">(
   props: SliderValueLabelProps<T>,
@@ -138,8 +130,9 @@ export const SliderValueLabel = <T extends ValidComponent = "div">(
   );
 };
 
-export type SliderDescriptionProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof SliderPrimitive.Description<T>>;
+export type SliderDescriptionProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof SliderPrimitive.Description<T>
+>;
 
 export const SliderDescription = <T extends ValidComponent = "div">(
   props: SliderDescriptionProps<T>,
@@ -155,8 +148,9 @@ export const SliderDescription = <T extends ValidComponent = "div">(
   );
 };
 
-export type SliderErrorMessageProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof SliderPrimitive.ErrorMessage<T>>;
+export type SliderErrorMessageProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof SliderPrimitive.ErrorMessage<T>
+>;
 
 export const SliderErrorMessage = <T extends ValidComponent = "div">(
   props: SliderErrorMessageProps<T>,

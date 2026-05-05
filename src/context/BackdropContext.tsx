@@ -1,14 +1,7 @@
 import tracing from "@/utils/tracing";
 import { useQuery } from "@tanstack/solid-query";
 import { useRouterState } from "@tanstack/solid-router";
-import {
-  ParentProps,
-  Show,
-  createContext,
-  createSignal,
-  onCleanup,
-  useContext,
-} from "solid-js";
+import { ParentProps, Show, createContext, createSignal, onCleanup, useContext } from "solid-js";
 
 type BackdropContextType = ReturnType<typeof createBackdropContext>;
 
@@ -24,14 +17,11 @@ export function setBackdrop(url: (string | undefined)[]) {
 function createBackdropContext() {
   let routerState = useRouterState();
 
-  let [backdropSrcList, setBackdropSrcList] = createSignal<
-    (string | undefined)[]
-  >([]);
+  let [backdropSrcList, setBackdropSrcList] = createSignal<(string | undefined)[]>([]);
   let [hover, setHover] = createSignal(false);
 
   function loadImage(url: string) {
-    let { resolve, reject, promise } =
-      Promise.withResolvers<HTMLImageElement>();
+    let { resolve, reject, promise } = Promise.withResolvers<HTMLImageElement>();
     const img = new Image();
     img.src = url;
     img.onload = () => {

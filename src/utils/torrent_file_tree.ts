@@ -31,8 +31,7 @@ export function buildFileTree(files: Schemas["StateFile"][]): Entry[] {
 
         // Find or create directory
         let fileDirectory: Directory | undefined = currentChildren.find(
-          (c): c is Directory =>
-            "children" in c && c.path[c.path.length - 1] === part,
+          (c): c is Directory => "children" in c && c.path[c.path.length - 1] === part,
         );
 
         if (!fileDirectory) {

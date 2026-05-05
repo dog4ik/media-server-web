@@ -50,13 +50,7 @@ export function SeasonTabs(props: Props) {
             params: { id: params().id },
             search: { season: number, provider: search().provider },
           });
-          return (
-            <Item
-              number={number}
-              linkOptions={link}
-              isSelected={number == season()}
-            />
-          );
+          return <Item number={number} linkOptions={link} isSelected={number == season()} />;
         }}
       </For>
     </div>

@@ -35,9 +35,7 @@ function Steps(props: StepsProps & ParentProps) {
   return (
     <div class="relative flex items-center gap-40">
       <For each={props.steps}>
-        {(title, i) => (
-          <Step index={i()} active={props.current >= i()} title={title} />
-        )}
+        {(title, i) => <Step index={i()} active={props.current >= i()} title={title} />}
       </For>
       <div class="absolute top-1/2 h-2 w-full -translate-y-1/2 rounded-full bg-secondary">
         <div

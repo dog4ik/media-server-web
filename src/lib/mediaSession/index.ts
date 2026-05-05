@@ -58,22 +58,15 @@ export class MediaSessionState {
     let can_use_direct_stream =
       compatibility.combined?.supported &&
       this.video.isContainerSupported() &&
-      (this.configuration.video_track === 0 ||
-        isBrowserVideoTracksSupported()) &&
+      (this.configuration.video_track === 0 || isBrowserVideoTracksSupported()) &&
       (this.configuration.audio_track === 0 || isBrowserAudioTracksSupported());
 
     if (can_use_direct_stream) {
       session_id = await this.createDirectSession(video_element);
-      await this.session?.method.attach(
-        video_element,
-        directStreamUrl(this.video.details.id),
-      );
+      await this.session?.method.attach(video_element, directStreamUrl(this.video.details.id));
     } else {
       session_id = await this.createHlsSession(video_element, compatibility);
-      await this.session?.method.attach(
-        video_element,
-        hlsStreamUrl(session_id),
-      );
+      await this.session?.method.attach(video_element, hlsStreamUrl(session_id));
     }
     return session_id;
   }

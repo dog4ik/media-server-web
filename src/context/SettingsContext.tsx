@@ -1,11 +1,5 @@
 import { Schemas, server } from "@/utils/serverApi";
-import {
-  ParentProps,
-  createContext,
-  createSignal,
-  onCleanup,
-  useContext,
-} from "solid-js";
+import { ParentProps, createContext, createSignal, onCleanup, useContext } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { useNotifications } from "./NotificationContext";
 import { queryApi, queryClient } from "@/utils/queryApi";
@@ -40,12 +34,8 @@ function cmp(lhs: any, rhs: any) {
 
 function createSettingsContext() {
   let notificator = useNotifications();
-  let [changedSettings, setChangedSettings] = createStore<
-    Partial<SettingsValuesObject>
-  >({});
-  let [saveStatus, setSaveStatus] = createSignal<"idle" | "pending" | "saved">(
-    "idle",
-  );
+  let [changedSettings, setChangedSettings] = createStore<Partial<SettingsValuesObject>>({});
+  let [saveStatus, setSaveStatus] = createSignal<"idle" | "pending" | "saved">("idle");
 
   let remoteSettings = queryApi.useQuery(
     "get",
@@ -130,9 +120,17 @@ function createSettingsContext() {
     if (value === null && configValue !== null) {
       setChangedSettings(key, null);
     } else if (cmp(configValue, value)) {
-      setChangedSettings(produce((s) => { delete s[key]; }));
+      setChangedSettings(
+        produce((s) => {
+          delete s[key];
+        }),
+      );
     } else if (configValue === null && cmp(defaultValue, value)) {
-      setChangedSettings(produce((s) => { delete s[key]; }));
+      setChangedSettings(
+        produce((s) => {
+          delete s[key];
+        }),
+      );
     } else {
       setChangedSettings(key, value);
     }
@@ -151,9 +149,5 @@ function createSettingsContext() {
 
 export default function SettingsProvider(props: ParentProps) {
   let context = createSettingsContext();
-  return (
-    <SettingsContext.Provider value={context}>
-      {props.children}
-    </SettingsContext.Provider>
-  );
+  return <SettingsContext.Provider value={context}>{props.children}</SettingsContext.Provider>;
 }

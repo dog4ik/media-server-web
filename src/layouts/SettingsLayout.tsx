@@ -57,7 +57,9 @@ export function SettingsLayout(props: ParentProps) {
           <For each={TABS}>
             {(tab, i) => (
               <Link
-                ref={(el) => { tabRefs[i()] = el; }}
+                ref={(el) => {
+                  tabRefs[i()] = el;
+                }}
                 {...tab.options}
                 activeOptions={{ exact: true }}
                 class="flex items-center gap-1.5 px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground"

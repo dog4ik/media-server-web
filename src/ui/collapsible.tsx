@@ -8,25 +8,23 @@ export type CollapsibleProps<T extends ValidComponent = "div"> = ComponentProps<
   typeof CollapsiblePrimitive<T>
 >;
 
-export const Collapsible = <T extends ValidComponent = "div">(
-  props: CollapsibleProps<T>,
-) => {
+export const Collapsible = <T extends ValidComponent = "div">(props: CollapsibleProps<T>) => {
   return <CollapsiblePrimitive data-slot="collapsible" {...props} />;
 };
 
-export type CollapsibleTriggerProps<T extends ValidComponent = "button"> =
-  ComponentProps<typeof CollapsiblePrimitive.Trigger<T>>;
+export type CollapsibleTriggerProps<T extends ValidComponent = "button"> = ComponentProps<
+  typeof CollapsiblePrimitive.Trigger<T>
+>;
 
 export const CollapsibleTrigger = <T extends ValidComponent = "button">(
   props: CollapsibleTriggerProps<T>,
 ) => {
-  return (
-    <CollapsiblePrimitive.Trigger data-slot="collapsible-trigger" {...props} />
-  );
+  return <CollapsiblePrimitive.Trigger data-slot="collapsible-trigger" {...props} />;
 };
 
-export type CollapsibleContentProps<T extends ValidComponent = "button"> =
-  ComponentProps<typeof CollapsiblePrimitive.Content<T>>;
+export type CollapsibleContentProps<T extends ValidComponent = "button"> = ComponentProps<
+  typeof CollapsiblePrimitive.Content<T>
+>;
 
 export const CollapsibleContent = <T extends ValidComponent = "button">(
   props: CollapsibleContentProps<T>,

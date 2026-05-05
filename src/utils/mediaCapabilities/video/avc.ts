@@ -75,10 +75,7 @@ export function getAVCCodec(idc: number, level: number) {
   return codec;
 }
 
-export function getMaxAVCLevel(
-  resolution: Schemas["Resolution"],
-  framerate: number,
-) {
+export function getMaxAVCLevel(resolution: Schemas["Resolution"], framerate: number) {
   let { width, height } = resolution;
   let macroblocks = Math.ceil(width / 16) * Math.ceil(height / 16) * framerate;
   let level: keyof typeof LEVELS | undefined = undefined;

@@ -17,10 +17,7 @@ export function ContinueWatchingSection() {
           <Suspense>
             <For each={showHistory.data}>
               {(show) => {
-                let episode = extendEpisode(
-                  show.episode,
-                  show.show_id.toString(),
-                );
+                let episode = extendEpisode(show.episode, show.show_id.toString());
                 return (
                   <EpisodeCard
                     episode={episode}

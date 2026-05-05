@@ -8,9 +8,7 @@ export type SkeletonProps<T extends ValidComponent = "div"> = ComponentProps<
   typeof SkeletonPrimitive<T>
 >;
 
-export const Skeleton = <T extends ValidComponent = "div">(
-  props: SkeletonProps<T>,
-) => {
+export const Skeleton = <T extends ValidComponent = "div">(props: SkeletonProps<T>) => {
   const merge = mergeProps(
     {
       radius: 8,

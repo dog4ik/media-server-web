@@ -1,11 +1,6 @@
 import MoreButton from "../ContextMenu/MoreButton";
 import FallbackImage from "../FallbackImage";
-import {
-  Schemas,
-  fullUrl,
-  revalidatePath,
-  server,
-} from "../../utils/serverApi";
+import { Schemas, fullUrl, revalidatePath, server } from "../../utils/serverApi";
 import { MenuRow } from "../ContextMenu/Menu";
 import useToggle from "../../utils/useToggle";
 import { createMemo, Show } from "solid-js";
@@ -69,11 +64,7 @@ export function MovieCard(props: { movie: Schemas["Movie"] }) {
             width={312}
             height={415}
           />
-          <Show
-            when={
-              props.movie.local?.id && props.movie.metadata_provider !== "local"
-            }
-          >
+          <Show when={props.movie.local?.id && props.movie.metadata_provider !== "local"}>
             <InLibaryIcon
               link={linkOptions({
                 to: "/shows/$id",
@@ -84,21 +75,13 @@ export function MovieCard(props: { movie: Schemas["Movie"] }) {
           </Show>
         </Link>
         <div class="flex items-center justify-between">
-          <Link
-            title={props.movie.title}
-            class="text-md truncate"
-            {...movieLinkOptions()}
-          >
+          <Link title={props.movie.title} class="text-md truncate" {...movieLinkOptions()}>
             {props.movie.title}
           </Link>
           <Show when={props.movie.metadata_provider === "local"}>
             <MoreButton>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
-              <MenuRow
-                onClick={() =>
-                  deleteMovie(+props.movie.metadata_id, props.movie.title)
-                }
-              >
+              <MenuRow onClick={() => deleteMovie(+props.movie.metadata_id, props.movie.title)}>
                 Delete movie
               </MenuRow>
             </MoreButton>

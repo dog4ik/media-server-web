@@ -3,13 +3,7 @@ import { Schemas, revalidatePath, server } from "../../utils/serverApi";
 import useDebounce from "../../utils/useDebounce";
 import { useNotifications } from "../../context/NotificationContext";
 import ProviderLogo from "../ProviderLogo";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/ui/dialog";
 import { TextField, TextFieldInput } from "@/ui/textfield";
 import { SuspenseLoader } from "../Loader";
 import { queryApi } from "@/utils/queryApi";
@@ -35,13 +29,9 @@ function SearchResult(props: SearchResultProps) {
         />
         <div class="grid gap-2">
           <div class="flex items-center gap-2">
-            <h3 class="line-clamp-1 text-lg font-medium">
-              {props.metadata.title}
-            </h3>
+            <h3 class="line-clamp-1 text-lg font-medium">{props.metadata.title}</h3>
           </div>
-          <p class="text-muted-foreground line-clamp-2 text-left text-sm">
-            {props.metadata.plot}
-          </p>
+          <p class="text-muted-foreground line-clamp-2 text-left text-sm">{props.metadata.plot}</p>
           <div class="h-10 w-10">
             <ProviderLogo provider={props.metadata.metadata_provider} />
           </div>
@@ -61,10 +51,7 @@ type Props = {
 
 export default function FixMetadata(props: Props) {
   let notificator = useNotifications();
-  let [search, deferredSearch, setSearch] = useDebounce(
-    500,
-    props.initialSearch ?? "",
-  );
+  let [search, deferredSearch, setSearch] = useDebounce(500, props.initialSearch ?? "");
 
   let searchResult = queryApi.useQuery(
     "get",
@@ -76,16 +63,11 @@ export default function FixMetadata(props: Props) {
   );
 
   return (
-    <Dialog
-      onOpenChange={(isClosed) => isClosed || props.onClose()}
-      open={props.open}
-    >
+    <Dialog onOpenChange={(isClosed) => isClosed || props.onClose()} open={props.open}>
       <DialogContent class="flex h-3/4 w-2/3 flex-col">
         <DialogHeader>
           <DialogTitle>Edit metadata</DialogTitle>
-          <DialogDescription>
-            Select correct metadata from the list below
-          </DialogDescription>
+          <DialogDescription>Select correct metadata from the list below</DialogDescription>
         </DialogHeader>
 
         <TextField>
@@ -108,9 +90,7 @@ export default function FixMetadata(props: Props) {
               {(results) => (
                 <For
                   each={results().filter(
-                    (s) =>
-                      s.metadata_provider !== "local" &&
-                      s.content_type == props.contentType,
+                    (s) => s.metadata_provider !== "local" && s.content_type == props.contentType,
                   )}
                 >
                   {(result) => (

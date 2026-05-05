@@ -91,7 +91,6 @@ const VAR_LABELS: Partial<Record<keyof ThemeVars, string>> = {
   "--radius": "radius",
 };
 
-
 type ThemeCardProps = {
   theme: Theme;
   active: boolean;
@@ -289,8 +288,6 @@ export function ColorSettingsPage() {
       saveTheme(theme);
     }),
   );
-
-
 
   function selectTheme(theme: Theme) {
     setActiveTheme(theme);

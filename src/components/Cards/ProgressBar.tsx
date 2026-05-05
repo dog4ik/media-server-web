@@ -6,9 +6,7 @@ type Props = {
 };
 
 function progressBarPercent(history: Schemas["History"], runtime: number) {
-  return history.is_finished
-    ? 100
-    : Math.max(10, (history.time / runtime) * 100);
+  return history.is_finished ? 100 : Math.max(10, (history.time / runtime) * 100);
 }
 
 export function WatchProgressBar(props: Props) {

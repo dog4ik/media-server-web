@@ -235,20 +235,13 @@ export async function canPlayAfterTranscode(
     type: "media-source",
     audio: audioQueryConfig,
   });
-  let [video, audio, combined] = await Promise.all([
-    videoQuery,
-    audioQuery,
-    combinedQuery,
-  ]);
+  let [video, audio, combined] = await Promise.all([videoQuery, audioQuery, combinedQuery]);
   return { video, audio, combined };
 }
 
 type Browser = "chrome" | "firefox" | "safari" | "edge" | "electron";
 
-const CONTAINER_SUPPORT: Record<
-  Schemas["VideoContainer"],
-  Record<Browser, boolean>
-> = {
+const CONTAINER_SUPPORT: Record<Schemas["VideoContainer"], Record<Browser, boolean>> = {
   mp4: {
     chrome: true,
     electron: true,
@@ -293,13 +286,10 @@ const CONTAINER_SUPPORT: Record<
   },
 };
 
-export function containerSupport(
-  container: Schemas["VideoContainer"],
-): boolean {
+export function containerSupport(container: Schemas["VideoContainer"]): boolean {
   let ua = navigator.userAgent;
 
-  let isChrome =
-    ua.includes("Chrome") && !ua.includes("Edg/") && !ua.includes("OPR/");
+  let isChrome = ua.includes("Chrome") && !ua.includes("Edg/") && !ua.includes("OPR/");
   let isElectron = ua.includes("Electron");
   let isFirefox = ua.includes("Firefox");
   let isSafari = ua.includes("Safari") && !ua.includes("Chrome");
@@ -314,10 +304,7 @@ export function containerSupport(
   else if (isEdge) browser = "edge";
 
   if (!browser) {
-    tracing.warn(
-      { isChrome, isElectron, isFirefox, isSafari, isEdge },
-      "Could not detect browser",
-    );
+    tracing.warn({ isChrome, isElectron, isFirefox, isSafari, isEdge }, "Could not detect browser");
     return false;
   } else {
     tracing.info({ browser }, "Detected browser");

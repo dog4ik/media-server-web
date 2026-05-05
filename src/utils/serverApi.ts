@@ -1,16 +1,9 @@
 import createFetchClient, { ParamsOption, Middleware } from "openapi-fetch";
 import type { components, paths } from "server-types";
 import tracing from "./tracing";
-import {
-  BadRequestError,
-  InternalServerError,
-  NotFoundError,
-  UnavailableError,
-} from "./errors";
+import { BadRequestError, InternalServerError, NotFoundError, UnavailableError } from "./errors";
 
-export function formatCodec<T extends string | { other: string }>(
-  codec: T,
-): string {
+export function formatCodec<T extends string | { other: string }>(codec: T): string {
   return typeof codec == "object" ? codec.other : codec;
 }
 

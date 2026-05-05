@@ -1,18 +1,5 @@
-import {
-  FiLoader,
-  FiMaximize,
-  FiPause,
-  FiPlay,
-  FiSettings,
-} from "solid-icons/fi";
-import {
-  JSX,
-  ParentProps,
-  Show,
-  createSignal,
-  onCleanup,
-  onMount,
-} from "solid-js";
+import { FiLoader, FiMaximize, FiPause, FiPlay, FiSettings } from "solid-icons/fi";
+import { JSX, ParentProps, Show, createSignal, onCleanup, onMount } from "solid-js";
 import VolumeIcon from "./VolumeIcon";
 import Preview from "./Preview";
 import { FaSolidClosedCaptioning } from "solid-icons/fa";
@@ -125,9 +112,7 @@ export default function VideoPlayer(props: Props) {
   let lastSynced = 0;
   let [isFullScreen, setIsFullScreen] = createSignal(false);
   let [showControls, setShowControls] = createSignal(true);
-  let [showCaptions, setShowCaptions] = createSignal(
-    tracks.subtitles !== undefined,
-  );
+  let [showCaptions, setShowCaptions] = createSignal(tracks.subtitles !== undefined);
   let [showMenu, setShowMenu] = createSignal(false);
   let [volume, setVolume] = createSignal(getInitialVolume());
   let [playbackSpeed, setPlaybackSpeed] = createSignal(1);
@@ -140,8 +125,7 @@ export default function VideoPlayer(props: Props) {
     !isError() &&
     videoRef;
 
-  let [dispatchedAction, setDispatchedAction] =
-    createSignal<DispatchedAction>("unpause");
+  let [dispatchedAction, setDispatchedAction] = createSignal<DispatchedAction>("unpause");
 
   function changeVolume(state: number) {
     if (state > 1) {
@@ -215,11 +199,7 @@ export default function VideoPlayer(props: Props) {
     }
   }
   function handleSync(curTime: number) {
-    if (
-      !isMetadataLoading() &&
-      Math.abs(curTime - lastSynced) > 5 &&
-      !isScubbing
-    ) {
+    if (!isMetadataLoading() && Math.abs(curTime - lastSynced) > 5 && !isScubbing) {
       let time = Math.floor(curTime);
       tracing.trace({ time }, "Updating video history");
       props.onHistoryUpdate(time);
@@ -251,10 +231,7 @@ export default function VideoPlayer(props: Props) {
     let rect = timelineRef.getBoundingClientRect();
     let offsetX = e.pageX - rect.left;
     let percent = Math.min(Math.max(0, offsetX), rect.width) / rect.width;
-    videoRef.currentTime = Math.min(
-      percent * duration(),
-      videoRef.duration - 1,
-    );
+    videoRef.currentTime = Math.min(percent * duration(), videoRef.duration - 1);
   }
 
   function resetOverlayTimeout() {
@@ -318,10 +295,7 @@ export default function VideoPlayer(props: Props) {
   function handleVolumeChange(event: VideoEventType) {
     let newVolume = event.currentTarget.volume;
     let delta = newVolume - volume();
-    tracing.trace(
-      { newVolume, oldVolume: volume(), delta },
-      "Volume change event",
-    );
+    tracing.trace({ newVolume, oldVolume: volume(), delta }, "Volume change event");
 
     if (delta > 0) dispatchAction("volumeup");
     else if (delta < 0) dispatchAction("volumedown");
@@ -334,8 +308,7 @@ export default function VideoPlayer(props: Props) {
     isScubbing = false;
     if (videoRef) handleSync(videoRef.currentTime);
     let target = e.target as HTMLElement;
-    if (!menuRef?.contains(target) && !menuBtnRef?.contains(target))
-      setShowMenu(false);
+    if (!menuRef?.contains(target) && !menuBtnRef?.contains(target)) setShowMenu(false);
   }
   function handleMouseMove(e: MouseEvent) {
     if (!isScubbing) return;
@@ -417,10 +390,7 @@ export default function VideoPlayer(props: Props) {
           props.onHistoryUpdate(e.currentTarget.currentTime);
         }}
         ref={videoRef!}
-        class={clsx(
-          "h-full w-full",
-          (isMetadataLoading() || isEnded()) && "hidden",
-        )}
+        class={clsx("h-full w-full", (isMetadataLoading() || isEnded()) && "hidden")}
         controls={false}
         autoplay
         draggable={false}
@@ -521,10 +491,7 @@ export default function VideoPlayer(props: Props) {
                 timelineWidth={timelineRef!.offsetWidth}
                 time={formatDuration(
                   Math.max(
-                    Math.round(
-                      (duration() * previewPosition()!) /
-                        timelineRef!.offsetWidth,
-                    ),
+                    Math.round((duration() * previewPosition()!) / timelineRef!.offsetWidth),
                     0,
                   ),
                 )}
@@ -562,9 +529,7 @@ export default function VideoPlayer(props: Props) {
               </div>
 
               <div class="flex items-center justify-center">
-                <span>
-                  {formatDuration(time()) + " / " + formatDuration(duration())}
-                </span>
+                <span>{formatDuration(time()) + " / " + formatDuration(duration())}</span>
               </div>
             </div>
 

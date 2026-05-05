@@ -1,10 +1,4 @@
-import {
-  For,
-  ParentProps,
-  createContext,
-  createSignal,
-  useContext,
-} from "solid-js";
+import { For, ParentProps, createContext, createSignal, useContext } from "solid-js";
 import { Media, posterList } from "@/utils/library";
 import Notification, { NotificationProps } from "../components/Notification";
 

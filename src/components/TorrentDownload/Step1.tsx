@@ -2,21 +2,8 @@ import { BiRegularMagnet } from "solid-icons/bi";
 import { formatSize, formatTorrentIndex } from "@/utils/formats";
 import { Schemas, server } from "@/utils/serverApi";
 import { createSignal, For, Match, Show, Suspense, Switch } from "solid-js";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
 import { throwResponseErrors } from "@/utils/errors";
 import { Button } from "@/ui/button";
 import { TextField, TextFieldInput } from "@/ui/textfield";
@@ -141,10 +128,7 @@ export default function Step1(props: Props) {
   let [selectedProvider, setSelectedProvider] =
     createSignal<Schemas["TorrentIndexIdentifier"]>("tpb");
 
-  let [query, deferredQuery, setQuery] = useDebounce(
-    300,
-    props.downloadQuery(selectedProvider()),
-  );
+  let [query, deferredQuery, setQuery] = useDebounce(300, props.downloadQuery(selectedProvider()));
 
   function handleProviderChange(provider: Schemas["TorrentIndexIdentifier"]) {
     if (selectedProvider() != provider) {
@@ -184,17 +168,13 @@ export default function Step1(props: Props) {
           value={selectedProvider()}
           options={["rutracker", "tpb"]}
           itemComponent={(props) => (
-            <SelectItem item={props.item}>
-              {formatTorrentIndex(props.item.rawValue)}
-            </SelectItem>
+            <SelectItem item={props.item}>{formatTorrentIndex(props.item.rawValue)}</SelectItem>
           )}
         >
           <SelectTrigger>
             <SelectValue<string>>
               {(state) =>
-                formatTorrentIndex(
-                  state.selectedOption() as Schemas["TorrentIndexIdentifier"],
-                )
+                formatTorrentIndex(state.selectedOption() as Schemas["TorrentIndexIdentifier"])
               }
             </SelectValue>
           </SelectTrigger>
@@ -212,28 +192,19 @@ export default function Step1(props: Props) {
             </Table>
           }
         >
-          <Match
-            when={
-              !torrentSearch.isFetching && torrentSearch.latest()?.length === 0
-            }
-          >
+          <Match when={!torrentSearch.isFetching && torrentSearch.latest()?.length === 0}>
             <div class="flex size-full items-center justify-center">
               <h3 class="text-4xl text-white">No results</h3>
             </div>
           </Match>
-          <Match
-            when={torrentSearch.isPlaceholderData || torrentSearch.isSuccess}
-          >
+          <Match when={torrentSearch.isPlaceholderData || torrentSearch.isSuccess}>
             <Table class="table">
               <TorrentListTableHeader />
               <TableBody class="h-60 overflow-auto">
                 <For each={torrentSearch.latest()}>
                   {(res) => (
                     <TorrentResult
-                      grayOut={
-                        torrentSearch.isFetching &&
-                        torrentSearch.isPlaceholderData
-                      }
+                      grayOut={torrentSearch.isFetching && torrentSearch.isPlaceholderData}
                       onClick={props.onSelect}
                       result={res}
                     />

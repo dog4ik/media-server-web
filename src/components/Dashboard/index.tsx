@@ -70,22 +70,13 @@ export default function Activity() {
       <PageTitle>Activity</PageTitle>
       <ErrorBoundary fallback={errorBoundaryFallback()}>
         <div class="w-5/6 space-y-8">
-          <Showspense
-            when={watchSessions.data}
-            fallback={<div>Loading watch sessions</div>}
-          >
+          <Showspense when={watchSessions.data} fallback={<div>Loading watch sessions</div>}>
             {(tasks) => <WatchSessions tasks={tasks()} />}
           </Showspense>
-          <Showspense
-            when={transcodeTasks.data}
-            fallback={<div>Loading transcode tasks</div>}
-          >
+          <Showspense when={transcodeTasks.data} fallback={<div>Loading transcode tasks</div>}>
             {(tasks) => <TranscodeTasks tasks={tasks()} />}
           </Showspense>
-          <Showspense
-            when={previewsTasks.data}
-            fallback={<div>Loading previews tasks</div>}
-          >
+          <Showspense when={previewsTasks.data} fallback={<div>Loading previews tasks</div>}>
             {(tasks) => <PreviewsTasks tasks={tasks()} />}
           </Showspense>
         </div>

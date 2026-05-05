@@ -8,9 +8,7 @@ export type TextFieldProps<T extends ValidComponent = "div"> = ComponentProps<
   typeof TextFieldPrimitive<T>
 >;
 
-export const TextField = <T extends ValidComponent = "div">(
-  props: TextFieldProps<T>,
-) => {
+export const TextField = <T extends ValidComponent = "div">(props: TextFieldProps<T>) => {
   const [, rest] = splitProps(props as TextFieldProps, ["class"]);
 
   return (
@@ -22,8 +20,9 @@ export const TextField = <T extends ValidComponent = "div">(
   );
 };
 
-export type TextFieldInputProps<T extends ValidComponent = "input"> =
-  ComponentProps<typeof TextFieldPrimitive.Input<T>>;
+export type TextFieldInputProps<T extends ValidComponent = "input"> = ComponentProps<
+  typeof TextFieldPrimitive.Input<T>
+>;
 
 export const TextFieldInput = <T extends ValidComponent = "input">(
   props: TextFieldInputProps<T>,
@@ -45,8 +44,9 @@ export const TextFieldInput = <T extends ValidComponent = "input">(
   );
 };
 
-export type TextFieldTextAreaProps<T extends ValidComponent = "textarea"> =
-  ComponentProps<typeof TextFieldPrimitive.TextArea<T>>;
+export type TextFieldTextAreaProps<T extends ValidComponent = "textarea"> = ComponentProps<
+  typeof TextFieldPrimitive.TextArea<T>
+>;
 
 export const TextFieldTextArea = <T extends ValidComponent = "textarea">(
   props: TextFieldTextAreaProps<T>,
@@ -67,8 +67,9 @@ export const TextFieldTextArea = <T extends ValidComponent = "textarea">(
   );
 };
 
-export type TextFieldLabelProps<T extends ValidComponent = "label"> =
-  ComponentProps<typeof TextFieldPrimitive.Label<T>>;
+export type TextFieldLabelProps<T extends ValidComponent = "label"> = ComponentProps<
+  typeof TextFieldPrimitive.Label<T>
+>;
 
 export const TextFieldLabel = <T extends ValidComponent = "label">(
   props: TextFieldLabelProps<T>,
@@ -89,19 +90,16 @@ export const TextFieldLabel = <T extends ValidComponent = "label">(
   );
 };
 
-export type TextFieldErrorMessageProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof TextFieldPrimitive.ErrorMessage<T>> & {
-    errors?: ({ message?: string } | undefined)[];
-  };
+export type TextFieldErrorMessageProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof TextFieldPrimitive.ErrorMessage<T>
+> & {
+  errors?: ({ message?: string } | undefined)[];
+};
 
 export const TextFieldErrorMessage = <T extends ValidComponent = "div">(
   props: TextFieldErrorMessageProps<T>,
 ) => {
-  const [, rest] = splitProps(props as TextFieldErrorMessageProps, [
-    "class",
-    "errors",
-    "children",
-  ]);
+  const [, rest] = splitProps(props as TextFieldErrorMessageProps, ["class", "errors", "children"]);
 
   const uniqueErrors = () => [
     ...new Map(props.errors?.map((error) => [error?.message, error])).values(),
@@ -116,24 +114,21 @@ export const TextFieldErrorMessage = <T extends ValidComponent = "div">(
       <Switch
         fallback={
           <ul class="ml-4 flex list-disc flex-col gap-1">
-            <For each={uniqueErrors()}>
-              {(error) => <li>{error?.message}</li>}
-            </For>
+            <For each={uniqueErrors()}>{(error) => <li>{error?.message}</li>}</For>
           </ul>
         }
       >
         <Match when={props.children}>{props.children}</Match>
         <Match when={!props.errors?.length}>{null}</Match>
-        <Match when={uniqueErrors().length == 1}>
-          {uniqueErrors()[0]?.message}
-        </Match>
+        <Match when={uniqueErrors().length == 1}>{uniqueErrors()[0]?.message}</Match>
       </Switch>
     </TextFieldPrimitive.ErrorMessage>
   );
 };
 
-export type TextFieldDescriptionProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof TextFieldPrimitive.Description<T>>;
+export type TextFieldDescriptionProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof TextFieldPrimitive.Description<T>
+>;
 
 export const TextFieldDescription = <T extends ValidComponent = "div">(
   props: TextFieldDescriptionProps<T>,

@@ -41,10 +41,7 @@ export function profileDescription(idc: number) {
   return HEVC_PROFILES_DESC[idc as keyof typeof HEVC_PROFILES_DESC];
 }
 
-export function getMaxHEVCLevel(
-  resolution: Schemas["Resolution"],
-  framerate: number,
-) {
+export function getMaxHEVCLevel(resolution: Schemas["Resolution"], framerate: number) {
   let { width, height } = resolution;
   let sum = width * height * framerate;
   let maxLumaSampleRate = sum + sum / 15;

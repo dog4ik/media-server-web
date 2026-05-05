@@ -1,11 +1,4 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui/table";
 import { formatDuration } from "@/utils/formats";
 import { Schemas } from "@/utils/serverApi";
 import { For } from "solid-js";
@@ -22,9 +15,7 @@ function Tracker(props: TrackerProps) {
         {props.tracker.status}
         {props.tracker.status == "error" ? ` (${props.tracker.message})` : ""}
       </TableCell>
-      <TableCell class="text-right">
-        {formatDuration(props.tracker.announce_interval)}
-      </TableCell>
+      <TableCell class="text-right">{formatDuration(props.tracker.announce_interval)}</TableCell>
     </TableRow>
   );
 }
@@ -44,9 +35,7 @@ export function TrackerList(props: Props) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <For each={props.trackers}>
-          {(tracker) => <Tracker tracker={tracker} />}
-        </For>
+        <For each={props.trackers}>{(tracker) => <Tracker tracker={tracker} />}</For>
       </TableBody>
     </Table>
   );

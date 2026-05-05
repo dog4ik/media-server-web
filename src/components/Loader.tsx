@@ -41,8 +41,6 @@ export function SuspenseLoader(props: SuspenseLoaderProps & ParentProps) {
     tracing.trace({ name: props.name, end }, "[Suspense] Mount end");
   });
   return (
-    <Suspense fallback={<Loader title={props.name} showDelay={100} />}>
-      {props.children}
-    </Suspense>
+    <Suspense fallback={<Loader title={props.name} showDelay={100} />}>{props.children}</Suspense>
   );
 }

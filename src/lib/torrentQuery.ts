@@ -30,18 +30,12 @@ export const SEASON_FORMATTER: Record<
     `${show.locale_metadata?.original_title ?? show.title} Сезон: ${season}`,
 };
 
-export const SHOW_FORMATTER: Record<
-  Provider,
-  (show: Schemas["ShowMetadata"]) => string
-> = {
+export const SHOW_FORMATTER: Record<Provider, (show: Schemas["ShowMetadata"]) => string> = {
   tpb: (show) => `${sanitizeTpbTitle(show.title)}`,
   rutracker: (show) => `${show.locale_metadata?.original_title ?? show.title}`,
 };
 
-export const MOVIE_FORMATTER: Record<
-  Provider,
-  (show: Schemas["MovieMetadata"]) => string
-> = {
+export const MOVIE_FORMATTER: Record<Provider, (show: Schemas["MovieMetadata"]) => string> = {
   tpb: (show) => `${sanitizeTpbTitle(show.title)}`,
   rutracker: (show) => `${show.locale_metadata?.original_title ?? show.title}`,
 };

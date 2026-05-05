@@ -1,13 +1,7 @@
 import { NotFoundError, notifyResponseErrors } from "../utils/errors";
 import VideoPlayer, { NextVideo } from "../components/VideoPlayer";
 import { Schemas, fullUrl, server } from "../utils/serverApi";
-import {
-  createEffect,
-  createMemo,
-  onCleanup,
-  ParentProps,
-  Show,
-} from "solid-js";
+import { createEffect, createMemo, onCleanup, ParentProps, Show } from "solid-js";
 import { formatSE } from "../utils/formats";
 import {
   ExtendedEpisode,
@@ -91,9 +85,7 @@ export function WatchMovie() {
 
   createEffect(() => {
     if ("mediaSession" in navigator && movie.isSuccess) {
-      navigator.mediaSession.metadata = movieMediaSessionMetadata(
-        movie.latest()!,
-      );
+      navigator.mediaSession.metadata = movieMediaSessionMetadata(movie.latest()!);
     } else {
       tracing.warn("Media session api is not supported by the browser");
     }
@@ -113,9 +105,7 @@ export function WatchMovie() {
               params={{ id: params().id }}
               search={{ provider: movie.latest()!.metadata_provider }}
             >
-              <span class="text-2xl hover:underline">
-                {movie.latest()!.title}
-              </span>
+              <span class="text-2xl hover:underline">{movie.latest()!.title}</span>
             </Link>
           </div>
         </Watch>
@@ -124,10 +114,7 @@ export function WatchMovie() {
   );
 }
 
-function showMediaSessionMetadata(
-  episode: ExtendedEpisode,
-  show: ExtendedShow,
-) {
+function showMediaSessionMetadata(episode: ExtendedEpisode, show: ExtendedShow) {
   let posterUrl = fullUrl("/api/episode/{id}/poster", {
     path: { id: +episode.metadata_id },
   });
@@ -234,10 +221,7 @@ export function WatchShow() {
 
   createEffect(() => {
     if ("mediaSession" in navigator && episode.isSuccess && show.isSuccess) {
-      navigator.mediaSession.metadata = showMediaSessionMetadata(
-        episode.latest()!,
-        show.latest()!,
-      );
+      navigator.mediaSession.metadata = showMediaSessionMetadata(episode.latest()!, show.latest()!);
     }
   });
 
@@ -255,14 +239,8 @@ export function WatchShow() {
             <div class="absolute top-5 left-5 flex flex-col">
               <span class="text-2xl">{episode.latest()!.title}</span>
               <div class="flex gap-2">
-                <Link
-                  to={"/shows/$id"}
-                  params={{ id: params().id }}
-                  search={{ provider: "local" }}
-                >
-                  <span class="text-sm hover:underline">
-                    {show.latest()!.title}
-                  </span>
+                <Link to={"/shows/$id"} params={{ id: params().id }} search={{ provider: "local" }}>
+                  <span class="text-sm hover:underline">{show.latest()!.title}</span>
                 </Link>
                 <Link
                   to={"/shows/$id"}
@@ -282,9 +260,7 @@ export function WatchShow() {
                   }}
                   search={{ provider: "local" }}
                 >
-                  <span class="text-sm hover:underline">
-                    Episode {episode.latest()!.number}
-                  </span>
+                  <span class="text-sm hover:underline">Episode {episode.latest()!.number}</span>
                 </Link>
               </div>
             </div>
@@ -321,9 +297,7 @@ function Watch(props: WatchProps) {
       throw new NotFoundError("videos length is 0");
     }
     if (query) {
-      return (
-        props.videos.find((v) => v.details.id === query) ?? props.videos[0]
-      );
+      return props.videos.find((v) => v.details.id === query) ?? props.videos[0];
     }
     return props.videos[0];
   });
@@ -339,13 +313,7 @@ function Watch(props: WatchProps) {
           params: { path: { id } },
           keepalive: true,
         })
-        .then(
-          notifyResponseErrors(
-            addNotification,
-            "clean up watch session",
-            props.media,
-          ),
-        );
+        .then(notifyResponseErrors(addNotification, "clean up watch session", props.media));
     }
   }
 

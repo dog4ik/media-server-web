@@ -5,8 +5,7 @@ type Props = { contentType: Schemas["ContentType"] };
 
 export default function AddFoldersHelp(props: Props) {
   let url = () => {
-    let hash =
-      props.contentType == "show" ? "show-directories" : "movie-directories";
+    let hash = props.contentType == "show" ? "show-directories" : "movie-directories";
     return linkOptions({ to: "/settings", hash });
   };
 

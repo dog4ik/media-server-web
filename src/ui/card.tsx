@@ -43,11 +43,7 @@ export const CardTitle = (props: CardTitleProps) => {
   const [, rest] = splitProps(props, ["class"]);
 
   return (
-    <div
-      data-slot="card-title"
-      class={cx("leading-none font-semibold", props.class)}
-      {...rest}
-    />
+    <div data-slot="card-title" class={cx("leading-none font-semibold", props.class)} {...rest} />
   );
 };
 
@@ -73,10 +69,7 @@ export const CardAction = (props: CardActionProps) => {
   return (
     <div
       data-slot="card-action"
-      class={cx(
-        "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
-        props.class,
-      )}
+      class={cx("col-start-2 row-span-2 row-start-1 self-start justify-self-end", props.class)}
       {...rest}
     />
   );
@@ -87,9 +80,7 @@ export type CardContentProps = ComponentProps<"div">;
 export const CardContent = (props: CardContentProps) => {
   const [, rest] = splitProps(props, ["class"]);
 
-  return (
-    <div data-slot="card-content" class={cx("px-6", props.class)} {...rest} />
-  );
+  return <div data-slot="card-content" class={cx("px-6", props.class)} {...rest} />;
 };
 
 export type CardFooterProps = ComponentProps<"div">;

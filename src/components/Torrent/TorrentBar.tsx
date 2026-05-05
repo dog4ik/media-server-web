@@ -1,4 +1,4 @@
-import { FiDelete, FiPause, FiPlay, FiPlus, } from "solid-icons/fi";
+import { FiDelete, FiPause, FiPlay, FiPlus } from "solid-icons/fi";
 import { ParentProps, Show } from "solid-js";
 
 type IconProps = {
@@ -8,10 +8,7 @@ type IconProps = {
 
 function Icon(props: IconProps) {
   return (
-    <button
-      onClick={props.onClick}
-      class="flex flex-col items-center justify-center"
-    >
+    <button onClick={props.onClick} class="flex flex-col items-center justify-center">
       {props.children}
       <Show when={props.title}>
         <span>{props.title}</span>
@@ -25,17 +22,17 @@ const ICON_SIZE = 20;
 export function TorrentBar() {
   return (
     <div class="flex items-center gap-4">
-      <Icon title="Add torrent" >
-        <FiPlus size={ICON_SIZE}/>
+      <Icon title="Add torrent">
+        <FiPlus size={ICON_SIZE} />
       </Icon>
-      <Icon title="Pause torrents" >
-        <FiPause size={ICON_SIZE}/>
+      <Icon title="Pause torrents">
+        <FiPause size={ICON_SIZE} />
       </Icon>
-      <Icon title="Resume torrents" >
-        <FiPlay size={ICON_SIZE}/>
+      <Icon title="Resume torrents">
+        <FiPlay size={ICON_SIZE} />
       </Icon>
-      <Icon title="Remove torrents" >
-        <FiDelete size={ICON_SIZE}/>
+      <Icon title="Remove torrents">
+        <FiDelete size={ICON_SIZE} />
       </Icon>
     </div>
   );

@@ -55,13 +55,9 @@ function ResultContent(props: { result: Schemas["MetadataSearchResult"] }) {
       />
       <div class="min-w-0 flex-1">
         <p class="truncate text-sm font-medium">{props.result.title}</p>
-        <p class="text-muted-foreground text-xs">
-          {capitalize(props.result.content_type)}
-        </p>
+        <p class="text-muted-foreground text-xs">{capitalize(props.result.content_type)}</p>
         <Show when={props.result.plot}>
-          {(plot) => (
-            <p class="text-muted-foreground line-clamp-2 text-xs">{plot()}</p>
-          )}
+          {(plot) => <p class="text-muted-foreground line-clamp-2 text-xs">{plot()}</p>}
         </Show>
       </div>
       <div class="h-5 w-8 flex-none">
@@ -161,16 +157,12 @@ export default function SearchBar() {
                 <Match when={data().length > 0}>
                   <div class="max-h-96 divide-y overflow-y-auto p-1">
                     <For each={data()}>
-                      {(item) => (
-                        <SearchResultItem result={item} onSelect={handleSelect} />
-                      )}
+                      {(item) => <SearchResultItem result={item} onSelect={handleSelect} />}
                     </For>
                   </div>
                 </Match>
                 <Match when={data().length === 0}>
-                  <p class="text-muted-foreground p-6 text-center text-sm">
-                    No results found
-                  </p>
+                  <p class="text-muted-foreground p-6 text-center text-sm">No results found</p>
                 </Match>
               </Switch>
             )}

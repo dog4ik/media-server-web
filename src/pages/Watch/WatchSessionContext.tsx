@@ -51,8 +51,6 @@ type Props = {} & ParentProps;
 export default function WatchSessionProvider(props: Props) {
   let context = () => createWatchSessionContext();
   return (
-    <WatchSessionContext.Provider value={context()}>
-      {props.children}
-    </WatchSessionContext.Provider>
+    <WatchSessionContext.Provider value={context()}>{props.children}</WatchSessionContext.Provider>
   );
 }

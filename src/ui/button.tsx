@@ -7,7 +7,7 @@ import { cva } from "cva";
 
 export const buttonVariants = cva({
   base: [
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all [&_svg:not([class*=size-])]:size-4 shrink-0 outline-hidden",
+    "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all [&_svg:not([class*=size-])]:size-4 shrink-0 outline-hidden",
     "disabled:pointer-events-none disabled:opacity-50",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0",
     "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
@@ -22,8 +22,7 @@ export const buttonVariants = cva({
       outline:
         "border bg-background shadow-2xs hover:bg-accent hover:text-accent-foreground dark:hover:bg-input/50 dark:bg-input/30 dark:border-input",
       secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-      ghost:
-        "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+      ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
       link: "text-primary underline-offset-4 hover:underline",
     },
     size: {
@@ -46,14 +45,8 @@ export type ButtonProps<T extends ValidComponent = "button"> = ComponentProps<
 > &
   VariantProps<typeof buttonVariants>;
 
-export const Button = <T extends ValidComponent = "button">(
-  props: ButtonProps<T>,
-) => {
-  const [, rest] = splitProps(props as ButtonProps, [
-    "class",
-    "variant",
-    "size",
-  ]);
+export const Button = <T extends ValidComponent = "button">(props: ButtonProps<T>) => {
+  const [, rest] = splitProps(props as ButtonProps, ["class", "variant", "size"]);
 
   return (
     <ButtonPrimitive

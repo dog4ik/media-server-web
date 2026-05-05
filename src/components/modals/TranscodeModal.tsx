@@ -42,8 +42,7 @@ export function TranscodeModal(props: Props) {
     checkCompatibility().then((r) => setWillPlay(r));
   }
 
-  let [willPlay, setWillPlay] =
-    createSignal<Awaited<ReturnType<typeof canPlayAfterTranscode>>>();
+  let [willPlay, setWillPlay] = createSignal<Awaited<ReturnType<typeof canPlayAfterTranscode>>>();
 
   let checkCompatibility = async () => {
     let audioConfig = () => {
@@ -53,11 +52,7 @@ export function TranscodeModal(props: Props) {
     };
     let videoConfig = () => {
       let framerate = props.video.defaultVideo()?.framerate;
-      if (
-        transcodePayload.resolution &&
-        framerate &&
-        transcodePayload.video_codec
-      ) {
+      if (transcodePayload.resolution && framerate && transcodePayload.video_codec) {
         return {
           videoCodec: transcodePayload.video_codec,
           framerate,
@@ -74,8 +69,7 @@ export function TranscodeModal(props: Props) {
       let video = defaultTrack(variant.video_tracks);
       let audio = defaultTrack(variant.audio_tracks);
       if (
-        stringCodec(video.codec) ==
-          stringCodec(transcodePayload?.video_codec) &&
+        stringCodec(video.codec) == stringCodec(transcodePayload?.video_codec) &&
         video.resolution == transcodePayload.resolution &&
         stringCodec(audio.codec) == stringCodec(transcodePayload.audio_codec)
       ) {
@@ -86,8 +80,7 @@ export function TranscodeModal(props: Props) {
     if (
       stringCodec(props.video.defaultVideo()?.codec) ===
         stringCodec(transcodePayload.video_codec) &&
-      stringCodec(props.video.defaultAudio()?.codec) ===
-        stringCodec(transcodePayload.audio_codec)
+      stringCodec(props.video.defaultAudio()?.codec) === stringCodec(transcodePayload.audio_codec)
     ) {
       return { conflictIn: "source" } as const;
     }
@@ -96,23 +89,19 @@ export function TranscodeModal(props: Props) {
   function handleSubmit() {
     let filteredPayload: Schemas["TranscodePayload"] = {};
     if (
-      props.video.defaultVideo()?.resolution.width !==
-        transcodePayload.resolution?.width ||
-      props.video.defaultVideo()?.resolution.height !==
-        transcodePayload.resolution?.height
+      props.video.defaultVideo()?.resolution.width !== transcodePayload.resolution?.width ||
+      props.video.defaultVideo()?.resolution.height !== transcodePayload.resolution?.height
     ) {
       filteredPayload.resolution = transcodePayload.resolution;
     }
     if (
-      stringCodec(props.video.defaultVideo()?.codec) !==
-      stringCodec(transcodePayload.video_codec)
+      stringCodec(props.video.defaultVideo()?.codec) !== stringCodec(transcodePayload.video_codec)
     ) {
       filteredPayload.video_codec = transcodePayload.video_codec;
     }
 
     if (
-      stringCodec(props.video.defaultAudio()?.codec) !==
-      stringCodec(transcodePayload.audio_codec)
+      stringCodec(props.video.defaultAudio()?.codec) !== stringCodec(transcodePayload.audio_codec)
     ) {
       filteredPayload.audio_codec = transcodePayload.audio_codec;
     }

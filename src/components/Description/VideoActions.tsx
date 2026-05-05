@@ -43,9 +43,7 @@ export default function VideoActions(props: Props) {
         {(url) => (
           <PlayButton
             link={url()}
-            canPlay={
-              videoCompatibility.isSuccess ? videoCompatibility.data : undefined
-            }
+            canPlay={videoCompatibility.isSuccess ? videoCompatibility.data : undefined}
           />
         )}
       </Show>

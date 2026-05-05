@@ -43,9 +43,7 @@ function Addition(props: { data: AdditionalInfo[] }) {
               {(href) => (
                 <>
                   <Link {...href()}>
-                    <span class="text-base hover:underline">
-                      {content.info}
-                    </span>
+                    <span class="text-base hover:underline">{content.info}</span>
                   </Link>
                   <Show when={!isLast}>
                     <span>·</span>
@@ -76,10 +74,7 @@ export function Description(props: Props & ParentProps) {
         />
         <Show when={props.progress}>
           {(progress) => (
-            <WatchProgressBar
-              history={progress().history}
-              runtime={progress().runtime}
-            />
+            <WatchProgressBar history={progress().history} runtime={progress().runtime} />
           )}
         </Show>
       </div>
@@ -87,9 +82,7 @@ export function Description(props: Props & ParentProps) {
         <div class="text-3xl">
           <span>{props.title}</span>
         </div>
-        <Show when={props.additionalInfo}>
-          {(info) => <Addition data={info()} />}
-        </Show>
+        <Show when={props.additionalInfo}>{(info) => <Addition data={info()} />}</Show>
         <Show when={props.plot && props.plot.length > 0}>
           <p
             title={props.plot ?? undefined}
@@ -109,9 +102,7 @@ export function DescriptionSkeleton(props: { direction: ImageDirection }) {
     <div class="flex w-full flex-col gap-8 md:flex-row">
       <Skeleton
         class={clsx(
-          props.direction == "horizontal"
-            ? "h-[180px] w-[320px]"
-            : "h-[312px] w-52",
+          props.direction == "horizontal" ? "h-[180px] w-[320px]" : "h-[312px] w-52",
           "shrink-0",
         )}
       />

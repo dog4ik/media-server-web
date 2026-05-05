@@ -21,8 +21,9 @@ export const Tooltip = (props: TooltipProps) => {
   return <TooltipPrimitive data-slot="tooltip" {...merge} />;
 };
 
-export type TooltipTriggerProps<T extends ValidComponent = "button"> =
-  ComponentProps<typeof TooltipPrimitive.Trigger<T>>;
+export type TooltipTriggerProps<T extends ValidComponent = "button"> = ComponentProps<
+  typeof TooltipPrimitive.Trigger<T>
+>;
 
 export const TooltipTrigger = <T extends ValidComponent = "button">(
   props: TooltipTriggerProps<T>,
@@ -30,16 +31,14 @@ export const TooltipTrigger = <T extends ValidComponent = "button">(
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 };
 
-export type TooltipContentProps<T extends ValidComponent = "button"> =
-  ComponentProps<typeof TooltipPrimitive.Content<T>>;
+export type TooltipContentProps<T extends ValidComponent = "button"> = ComponentProps<
+  typeof TooltipPrimitive.Content<T>
+>;
 
 export const TooltipContent = <T extends ValidComponent = "button">(
   props: TooltipContentProps<T>,
 ) => {
-  const [, rest] = splitProps(props as TooltipContentProps, [
-    "class",
-    "children",
-  ]);
+  const [, rest] = splitProps(props as TooltipContentProps, ["class", "children"]);
 
   return (
     <TooltipPrimitive.Content

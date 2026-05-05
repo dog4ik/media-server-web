@@ -24,9 +24,7 @@ export function BitTorrentClient() {
   return (
     <div class="flex max-h-[calc(100vh-5.5rem)] flex-col gap-4">
       <TorrentTable />
-      <Show when={expandedTorrent()}>
-        {(row) => <TorrentSide torrent={row()} />}
-      </Show>
+      <Show when={expandedTorrent()}>{(row) => <TorrentSide torrent={row()} />}</Show>
       <BottomBar />
     </div>
   );

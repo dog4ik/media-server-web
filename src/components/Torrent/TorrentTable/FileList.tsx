@@ -11,21 +11,10 @@ import {
   Row,
   RowSelectionState,
 } from "@tanstack/solid-table";
-import {
-  buildFileTree,
-  Directory,
-  Entry,
-  File,
-} from "@/utils/torrent_file_tree";
+import { buildFileTree, Directory, Entry, File } from "@/utils/torrent_file_tree";
 import { createMemo, createSignal, For, Show } from "solid-js";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
 import { TableColumnHeader } from "./ColumnHeader";
 import { FileIcon, DirectoryIcon } from "./EntryIcon";
 import { formatSize } from "@/utils/formats";
@@ -33,12 +22,7 @@ import { Progress } from "@/ui/progress";
 import { Checkbox, CheckboxControl } from "@/ui/checkbox";
 import { Button } from "@/ui/button";
 
-const PRIORITY_OPTIONS: Schemas["Priority"][] = [
-  "disabled",
-  "low",
-  "medium",
-  "high",
-];
+const PRIORITY_OPTIONS: Schemas["Priority"][] = ["disabled", "low", "medium", "high"];
 
 type Props = {
   infoHash: string;
@@ -47,11 +31,7 @@ type Props = {
 };
 
 function createTanstackRowSelectionState(entries: Entry[]): RowSelectionState {
-  function traverseTree(
-    directory: Directory,
-    path: number[],
-    state: RowSelectionState,
-  ) {
+  function traverseTree(directory: Directory, path: number[], state: RowSelectionState) {
     for (let i = 0; i < directory.children.length; ++i) {
       let entry = directory.children[i];
       if (entry.kind === "directory") {
@@ -80,10 +60,7 @@ export function FileList(props: Props) {
   let [expanded, setExpanded] = createSignal<ExpandedState>({});
   let rowSelection = createMemo(() => createTanstackRowSelectionState(data()));
 
-  function onPrioritySelectorChange(
-    row: Row<Entry>,
-    newPriority: Schemas["Priority"],
-  ) {
+  function onPrioritySelectorChange(row: Row<Entry>, newPriority: Schemas["Priority"]) {
     function collectDirFile(dir: Directory, files: File[]) {
       for (let entry of dir.children) {
         if (entry.kind == "file") {
@@ -156,9 +133,7 @@ export function FileList(props: Props) {
           <span class="text-center">{formatSize(props.row.original.size)}</span>
         </div>
       ),
-      header: (header) => (
-        <TableColumnHeader title="Size" column={header.column} />
-      ),
+      header: (header) => <TableColumnHeader title="Size" column={header.column} />,
       footer: (props) => props.column.id,
     },
     {
@@ -189,9 +164,7 @@ export function FileList(props: Props) {
           </Select>
         </div>
       ),
-      header: (header) => (
-        <TableColumnHeader title="Priority" column={header.column} />
-      ),
+      header: (header) => <TableColumnHeader title="Priority" column={header.column} />,
       footer: (props) => props.column.id,
     },
     {
@@ -204,9 +177,7 @@ export function FileList(props: Props) {
           </span>
         </div>
       ),
-      header: (header) => (
-        <TableColumnHeader title="Piece range" column={header.column} />
-      ),
+      header: (header) => <TableColumnHeader title="Piece range" column={header.column} />,
       enableSorting: false,
       footer: (props) => props.column.id,
     },
@@ -230,9 +201,7 @@ export function FileList(props: Props) {
         }
       },
       id: "progress",
-      header: (props) => (
-        <TableColumnHeader column={props.column} title="Progress" />
-      ),
+      header: (props) => <TableColumnHeader column={props.column} title="Progress" />,
       cell: (props) => (
         <div class="flex w-[100px] items-center">
           <Progress value={props.getValue() as number}>
@@ -263,10 +232,7 @@ export function FileList(props: Props) {
     getExpandedRowModel: getExpandedRowModel(),
   });
 
-  function batchChangePirority(
-    entries: Entry[],
-    priority: Schemas["Priority"],
-  ) {
+  function batchChangePirority(entries: Entry[], priority: Schemas["Priority"]) {
     function collectIndexes(directory: Directory, files: number[]) {
       for (let entry of directory.children) {
         if (entry.kind === "file") {
@@ -307,12 +273,7 @@ export function FileList(props: Props) {
                 {(header) => (
                   <TableCell colSpan={header.colSpan}>
                     <Show when={!header.isPlaceholder}>
-                      <div>
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                      </div>
+                      <div>{flexRender(header.column.columnDef.header, header.getContext())}</div>
                     </Show>
                   </TableCell>
                 )}
@@ -327,9 +288,7 @@ export function FileList(props: Props) {
             <TableRow>
               <For each={row.getVisibleCells()}>
                 {(cell) => (
-                  <TableCell>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
+                  <TableCell>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                 )}
               </For>
             </TableRow>

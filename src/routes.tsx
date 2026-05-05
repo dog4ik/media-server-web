@@ -1,9 +1,4 @@
-import {
-  createRootRoute,
-  createRoute,
-  HeadContent,
-  Outlet,
-} from "@tanstack/solid-router";
+import { createRootRoute, createRoute, HeadContent, Outlet } from "@tanstack/solid-router";
 import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
@@ -85,18 +80,11 @@ const watchRoute = createRoute({
   validateSearch: validateWatchParams,
 });
 
-const PROVIDERS: (Schemas["MetadataProvider"] | {})[] = [
-  "local",
-  "tmdb",
-  "tvdb",
-  "imdb",
-];
+const PROVIDERS: (Schemas["MetadataProvider"] | {})[] = ["local", "tmdb", "tvdb", "imdb"];
 
 type MediaProviderParm = { provider: Schemas["MetadataProvider"] };
 
-function validateProviderParam(
-  search: Record<string, unknown>,
-): MediaProviderParm {
+function validateProviderParam(search: Record<string, unknown>): MediaProviderParm {
   let provider = search.provider;
   if (typeof provider == "string" && PROVIDERS.includes(provider)) {
     return { provider: search.provider as Schemas["MetadataProvider"] };
@@ -120,10 +108,7 @@ type SearchParams = { provider?: Schemas["MetadataProvider"]; search: string };
 
 function validateSearchParams(search: Record<string, unknown>): SearchParams {
   let provider: Schemas["MetadataProvider"] | undefined = undefined;
-  if (
-    typeof search.provider === "string" &&
-    PROVIDERS.includes(search.provider)
-  ) {
+  if (typeof search.provider === "string" && PROVIDERS.includes(search.provider)) {
     provider = search.provider as Schemas["MetadataProvider"];
   }
   let searchQuery = "";
@@ -324,11 +309,7 @@ export const routeTree = rootRoute.addChildren([
     logsRoute,
     testRoute,
 
-    settingsRoute.addChildren([
-      serverSettingsRoute,
-      clientSettingsRoute,
-      resourcesSettingsRoute,
-    ]),
+    settingsRoute.addChildren([serverSettingsRoute, clientSettingsRoute, resourcesSettingsRoute]),
   ]),
 
   watchRoute.addChildren([watchMovie, watchShow]),

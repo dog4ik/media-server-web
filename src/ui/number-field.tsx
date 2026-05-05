@@ -8,9 +8,7 @@ export type NumberFieldProps<T extends ValidComponent = "div"> = ComponentProps<
   typeof NumberFieldPrimitive<T>
 >;
 
-export const NumberField = <T extends ValidComponent = "div">(
-  props: NumberFieldProps<T>,
-) => {
+export const NumberField = <T extends ValidComponent = "div">(props: NumberFieldProps<T>) => {
   const [, rest] = splitProps(props as NumberFieldProps, ["class"]);
 
   return (
@@ -39,8 +37,9 @@ export const NumberFieldGroup = (props: NumberFieldGroupProps) => {
   );
 };
 
-export type NumberFieldLabelProps<T extends ValidComponent = "label"> =
-  ComponentProps<typeof NumberFieldPrimitive.Label<T>>;
+export type NumberFieldLabelProps<T extends ValidComponent = "label"> = ComponentProps<
+  typeof NumberFieldPrimitive.Label<T>
+>;
 
 export const NumberFieldLabel = <T extends ValidComponent = "label">(
   props: NumberFieldLabelProps<T>,
@@ -59,8 +58,9 @@ export const NumberFieldLabel = <T extends ValidComponent = "label">(
   );
 };
 
-export type NumberFieldInputProps<T extends ValidComponent = "input"> =
-  VoidProps<ComponentProps<typeof NumberFieldPrimitive.Input<T>>>;
+export type NumberFieldInputProps<T extends ValidComponent = "input"> = VoidProps<
+  ComponentProps<typeof NumberFieldPrimitive.Input<T>>
+>;
 
 export const NumberFieldInput = <T extends ValidComponent = "input">(
   props: NumberFieldInputProps<T>,
@@ -79,18 +79,14 @@ export const NumberFieldInput = <T extends ValidComponent = "input">(
   );
 };
 
-export type NumberFieldDecrementTriggerProps<
-  T extends ValidComponent = "button",
-> = VoidProps<ComponentProps<typeof NumberFieldPrimitive.DecrementTrigger<T>>>;
+export type NumberFieldDecrementTriggerProps<T extends ValidComponent = "button"> = VoidProps<
+  ComponentProps<typeof NumberFieldPrimitive.DecrementTrigger<T>>
+>;
 
-export const NumberFieldDecrementTrigger = <
-  T extends ValidComponent = "button",
->(
+export const NumberFieldDecrementTrigger = <T extends ValidComponent = "button">(
   props: NumberFieldDecrementTriggerProps<T>,
 ) => {
-  const [, rest] = splitProps(props as NumberFieldDecrementTriggerProps, [
-    "class",
-  ]);
+  const [, rest] = splitProps(props as NumberFieldDecrementTriggerProps, ["class"]);
 
   return (
     <NumberFieldPrimitive.DecrementTrigger
@@ -101,11 +97,7 @@ export const NumberFieldDecrementTrigger = <
       )}
       {...rest}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="size-4"
-        viewBox="0 0 24 24"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24">
         <path
           fill="none"
           stroke="currentColor"
@@ -119,18 +111,14 @@ export const NumberFieldDecrementTrigger = <
   );
 };
 
-export type NumberFieldIncrementTriggerProps<
-  T extends ValidComponent = "button",
-> = VoidProps<ComponentProps<typeof NumberFieldPrimitive.IncrementTrigger<T>>>;
+export type NumberFieldIncrementTriggerProps<T extends ValidComponent = "button"> = VoidProps<
+  ComponentProps<typeof NumberFieldPrimitive.IncrementTrigger<T>>
+>;
 
-export const NumberFieldIncrementTrigger = <
-  T extends ValidComponent = "button",
->(
+export const NumberFieldIncrementTrigger = <T extends ValidComponent = "button">(
   props: NumberFieldIncrementTriggerProps<T>,
 ) => {
-  const [, rest] = splitProps(props as NumberFieldIncrementTriggerProps, [
-    "class",
-  ]);
+  const [, rest] = splitProps(props as NumberFieldIncrementTriggerProps, ["class"]);
 
   return (
     <NumberFieldPrimitive.IncrementTrigger
@@ -141,11 +129,7 @@ export const NumberFieldIncrementTrigger = <
       )}
       {...rest}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="size-4"
-        viewBox="0 0 24 24"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24">
         <path
           fill="none"
           stroke="currentColor"
@@ -159,8 +143,9 @@ export const NumberFieldIncrementTrigger = <
   );
 };
 
-export type NumberFieldErrorMessageProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof NumberFieldPrimitive.ErrorMessage<T>>;
+export type NumberFieldErrorMessageProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof NumberFieldPrimitive.ErrorMessage<T>
+>;
 
 export const NumberFieldErrorMessage = <T extends ValidComponent = "div">(
   props: NumberFieldErrorMessageProps<T>,
@@ -176,8 +161,9 @@ export const NumberFieldErrorMessage = <T extends ValidComponent = "div">(
   );
 };
 
-export type NumberFieldDescriptionProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof NumberFieldPrimitive.Description<T>>;
+export type NumberFieldDescriptionProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof NumberFieldPrimitive.Description<T>
+>;
 
 export const NumberFieldDescription = <T extends ValidComponent = "div">(
   props: NumberFieldDescriptionProps<T>,

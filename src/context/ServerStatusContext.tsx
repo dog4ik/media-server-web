@@ -1,22 +1,9 @@
-import {
-  ParentProps,
-  createContext,
-  createSignal,
-  onCleanup,
-  useContext,
-} from "solid-js";
+import { ParentProps, createContext, createSignal, onCleanup, useContext } from "solid-js";
 import { revalidatePath, Schemas } from "../utils/serverApi";
 import { useRawNotifications } from "./NotificationContext";
 import { server } from "../utils/serverApi";
 import { NotificationProps } from "../components/Notification";
-import {
-  extendEpisode,
-  extendMovie,
-  extendShow,
-  fetchSeason,
-  Media,
-  Video,
-} from "@/utils/library";
+import { extendEpisode, extendMovie, extendShow, fetchSeason, Media, Video } from "@/utils/library";
 import { ServerConnection } from "@/utils/serverStatus";
 
 type ServerStatusType = ReturnType<typeof createServerStatusContext>;
@@ -45,10 +32,7 @@ export function displayTask(metadata: TaskMetadata): Media {
     return extendShow(metadata.metadata);
   }
   if (metadata.content_type == "episode") {
-    let episode = extendEpisode(
-      metadata.metadata,
-      metadata.showMetadata.metadata_id,
-    );
+    let episode = extendEpisode(metadata.metadata, metadata.showMetadata.metadata_id);
     let show = extendShow(metadata.showMetadata);
     episode.poster = show.poster;
     return episode;
@@ -134,9 +118,7 @@ function notificationProps(
   };
 }
 
-function createServerStatusContext(
-  notificator: ReturnType<typeof useRawNotifications>,
-) {
+function createServerStatusContext(notificator: ReturnType<typeof useRawNotifications>) {
   let [isConnecting, setIsConnecting] = createSignal(true);
   let [isErrored, setIsErrored] = createSignal(false);
 
@@ -179,9 +161,7 @@ function createServerStatusContext(
     return wakeSubscribers.delete(id);
   }
 
-  async function handleVideoProgress(
-    progress: Schemas["Notification"] & { video_id: number },
-  ) {
+  async function handleVideoProgress(progress: Schemas["Notification"] & { video_id: number }) {
     let progressType = progress.status.progress_type;
     if (progressType == "pending") {
       return;
@@ -239,11 +219,7 @@ function createServerStatusContext(
       progress.status.progress_type == "error" ||
       progress.status.progress_type == "finish"
     ) {
-      let season = await fetchSeason(
-        progress.show_id.toString(),
-        progress.season,
-        "local",
-      );
+      let season = await fetchSeason(progress.show_id.toString(), progress.season, "local");
       if (season) {
         notificator(
           notificationProps(
@@ -271,8 +247,6 @@ export default function TaskContextProvider(props: ParentProps) {
   let notificator = useRawNotifications();
   let context = createServerStatusContext(notificator);
   return (
-    <ServerStatusContext.Provider value={context}>
-      {props.children}
-    </ServerStatusContext.Provider>
+    <ServerStatusContext.Provider value={context}>{props.children}</ServerStatusContext.Provider>
   );
 }

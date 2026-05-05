@@ -33,10 +33,7 @@ type SecondsInputProps = {
   min: number;
 } & ParentProps;
 
-function defaultIntro(
-  duration: number,
-  existingIntros: (Schemas["Intro"] | undefined)[],
-) {
+function defaultIntro(duration: number, existingIntros: (Schemas["Intro"] | undefined)[]) {
   let start = 0;
   let end = duration;
   let intros = existingIntros.filter((intro) => intro !== undefined);
@@ -90,19 +87,13 @@ function SecondsInput(props: SecondsInputProps) {
     <NumberField value={rawValue()} class="w-40">
       <NumberFieldLabel>{props.children}</NumberFieldLabel>
       <NumberFieldGroup>
-        <NumberFieldDecrementTrigger
-          onClick={decrement}
-          aria-label="Decrement"
-        />
+        <NumberFieldDecrementTrigger onClick={decrement} aria-label="Decrement" />
         <NumberFieldInput
           onInput={(e) => handleChange(e.currentTarget.value)}
           onBlur={onBlur}
           value={rawValue()}
         />
-        <NumberFieldIncrementTrigger
-          onClick={increment}
-          aria-label="Increment"
-        />
+        <NumberFieldIncrementTrigger onClick={increment} aria-label="Increment" />
       </NumberFieldGroup>
     </NumberField>
   );
@@ -118,9 +109,7 @@ function IntroRow(props: IntroRowProps) {
           when={props.intro}
           fallback={
             <Button
-              onClick={() =>
-                props.onChange(defaultIntro(props.totalDuration, []))
-              }
+              onClick={() => props.onChange(defaultIntro(props.totalDuration, []))}
               class="w-full"
             >
               <FiPlusCircle size={30} />
@@ -130,9 +119,7 @@ function IntroRow(props: IntroRowProps) {
           {(intro) => (
             <>
               <SecondsInput
-                onChange={(v) =>
-                  props.onChange({ start_sec: v, end_sec: intro().end_sec })
-                }
+                onChange={(v) => props.onChange({ start_sec: v, end_sec: intro().end_sec })}
                 value={intro().start_sec}
                 max={intro().end_sec}
                 min={0}
@@ -140,9 +127,7 @@ function IntroRow(props: IntroRowProps) {
                 Start
               </SecondsInput>
               <SecondsInput
-                onChange={(v) =>
-                  props.onChange({ start_sec: intro().start_sec, end_sec: v })
-                }
+                onChange={(v) => props.onChange({ start_sec: intro().start_sec, end_sec: v })}
                 value={intro().end_sec}
                 max={props.totalDuration}
                 min={intro().start_sec}
@@ -180,10 +165,7 @@ function IntroRow(props: IntroRowProps) {
   );
 }
 
-function cmpIntro(
-  lhs: Schemas["Intro"] | undefined,
-  rhs: Schemas["Intro"] | undefined,
-) {
+function cmpIntro(lhs: Schemas["Intro"] | undefined, rhs: Schemas["Intro"] | undefined) {
   if (lhs === undefined && rhs == undefined) {
     return true;
   }
@@ -208,10 +190,7 @@ type Props = {
 
 export function IntrosModal(props: Props) {
   return (
-    <Dialog
-      open={props.open}
-      onOpenChange={(isOpen) => isOpen || props.onClose()}
-    >
+    <Dialog open={props.open} onOpenChange={(isOpen) => isOpen || props.onClose()}>
       <DialogContent class="h-3/4 w-2/3">
         <DialogHeader>
           <DialogTitle>Manage intros</DialogTitle>

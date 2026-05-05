@@ -13,26 +13,17 @@ export type SelectProps<
   T extends ValidComponent = "div",
 > = ComponentProps<typeof SelectPrimitive<Option, OptGroup, T>>;
 
-export const Select = <
-  Option,
-  OptGroup = never,
-  T extends ValidComponent = "div",
->(
+export const Select = <Option, OptGroup = never, T extends ValidComponent = "div">(
   props: SelectProps<Option, OptGroup, T>,
 ) => {
-  const [, rest] = splitProps(props as SelectProps<Option, OptGroup>, [
-    "class",
-  ]);
+  const [, rest] = splitProps(props as SelectProps<Option, OptGroup>, ["class"]);
 
-  return (
-    <SelectPrimitive data-slot="select" class={cx(props.class)} {...rest} />
-  );
+  return <SelectPrimitive data-slot="select" class={cx(props.class)} {...rest} />;
 };
 
-export type SelectValueProps<
-  Options,
-  T extends ValidComponent = "span",
-> = ComponentProps<typeof SelectPrimitive.Value<Options, T>>;
+export type SelectValueProps<Options, T extends ValidComponent = "span"> = ComponentProps<
+  typeof SelectPrimitive.Value<Options, T>
+>;
 
 export const SelectValue = <Options, T extends ValidComponent = "span">(
   props: SelectValueProps<Options, T>,
@@ -40,10 +31,11 @@ export const SelectValue = <Options, T extends ValidComponent = "span">(
   return <SelectPrimitive.Value data-slot="select-value" {...props} />;
 };
 
-export type SelectTriggerProps<T extends ValidComponent = "button"> =
-  ComponentProps<typeof SelectPrimitive.Trigger<T>> & {
-    size?: "sm" | "default";
-  };
+export type SelectTriggerProps<T extends ValidComponent = "button"> = ComponentProps<
+  typeof SelectPrimitive.Trigger<T>
+> & {
+  size?: "sm" | "default";
+};
 
 export const SelectTrigger = <T extends ValidComponent = "button">(
   props: SelectTriggerProps<T>,
@@ -65,11 +57,7 @@ export const SelectTrigger = <T extends ValidComponent = "button">(
       <SelectPrimitive.Icon<ValidComponent>
         class="size-4 opacity-50"
         as={(props) => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            {...props}
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
             <path
               fill="none"
               stroke="currentColor"
@@ -89,9 +77,7 @@ export type SelectContentProps<T extends ValidComponent = "div"> = VoidProps<
   ComponentProps<typeof SelectPrimitive.Content<T>>
 >;
 
-export const SelectContent = <T extends ValidComponent = "div">(
-  props: SelectContentProps<T>,
-) => {
+export const SelectContent = <T extends ValidComponent = "div">(props: SelectContentProps<T>) => {
   const [, rest] = splitProps(props as SelectContentProps, ["class"]);
 
   return (
@@ -113,9 +99,7 @@ export type SelectItemProps<T extends ValidComponent = "li"> = ComponentProps<
   typeof SelectPrimitive.Item<T>
 >;
 
-export const SelectItem = <T extends ValidComponent = "li">(
-  props: SelectItemProps<T>,
-) => {
+export const SelectItem = <T extends ValidComponent = "li">(props: SelectItemProps<T>) => {
   const [, rest] = splitProps(props as SelectItemProps, ["class", "children"]);
 
   return (
@@ -127,17 +111,11 @@ export const SelectItem = <T extends ValidComponent = "li">(
       )}
       {...rest}
     >
-      <SelectPrimitive.ItemLabel>
-        {(props as SelectItemProps).children}
-      </SelectPrimitive.ItemLabel>
+      <SelectPrimitive.ItemLabel>{(props as SelectItemProps).children}</SelectPrimitive.ItemLabel>
       <SelectPrimitive.ItemIndicator<ValidComponent>
         class="size-3.5"
         as={(props) => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            {...props}
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
             <path
               fill="none"
               stroke="currentColor"
@@ -153,12 +131,11 @@ export const SelectItem = <T extends ValidComponent = "li">(
   );
 };
 
-export type SelectSectionProps<T extends ValidComponent = "li"> =
-  ComponentProps<typeof SelectPrimitive.Section<T>>;
+export type SelectSectionProps<T extends ValidComponent = "li"> = ComponentProps<
+  typeof SelectPrimitive.Section<T>
+>;
 
-export const SelectSection = <T extends ValidComponent = "li">(
-  props: SelectSectionProps<T>,
-) => {
+export const SelectSection = <T extends ValidComponent = "li">(props: SelectSectionProps<T>) => {
   const [, rest] = splitProps(props as SelectSectionProps, ["class"]);
 
   return (
@@ -170,8 +147,9 @@ export const SelectSection = <T extends ValidComponent = "li">(
   );
 };
 
-export type SelectDescriptionProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof SelectPrimitive.Description<T>>;
+export type SelectDescriptionProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof SelectPrimitive.Description<T>
+>;
 
 export const SelectDescription = <T extends ValidComponent = "div">(
   props: SelectDescriptionProps<T>,
@@ -181,21 +159,17 @@ export const SelectDescription = <T extends ValidComponent = "div">(
   return (
     <SelectPrimitive.Description
       data-slot="select-description"
-      class={cx(
-        "text-muted-foreground text-sm data-disabled:opacity-50",
-        props.class,
-      )}
+      class={cx("text-muted-foreground text-sm data-disabled:opacity-50", props.class)}
       {...rest}
     />
   );
 };
 
-export type SelectLabelProps<T extends ValidComponent = "label"> =
-  ComponentProps<typeof SelectPrimitive.Label<T>>;
+export type SelectLabelProps<T extends ValidComponent = "label"> = ComponentProps<
+  typeof SelectPrimitive.Label<T>
+>;
 
-export const SelectLabel = <T extends ValidComponent = "label">(
-  props: SelectLabelProps<T>,
-) => {
+export const SelectLabel = <T extends ValidComponent = "label">(props: SelectLabelProps<T>) => {
   const [, rest] = splitProps(props as SelectLabelProps, ["class"]);
 
   return (
@@ -210,8 +184,9 @@ export const SelectLabel = <T extends ValidComponent = "label">(
   );
 };
 
-export type SelectErrorMessageProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof SelectPrimitive.ErrorMessage<T>>;
+export type SelectErrorMessageProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof SelectPrimitive.ErrorMessage<T>
+>;
 
 export const SelectErrorMessage = <T extends ValidComponent = "div">(
   props: SelectErrorMessageProps<T>,
@@ -221,10 +196,7 @@ export const SelectErrorMessage = <T extends ValidComponent = "div">(
   return (
     <SelectPrimitive.ErrorMessage
       data-slot="select-errormessage"
-      class={cx(
-        "text-destructive text-sm data-disabled:opacity-50",
-        props.class,
-      )}
+      class={cx("text-destructive text-sm data-disabled:opacity-50", props.class)}
       {...rest}
     />
   );

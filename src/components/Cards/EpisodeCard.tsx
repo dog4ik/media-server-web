@@ -123,9 +123,7 @@ export function EpisodeCard(props: Props) {
         </Show>
         <Show when={props.episode.runtime}>
           <div class="absolute right-2 bottom-2 flex items-center justify-center bg-black/90 p-1">
-            <span class="text-xs font-semibold">
-              {formatDuration(props.episode.runtime!)}
-            </span>
+            <span class="text-xs font-semibold">{formatDuration(props.episode.runtime!)}</span>
           </div>
         </Show>
         <Show when={props.episode.runtime && props.episode.local?.history}>
@@ -149,9 +147,7 @@ export function EpisodeCard(props: Props) {
               fallback={
                 <MenuRow
                   onClick={() =>
-                    markWatchedVideo(props.video!.id, true).then(() =>
-                      notify("Marked as watched"),
-                    )
+                    markWatchedVideo(props.video!.id, true).then(() => notify("Marked as watched"))
                   }
                 >
                   Mark as watched
@@ -161,8 +157,8 @@ export function EpisodeCard(props: Props) {
               <Show when={!props.episode.local?.history?.is_finished}>
                 <MenuRow
                   onClick={() =>
-                    markWatched(props.episode.local!.history!.id, true).then(
-                      () => notify("Marked as watched"),
+                    markWatched(props.episode.local!.history!.id, true).then(() =>
+                      notify("Marked as watched"),
                     )
                   }
                 >
@@ -171,8 +167,8 @@ export function EpisodeCard(props: Props) {
               </Show>
               <MenuRow
                 onClick={() =>
-                  markWatched(props.episode.local!.history!.id, false).then(
-                    () => notify("Marked as unwatched"),
+                  markWatched(props.episode.local!.history!.id, false).then(() =>
+                    notify("Marked as unwatched"),
                   )
                 }
               >
@@ -182,10 +178,7 @@ export function EpisodeCard(props: Props) {
             <Show when={props.episode.metadata_provider == "local"}>
               <MenuRow
                 onClick={() =>
-                  deleteEpisode(
-                    +props.episode.metadata_id,
-                    props.episode.friendlyTitle(),
-                  )
+                  deleteEpisode(+props.episode.metadata_id, props.episode.friendlyTitle())
                 }
               >
                 Delete episode

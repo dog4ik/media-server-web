@@ -1,26 +1,12 @@
-import {
-  For,
-  Match,
-  ParentProps,
-  Suspense,
-  Switch,
-  createSignal,
-} from "solid-js";
+import { For, Match, ParentProps, Suspense, Switch, createSignal } from "solid-js";
 import SectionSubTitle from "./SectionSubTitle";
 import { SETTINGS, Settings } from "../../utils/settingsDescriptors";
 import { Schemas } from "../../utils/serverApi";
 import { FiAlertTriangle, FiPlusCircle, FiX } from "solid-icons/fi";
 import { FilePicker } from "../FilePicker";
 import FileInput from "../ui/FileInput";
-import {
-  SwitchControl,
-  SwitchThumb,
-  Switch as SwitchToggle,
-} from "@/ui/switch";
-import {
-  SettingsValuesObject,
-  useSettingsContext,
-} from "@/context/SettingsContext";
+import { SwitchControl, SwitchThumb, Switch as SwitchToggle } from "@/ui/switch";
+import { SettingsValuesObject, useSettingsContext } from "@/context/SettingsContext";
 import clsx from "clsx";
 import { TextField, TextFieldInput } from "@/ui/textfield";
 import {
@@ -80,10 +66,7 @@ export function InferredInput<T extends InputPropType>(props: InputProps<T>) {
   }
   if (typeof props.value == "boolean") {
     return (
-      <SwitchToggle
-        onChange={(e) => props.onInput(e as T)}
-        checked={props.value}
-      >
+      <SwitchToggle onChange={(e) => props.onInput(e as T)} checked={props.value}>
         <SwitchControl>
           <SwitchThumb />
         </SwitchControl>
@@ -221,9 +204,7 @@ function FileInputs(props: FileInputsProps) {
 }
 
 export function Setting(props: Props & ParentProps) {
-  let isBool = () =>
-    typeof (props.remote.default_value ?? props.remote.config_value) ===
-    "boolean";
+  let isBool = () => typeof (props.remote.default_value ?? props.remote.config_value) === "boolean";
   return (
     <div class="flex max-w-xl flex-col gap-2 py-4">
       <SectionSubTitle name={props.data.long_name} />
@@ -241,9 +222,7 @@ export function Setting(props: Props & ParentProps) {
           <Alert>
             <FiAlertTriangle size={20} />
             <AlertTitle>Warning</AlertTitle>
-            <AlertDescription>
-              Setting is being overwritten by CLI argument
-            </AlertDescription>
+            <AlertDescription>Setting is being overwritten by CLI argument</AlertDescription>
           </Alert>
         </Match>
         <Match when={props.remote.env_value !== null}>
@@ -264,9 +243,7 @@ type SmartSettingProps<T extends keyof typeof SETTINGS> = {
   setting: T;
 };
 
-export function SmartSetting<T extends keyof typeof SETTINGS>(
-  props: SmartSettingProps<T>,
-) {
+export function SmartSetting<T extends keyof typeof SETTINGS>(props: SmartSettingProps<T>) {
   let setting = SETTINGS[props.setting];
   let { remoteSettings, changedSettings, change } = useSettingsContext();
   if (

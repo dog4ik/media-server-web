@@ -4,9 +4,7 @@ import { Tabs as TabsPrimitive } from "@kobalte/core/tabs";
 
 import { cx } from "cva";
 
-export type TabsProps<T extends ValidComponent = "div"> = ComponentProps<
-  typeof TabsPrimitive<T>
->;
+export type TabsProps<T extends ValidComponent = "div"> = ComponentProps<typeof TabsPrimitive<T>>;
 
 export const Tabs = <T extends ValidComponent = "div">(props: TabsProps<T>) => {
   const [, rest] = splitProps(props as TabsProps, ["class"]);
@@ -14,11 +12,7 @@ export const Tabs = <T extends ValidComponent = "div">(props: TabsProps<T>) => {
   return (
     <TabsPrimitive
       data-slot="tabs"
-      class={cx(
-        "flex flex-col gap-2",
-        "data-[orientation=vertical]:flex-row",
-        props.class,
-      )}
+      class={cx("flex flex-col gap-2", "data-[orientation=vertical]:flex-row", props.class)}
       {...rest}
     />
   );
@@ -28,9 +22,7 @@ export type TabsListProps<T extends ValidComponent = "div"> = ComponentProps<
   typeof TabsPrimitive.List<T>
 >;
 
-export const TabsList = <T extends ValidComponent = "div">(
-  props: TabsListProps<T>,
-) => {
+export const TabsList = <T extends ValidComponent = "div">(props: TabsListProps<T>) => {
   const [, rest] = splitProps(props as TabsListProps, ["class"]);
 
   return (
@@ -46,12 +38,11 @@ export const TabsList = <T extends ValidComponent = "div">(
   );
 };
 
-export type TabsTriggerProps<T extends ValidComponent = "button"> =
-  ComponentProps<typeof TabsPrimitive.Trigger<T>>;
+export type TabsTriggerProps<T extends ValidComponent = "button"> = ComponentProps<
+  typeof TabsPrimitive.Trigger<T>
+>;
 
-export const TabsTrigger = <T extends ValidComponent = "button">(
-  props: TabsTriggerProps<T>,
-) => {
+export const TabsTrigger = <T extends ValidComponent = "button">(props: TabsTriggerProps<T>) => {
   const [, rest] = splitProps(props as TabsTriggerProps, ["class"]);
 
   return (
@@ -70,9 +61,7 @@ export type TabsContentProps<T extends ValidComponent = "div"> = ComponentProps<
   typeof TabsPrimitive.Content<T>
 >;
 
-export const TabsContent = <T extends ValidComponent = "div">(
-  props: TabsContentProps<T>,
-) => {
+export const TabsContent = <T extends ValidComponent = "div">(props: TabsContentProps<T>) => {
   const [, rest] = splitProps(props as TabsContentProps, ["class"]);
 
   return (
@@ -84,12 +73,11 @@ export const TabsContent = <T extends ValidComponent = "div">(
   );
 };
 
-export type TabsIndicatorProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof TabsPrimitive.Indicator<T>>;
+export type TabsIndicatorProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof TabsPrimitive.Indicator<T>
+>;
 
-export const TabsIndicator = <T extends ValidComponent = "div">(
-  props: TabsIndicatorProps<T>,
-) => {
+export const TabsIndicator = <T extends ValidComponent = "div">(props: TabsIndicatorProps<T>) => {
   const [, rest] = splitProps(props as TabsIndicatorProps, ["class"]);
 
   return (

@@ -12,8 +12,9 @@ export const Dialog = (props: DialogProps) => {
   return <DialogPrimitive data-slot="dialog" {...props} />;
 };
 
-export type DialogTriggerProps<T extends ValidComponent = "button"> =
-  ComponentProps<typeof DialogPrimitive.Trigger<T>>;
+export type DialogTriggerProps<T extends ValidComponent = "button"> = ComponentProps<
+  typeof DialogPrimitive.Trigger<T>
+>;
 
 export const DialogTrigger = <T extends ValidComponent = "button">(
   props: DialogTriggerProps<T>,
@@ -21,8 +22,9 @@ export const DialogTrigger = <T extends ValidComponent = "button">(
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
 };
 
-export type DialogCloseButtonProps<T extends ValidComponent = "button"> =
-  ComponentProps<typeof DialogPrimitive.CloseButton<T>>;
+export type DialogCloseButtonProps<T extends ValidComponent = "button"> = ComponentProps<
+  typeof DialogPrimitive.CloseButton<T>
+>;
 
 export const DialogCloseButton = <T extends ValidComponent = "button">(
   props: DialogCloseButtonProps<T>,
@@ -30,14 +32,13 @@ export const DialogCloseButton = <T extends ValidComponent = "button">(
   return <DialogPrimitive.CloseButton data-slot="dialog-close" {...props} />;
 };
 
-export type DialogContentProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof DialogPrimitive.Content<T>> & {
-    showCloseButton?: boolean;
-  };
+export type DialogContentProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof DialogPrimitive.Content<T>
+> & {
+  showCloseButton?: boolean;
+};
 
-export const DialogContent = <T extends ValidComponent = "div">(
-  props: DialogContentProps<T>,
-) => {
+export const DialogContent = <T extends ValidComponent = "div">(props: DialogContentProps<T>) => {
   const merge = mergeProps(
     {
       showCloseButton: true,
@@ -105,10 +106,7 @@ export const DialogFooter = (props: DialogFooterProps) => {
   return (
     <div
       data-slot="dialog-footer"
-      class={cx(
-        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
-        props.class,
-      )}
+      class={cx("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", props.class)}
       {...rest}
     />
   );
@@ -118,9 +116,7 @@ export type DialogTitleProps<T extends ValidComponent = "h2"> = ComponentProps<
   typeof DialogPrimitive.Title<T>
 >;
 
-export const DialogTitle = <T extends ValidComponent = "h2">(
-  props: DialogTitleProps<T>,
-) => {
+export const DialogTitle = <T extends ValidComponent = "h2">(props: DialogTitleProps<T>) => {
   const [, rest] = splitProps(props as DialogTitleProps, ["class"]);
 
   return (
@@ -132,8 +128,9 @@ export const DialogTitle = <T extends ValidComponent = "h2">(
   );
 };
 
-export type DialogDescriptionProps<T extends ValidComponent = "p"> =
-  ComponentProps<typeof DialogPrimitive.Description<T>>;
+export type DialogDescriptionProps<T extends ValidComponent = "p"> = ComponentProps<
+  typeof DialogPrimitive.Description<T>
+>;
 
 export const DialogDescription = <T extends ValidComponent = "p">(
   props: DialogDescriptionProps<T>,

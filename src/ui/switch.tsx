@@ -7,18 +7,15 @@ export type SwitchProps<T extends ValidComponent = "div"> = ComponentProps<
   typeof SwitchPrimitive<T>
 >;
 
-export const Switch = <T extends ValidComponent = "div">(
-  props: SwitchProps<T>,
-) => {
+export const Switch = <T extends ValidComponent = "div">(props: SwitchProps<T>) => {
   return <SwitchPrimitive data-slot="switch" {...props} />;
 };
 
-export type SwitchControlProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof SwitchPrimitive.Control<T>>;
+export type SwitchControlProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof SwitchPrimitive.Control<T>
+>;
 
-export const SwitchControl = <T extends ValidComponent = "div">(
-  props: SwitchControlProps<T>,
-) => {
+export const SwitchControl = <T extends ValidComponent = "div">(props: SwitchControlProps<T>) => {
   const [, rest] = splitProps(props as SwitchControlProps, ["class"]);
 
   return (
@@ -40,9 +37,7 @@ export type SwitchThumbProps<T extends ValidComponent = "div"> = ComponentProps<
   typeof SwitchPrimitive.Thumb<T>
 >;
 
-export const SwitchThumb = <T extends ValidComponent = "div">(
-  props: SwitchThumbProps<T>,
-) => {
+export const SwitchThumb = <T extends ValidComponent = "div">(props: SwitchThumbProps<T>) => {
   const [, rest] = splitProps(props as SwitchThumbProps, ["class"]);
 
   return (
@@ -58,12 +53,11 @@ export const SwitchThumb = <T extends ValidComponent = "div">(
   );
 };
 
-export type SwitchInputProps<T extends ValidComponent = "input"> =
-  ComponentProps<typeof SwitchPrimitive.Input<T>>;
+export type SwitchInputProps<T extends ValidComponent = "input"> = ComponentProps<
+  typeof SwitchPrimitive.Input<T>
+>;
 
-export const SwitchInput = <T extends ValidComponent = "input">(
-  props: SwitchInputProps<T>,
-) => {
+export const SwitchInput = <T extends ValidComponent = "input">(props: SwitchInputProps<T>) => {
   const [, rest] = splitProps(props as SwitchInputProps, ["class"]);
 
   return (
@@ -75,12 +69,11 @@ export const SwitchInput = <T extends ValidComponent = "input">(
   );
 };
 
-export type SwitchLabelProps<T extends ValidComponent = "label"> =
-  ComponentProps<typeof SwitchPrimitive.Label<T>>;
+export type SwitchLabelProps<T extends ValidComponent = "label"> = ComponentProps<
+  typeof SwitchPrimitive.Label<T>
+>;
 
-export const SwitchLabel = <T extends ValidComponent = "label">(
-  props: SwitchLabelProps<T>,
-) => {
+export const SwitchLabel = <T extends ValidComponent = "label">(props: SwitchLabelProps<T>) => {
   const [, rest] = splitProps(props as SwitchLabelProps, ["class"]);
 
   return (
@@ -97,8 +90,9 @@ export const SwitchLabel = <T extends ValidComponent = "label">(
   );
 };
 
-export type SwitchErrorMessageProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof SwitchPrimitive.ErrorMessage<T>>;
+export type SwitchErrorMessageProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof SwitchPrimitive.ErrorMessage<T>
+>;
 
 export const SwitchErrorMessage = <T extends ValidComponent = "div">(
   props: SwitchErrorMessageProps<T>,
@@ -114,8 +108,9 @@ export const SwitchErrorMessage = <T extends ValidComponent = "div">(
   );
 };
 
-export type SwitchDescriptionProps<T extends ValidComponent = "div"> =
-  ComponentProps<typeof SwitchPrimitive.Description<T>>;
+export type SwitchDescriptionProps<T extends ValidComponent = "div"> = ComponentProps<
+  typeof SwitchPrimitive.Description<T>
+>;
 
 export const SwitchDescription = <T extends ValidComponent = "div">(
   props: SwitchDescriptionProps<T>,
