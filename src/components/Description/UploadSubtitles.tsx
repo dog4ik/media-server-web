@@ -9,6 +9,7 @@ import { FiTrash } from "solid-icons/fi";
 import { useNotificationsContext } from "@/context/NotificationContext";
 import { notifyResponseErrors } from "@/utils/errors";
 import { LanguagePicker } from "../Settings/LanguagePicker";
+import { queryClient } from "@/utils/queryApi";
 
 type Props = {
   videoId: number;
@@ -21,7 +22,7 @@ export function UploadSubtitles(props: Props) {
   let [subtitlesServerPath, setSubtitlesServerPath] = createSignal<string>();
   let [language, setLanguage] = createSignal<Schemas["Language"]>();
 
-  let [isDragging, setIsDragging] = createSignal(false);
+  let [isPending, setIsPending] = createSignal(false);
   let [isDraggedOver, setIsDraggedOver] = createSignal(false);
 
   function dragEventFile(e: DragEvent) {
@@ -36,36 +37,48 @@ export function UploadSubtitles(props: Props) {
 
   let handleFileSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (e) => {
     e.preventDefault();
-    let subs = subtitlesFile();
-    if (subs) {
-      tracing.debug({ name: subs.name, language: language() }, "Uploading subtitles file");
-      let formData = new FormData();
-      if (language()) {
-        formData.append("language", language()!);
+    setIsPending(true);
+    try {
+      let subs = subtitlesFile();
+      if (subs) {
+        tracing.debug({ name: subs.name, language: language() }, "Uploading subtitles file");
+        let formData = new FormData();
+        if (language()) {
+          formData.append("language", language()!);
+        }
+        formData.append("subtitles", subs);
+
+        let { error } = await server
+          .POST("/api/video/{id}/upload_subtitles", {
+            // yep
+            body: formData as any,
+            params: { path: { id: props.videoId } },
+          })
+          .then(notifyResponseErrors(addNotification, "upload subtitles file"));
+
+        if (!error) {
+          await queryClient.invalidateQueries({ queryKey: ["get", "/api/video/by_content"] });
+          setSubtitlesFile(undefined);
+          props.onClose();
+        }
+        return;
       }
-      formData.append("subtitles", subs);
+      let path = subtitlesServerPath();
+      if (path) {
+        let { error } = await server
+          .POST("/api/video/{id}/reference_subtitles", {
+            params: { path: { id: props.videoId } },
+            body: { path, language: language() },
+          })
+          .then(notifyResponseErrors(addNotification, "add subtitles"));
 
-      await server
-        .POST("/api/video/{id}/upload_subtitles", {
-          // yep
-          body: formData as any,
-          params: { path: { id: props.videoId } },
-        })
-        .then(notifyResponseErrors(addNotification, "upload subtitles file"));
-
-      setSubtitlesFile(undefined);
-      props.onClose();
-      return;
-    }
-    let path = subtitlesServerPath();
-    if (path) {
-      await server
-        .POST("/api/video/{id}/reference_subtitles", {
-          params: { path: { id: props.videoId } },
-          body: { path, language: language() },
-        })
-        .then(notifyResponseErrors(addNotification, "add subtitles"));
-      props.onClose();
+        if (!error) {
+          await queryClient.invalidateQueries({ queryKey: ["get", "/api/video/by_content"] });
+          props.onClose();
+        }
+      }
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -103,7 +116,6 @@ export function UploadSubtitles(props: Props) {
   };
 
   let dropHandler: JSX.EventHandler<HTMLDivElement, DragEvent> = (e) => {
-    setIsDragging(false);
     setIsDraggedOver(false);
 
     // Prevent file from being opened
@@ -177,35 +189,12 @@ export function UploadSubtitles(props: Props) {
               </div>
             )}
           </Show>
-          <Show when={isDragging()}>
-            <div class="grid w-full items-center gap-4">
-              <div class="flex flex-col space-y-1.5">
-                <div class="relative grid h-20 w-full place-items-center rounded-md border-2 border-dashed">
-                  <div
-                    onDrop={dropHandler}
-                    onDragOver={dragOverHandler}
-                    onDragEnter={dragEnterHandler}
-                    onDragEnd={dragEndHandler}
-                    onDragLeave={dragLeaveHandler}
-                    class="absolute size-full"
-                  ></div>
-                  <div class="pointer-events-none">
-                    <Show fallback={<p>Upload subtitles</p>} when={subtitlesFile()}>
-                      {(file) => (
-                        <p>
-                          {file().name} | {formatSize(file().size)}
-                        </p>
-                      )}
-                    </Show>
-                    <p>{isDraggedOver() ? "over" : "not over"}</p>
-                    <p>{isDragging() ? "dragging" : "not dragging"}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Show>
-          <Button disabled={!subtitlesServerPath() && !subtitlesFile()} type="submit" class="mt-4">
-            Add Subtitles
+          <Button
+            disabled={(!subtitlesServerPath() && !subtitlesFile()) || isPending()}
+            type="submit"
+            class="mt-4"
+          >
+            {isPending() ? "Uploading..." : "Add Subtitles"}
           </Button>
         </form>
       </Show>

@@ -10,7 +10,8 @@ import ChevronDown from "lucide-solid/icons/chevron-down";
 import ChevronRight from "lucide-solid/icons/chevron-right";
 import Plus from "lucide-solid/icons/plus";
 import VideoIcon from "lucide-solid/icons/video";
-import { formatCodec, revalidatePath, Schemas, server } from "@/utils/serverApi";
+import { formatCodec, Schemas, server } from "@/utils/serverApi";
+import { queryClient } from "@/utils/queryApi";
 import { useNotificationsContext } from "@/context/NotificationContext";
 import { notifyResponseErrors } from "@/utils/errors";
 import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
@@ -129,10 +130,11 @@ function Subtitle(props: SubtitleProps) {
   return (
     <div class="flex items-center justify-between rounded-lg border p-3">
       <div class="flex items-center gap-3">
+        <Badge variant="secondary">External</Badge>
         <Badge variant="outline">{props.subtitles.language ?? "Unknown"}</Badge>
-        <Show when={props.subtitles.is_external}>
-          <code class="text-muted-foreground text-sm">{props.subtitles.path}</code>
-        </Show>
+        <code class="text-muted-foreground text-sm">
+          {props.subtitles.is_external ? props.subtitles.path : props.subtitles.file_stem}
+        </code>
       </div>
       <Button
         variant="outline"
@@ -146,21 +148,38 @@ function Subtitle(props: SubtitleProps) {
   );
 }
 
+type ContainerSubtitleProps = {
+  track: Schemas["DetailedSubtitleTrack"];
+  index: number;
+};
+
+function ContainerSubtitle(props: ContainerSubtitleProps) {
+  return (
+    <div class="flex items-center gap-3 rounded-lg border p-3">
+      <Badge variant="secondary">Track {props.index + 1}</Badge>
+      <Badge variant="outline">{props.track.language ?? "Unknown"}</Badge>
+      <code class="text-muted-foreground text-sm">{props.track.codec}</code>
+    </div>
+  );
+}
+
 type SubtitleListProps = {
   items: Schemas["DetailedSubtitlesAsset"][];
+  containerTracks: Schemas["DetailedSubtitleTrack"][];
   onAddButtonClick: () => void;
 };
 
 function SubtitlesList(props: SubtitleListProps) {
   let [, { addNotification }] = useNotificationsContext();
   let [isOpen, setIsOpen] = createSignal(false);
+  let totalCount = () => props.items.length + props.containerTracks.length;
 
   async function deleteSubtitle(id: number) {
     if (await promptConfirm("Remove subtitles? This action is irreversible.")) {
-      server
+      await server
         .DELETE("/api/subtitles/{id}", { params: { path: { id } } })
-        .then(notifyResponseErrors(addNotification, "delete subtitles"))
-        .finally(() => revalidatePath("/api/video/by_content"));
+        .then(notifyResponseErrors(addNotification, "delete subtitles"));
+      await queryClient.invalidateQueries({ queryKey: ["get", "/api/video/by_content"] });
     }
   }
 
@@ -169,7 +188,7 @@ function SubtitlesList(props: SubtitleListProps) {
       <CollapsibleTrigger class="hover:bg-accent hover:text-accent-foreground flex h-auto w-full items-center justify-between rounded-md px-2 py-2">
         <div class="flex items-center gap-2">
           <Subtitles class="h-4 w-4" />
-          <span class="font-medium">Subtitles ({props.items.length})</span>
+          <span class="font-medium">Subtitles ({totalCount()})</span>
         </div>
         <Show fallback={<ChevronRight class="h-4 w-4" />} when={isOpen()}>
           <ChevronDown class="h-4 w-4" />
@@ -177,23 +196,24 @@ function SubtitlesList(props: SubtitleListProps) {
       </CollapsibleTrigger>
       <CollapsibleContent class="mt-3">
         <div class="space-y-2">
-          <For
-            fallback={
-              <div class="text-muted-foreground py-4 text-center">
-                <p class="mb-2">No subtitles available for this video</p>
-                <Button variant="outline" size="sm" onClick={props.onAddButtonClick}>
-                  <Plus class="mr-1 h-4 w-4" />
-                  Add Subtitle
-                </Button>
-              </div>
-            }
-            each={props.items}
-          >
+          <Show when={totalCount() === 0}>
+            <div class="text-muted-foreground py-4 text-center">
+              <p class="mb-2">No subtitles available for this video</p>
+              <Button variant="outline" size="sm" onClick={props.onAddButtonClick}>
+                <Plus class="mr-1 h-4 w-4" />
+                Add Subtitle
+              </Button>
+            </div>
+          </Show>
+          <For each={props.items}>
             {(subtitle) => (
               <Subtitle subtitles={subtitle} onDelete={() => deleteSubtitle(subtitle.id)} />
             )}
           </For>
-          <Show when={props.items.length > 0}>
+          <For each={props.containerTracks}>
+            {(track, index) => <ContainerSubtitle track={track} index={index()} />}
+          </For>
+          <Show when={totalCount() > 0}>
             <Button
               variant="outline"
               size="sm"
@@ -275,12 +295,12 @@ function VariantList(props: VariantListProps) {
 
   async function deleteVariant(id: string) {
     if (await promptConfirm("Remove variant? This action is irreversible.")) {
-      server
+      await server
         .DELETE("/api/video/{id}/variant/{variant_id}", {
           params: { path: { id: props.videoId, variant_id: id } },
         })
-        .then(notifyResponseErrors(addNotification, "delete variant"))
-        .finally(() => revalidatePath("/api/video/by_content"));
+        .then(notifyResponseErrors(addNotification, "delete variant"));
+      await queryClient.invalidateQueries({ queryKey: ["get", "/api/video/by_content"] });
     }
   }
 
@@ -392,6 +412,7 @@ function ListItem(props: ListItemProps) {
           <SubtitlesList
             onAddButtonClick={props.onSubtitlesOpen}
             items={props.video.details.subtitles}
+            containerTracks={props.video.details.subtitle_tracks}
           />
           <Show when={props.video.details.variants.length > 0}>
             <VariantList
