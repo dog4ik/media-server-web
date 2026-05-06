@@ -172,9 +172,6 @@ export function TorrentTable() {
     if ((event.ctrlKey || event.metaKey) && event.key === "a") {
       event.preventDefault(); // prevent default browser select all
 
-      // select all rows
-      let allRowIds = table.getRowModel().rows.map((row) => row.id);
-
       table.toggleAllRowsSelected();
     }
   }
@@ -187,7 +184,7 @@ export function TorrentTable() {
 
   return (
     <>
-      <div class="flex items-center justify-between gap-2">
+      <div class="flex shrink-0 items-center justify-between gap-2">
         <div class="flex items-center gap-2">
           <TextField>
             <TextFieldInput
@@ -343,7 +340,7 @@ export function TorrentTable() {
           </DropdownMenu>
         </div>
       </div>
-      <Table parentClass="flex-1 h-full">
+      <Table parentClass="flex-1 h-full overflow-y-auto">
         <TableHeader>
           <For each={table.getHeaderGroups()}>
             {(headerGroup) => (

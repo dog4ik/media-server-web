@@ -3,6 +3,7 @@ import { splitProps } from "solid-js";
 import { Tabs as TabsPrimitive } from "@kobalte/core/tabs";
 
 import { cx } from "cva";
+import { cn } from "@/lib/cn";
 
 export type TabsProps<T extends ValidComponent = "div"> = ComponentProps<typeof TabsPrimitive<T>>;
 
@@ -48,7 +49,7 @@ export const TabsTrigger = <T extends ValidComponent = "button">(props: TabsTrig
   return (
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
-      class={cx(
+      class={cn(
         "text-foreground dark:text-muted-foreground dark:data-selected:text-foreground peer relative z-10 inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color] focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         props.class,
       )}
@@ -83,7 +84,7 @@ export const TabsIndicator = <T extends ValidComponent = "div">(props: TabsIndic
   return (
     <TabsPrimitive.Indicator
       data-slot="tabs-indicator"
-      class={cx(
+      class={cn(
         "bg-background dark:bg-input/30 dark:border-input peer-focus-visible:border-ring peer-focus-visible:ring-ring/50 peer-focus-visible:outline-ring absolute inset-0 rounded-lg border border-transparent shadow-xs transition-[box-shadow,transform,width,height] duration-200 peer-focus-visible:ring-[3px] peer-focus-visible:outline-1",
         props.class,
       )}
