@@ -119,7 +119,7 @@ export default function Season(props: Props) {
       </Show>
       <div
         class={clsx(
-          "sticky top-0 z-10 flex gap-4 rounded-xl bg-neutral-900/80 p-4 transition-opacity",
+          "sticky top-0 z-10 flex gap-4 rounded-xl bg-card p-4 transition-opacity",
           seasonQuery.isFetching && seasonQuery.isPlaceholderData && "opacity-50",
         )}
       >
