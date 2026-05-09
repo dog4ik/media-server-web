@@ -31,6 +31,7 @@ import Ellipsis from "lucide-solid/icons/ellipsis";
 import { TableColumnHeader } from "./ColumnHeader";
 import { PaginationFooter } from "./TableFooter";
 import { useTorrentContext } from "@/context/TorrentContext";
+import { AddTorrentModal } from "../AddTorrentModal";
 
 export const ICON_SIZE = 15;
 
@@ -233,6 +234,7 @@ export function TorrentTable() {
           </Button>
         </div>
         <div class="flex items-center gap-2">
+          <AddTorrentModal />
           <Select
             onChange={(e) => {
               table
