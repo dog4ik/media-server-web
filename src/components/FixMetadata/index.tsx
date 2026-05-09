@@ -1,11 +1,10 @@
-import { For, Show } from "solid-js";
-import { Schemas, revalidatePath, server } from "../../utils/serverApi";
+import { For, Match, Switch } from "solid-js";
+import { Schemas } from "../../utils/serverApi";
 import useDebounce from "../../utils/useDebounce";
-import { useNotifications } from "../../context/NotificationContext";
 import ProviderLogo from "../ProviderLogo";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/ui/dialog";
 import { TextField, TextFieldInput } from "@/ui/textfield";
-import { SuspenseLoader } from "../Loader";
+import { Skeleton } from "@/ui/skeleton";
 import { queryApi } from "@/utils/queryApi";
 
 type SearchResultProps = {
@@ -41,6 +40,21 @@ function SearchResult(props: SearchResultProps) {
   );
 }
 
+function SearchResultSkeleton() {
+  return (
+    <div class="bg-card w-full overflow-hidden rounded-lg p-4 md:p-6">
+      <div class="grid grid-cols-[120px_1fr] gap-4">
+        <Skeleton class="aspect-poster w-30 rounded-md" />
+        <div class="grid gap-2">
+          <Skeleton class="h-7 w-3/4 rounded" />
+          <Skeleton class="h-10 w-full rounded" />
+          <Skeleton class="h-10 w-10 rounded" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type Props = {
   initialSearch?: string;
   open: boolean;
@@ -50,7 +64,6 @@ type Props = {
 };
 
 export default function FixMetadata(props: Props) {
-  let notificator = useNotifications();
   let [search, deferredSearch, setSearch] = useDebounce(500, props.initialSearch ?? "");
 
   let searchResult = queryApi.useQuery(
@@ -62,9 +75,14 @@ export default function FixMetadata(props: Props) {
     () => ({ enabled: props.open }),
   );
 
+  let filteredResults = () =>
+    searchResult.data?.filter(
+      (s) => s.metadata_provider !== "local" && s.content_type == props.contentType,
+    ) ?? [];
+
   return (
     <Dialog onOpenChange={(isClosed) => isClosed || props.onClose()} open={props.open}>
-      <DialogContent class="flex h-3/4 w-2/3 flex-col">
+      <DialogContent class="grid-rows-[auto_auto_1fr] h-3/4 w-2/3">
         <DialogHeader>
           <DialogTitle>Edit metadata</DialogTitle>
           <DialogDescription>Select correct metadata from the list below</DialogDescription>
@@ -77,22 +95,28 @@ export default function FixMetadata(props: Props) {
             placeholder={props.initialSearch}
           />
         </TextField>
-        <div class="flex-1 overflow-auto">
-          <SuspenseLoader name="Fix metadata search results">
-            <Show
-              when={searchResult.latest()}
-              fallback={
-                <div class="grid size-full place-items-center">
-                  <span class="text-2xl">Nothing found</span>
-                </div>
-              }
-            >
-              {(results) => (
-                <For
-                  each={results().filter(
-                    (s) => s.metadata_provider !== "local" && s.content_type == props.contentType,
-                  )}
-                >
+
+        <div class="overflow-auto">
+          <Switch
+            fallback={
+              <div class="flex flex-col gap-2">
+                <For each={[1, 2, 3]}>{() => <SearchResultSkeleton />}</For>
+              </div>
+            }
+          >
+            <Match when={searchResult.isError}>
+              <div class="grid size-full place-items-center">
+                <span class="text-muted-foreground text-2xl">Search failed</span>
+              </div>
+            </Match>
+            <Match when={searchResult.isSuccess && !searchResult.isFetching && filteredResults().length === 0}>
+              <div class="grid size-full place-items-center">
+                <span class="text-muted-foreground text-2xl">Nothing found</span>
+              </div>
+            </Match>
+            <Match when={searchResult.isSuccess}>
+              <div class="flex flex-col gap-2">
+                <For each={filteredResults()}>
                   {(result) => (
                     <SearchResult
                       metadata={result}
@@ -100,9 +124,9 @@ export default function FixMetadata(props: Props) {
                     />
                   )}
                 </For>
-              )}
-            </Show>
-          </SuspenseLoader>
+              </div>
+            </Match>
+          </Switch>
         </div>
       </DialogContent>
     </Dialog>
