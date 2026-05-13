@@ -157,7 +157,7 @@ export default function ShowPage() {
           </Show>
         </SuspenseLoader>
         <Suspense>
-          <Show when={show.data?.cast}>{(actors) => <ActorSection actors={actors()} />}</Show>
+          <Show when={show.data?.cast?.length}>{<ActorSection actors={show.data!.cast!} />}</Show>
         </Suspense>
       </div>
     </Suspense>

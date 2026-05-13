@@ -257,7 +257,7 @@ export default function Episode() {
         </Match>
       </Switch>
       <Suspense>
-        <Show when={episode.data?.cast}>{(cast) => <ActorSection actors={cast()} />}</Show>
+        <Show when={episode.data?.cast?.length}>{<ActorSection actors={episode.data!.cast!} />}</Show>
       </Suspense>
     </ErrorBoundary>
   );

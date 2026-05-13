@@ -182,7 +182,7 @@ export default function Movie() {
           </Match>
         </Switch>
         <Suspense>
-          <Show when={movie.data?.cast}>{(cast) => <ActorSection actors={cast()} />}</Show>
+          <Show when={movie.data?.cast?.length}>{<ActorSection actors={movie.data!.cast!} />}</Show>
         </Suspense>
       </div>
     </>
