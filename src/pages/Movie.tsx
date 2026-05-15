@@ -115,11 +115,8 @@ export default function Movie() {
                         : undefined
                     }
                     plot={movie().plot}
-                    additionalInfo={
-                      movie().release_date
-                        ? [{ info: movie().release_date!, link: undefined }]
-                        : undefined
-                    }
+                    releaseDate={movie().release_date ?? undefined}
+                    genres={movie().genres ?? undefined}
                     posterList={posterList(movie())}
                     imageDirection="vertical"
                   >

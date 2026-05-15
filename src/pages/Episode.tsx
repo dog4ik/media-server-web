@@ -195,10 +195,8 @@ export default function Episode() {
                     }),
                   },
                   { info: `Episode ${episode().number}`, link: undefined },
-                  episode().release_date
-                    ? { info: episode().release_date!, link: undefined }
-                    : undefined,
-                ].filter((i) => i !== undefined)}
+                ]}
+                releaseDate={episode().release_date ?? undefined}
               >
                 <div class="flex items-center gap-2">
                   <Show

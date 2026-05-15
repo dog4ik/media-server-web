@@ -92,11 +92,8 @@ export default function ShowPage() {
                     posterList={posterList(show())}
                     plot={show().plot}
                     imageDirection="vertical"
-                    additionalInfo={
-                      show().release_date
-                        ? [{ info: show().release_date!, link: undefined }]
-                        : undefined
-                    }
+                    releaseDate={show().release_date ?? undefined}
+                    genres={show().genres ?? undefined}
                   >
                     <div class="flex items-center gap-2">
                       <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>

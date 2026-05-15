@@ -5,6 +5,7 @@ import { WatchProgressBar } from "../Cards/ProgressBar";
 import { Link, LinkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
 import clsx from "clsx";
+import { GenreMap } from "@/lib/genres";
 
 type AdditionalInfo = {
   info: string;
@@ -18,43 +19,43 @@ type Props = {
   plot?: string | null;
   title: string;
   progress?: { history: Schemas["History"]; runtime: number };
+  releaseDate?: string;
+  genres?: Schemas["Genre"][];
   additionalInfo?: AdditionalInfo[];
   imageDirection?: ImageDirection;
 };
 
 function Addition(props: { data: AdditionalInfo[] }) {
   return (
-    <div class="flex items-center gap-2">
-      <For each={props.data}>
-        {(content, i) => {
-          let isLast = i() == props.data.length - 1;
-          return (
-            <Show
-              when={content.link}
-              fallback={
-                <>
-                  <span class="text-sm">{content.info}</span>
-                  <Show when={!isLast}>
-                    <span>·</span>
-                  </Show>
-                </>
-              }
-            >
-              {(href) => (
-                <>
-                  <Link {...href()}>
-                    <span class="text-base hover:underline">{content.info}</span>
-                  </Link>
-                  <Show when={!isLast}>
-                    <span>·</span>
-                  </Show>
-                </>
-              )}
-            </Show>
-          );
-        }}
-      </For>
-    </div>
+    <For each={props.data}>
+      {(content, i) => {
+        let isLast = i() == props.data.length - 1;
+        return (
+          <Show
+            when={content.link}
+            fallback={
+              <>
+                <span class="text-sm">{content.info}</span>
+                <Show when={!isLast}>
+                  <span>·</span>
+                </Show>
+              </>
+            }
+          >
+            {(href) => (
+              <>
+                <Link {...href()}>
+                  <span class="text-base hover:underline">{content.info}</span>
+                </Link>
+                <Show when={!isLast}>
+                  <span>·</span>
+                </Show>
+              </>
+            )}
+          </Show>
+        );
+      }}
+    </For>
   );
 }
 
@@ -82,7 +83,11 @@ export function Description(props: Props & ParentProps) {
         <div class="text-3xl">
           <span>{props.title}</span>
         </div>
-        <Show when={props.additionalInfo}>{(info) => <Addition data={info()} />}</Show>
+        <div class="flex items-center gap-2">
+          <Show when={props.additionalInfo}>{(info) => <Addition data={info()} />}</Show>
+          <Show when={props.releaseDate}>{(date) => <span>{date()}</span>}</Show>
+          <For each={props.genres}>{(genre) => <span>{GenreMap[genre]}</span>}</For>
+        </div>
         <Show when={props.plot && props.plot.length > 0}>
           <p
             title={props.plot ?? undefined}
