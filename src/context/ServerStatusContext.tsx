@@ -5,6 +5,7 @@ import { server } from "../utils/serverApi";
 import { NotificationProps } from "../components/Notification";
 import { extendEpisode, extendMovie, extendShow, fetchSeason, Media, Video } from "@/utils/library";
 import { ServerConnection } from "@/utils/serverStatus";
+import { createStore, produce } from "solid-js/store";
 
 type ServerStatusType = ReturnType<typeof createServerStatusContext>;
 
@@ -43,9 +44,11 @@ export function displayTask(metadata: TaskMetadata): Media {
   throw Error("Unhandled content type");
 }
 
+type NotificationProgressType = Schemas["Notification"]["progress_type"];
+
 function notificationProps(
   content: Media,
-  taskStatus: Schemas["Notification"]["status"]["progress_type"],
+  taskStatus: NotificationProgressType,
   type: Schemas["Notification"]["task_type"],
   undoId?: string,
 ): NotificationProps {
@@ -64,9 +67,6 @@ function notificationProps(
     }
     if (taskStatus == "pending") {
       return "Pending";
-    }
-    if (taskStatus == "pause") {
-      return "Paused";
     }
   };
 
@@ -118,9 +118,22 @@ function notificationProps(
   };
 }
 
+function isTerminal(progress_type: string): boolean {
+  return progress_type === "finish" || progress_type === "cancel" || progress_type === "error";
+}
+
 function createServerStatusContext(notificator: ReturnType<typeof useRawNotifications>) {
   let [isConnecting, setIsConnecting] = createSignal(true);
   let [isErrored, setIsErrored] = createSignal(false);
+
+  let [tasks, setTasks] = createStore<Schemas["TasksSnapshot"]>({
+    intro_detection_tasks: [],
+    library_scan_tasks: [],
+    previews_tasks: [],
+    torrent_tasks: [],
+    transcode_tasks: [],
+    watch_sessions: [],
+  });
 
   function onOpen() {
     for (let cb of wakeSubscribers.values()) {
@@ -161,48 +174,103 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
     return wakeSubscribers.delete(id);
   }
 
-  async function handleVideoProgress(progress: Schemas["Notification"] & { video_id: number }) {
-    let progressType = progress.status.progress_type;
-    if (progressType == "pending") {
-      return;
-    }
-    let video = await Video.fetch(progress.video_id);
-    if (video == undefined) {
-      return;
-    }
+  serverStatus.setConnectedHandler((snapshot) => {
+    setTasks(snapshot);
+  });
 
+  async function notifyVideoTask(
+    videoId: number,
+    progressType: NotificationProgressType,
+    taskType: "transcode" | "previews",
+    activityId: string,
+  ) {
+    let video = await Video.fetch(videoId);
+    if (video == undefined) return;
     let metadata = await video.fetchMetadata().then((d) => d.data);
     if (metadata?.content_type == "movie") {
       let movie = extendMovie(metadata.movie);
-      notificator(
-        notificationProps(
-          movie,
-          progress.status.progress_type,
-          progress.task_type,
-          progress.activity_id,
-        ),
-      );
+      notificator(notificationProps(movie, progressType, taskType, activityId));
     }
     if (metadata?.content_type == "episode") {
       let episode = extendEpisode(metadata.episode, metadata.show.metadata_id);
-      notificator(
-        notificationProps(
-          episode,
-          progress.status.progress_type,
-          progress.task_type,
-          progress.activity_id,
-        ),
-      );
+      notificator(notificationProps(episode, progressType, taskType, activityId));
     }
   }
 
-  serverStatus.addProgressHandler("transcode", handleVideoProgress);
-  serverStatus.addProgressHandler("previews", handleVideoProgress);
-  serverStatus.addProgressHandler("libraryscan", (progress) => {
-    if (progress.status.progress_type == "start") {
-      notificator({ message: "Started library scan" });
+  serverStatus.addProgressHandler("transcode", async (progress) => {
+    if (progress.progress_type === "start") {
+      setTasks(
+        produce((s) => {
+          s.transcode_tasks.push(progress.task);
+        }),
+      );
+      await notifyVideoTask(
+        progress.task.kind.video_id,
+        "start",
+        "transcode",
+        progress.activity_id,
+      );
+      return;
     }
-    if (progress.status.progress_type == "finish") {
+    if (progress.progress_type === "pending") {
+      let idx = tasks.transcode_tasks.findIndex((t) => t.id === progress.activity_id);
+      if (idx !== -1) setTasks("transcode_tasks", idx, "latest_progress", progress.progress);
+      return;
+    }
+    let task = tasks.transcode_tasks.find((t) => t.id === progress.activity_id);
+    if (isTerminal(progress.progress_type)) {
+      if (task) {
+        await notifyVideoTask(
+          task.kind.video_id,
+          progress.progress_type,
+          "transcode",
+          progress.activity_id,
+        );
+      }
+      setTasks("transcode_tasks", (arr) => arr.filter((t) => t.id !== progress.activity_id));
+    }
+  });
+
+  serverStatus.addProgressHandler("previews", async (progress) => {
+    if (progress.progress_type === "start") {
+      setTasks(
+        produce((s) => {
+          s.previews_tasks.push(progress.task);
+        }),
+      );
+      await notifyVideoTask(progress.task.kind.video_id, "start", "previews", progress.activity_id);
+      return;
+    }
+    if (progress.progress_type === "pending") {
+      let idx = tasks.previews_tasks.findIndex((t) => t.id === progress.activity_id);
+      if (idx !== -1) setTasks("previews_tasks", idx, "latest_progress", progress.progress);
+      return;
+    }
+    let task = tasks.previews_tasks.find((t) => t.id === progress.activity_id);
+    if (isTerminal(progress.progress_type)) {
+      if (task) {
+        await notifyVideoTask(
+          task.kind.video_id,
+          progress.progress_type as NotificationProgressType,
+          "previews",
+          progress.activity_id,
+        );
+      }
+      setTasks("previews_tasks", (arr) => arr.filter((t) => t.id !== progress.activity_id));
+    }
+  });
+
+  serverStatus.addProgressHandler("libraryscan", (progress) => {
+    if (progress.progress_type === "start") {
+      setTasks(
+        produce((s) => {
+          s.library_scan_tasks.push(progress.task);
+        }),
+      );
+      notificator({ message: "Started library scan" });
+      return;
+    }
+    if (progress.progress_type === "finish") {
       notificator({ message: "Finished library scan" });
       revalidatePath("/api/local_shows");
       revalidatePath("/api/show/{id}");
@@ -211,25 +279,92 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
       revalidatePath("/api/local_movies");
       revalidatePath("/api/movie/{id}");
     }
+    if (progress.progress_type === "pending") {
+      let idx = tasks.library_scan_tasks.findIndex((t) => t.id === progress.activity_id);
+      if (idx !== -1) setTasks("library_scan_tasks", idx, "latest_progress", progress.progress);
+      return;
+    }
+    if (isTerminal(progress.progress_type)) {
+      setTasks("library_scan_tasks", (arr) => arr.filter((t) => t.id !== progress.activity_id));
+    }
   });
 
   serverStatus.addProgressHandler("introdetection", async (progress) => {
-    if (
-      progress.status.progress_type == "start" ||
-      progress.status.progress_type == "error" ||
-      progress.status.progress_type == "finish"
-    ) {
-      let season = await fetchSeason(progress.show_id.toString(), progress.season, "local");
+    if (progress.progress_type === "start") {
+      setTasks(
+        produce((s) => {
+          s.intro_detection_tasks.push(progress.task);
+        }),
+      );
+      let season = await fetchSeason(
+        progress.task.kind.show_id.toString(),
+        progress.task.kind.season,
+        "local",
+      );
       if (season) {
-        notificator(
-          notificationProps(
-            season,
-            progress.status.progress_type,
-            progress.task_type,
-            progress.activity_id,
-          ),
-        );
+        notificator(notificationProps(season, "start", "introdetection", progress.activity_id));
       }
+      return;
+    }
+    if (progress.progress_type === "pending") {
+      let idx = tasks.intro_detection_tasks.findIndex((t) => t.id === progress.activity_id);
+      if (idx !== -1) setTasks("intro_detection_tasks", idx, "latest_progress", progress.progress);
+      return;
+    }
+    let task = tasks.intro_detection_tasks.find((t) => t.id === progress.activity_id);
+    if (isTerminal(progress.progress_type)) {
+      if (task) {
+        let season = await fetchSeason(task.kind.show_id.toString(), task.kind.season, "local");
+        if (season) {
+          notificator(
+            notificationProps(
+              season,
+              progress.progress_type as NotificationProgressType,
+              "introdetection",
+              progress.activity_id,
+            ),
+          );
+        }
+      }
+      setTasks("intro_detection_tasks", (arr) => arr.filter((t) => t.id !== progress.activity_id));
+    }
+  });
+
+  serverStatus.addProgressHandler("watchsession", (progress) => {
+    if (progress.progress_type === "start") {
+      setTasks(
+        produce((s) => {
+          s.watch_sessions.push(progress.task);
+        }),
+      );
+      return;
+    }
+    if (progress.progress_type === "pending") {
+      let idx = tasks.watch_sessions.findIndex((t) => t.id === progress.activity_id);
+      if (idx !== -1) setTasks("watch_sessions", idx, "latest_progress", progress.progress);
+      return;
+    }
+    if (isTerminal(progress.progress_type)) {
+      setTasks("watch_sessions", (arr) => arr.filter((t) => t.id !== progress.activity_id));
+    }
+  });
+
+  serverStatus.addProgressHandler("torrent", (progress) => {
+    if (progress.progress_type === "start") {
+      setTasks(
+        produce((s) => {
+          s.torrent_tasks.push(progress.task);
+        }),
+      );
+      return;
+    }
+    if (progress.progress_type === "pending") {
+      let idx = tasks.torrent_tasks.findIndex((t) => t.id === progress.activity_id);
+      if (idx !== -1) setTasks("torrent_tasks", idx, "latest_progress", progress.progress);
+      return;
+    }
+    if (isTerminal(progress.progress_type)) {
+      setTasks("torrent_tasks", (arr) => arr.filter((t) => t.id !== progress.activity_id));
     }
   });
 
@@ -238,6 +373,7 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
       isConnecting,
       isErrored,
       serverStatus,
+      tasks,
     },
     { addWakeSubscriber, removeWakeSubscriber },
   ] as const;

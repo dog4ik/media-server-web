@@ -1,4 +1,3 @@
-import { useServerStatus } from "@/context/ServerStatusContext";
 import { Button } from "@/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui/card";
 import { Progress } from "@/ui/progress";
@@ -8,7 +7,6 @@ import { queryApi } from "@/utils/queryApi";
 import { Schemas, server } from "@/utils/serverApi";
 import { Link } from "@tanstack/solid-router";
 import { For, Show } from "solid-js";
-import { createStore } from "solid-js/store";
 
 type RowProps = {
   task: Schemas["Task_WatchTask"];
@@ -20,16 +18,7 @@ function TaskRow(props: RowProps) {
       params: { path: { id: props.task.id } },
     });
   };
-  let progress = () => {
-    let progress = props.task.latest_progress.status;
-    if (progress.progress_type == "pending") {
-      return progress.progress.current_time;
-    }
-    if (progress.progress_type == "start") {
-      return 0;
-    }
-    return 0;
-  };
+  let currentTime = () => props.task.latest_progress?.current_time ?? 0;
 
   let media = queryApi.useQuery(
     "get",
@@ -64,7 +53,7 @@ function TaskRow(props: RowProps) {
         {props.task.kind.client_type} ({props.task.kind.client_agent})
       </TableCell>
       <TableCell>
-        <Progress value={(progress() / props.task.kind.total_duration) * 100} />
+        <Progress value={(currentTime() / props.task.kind.total_duration) * 100} />
       </TableCell>
       <TableCell class="text-right">
         <Button onClick={onCancel} variant="destructive">
@@ -80,18 +69,10 @@ function NoItems() {
 }
 
 type Props = {
-  tasks: Schemas["Task_WatchTask"][];
+  tasks: readonly Schemas["Task_WatchTask"][];
 };
 
 export function WatchSessions(props: Props) {
-  let [{ serverStatus }] = useServerStatus();
-  let [tasks, setTasks] = createStore(props.tasks);
-  serverStatus.addProgressHandler("watchsession", (progress) => {
-    if (progress.status.progress_type == "pending") {
-      let taskIdx = tasks.findIndex((v) => v.id == progress.activity_id);
-      setTasks(taskIdx, "latest_progress", progress);
-    }
-  });
   return (
     <div class="flex-1">
       <Card>
@@ -112,7 +93,7 @@ export function WatchSessions(props: Props) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <For each={tasks}>{(task) => <TaskRow task={task} />}</For>
+                <For each={props.tasks}>{(task) => <TaskRow task={task} />}</For>
               </TableBody>
             </Table>
           </Show>

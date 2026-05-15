@@ -18,20 +18,19 @@ export class ServerConnection {
   private reconnectAttempts = 0;
   private reconnectTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
-  private handlers: [
-    keyof TaskProgressMap,
-    (status: TaskProgressMap[keyof TaskProgressMap]) => void,
-  ][];
+  private handlers: { [T in keyof TaskProgressMap]?: ((progress: TaskProgressMap[T]) => void)[] };
   private torrentHandler:
     | ((v: Schemas["TorrentProgress"] | Schemas["SessionState"]) => void)
     | undefined;
+  private connectedHandler: ((state: Schemas["TasksSnapshot"]) => void) | undefined;
   private allTorrentsPromise: ((torrents: Schemas["SessionState"]) => void) | undefined;
   private ready: Promise<void>;
   private readyRes: () => void;
   private wakeSubscribers: Set<() => void>;
   constructor() {
-    this.handlers = [];
+    this.handlers = {};
     this.torrentHandler = undefined;
+    this.connectedHandler = undefined;
     this.connect();
     this.allTorrentsPromise = undefined;
     let { promise, resolve } = Promise.withResolvers<void>();
@@ -93,9 +92,11 @@ export class ServerConnection {
   private onMessage(msg: MessageEvent<any>) {
     let event: Schemas["WsMessage"] = JSON.parse(msg.data);
     if (event.type == "progress") {
-      for (let [eventType, handler] of this.handlers) {
-        if (eventType == event.progress.task_type) {
-          handler(event.progress);
+      const { task_type } = event.progress;
+      let handlers = this.handlers[task_type];
+      if (handlers) {
+        for (let handler of handlers) {
+          (handler as (progress: EventType) => void)(event.progress);
         }
       }
       return;
@@ -120,6 +121,9 @@ export class ServerConnection {
     }
     if (event.type == "connected") {
       tracing.info("Successfuly received connect event from the server");
+      if (this.connectedHandler) {
+        this.connectedHandler(event.state);
+      }
     }
   }
 
@@ -171,21 +175,29 @@ export class ServerConnection {
     handler: (progress: TaskProgressMap[T]) => void,
   ) {
     tracing.trace(`Adding progress handler for ${eventType}`);
-    this.handlers.push([eventType, handler as any]);
-    onCleanup(() => this.removeProgressHandler(handler));
+    if (!this.handlers[eventType]) {
+      this.handlers[eventType] = [];
+    }
+    this.handlers[eventType]!.push(handler);
+    onCleanup(() => this.removeProgressHandler(eventType, handler));
   }
 
   removeProgressHandler<T extends keyof TaskProgressMap>(
+    eventType: T,
     handler: (progress: TaskProgressMap[T]) => void,
   ) {
-    let idx = this.handlers.findIndex(([_, h]) => h == handler);
+    let handlers = this.handlers[eventType];
+    if (!handlers) {
+      tracing.warn("Event handler not found");
+      return;
+    }
+    let idx = handlers.indexOf(handler as any);
     if (idx === -1) {
       tracing.warn("Event handler not found");
       return;
     }
-    tracing.trace(`Removing event listener for ${this.handlers[idx][0]}`);
-    this.handlers.splice(idx, 1);
-    this.handlers = this.handlers.filter(([_, h]) => h != handler);
+    tracing.trace(`Removing event listener for ${eventType}`);
+    handlers.splice(idx, 1);
   }
 
   setTorrentHandler(
@@ -196,6 +208,10 @@ export class ServerConnection {
 
   removeTorrentHandler() {
     this.torrentHandler = undefined;
+  }
+
+  setConnectedHandler(handler: (state: Schemas["TasksSnapshot"]) => void) {
+    this.connectedHandler = handler;
   }
 
   addWaker(callback: () => void) {

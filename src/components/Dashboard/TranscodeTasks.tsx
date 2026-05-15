@@ -1,4 +1,3 @@
-import { useServerStatus } from "@/context/ServerStatusContext";
 import { Button } from "@/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui/card";
 import { Progress } from "@/ui/progress";
@@ -9,7 +8,6 @@ import { queryApi } from "@/utils/queryApi";
 import { Schemas, server } from "@/utils/serverApi";
 import { Link } from "@tanstack/solid-router";
 import { For, Show } from "solid-js";
-import { createStore } from "solid-js/store";
 
 type RowProps = {
   task: Schemas["Task_TranscodeJob"];
@@ -21,19 +19,7 @@ function TaskRow(props: RowProps) {
       params: { path: { id: props.task.id } },
     });
   };
-  let progress = () => {
-    let progress = props.task.latest_progress.status;
-    if (progress.progress_type == "pending") {
-      return progress.progress;
-    }
-    if (progress.progress_type == "start") {
-      return { percent: 0, relative_speed: 0 };
-    }
-    return {
-      percent: 100,
-      relative_speed: 100,
-    };
-  };
+  let progress = () => props.task.latest_progress ?? { percent: 0, relative_speed: 0 };
 
   let media = queryApi.useQuery(
     "get",
@@ -86,18 +72,10 @@ function NoItems() {
 }
 
 type Props = {
-  tasks: Schemas["Task_TranscodeJob"][];
+  tasks: readonly Schemas["Task_TranscodeJob"][];
 };
 
 export function TranscodeTasks(props: Props) {
-  let [{ serverStatus }] = useServerStatus();
-  let [tasks, setTasks] = createStore(props.tasks);
-  serverStatus.addProgressHandler("transcode", (progress) => {
-    if (progress.status.progress_type == "pending") {
-      let taskIdx = tasks.findIndex((v) => v.id == progress.activity_id);
-      setTasks(taskIdx, "latest_progress", progress);
-    }
-  });
   return (
     <div class="flex-1">
       <Card>
@@ -120,7 +98,7 @@ export function TranscodeTasks(props: Props) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <For each={tasks}>{(task) => <TaskRow task={task} />}</For>
+                <For each={props.tasks}>{(task) => <TaskRow task={task} />}</For>
               </TableBody>
             </Table>
           </Show>
