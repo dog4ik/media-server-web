@@ -99,13 +99,13 @@ export default function Season(props: Props) {
               <DownloadTorrentModal
                 open={downloadModal()}
                 onClose={() => setDownloadModal(false)}
-                metadata_id={season().metadata_id}
-                metadata_provider={season().metadata_provider}
+                metadata_id={season().provider_id}
+                metadata_provider={season().provider}
                 query={props.initialTorrentQuery}
                 content_type="show"
               />
             </Suspense>
-            <Show when={season().metadata_provider == "local"}>
+            <Show when={season().provider == "local"}>
               <IntrosModal
                 open={introsModal()}
                 onClose={setIntrosModal}
@@ -150,7 +150,7 @@ export default function Season(props: Props) {
               <Icon tooltip="Manage intros" onClick={() => setIntrosModal(true)}>
                 <FiSkipForward size={30} />
               </Icon>
-              <Show when={season().metadata_provider == "local"}>
+              <Show when={season().provider == "local"}>
                 <Icon
                   tooltip={
                     props.canDetectIntros
@@ -198,7 +198,7 @@ export default function Season(props: Props) {
                     season: ep.season_number.toString(),
                     episode: ep.number.toString(),
                   },
-                  search: { provider: ep.metadata_provider },
+                  search: { provider: ep.provider },
                 })}
                 onFixMetadata={() => null}
                 onOptimize={() => null}

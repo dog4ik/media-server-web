@@ -62,16 +62,16 @@ async function deleteEpisode(id: number, title: string) {
   }
 }
 
-async function markWatchedVideo(videoId: number, force: boolean) {
+async function markWatchedVideo(metadataId: number, force: boolean) {
   try {
     if (force) {
-      await server.PUT("/api/video/{id}/history", {
+      await server.PUT("/api/metadata/{id}/history", {
         body: { is_finished: true, time: 0 },
-        params: { path: { id: videoId } },
+        params: { path: { id: metadataId } },
       });
     } else {
-      await server.DELETE("/api/video/{id}/history", {
-        params: { path: { id: videoId } },
+      await server.DELETE("/api/metadata/{id}/history", {
+        params: { path: { id: metadataId } },
       });
     }
   } catch (_) {
@@ -103,11 +103,7 @@ export function EpisodeCard(props: Props) {
           )}
         </Show>
         <Show
-          when={
-            props.episode.local?.id &&
-            props.localShowId &&
-            props.episode.metadata_provider !== "local"
-          }
+          when={props.episode.local?.id && props.localShowId && props.episode.provider !== "local"}
         >
           <InLibaryIcon
             link={linkOptions({
@@ -140,14 +136,16 @@ export function EpisodeCard(props: Props) {
           </span>
           <span class="pt-1 text-sm">Episode {props.episode.number}</span>
         </Link>
-        <Show when={props.video || props.episode.metadata_provider === "local"}>
+        <Show when={props.video || props.episode.provider === "local"}>
           <MoreButton>
             <Show
               when={props.episode.local?.history}
               fallback={
                 <MenuRow
                   onClick={() =>
-                    markWatchedVideo(props.video!.id, true).then(() => notify("Marked as watched"))
+                    markWatchedVideo(+props.episode.local?.metadata_id!, true).then(() =>
+                      notify("Marked as watched"),
+                    )
                   }
                 >
                   Mark as watched
@@ -175,10 +173,10 @@ export function EpisodeCard(props: Props) {
                 Mark as unwatched
               </MenuRow>
             </Show>
-            <Show when={props.episode.metadata_provider == "local"}>
+            <Show when={props.episode.provider == "local"}>
               <MenuRow
                 onClick={() =>
-                  deleteEpisode(+props.episode.metadata_id, props.episode.friendlyTitle())
+                  deleteEpisode(+props.episode.provider_id, props.episode.friendlyTitle())
                 }
               >
                 Delete episode

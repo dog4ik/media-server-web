@@ -16,16 +16,16 @@ export const useServerStatus = () => useContext(ServerStatusContext)!;
 export type TaskMetadata =
   | {
       content_type: "show";
-      metadata: Schemas["ShowMetadata"];
+      metadata: Schemas["Show"];
     }
   | {
       content_type: "movie";
-      metadata: Schemas["MovieMetadata"];
+      metadata: Schemas["Movie"];
     }
   | {
       content_type: "episode";
-      showMetadata: Schemas["ShowMetadata"];
-      metadata: Schemas["EpisodeMetadata"];
+      show: Schemas["Show"];
+      metadata: Schemas["Episode"];
     };
 
 export function displayTask(metadata: TaskMetadata): Media {
@@ -33,8 +33,8 @@ export function displayTask(metadata: TaskMetadata): Media {
     return extendShow(metadata.metadata);
   }
   if (metadata.content_type == "episode") {
-    let episode = extendEpisode(metadata.metadata, metadata.showMetadata.metadata_id);
-    let show = extendShow(metadata.showMetadata);
+    let episode = extendEpisode(metadata.metadata, metadata.show.provider_id);
+    let show = extendShow(metadata.show);
     episode.poster = show.poster;
     return episode;
   }
@@ -192,7 +192,7 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
       notificator(notificationProps(movie, progressType, taskType, activityId));
     }
     if (metadata?.content_type == "episode") {
-      let episode = extendEpisode(metadata.episode, metadata.show.metadata_id);
+      let episode = extendEpisode(metadata.episode, metadata.show.provider_id);
       notificator(notificationProps(episode, progressType, taskType, activityId));
     }
   }

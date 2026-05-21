@@ -106,7 +106,7 @@ type VariantProps = {
 function VideoTranscodedVariants(props: VariantProps) {
   let url = () => {
     if (props.content.content_type === "episode") {
-      let episode = extendEpisode(props.content.episode, props.content.show.metadata_id);
+      let episode = extendEpisode(props.content.episode, props.content.show.provider_id);
       return episode.url();
     } else {
       return props.content.url();

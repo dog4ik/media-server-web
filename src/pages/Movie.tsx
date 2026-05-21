@@ -36,9 +36,9 @@ export default function Movie() {
   createEffect(() => {
     if (movie.data) {
       let localImage =
-        movie.data?.metadata_provider == "local"
+        movie.data?.provider == "local"
           ? fullUrl("/api/movie/{id}/backdrop", {
-              path: { id: +movie.data!.metadata_id },
+              path: { id: +movie.data!.provider_id },
             })
           : undefined;
       setBackdrop([localImage, movie.data!.backdrop ?? undefined]);
@@ -52,13 +52,13 @@ export default function Movie() {
       params: {
         query: {
           content_type: "movie",
-          id: +(movie.latest()?.metadata_id || "0"),
+          id: +(movie.latest()?.provider_id || "0"),
         },
       },
     }),
     () => ({
       select: (videos) => videos.map((v) => new Video(v)),
-      enabled: movie.latest()?.metadata_provider == "local",
+      enabled: movie.latest()?.provider == "local",
     }),
   );
 
@@ -95,7 +95,7 @@ export default function Movie() {
             <>
               <DownloadTorrentModal
                 open={downloadModal()}
-                metadata_id={movie().metadata_id}
+                metadata_id={movie().provider_id}
                 onClose={() => setDownloadModal(false)}
                 metadata_provider={search().provider}
                 query={(p) => torrentQuery.MOVIE_FORMATTER[p](movie())}

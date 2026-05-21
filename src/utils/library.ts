@@ -12,7 +12,7 @@ export function defaultTrack<T extends { is_default: boolean }>(tracks: T[]) {
 
 export function posterList(media: Media) {
   let list: string[] = [];
-  if (media.metadata_provider === "local") {
+  if (media.provider === "local") {
     let localPoster = media.localPoster();
     list.push(localPoster);
   }
@@ -23,9 +23,12 @@ export function posterList(media: Media) {
 }
 
 export interface Media {
-  metadata_id: string;
-  metadata_provider: Schemas["MetadataProvider"];
+  provider_id: string;
+  provider: Schemas["MetadataProvider"];
   poster?: string;
+  local?: {
+    metadata_id: number;
+  } | null;
   url(): LinkOptions;
   localPoster(): string;
   friendlyTitle(): string;
@@ -55,25 +58,25 @@ export function extendMovie(movie: Schemas["Movie"]): ExtendedMovie {
     ...movie,
 
     async delete() {
-      if (this.metadata_provider != "local") return;
+      if (this.provider != "local") return;
       return await server
         .DELETE("/api/local_movie/{id}", {
-          params: { path: { id: +this.metadata_id } },
+          params: { path: { id: +this.provider_id } },
         })
         .then((r) => r.error);
     },
 
     localPoster() {
       return fullUrl("/api/movie/{id}/poster", {
-        path: { id: +this.metadata_id },
+        path: { id: +this.provider_id },
       });
     },
 
     url() {
       return linkOptions({
         to: "/movies/$id",
-        params: { id: this.metadata_id },
-        search: { provider: this.metadata_provider },
+        params: { id: this.provider_id },
+        search: { provider: this.provider },
       });
     },
 
@@ -82,10 +85,10 @@ export function extendMovie(movie: Schemas["Movie"]): ExtendedMovie {
     },
 
     async fetchVideos() {
-      if (this.metadata_provider == "local") {
+      if (this.provider == "local") {
         let metadata = await server
           .GET("/api/video/by_content", {
-            params: { query: { content_type: "movie", id: +this.metadata_id } },
+            params: { query: { content_type: "movie", id: +this.provider_id } },
           })
           .then((res) => (res.data ? res.data.map((v) => new Video(v)) : undefined));
         return metadata;
@@ -114,25 +117,25 @@ export function extendShow(show: Schemas["Show"]): ExtendedShow {
     ...show,
 
     async delete() {
-      if (this.metadata_provider != "local") return;
+      if (this.provider != "local") return;
       return await server
         .DELETE("/api/local_show/{id}", {
-          params: { path: { id: +this.metadata_id } },
+          params: { path: { id: +this.provider_id } },
         })
         .then((r) => r.error);
     },
 
     localPoster() {
       return fullUrl("/api/show/{id}/poster", {
-        path: { id: +this.metadata_id },
+        path: { id: +this.provider_id },
       });
     },
 
     url() {
       return linkOptions({
         to: "/shows/$id",
-        params: { id: this.metadata_id },
-        search: { provider: this.metadata_provider },
+        params: { id: this.provider_id },
+        search: { provider: this.provider },
       });
     },
 
@@ -172,32 +175,34 @@ export async function fetchSeason(
 export function extendSeason(season: Schemas["Season"], showId: string): ExtendedSeason {
   return {
     ...season,
+    provider_id: season.metadata_id,
+    provider: season.metadata_provider,
     extended_episodes: season.episodes.map((episode) => extendEpisode(episode, showId)),
 
     async delete() {
-      if (this.metadata_provider != "local") return;
+      if (this.provider != "local") return;
       return await server
         .DELETE("/api/local_season/{id}", {
-          params: { path: { id: +this.metadata_id } },
+          params: { path: { id: +this.provider_id } },
         })
         .then((r) => r.error);
     },
 
     async fetchEpisode(number: number) {
-      return await fetchEpisode(showId, season.number, number, this.metadata_provider);
+      return await fetchEpisode(showId, season.number, number, this.provider);
     },
 
     localPoster() {
       return fullUrl("/api/season/{id}/poster", {
-        path: { id: +this.metadata_id },
+        path: { id: +this.provider_id },
       });
     },
 
     url() {
       return linkOptions({
         to: "/shows/$id",
-        params: { id: this.metadata_id },
-        search: { provider: this.metadata_provider, season: this.number },
+        params: { id: this.provider_id },
+        search: { provider: this.provider, season: this.number },
       });
     },
 
@@ -247,17 +252,17 @@ export function extendEpisode(episode: Schemas["Episode"], showId: string): Exte
     ...episode,
 
     async delete() {
-      if (this.metadata_provider != "local") return;
+      if (this.provider != "local") return;
       return await server
         .DELETE("/api/local_episode/{id}", {
-          params: { path: { id: +this.metadata_id } },
+          params: { path: { id: +this.provider_id } },
         })
         .then((r) => r.error);
     },
 
     localPoster() {
       return fullUrl("/api/episode/{id}/poster", {
-        path: { id: +this.metadata_id },
+        path: { id: +this.provider_id },
       });
     },
 
@@ -269,7 +274,7 @@ export function extendEpisode(episode: Schemas["Episode"], showId: string): Exte
           season: this.season_number.toString(),
           episode: this.number.toString(),
         },
-        search: { provider: this.metadata_provider },
+        search: { provider: this.provider },
       });
     },
 
@@ -279,7 +284,7 @@ export function extendEpisode(episode: Schemas["Episode"], showId: string): Exte
         params: {
           id: showId,
         },
-        search: { provider: this.metadata_provider },
+        search: { provider: this.provider },
       });
     },
 
@@ -290,7 +295,7 @@ export function extendEpisode(episode: Schemas["Episode"], showId: string): Exte
           id: showId,
         },
         search: {
-          provider: this.metadata_provider,
+          provider: this.provider,
           season: this.season_number,
         },
       });
@@ -301,10 +306,10 @@ export function extendEpisode(episode: Schemas["Episode"], showId: string): Exte
     },
 
     async fetchVideos() {
-      if (this.metadata_provider == "local") {
+      if (this.provider == "local") {
         let metadata = await server
           .GET("/api/video/by_content", {
-            params: { query: { content_type: "show", id: +this.metadata_id } },
+            params: { query: { content_type: "show", id: +this.provider_id } },
           })
           .then((res) => (res.data ? res.data.map((v) => new Video(v)) : undefined));
         return metadata;
@@ -353,12 +358,9 @@ export function extendVideoContent(content: Schemas["VideoContentMetadata"]): Ex
     ...content,
     content:
       content.content_type == "movie" ? extendMovie(content.movie) : extendShow(content.show),
-    metadata_id:
-      content.content_type == "movie" ? content.movie.metadata_id : content.show.metadata_id,
-    metadata_provider:
-      content.content_type == "movie"
-        ? content.movie.metadata_provider
-        : content.show.metadata_provider,
+    provider_id:
+      content.content_type == "movie" ? content.movie.provider_id : content.show.provider_id,
+    provider: content.content_type == "movie" ? content.movie.provider : content.show.provider,
     url(): LinkOptions {
       return this.content.url();
     },
@@ -407,7 +409,7 @@ export class Content<T extends Media> {
   }
 
   isLocal() {
-    return this.inner.metadata_provider == "local";
+    return this.inner.provider == "local";
   }
 
   url() {

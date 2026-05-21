@@ -13,7 +13,7 @@ function sanitizeTpbTitle(title: string) {
 
 export const EPISODE_FORMATTER: Record<
   Provider,
-  (show: Schemas["ShowMetadata"], episode: Schemas["EpisodeMetadata"]) => string
+  (show: Schemas["Show"], episode: Schemas["Episode"]) => string
 > = {
   tpb: (show, episode) =>
     `${sanitizeTpbTitle(show.title)} S${formatSE(episode.season_number)}E${formatSE(episode.number)}`,
@@ -23,19 +23,19 @@ export const EPISODE_FORMATTER: Record<
 
 export const SEASON_FORMATTER: Record<
   Provider,
-  (show: Schemas["ShowMetadata"], season: number) => string
+  (show: Schemas["Show"], season: number) => string
 > = {
   tpb: (show, season) => `${sanitizeTpbTitle(show.title)} Season ${season}`,
   rutracker: (show, season) =>
     `${show.locale_metadata?.original_title ?? show.title} Сезон: ${season}`,
 };
 
-export const SHOW_FORMATTER: Record<Provider, (show: Schemas["ShowMetadata"]) => string> = {
+export const SHOW_FORMATTER: Record<Provider, (show: Schemas["Show"]) => string> = {
   tpb: (show) => `${sanitizeTpbTitle(show.title)}`,
   rutracker: (show) => `${show.locale_metadata?.original_title ?? show.title}`,
 };
 
-export const MOVIE_FORMATTER: Record<Provider, (show: Schemas["MovieMetadata"]) => string> = {
+export const MOVIE_FORMATTER: Record<Provider, (show: Schemas["Movie"]) => string> = {
   tpb: (show) => `${sanitizeTpbTitle(show.title)}`,
   rutracker: (show) => `${show.locale_metadata?.original_title ?? show.title}`,
 };

@@ -1944,10 +1944,10 @@ export type components = {
                 genres?: components["schemas"]["Genre"][] | null;
                 local?: null | components["schemas"]["LocalMovieData"];
                 locale_metadata?: null | components["schemas"]["LocaleMetadata"];
-                metadata_id: string;
-                metadata_provider: components["schemas"]["MetadataProvider"];
                 plot?: string | null;
                 poster?: string | null;
+                provider: components["schemas"]["MetadataProvider"];
+                provider_id: string;
                 release_date?: string | null;
                 runtime?: null | components["schemas"]["MediaDuration"];
                 title: string;
@@ -1963,10 +1963,10 @@ export type components = {
                 genres?: components["schemas"]["Genre"][] | null;
                 local?: null | components["schemas"]["LocalShowData"];
                 locale_metadata?: null | components["schemas"]["LocaleMetadata"];
-                metadata_id: string;
-                metadata_provider: components["schemas"]["MetadataProvider"];
                 plot?: string | null;
                 poster?: string | null;
+                provider: components["schemas"]["MetadataProvider"];
+                provider_id: string;
                 release_date?: string | null;
                 /** @description Array of available season numbers */
                 seasons?: number[] | null;
@@ -2103,11 +2103,11 @@ export type components = {
         Episode: {
             cast?: components["schemas"]["Actor"][] | null;
             local?: null | components["schemas"]["LocalEpisodeData"];
-            metadata_id: string;
-            metadata_provider: components["schemas"]["MetadataProvider"];
             number: number;
             plot?: string | null;
             poster?: string | null;
+            provider: components["schemas"]["MetadataProvider"];
+            provider_id: string;
             release_date?: string | null;
             runtime?: null | components["schemas"]["MediaDuration"];
             season_number: number;
@@ -2218,19 +2218,27 @@ export type components = {
             /** Format: int64 */
             id: number;
             intro?: null | components["schemas"]["Intro"];
+            /** Format: int64 */
+            metadata_id: number;
         };
         LocalMovieData: {
             history?: null | components["schemas"]["History"];
             /** Format: int64 */
             id: number;
+            /** Format: int64 */
+            metadata_id: number;
         };
         LocalSeasonData: {
             /** Format: int64 */
             id: number;
+            /** Format: int64 */
+            metadata_id: number;
         };
         LocalShowData: {
             /** Format: int64 */
             id: number;
+            /** Format: int64 */
+            metadata_id: number;
         };
         /** @description Localization specific data */
         LocaleMetadata: {
@@ -2257,10 +2265,10 @@ export type components = {
             genres?: components["schemas"]["Genre"][] | null;
             local?: null | components["schemas"]["LocalMovieData"];
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
-            metadata_id: string;
-            metadata_provider: components["schemas"]["MetadataProvider"];
             plot?: string | null;
             poster?: string | null;
+            provider: components["schemas"]["MetadataProvider"];
+            provider_id: string;
             release_date?: string | null;
             runtime?: null | components["schemas"]["MediaDuration"];
             title: string;
@@ -2595,10 +2603,10 @@ export type components = {
             genres?: components["schemas"]["Genre"][] | null;
             local?: null | components["schemas"]["LocalShowData"];
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
-            metadata_id: string;
-            metadata_provider: components["schemas"]["MetadataProvider"];
             plot?: string | null;
             poster?: string | null;
+            provider: components["schemas"]["MetadataProvider"];
+            provider_id: string;
             release_date?: string | null;
             /** @description Array of available season numbers */
             seasons?: number[] | null;

@@ -28,7 +28,7 @@ export function ContinueWatchingSection() {
                         season: show.episode.season_number.toString(),
                         episode: show.episode.number.toString(),
                       },
-                      search: { provider: show.episode.metadata_provider },
+                      search: { provider: show.episode.provider },
                     })}
                     onDelete={() => null}
                     onOptimize={() => null}
@@ -43,7 +43,7 @@ export function ContinueWatchingSection() {
           <Suspense>
             <For each={movieHistory.data}>
               {(movie) => {
-                return <MovieCard movie={movie.movie} />;
+                return <MovieCard movie={{ ...movie.movie, provider: movie.movie.metadata_provider, provider_id: movie.movie.metadata_id }} />;
               }}
             </For>
           </Suspense>

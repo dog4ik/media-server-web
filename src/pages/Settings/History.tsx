@@ -23,8 +23,8 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
     extendEpisode(
       {
         ...props.entry,
-        metadata_id: props.entry.episode_id.toString(),
-        metadata_provider: "local",
+        provider_id: props.entry.episode_id.toString(),
+        provider: "local",
       },
       props.entry.show_id.toString(),
     ),
@@ -46,7 +46,7 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
       <div class="col-span-3 flex flex-col p-2">
         <Link class="flex items-center gap-4" {...episode().url()}>
           <span class="text-2xl">{episode().title}</span>
-          <span class="text-muted-foreground text-sm">
+          <span title={props.entry.history.update_time} class="text-muted-foreground text-sm">
             {timeAgo(new Date(props.entry.history.update_time))}
           </span>
         </Link>
@@ -87,8 +87,8 @@ function DisplayMovie(props: DisplayMovieProps) {
   let movie = () =>
     extendMovie({
       ...props.entry,
-      metadata_provider: "local",
-      metadata_id: props.entry.movie_id.toString(),
+      provider: "local",
+      provider_id: props.entry.movie_id.toString(),
     });
   return (
     <Card class="py-0">

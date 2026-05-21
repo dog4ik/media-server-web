@@ -43,9 +43,9 @@ export default function ShowPage() {
     console.log("running show backdrop effect");
     if (show.data) {
       let localImage =
-        show.data.metadata_provider == "local"
+        show.data.provider == "local"
           ? fullUrl("/api/show/{id}/backdrop", {
-              path: { id: +show.data.metadata_id! },
+              path: { id: +show.data.provider_id! },
             })
           : undefined;
       setBackdrop([localImage, show.data.backdrop ?? undefined]);
@@ -53,10 +53,10 @@ export default function ShowPage() {
   });
 
   async function detectIntros() {
-    if (show.data?.metadata_provider === "local" && seasonNumber() !== undefined) {
+    if (show.data?.provider === "local" && seasonNumber() !== undefined) {
       await server.POST("/api/show/{show_id}/{season}/detect_intros", {
         params: {
-          path: { season: seasonNumber()!, show_id: +show.data.metadata_id },
+          path: { season: seasonNumber()!, show_id: +show.data.provider_id },
         },
       });
     }
@@ -79,7 +79,7 @@ export default function ShowPage() {
                 <DownloadTorrentModal
                   open={downloadModal()}
                   onClose={() => setDownloadModal(false)}
-                  metadata_id={show().metadata_id}
+                  metadata_id={show().provider_id}
                   metadata_provider={search().provider}
                   query={(p) => torrentQuery.SHOW_FORMATTER[p](show())}
                   content_type="show"
@@ -99,7 +99,7 @@ export default function ShowPage() {
                       <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
                         <FiDownload size={30} />
                       </Icon>
-                      <Show when={show().metadata_provider == "local"}>
+                      <Show when={show().provider == "local"}>
                         <Suspense>
                           <Icon
                             tooltip={

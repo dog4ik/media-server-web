@@ -28,18 +28,18 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
   }
 
   let imageUrl =
-    props.show.metadata_provider == "local"
+    props.show.provider == "local"
       ? fullUrl("/api/show/{id}/poster", {
-          path: { id: +props.show.metadata_id },
+          path: { id: +props.show.provider_id },
         })
       : undefined;
 
   let showLinkOptions = createMemo(() =>
     linkOptions({
       to: "/shows/$id",
-      params: { id: props.show.metadata_id },
+      params: { id: props.show.provider_id },
       search: {
-        provider: props.show.metadata_provider,
+        provider: props.show.provider,
         season: props.show.seasons?.at(0),
       },
     }),
@@ -51,7 +51,7 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
         <FixMetadata
           open={fixModal()}
           contentType="show"
-          targetId={props.show.metadata_id}
+          targetId={props.show.provider_id}
           initialSearch={props.show.title}
           onClose={() => toggleFixModal(false)}
         />
@@ -73,7 +73,7 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
               <span class="text-sm font-semibold text-black">{props.show.episodes_amount}</span>
             </div>
           </Show>
-          <Show when={props.show.local?.id && props.show.metadata_provider !== "local"}>
+          <Show when={props.show.local?.id && props.show.provider !== "local"}>
             <InLibaryIcon
               link={linkOptions({
                 to: "/shows/$id",
@@ -95,10 +95,10 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
               </div>
             </Show>
           </Link>
-          <Show when={props.show.metadata_provider === "local"}>
+          <Show when={props.show.provider === "local"}>
             <MoreButton>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
-              <MenuRow onClick={() => deleteShow(+props.show.metadata_id, props.show.title)}>
+              <MenuRow onClick={() => deleteShow(+props.show.provider_id, props.show.title)}>
                 Delete show
               </MenuRow>
             </MoreButton>

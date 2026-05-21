@@ -36,9 +36,9 @@ type WatchProps = {
   next?: NextVideo;
 } & ParentProps;
 
-function movieMediaSessionMetadata(movie: Schemas["MovieMetadata"]) {
+function movieMediaSessionMetadata(movie: Schemas["Movie"]) {
   let posterUrl = fullUrl("/api/movie/{id}/poster", {
-    path: { id: +movie.metadata_id },
+    path: { id: +movie.provider_id },
   });
   let artwork: NonNullable<MediaMetadataInit["artwork"]> = [];
   let moviePosterSize = "120x180";
@@ -103,7 +103,7 @@ export function WatchMovie() {
             <Link
               to={"/movies/$id"}
               params={{ id: params().id }}
-              search={{ provider: movie.latest()!.metadata_provider }}
+              search={{ provider: movie.latest()!.provider }}
             >
               <span class="text-2xl hover:underline">{movie.latest()!.title}</span>
             </Link>
@@ -116,7 +116,7 @@ export function WatchMovie() {
 
 function showMediaSessionMetadata(episode: ExtendedEpisode, show: ExtendedShow) {
   let posterUrl = fullUrl("/api/episode/{id}/poster", {
-    path: { id: +episode.metadata_id },
+    path: { id: +episode.provider_id },
   });
   let artwork: NonNullable<MediaMetadataInit["artwork"]> = [];
   let episodePosterSize = "342x192";
@@ -180,7 +180,7 @@ export function WatchShow() {
     "/api/video/by_content",
     () => ({
       params: {
-        query: { content_type: "show", id: +episode.latest()?.metadata_id! },
+        query: { content_type: "show", id: +episode.latest()?.provider_id! },
       },
     }),
     () => ({
@@ -324,16 +324,17 @@ function Watch(props: WatchProps) {
   });
 
   function updateHistory(time: number) {
+    if (!props.media) return;
     // convert to ms
     time = time * 1000;
     let totalDuration = video().details.duration;
     if (!totalDuration) return;
     let is_finished = (time / totalDuration) * 100 >= 90;
 
-    server.PUT("/api/video/{id}/history", {
+    server.PUT("/api/metadata/{id}/history", {
       body: { time: Math.floor(time), is_finished },
       params: {
-        path: { id: video().details.id },
+        path: { id: +props.media.local?.metadata_id! },
         query: { id: mediaSession.session?.id },
       },
     });

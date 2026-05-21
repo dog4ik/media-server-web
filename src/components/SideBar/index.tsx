@@ -1,6 +1,7 @@
 import { For } from "solid-js";
 import Version from "./Version";
 import { Link, linkOptions, useRouterState } from "@tanstack/solid-router";
+import { clsx } from "clsx";
 
 const ROUTES = linkOptions([
   {
@@ -54,7 +55,7 @@ export default function SideBar() {
     <div class="hover-hide z-10 flex flex-col items-center justify-between rounded-md p-2">
       <nav class="relative my-auto flex flex-col rounded-md sm:justify-center">
         <div
-          class={`bg-sidebar-primary absolute right-0 left-0 z-10 w-full rounded-md transition-all duration-200`}
+          class={`bg-sidebar-accent absolute right-0 left-0 z-10 w-full rounded-md transition-all duration-200`}
           style={{
             height: `${100 / ROUTES.length}%`,
             top: `${(currentIndex() / ROUTES.length) * 100}%`,
@@ -68,11 +69,12 @@ export default function SideBar() {
             return (
               <Link
                 to={link.to}
-                class={`hover:text-sidebar-accent-foreground z-10 flex-1 rounded-lg bg-transparent px-3 py-2 font-medium ${
+                class={clsx(
+                  "z-10 flex-1 rounded-lg px-3 py-2 font-medium",
                   isActive()
-                    ? "text-sidebar-primary-foreground"
-                    : "text-white hover:text-neutral-200"
-                }`}
+                    ? "text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground/70 hover:text-sidebar-foreground",
+                )}
               >
                 {link.label}
               </Link>

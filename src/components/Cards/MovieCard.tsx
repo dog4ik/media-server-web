@@ -30,17 +30,17 @@ export function MovieCard(props: { movie: Schemas["Movie"] }) {
   }
 
   let localUrl =
-    props.movie.metadata_provider == "local"
+    props.movie.provider == "local"
       ? fullUrl("/api/movie/{id}/poster", {
-          path: { id: +props.movie.metadata_id },
+          path: { id: +props.movie.provider_id },
         })
       : undefined;
 
   let movieLinkOptions = createMemo(() =>
     linkOptions({
       to: "/movies/$id",
-      params: { id: props.movie.metadata_id },
-      search: { provider: props.movie.metadata_provider },
+      params: { id: props.movie.provider_id },
+      search: { provider: props.movie.provider },
     }),
   );
 
@@ -50,7 +50,7 @@ export function MovieCard(props: { movie: Schemas["Movie"] }) {
         <FixMetadata
           open={fixModal()}
           contentType="movie"
-          targetId={props.movie.metadata_id}
+          targetId={props.movie.provider_id}
           initialSearch={props.movie.title}
           onClose={() => toggleFixModal(false)}
         />
@@ -64,7 +64,7 @@ export function MovieCard(props: { movie: Schemas["Movie"] }) {
             width={312}
             height={415}
           />
-          <Show when={props.movie.local?.id && props.movie.metadata_provider !== "local"}>
+          <Show when={props.movie.local?.id && props.movie.provider !== "local"}>
             <InLibaryIcon
               link={linkOptions({
                 to: "/shows/$id",
@@ -78,10 +78,10 @@ export function MovieCard(props: { movie: Schemas["Movie"] }) {
           <Link title={props.movie.title} class="text-md truncate" {...movieLinkOptions()}>
             {props.movie.title}
           </Link>
-          <Show when={props.movie.metadata_provider === "local"}>
+          <Show when={props.movie.provider === "local"}>
             <MoreButton>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
-              <MenuRow onClick={() => deleteMovie(+props.movie.metadata_id, props.movie.title)}>
+              <MenuRow onClick={() => deleteMovie(+props.movie.provider_id, props.movie.title)}>
                 Delete movie
               </MenuRow>
             </MoreButton>

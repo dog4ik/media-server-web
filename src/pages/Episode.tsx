@@ -79,9 +79,9 @@ export default function Episode() {
   createEffect(() => {
     if (show.data) {
       let localImage =
-        show.data.metadata_provider == "local"
+        show.data.provider == "local"
           ? fullUrl("/api/show/{id}/backdrop", {
-              path: { id: +show.data.metadata_id },
+              path: { id: +show.data.provider_id },
             })
           : undefined;
       setBackdrop([localImage, show.data.backdrop ?? undefined]);
@@ -93,12 +93,12 @@ export default function Episode() {
     "/api/video/by_content",
     () => ({
       params: {
-        query: { id: +episode.latest()?.metadata_id!, content_type: "show" },
+        query: { id: +episode.latest()?.provider_id!, content_type: "show" },
       },
     }),
     () => ({
       select: (videos) => videos.map((v) => new Video(v)),
-      enabled: episode.latest()?.metadata_provider == "local",
+      enabled: episode.latest()?.provider == "local",
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
     }),
@@ -142,7 +142,7 @@ export default function Episode() {
         {(_) => (
           <DownloadTorrentModal
             open={torrentModal()}
-            metadata_id={show.latest()!.metadata_id}
+            metadata_id={show.latest()!.provider_id}
             onClose={() => setTorrentModal(false)}
             metadata_provider={search().provider}
             query={(p) => torrentQuery.EPISODE_FORMATTER[p](show.latest()!, episode.latest()!)}

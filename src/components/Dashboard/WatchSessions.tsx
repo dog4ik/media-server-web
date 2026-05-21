@@ -32,7 +32,7 @@ function TaskRow(props: RowProps) {
         }
         if (metadata?.content_type == "episode") {
           let show = extendShow(metadata.show);
-          let episode = extendEpisode(metadata.episode, show.metadata_id);
+          let episode = extendEpisode(metadata.episode, show.provider_id);
           return {
             title: `${show.friendlyTitle()}: ${episode.friendlyTitle()}`,
             url: episode.url(),
