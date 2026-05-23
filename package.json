@@ -27,6 +27,11 @@
     "tailwindcss": "4.2.4",
     "tailwindcss-animate": "1.0.7"
   },
+  "overrides": {
+    "openapi-typescript": {
+      "typescript": "$typescript"
+    }
+  },
   "devDependencies": {
     "@tailwindcss/vite": "4.2.4",
     "@tanstack/router-plugin": "1.167.32",
