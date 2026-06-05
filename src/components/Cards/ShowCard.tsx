@@ -98,7 +98,10 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
           <Show when={props.show.provider === "local"}>
             <MoreButton>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
-              <MenuRow onClick={() => deleteShow(+props.show.provider_id, props.show.title)}>
+              <MenuRow
+                variant="destructive"
+                onClick={() => deleteShow(+props.show.provider_id, props.show.title)}
+              >
                 Delete show
               </MenuRow>
             </MoreButton>

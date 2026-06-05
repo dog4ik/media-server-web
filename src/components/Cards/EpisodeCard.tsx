@@ -183,6 +183,7 @@ export function EpisodeCard(props: Props) {
             </Show>
             <Show when={props.episode.provider == "local"}>
               <MenuRow
+                variant="destructive"
                 onClick={() =>
                   deleteEpisode(+props.episode.provider_id, props.episode.friendlyTitle())
                 }

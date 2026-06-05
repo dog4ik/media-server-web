@@ -1,17 +1,27 @@
-import { FiArrowRight } from "solid-icons/fi";
+import { FiChevronRight } from "solid-icons/fi";
 import { ParentProps } from "solid-js";
+import { cn } from "@/utils/cn";
 
 type RowProps = {
   onClick?: () => void;
+  variant?: "default" | "destructive";
 };
+
+const rowClass =
+  "flex w-full cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors";
 
 export function MenuRow(props: RowProps & ParentProps) {
   return (
     <button
-      class="flex w-full cursor-pointer items-center rounded-md py-1 pl-2 transition-colors hover:bg-accent"
+      class={cn(
+        rowClass,
+        props.variant === "destructive"
+          ? "text-destructive hover:bg-destructive/10 focus-visible:bg-destructive/10"
+          : "hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground",
+      )}
       onClick={props.onClick}
     >
-      <span class="pointer-events-none text-white">{props.children}</span>
+      <span class="pointer-events-none">{props.children}</span>
     </button>
   );
 }
@@ -32,10 +42,13 @@ export function ExpandRow(props: ExpandRowProps & ParentProps) {
       style={`
 anchor-name: --${props.popoverTarget};
 `}
-      class="flex w-full cursor-pointer items-center justify-between rounded-md py-1 pl-2 hover:bg-accent"
+      class={cn(
+        rowClass,
+        "justify-between hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground",
+      )}
     >
-      <span class="pointer-events-none text-white">{props.children}</span>
-      <FiArrowRight size={20} class="stroke-white" />
+      <span class="pointer-events-none">{props.children}</span>
+      <FiChevronRight size={16} class="pointer-events-none text-muted-foreground" />
     </button>
   );
 }

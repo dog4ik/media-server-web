@@ -81,7 +81,10 @@ export function MovieCard(props: { movie: Schemas["Movie"] }) {
           <Show when={props.movie.provider === "local"}>
             <MoreButton>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
-              <MenuRow onClick={() => deleteMovie(+props.movie.provider_id, props.movie.title)}>
+              <MenuRow
+                variant="destructive"
+                onClick={() => deleteMovie(+props.movie.provider_id, props.movie.title)}
+              >
                 Delete movie
               </MenuRow>
             </MoreButton>
