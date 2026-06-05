@@ -119,14 +119,14 @@ export default function Season(props: Props) {
       </Show>
       <div
         class={clsx(
-          "bg-card sticky top-0 z-10 flex h-48 gap-4 rounded-xl p-4 transition-opacity",
+          "bg-card top-navbar sticky z-10 flex h-48 gap-4 rounded-xl p-4 transition-opacity",
           seasonQuery.isFetching && seasonQuery.isPlaceholderData && "opacity-50",
         )}
       >
         <Show when={seasonQuery.latest()} fallback={<SkeletonSeasonBar />}>
           {(season) => (
             <>
-              <div class="aspect-poster max-h-full ">
+              <div class="aspect-poster max-h-full">
                 <FallbackImage
                   alt="Poster image"
                   class="rounded-xl object-cover"

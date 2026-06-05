@@ -1,4 +1,5 @@
-import { ParentProps, Show, createEffect } from "solid-js";
+import { ParentProps, Show, createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { useRouter } from "@tanstack/solid-router";
 import { useBackdropContext } from "../context/BackdropContext";
 import SideBar from "../components/SideBar";
 import NavBar from "../components/NavBar";
@@ -13,15 +14,39 @@ const OPTIONS = {
   easing: "ease-in-out",
 };
 
+const NAVBAR_SCROLL_RANGE = 300;
+
 export default function PageLayout(props: ParentProps) {
+  let container: HTMLDivElement | undefined;
+  let [scrollProgress, setScrollProgress] = createSignal(0);
+  let router = useRouter();
+
+  let updateProgress = () => {
+    if (container) setScrollProgress(Math.min(container.scrollTop / NAVBAR_SCROLL_RANGE, 1));
+  };
+
+  onMount(() => {
+    if (!container) return;
+    container.addEventListener("scroll", updateProgress, { passive: true });
+    // Scroll events don't fire on navigation, so also resync once the new route
+    // is rendered.
+    let unsubscribe = router.subscribe("onRendered", updateProgress);
+    onCleanup(() => {
+      container!.removeEventListener("scroll", updateProgress);
+      unsubscribe();
+    });
+  });
+
   return (
-    <div class="h-screen overflow-y-auto [scrollbar-gutter:stable]">
+    <div ref={container} class="h-screen overflow-y-auto [scrollbar-gutter:stable]">
       <BackdropFilling />
       <aside class="fixed inset-0 flex w-18 items-center">
         <SideBar />
       </aside>
+      <div class="sticky top-0 z-30">
+        <NavBar scrollProgress={scrollProgress()} />
+      </div>
       <div class="pl-32">
-        <NavBar />
         <main class="mx-5 my-3 flex flex-col">{props.children}</main>
       </div>
     </div>

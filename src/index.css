@@ -12,11 +12,9 @@
   aspect-ratio: 2 / 3;
 }
 
-@utility h-navbar {
-  height: 3rem;
-}
-
 @theme {
+  --spacing-navbar: 4rem;
+
   @keyframes accordion-down {
     from {
       height: 0;

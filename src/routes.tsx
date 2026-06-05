@@ -1,4 +1,16 @@
-import { createRootRoute, createRoute, HeadContent, Outlet } from "@tanstack/solid-router";
+import {
+  createRootRouteWithContext,
+  createRoute,
+  HeadContent,
+  linkOptions,
+  Outlet,
+} from "@tanstack/solid-router";
+import {
+  type Crumb,
+  EpisodeTitleCrumb,
+  MovieTitleCrumb,
+  ShowTitleCrumb,
+} from "./components/Breadcrumbs";
 import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
@@ -27,7 +39,11 @@ import { ErrorComponent } from "@/components/Error";
 import { SettingsLayout } from "./layouts/SettingsLayout";
 import { ResourcesPage } from "./pages/Settings/Resources";
 
-const rootRoute = createRootRoute({
+type RouterContext = {
+  crumbs?: Crumb[];
+};
+
+const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: () => (
     <>
       <HeadContent />
@@ -146,6 +162,9 @@ const moviesRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "movies",
   component: Movies,
+  beforeLoad: () => ({
+    crumbs: [{ label: "Movies", link: linkOptions({ to: "/movies" }) }],
+  }),
 });
 
 const movieRoute = createRoute({
@@ -153,12 +172,24 @@ const movieRoute = createRoute({
   path: "movies/$id",
   component: Movie,
   validateSearch: validateProviderParam,
+  beforeLoad: ({ params, search }) => ({
+    crumbs: [
+      { label: "Movies", link: linkOptions({ to: "/movies" }) },
+      {
+        label: () => <MovieTitleCrumb id={params.id} provider={search.provider} />,
+        link: linkOptions({ to: "/movies/$id", params, search }),
+      },
+    ],
+  }),
 });
 
 const showsRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "shows",
   component: Shows,
+  beforeLoad: () => ({
+    crumbs: [{ label: "Shows", link: linkOptions({ to: "/shows" }) }],
+  }),
 });
 
 const showRoute = createRoute({
@@ -166,6 +197,15 @@ const showRoute = createRoute({
   path: "shows/$id",
   component: ShowPage,
   validateSearch: validateSeasonParams,
+  beforeLoad: ({ params, search }) => ({
+    crumbs: [
+      { label: "Shows", link: linkOptions({ to: "/shows" }) },
+      {
+        label: () => <ShowTitleCrumb id={params.id} provider={search.provider} />,
+        link: linkOptions({ to: "/shows/$id", params, search }),
+      },
+    ],
+  }),
   // loader: ({ params, deps }) => {
   //   let showOptions = queryApi.queryOptions("get", "/api/show/{id}", () => ({
   //     params: { path: { id: params.id }, query: { provider: deps.provider } },
@@ -194,6 +234,38 @@ const episodeRoute = createRoute({
   path: "shows/$id/$season/$episode",
   component: Episode,
   validateSearch: validateProviderParam,
+  beforeLoad: ({ params, search }) => ({
+    crumbs: [
+      { label: "Shows", link: linkOptions({ to: "/shows" }) },
+      {
+        label: () => <ShowTitleCrumb id={params.id} provider={search.provider} />,
+        link: linkOptions({
+          to: "/shows/$id",
+          params: { id: params.id },
+          search: { provider: search.provider },
+        }),
+      },
+      {
+        label: `Season ${params.season}`,
+        link: linkOptions({
+          to: "/shows/$id",
+          params: { id: params.id },
+          search: { provider: search.provider, season: +params.season },
+        }),
+      },
+      {
+        label: () => (
+          <EpisodeTitleCrumb
+            id={params.id}
+            season={+params.season}
+            episode={+params.episode}
+            provider={search.provider}
+          />
+        ),
+        link: linkOptions({ to: "/shows/$id/$season/$episode", params, search }),
+      },
+    ],
+  }),
   // loader: ({ params, deps }) => {
   //   let showOptions = queryApi.queryOptions("get", "/api/show/{id}", () => ({
   //     params: { path: { id: params.id }, query: { provider: deps.provider } },
