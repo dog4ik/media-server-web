@@ -116,6 +116,7 @@ export default function SearchBar() {
     <div ref={containerRef} class="relative w-full" onFocusOut={handleFocusOut}>
       <form
         class="relative"
+        autocomplete="off"
         onSubmit={(e) => {
           e.preventDefault();
           handleSubmit();
