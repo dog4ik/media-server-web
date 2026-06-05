@@ -1,6 +1,6 @@
 import SectionTitle from "../../components/Settings/SectionTitle";
 import { server } from "../../utils/serverApi";
-import { queryClient } from "@/utils/queryApi";
+import { queryApi, queryClient } from "@/utils/queryApi";
 import { Setting, SmartSetting } from "../../components/Settings/Setting";
 import { ErrorBoundary, Show } from "solid-js";
 import { useNotifications } from "../../context/NotificationContext";
@@ -25,7 +25,7 @@ function GeneralSettings() {
           if (r.error) notificator("Failed to reset configuration");
         })
         .finally(async () => {
-          await queryClient.invalidateQueries({ queryKey: ["get", "/api/configuration"] });
+          await queryApi.invalidateQueries(queryClient, "get", "/api/configuration");
         });
     }
   }

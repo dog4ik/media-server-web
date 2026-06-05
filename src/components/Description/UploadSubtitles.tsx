@@ -9,7 +9,7 @@ import { FiTrash } from "solid-icons/fi";
 import { useNotificationsContext } from "@/context/NotificationContext";
 import { notifyResponseErrors } from "@/utils/errors";
 import { LanguagePicker } from "../Settings/LanguagePicker";
-import { queryClient } from "@/utils/queryApi";
+import { queryApi, queryClient } from "@/utils/queryApi";
 
 type Props = {
   videoId: number;
@@ -57,7 +57,7 @@ export function UploadSubtitles(props: Props) {
           .then(notifyResponseErrors(addNotification, "upload subtitles file"));
 
         if (!error) {
-          await queryClient.invalidateQueries({ queryKey: ["get", "/api/video/by_content"] });
+          await queryApi.invalidateQueries(queryClient, "get", "/api/video/by_content");
           setSubtitlesFile(undefined);
           props.onClose();
         }
@@ -73,7 +73,7 @@ export function UploadSubtitles(props: Props) {
           .then(notifyResponseErrors(addNotification, "add subtitles"));
 
         if (!error) {
-          await queryClient.invalidateQueries({ queryKey: ["get", "/api/video/by_content"] });
+          await queryApi.invalidateQueries(queryClient, "get", "/api/video/by_content");
           props.onClose();
         }
       }

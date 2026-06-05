@@ -11,7 +11,7 @@ import ChevronRight from "lucide-solid/icons/chevron-right";
 import Plus from "lucide-solid/icons/plus";
 import VideoIcon from "lucide-solid/icons/video";
 import { formatCodec, Schemas, server } from "@/utils/serverApi";
-import { queryClient } from "@/utils/queryApi";
+import { queryApi, queryClient } from "@/utils/queryApi";
 import { useNotificationsContext } from "@/context/NotificationContext";
 import { notifyResponseErrors } from "@/utils/errors";
 import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
@@ -179,7 +179,7 @@ function SubtitlesList(props: SubtitleListProps) {
       await server
         .DELETE("/api/subtitles/{id}", { params: { path: { id } } })
         .then(notifyResponseErrors(addNotification, "delete subtitles"));
-      await queryClient.invalidateQueries({ queryKey: ["get", "/api/video/by_content"] });
+      await queryApi.invalidateQueries(queryClient, "get", "/api/video/by_content");
     }
   }
 
@@ -300,7 +300,7 @@ function VariantList(props: VariantListProps) {
           params: { path: { id: props.videoId, variant_id: id } },
         })
         .then(notifyResponseErrors(addNotification, "delete variant"));
-      await queryClient.invalidateQueries({ queryKey: ["get", "/api/video/by_content"] });
+      await queryApi.invalidateQueries(queryClient, "get", "/api/video/by_content");
     }
   }
 

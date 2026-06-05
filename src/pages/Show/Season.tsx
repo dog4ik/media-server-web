@@ -7,12 +7,12 @@ import DownloadTorrentModal from "@/components/modals/TorrentDownload";
 import Icon from "@/components/ui/Icon";
 import { Skeleton } from "@/ui/skeleton";
 import { extendEpisode, extendSeason, Media, posterList } from "@/utils/library";
-import { queryApi } from "@/utils/queryApi";
+import { queryApi, queryClient } from "@/utils/queryApi";
 import { revalidatePath, Schemas, server } from "@/utils/serverApi";
 import useToggle from "@/utils/useToggle";
 import { getRouteApi, linkOptions } from "@tanstack/solid-router";
 import clsx from "clsx";
-import { FiDownload, FiSkipForward, FiTrash } from "solid-icons/fi";
+import { FiDownload, FiSearch, FiSkipForward, FiTrash } from "solid-icons/fi";
 import { For, Show, Suspense } from "solid-js";
 
 const POSTER_WIDTH = 57;
@@ -119,19 +119,17 @@ export default function Season(props: Props) {
       </Show>
       <div
         class={clsx(
-          "sticky top-0 z-10 flex gap-4 rounded-xl bg-card p-4 transition-opacity",
+          "bg-card sticky top-0 z-10 flex h-48 gap-4 rounded-xl p-4 transition-opacity",
           seasonQuery.isFetching && seasonQuery.isPlaceholderData && "opacity-50",
         )}
       >
         <Show when={seasonQuery.latest()} fallback={<SkeletonSeasonBar />}>
           {(season) => (
             <>
-              <div>
+              <div class="aspect-poster max-h-full ">
                 <FallbackImage
                   alt="Poster image"
-                  class="aspect-poster grow rounded-xl object-cover"
-                  width={57}
-                  height={86}
+                  class="rounded-xl object-cover"
                   srcList={posterList(season())}
                 />
               </div>
@@ -145,10 +143,10 @@ export default function Season(props: Props) {
                 </Show>
               </div>
               <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
-                <FiDownload size={30} />
+                <FiDownload />
               </Icon>
               <Icon tooltip="Manage intros" onClick={() => setIntrosModal(true)}>
-                <FiSkipForward size={30} />
+                <FiSkipForward />
               </Icon>
               <Show when={season().provider == "local"}>
                 <Icon
@@ -160,15 +158,16 @@ export default function Season(props: Props) {
                   disabled={!props.canDetectIntros}
                   onClick={() => detectIntros(+props.showId, season().number)}
                 >
-                  <FiSkipForward size={30} />
+                  <FiSearch />
                 </Icon>
                 <Icon
+                  variant="destructive"
                   tooltip={`Delete season ${season().number}`}
                   onClick={() =>
                     deleteContent(season()).then(() => revalidatePath("/api/show/{id}/{season}"))
                   }
                 >
-                  <FiTrash size={30} />
+                  <FiTrash />
                 </Icon>
               </Show>
             </>
@@ -203,6 +202,9 @@ export default function Season(props: Props) {
                 onFixMetadata={() => null}
                 onOptimize={() => null}
                 onDelete={() => null}
+                onMarkWatched={() =>
+                  queryApi.invalidateQueries(queryClient, "get", "/api/show/{id}/{season}")
+                }
                 video={undefined}
                 episode={ep}
                 localShowId={props.localShowId}

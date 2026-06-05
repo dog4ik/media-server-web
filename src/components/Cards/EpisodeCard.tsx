@@ -20,6 +20,7 @@ type Props = {
   onFixMetadata: () => void;
   onOptimize: () => void;
   onDelete: () => void;
+  onMarkWatched?: () => void;
 };
 
 function revalidateHistory() {
@@ -85,6 +86,13 @@ export function EpisodeCard(props: Props) {
 
   let notify = (message: string) => notificator(props.episode, message);
 
+  // Fire after the episode's watch status changes (watched/unwatched) so the parent
+  // can refresh any queries that embed this episode's progress (e.g. the season list).
+  let onWatchStatusChange = (message: string) => {
+    notify(message);
+    props.onMarkWatched?.();
+  };
+
   return (
     <div class="flex w-80 cursor-pointer flex-col">
       <Link class="relative w-full overflow-hidden rounded-xl" {...props.link}>
@@ -144,7 +152,7 @@ export function EpisodeCard(props: Props) {
                 <MenuRow
                   onClick={() =>
                     markWatchedVideo(+props.episode.local?.metadata_id!, true).then(() =>
-                      notify("Marked as watched"),
+                      onWatchStatusChange("Marked as watched"),
                     )
                   }
                 >
@@ -156,7 +164,7 @@ export function EpisodeCard(props: Props) {
                 <MenuRow
                   onClick={() =>
                     markWatched(props.episode.local!.history!.id, true).then(() =>
-                      notify("Marked as watched"),
+                      onWatchStatusChange("Marked as watched"),
                     )
                   }
                 >
@@ -166,7 +174,7 @@ export function EpisodeCard(props: Props) {
               <MenuRow
                 onClick={() =>
                   markWatched(props.episode.local!.history!.id, false).then(() =>
-                    notify("Marked as unwatched"),
+                    onWatchStatusChange("Marked as unwatched"),
                   )
                 }
               >
