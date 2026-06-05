@@ -203,14 +203,14 @@ export default function Episode() {
                     when={video()}
                     fallback={
                       <Icon tooltip="Download" onClick={() => setTorrentModal(true)}>
-                        <FiDownload size={30} />
+                        <FiDownload />
                       </Icon>
                     }
                   >
                     {(video) => (
                       <VideoActions video={video()} watchUrl={watchUrl()}>
                         <Icon tooltip="Download" onClick={() => setTorrentModal(true)}>
-                          <FiDownload size={30} />
+                          <FiDownload />
                         </Icon>
                       </VideoActions>
                     )}

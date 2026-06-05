@@ -6,7 +6,7 @@ import { HoverArea, setBackdrop } from "@/context/BackdropContext";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
 import { extendShow, posterList } from "@/utils/library";
 import Icon from "@/components/ui/Icon";
-import { FiDownload, FiSkipForward } from "solid-icons/fi";
+import { FiDownload, FiSearch } from "solid-icons/fi";
 import Season from "./Season";
 import { queryApi } from "@/utils/queryApi";
 import { getRouteApi } from "@tanstack/solid-router";
@@ -97,7 +97,7 @@ export default function ShowPage() {
                   >
                     <div class="flex items-center gap-2">
                       <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
-                        <FiDownload size={30} />
+                        <FiDownload />
                       </Icon>
                       <Show when={show().provider == "local"}>
                         <Suspense>
@@ -110,7 +110,7 @@ export default function ShowPage() {
                             disabled={!capabilities.data?.chromaprint_enabled}
                             onClick={() => detectIntros()}
                           >
-                            <FiSkipForward size={30} />
+                            <FiSearch />
                           </Icon>
                         </Suspense>
                       </Show>

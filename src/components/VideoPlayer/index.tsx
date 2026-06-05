@@ -481,7 +481,7 @@ export default function VideoPlayer(props: Props) {
                     number: Math.max(
                       Math.round(
                         (previewPosition()! / timelineRef!.offsetWidth) *
-                          props.previews!.previewsAmount,
+                        props.previews!.previewsAmount,
                       ),
                       1,
                     ),

@@ -49,11 +49,11 @@ export default function VideoActions(props: Props) {
       </Show>
       <Show when={props.video.details.previews_count === 0}>
         <Icon tooltip="Generate previews" onClick={generatePreviews}>
-          <FiImage size={30} />
+          <FiImage />
         </Icon>
         <Show when={props.video.details.previews_count > 0}>
           <Icon tooltip="Remove previews" onClick={deletePreviews}>
-            <FiImage size={30} />
+            <FiImage />
           </Icon>
         </Show>
       </Show>

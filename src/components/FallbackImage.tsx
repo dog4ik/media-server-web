@@ -6,8 +6,8 @@ import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-j
 type Props = {
   srcList: (string | undefined)[];
   class?: string;
-  height: number;
-  width: number;
+  height?: number;
+  width?: number;
   alt: string;
 };
 
@@ -59,10 +59,18 @@ export default function FallbackImage(props: Props) {
     active = false;
   });
 
+  // Only impose explicit pixel dimensions when provided; otherwise let `class`/CSS size the image.
+  let sizeStyle = () =>
+    props.height !== undefined || props.width !== undefined
+      ? { height: `${props.height}px`, width: `${props.width}px` }
+      : undefined;
+
   return (
     <Show
       when={!loading() && currentImage()}
-      fallback={<Skeleton style={{ height: `${props.height}px`, width: `${props.width}px` }} />}
+      fallback={
+        <Skeleton class={clsx(sizeStyle() === undefined && "h-full w-full")} style={sizeStyle()} />
+      }
     >
       {(_) => (
         <img
@@ -71,7 +79,7 @@ export default function FallbackImage(props: Props) {
           width={props.width}
           alt={props.alt}
           class={clsx(props.class)}
-          style={{ height: `${props.height}px`, width: `${props.width}px` }}
+          style={sizeStyle()}
         />
       )}
     </Show>

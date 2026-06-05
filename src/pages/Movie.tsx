@@ -107,7 +107,7 @@ export default function Movie() {
                   <Description
                     title={movie().title}
                     progress={
-                      movie().local?.history
+                      movie().local?.history && video()
                         ? {
                             history: movie().local!.history!,
                             runtime: video()!.details.duration,
@@ -125,14 +125,14 @@ export default function Movie() {
                         when={video()}
                         fallback={
                           <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
-                            <FiDownload size={30} />
+                            <FiDownload />
                           </Icon>
                         }
                       >
                         {(video) => (
                           <VideoActions video={video()} watchUrl={watchUrl()}>
                             <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
-                              <FiDownload size={30} />
+                              <FiDownload />
                             </Icon>
                           </VideoActions>
                         )}

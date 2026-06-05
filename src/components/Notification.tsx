@@ -1,8 +1,8 @@
-import { routeTree } from "@/routes";
-import { Link, LinkOptions, RoutePaths } from "@tanstack/solid-router";
+import { Link, LinkOptions } from "@tanstack/solid-router";
 import clsx from "clsx";
 import { FiX } from "solid-icons/fi";
 import { createSignal, onMount, ParentProps, Show } from "solid-js";
+import { buttonVariants } from "@/ui/button";
 
 function useClose(cb: () => void, time: number) {
   let [shouldAnimateOut, setShouldAnimateOut] = createSignal(false);
@@ -59,37 +59,37 @@ export default function Notification(props: NotificationProps & { onClose: () =>
     <div
       onMouseEnter={handleHover}
       onMouseLeave={handleResume}
-      class={`group relative w-96 max-w-xl bg-stone-800 transition-all duration-200 ${
-        shouldAnimateOut() ? "translate-x-full" : "animate-fade-in"
-      } flex items-center overflow-hidden rounded-lg`}
+      role="status"
+      aria-live="polite"
+      class={clsx(
+        "group bg-popover text-popover-foreground relative flex w-96 max-w-xl items-stretch overflow-hidden rounded-lg border shadow-lg transition-all duration-200",
+        shouldAnimateOut() ? "translate-x-full opacity-0" : "animate-fade-in",
+      )}
     >
-      <div class="absolute right-0 bottom-0 left-0 h-0.5 w-0 bg-white" ref={timeLine!}></div>
+      <div
+        class="bg-primary absolute right-0 bottom-0 left-0 z-10 h-0.5 w-0"
+        ref={timeLine!}
+      ></div>
       <Show when={props.poster}>
         <img
           src={props.poster}
           alt="Search content poster"
-          width={60}
-          height={90}
-          class="aspect-poster rounded-md object-cover"
+          width={48}
+          height={72}
+          class="aspect-poster w-12 shrink-0 self-stretch object-cover"
         />
       </Show>
-      <div class="flex flex-col gap-1 px-2 py-4">
-        <p title={props.message} class="truncate font-semibold break-all text-white sm:text-xl">
-          {props.message}
-        </p>
-        <Show when={props.subTitle}>
-          <HrefWrapper class="font-semibold text-white/70" url={props.contentUrl}>
-            {props.subTitle}
-          </HrefWrapper>
-        </Show>
-        <div
-          class="absolute top-1 right-1 cursor-pointer p-1 opacity-0 transition-opacity group-hover:opacity-100"
-          onClick={() => close()}
-        >
-          <FiX size={25} class="stroke-white" />
+      <div class="flex min-w-0 flex-1 items-center gap-3 p-3">
+        <div class="flex min-w-0 flex-1 flex-col gap-0.5 pr-5">
+          <p title={props.message} class="truncate text-sm font-semibold">
+            {props.message}
+          </p>
+          <Show when={props.subTitle}>
+            <HrefWrapper class="text-muted-foreground truncate text-sm" url={props.contentUrl}>
+              {props.subTitle}
+            </HrefWrapper>
+          </Show>
         </div>
-      </div>
-      <div class="flex flex-1 justify-center">
         <Show when={props.onUndo}>
           {(cb) => (
             <button
@@ -97,13 +97,23 @@ export default function Notification(props: NotificationProps & { onClose: () =>
                 cb()();
                 close();
               }}
-              class="justify-self-end rounded-sm border border-stone-600 px-3 py-1 font-semibold text-white transition-colors hover:bg-stone-600 sm:text-sm"
+              class={clsx(buttonVariants({ variant: "outline", size: "sm" }), "shrink-0")}
             >
               Undo
             </button>
           )}
         </Show>
       </div>
+      <button
+        aria-label="Dismiss notification"
+        onClick={() => close()}
+        class={clsx(
+          buttonVariants({ variant: "ghost", size: "icon-sm" }),
+          "absolute top-1 right-1 opacity-0 transition-opacity group-hover:opacity-100",
+        )}
+      >
+        <FiX />
+      </button>
     </div>
   );
 }
