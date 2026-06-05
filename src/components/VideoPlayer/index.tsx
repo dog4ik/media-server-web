@@ -336,7 +336,7 @@ export default function VideoPlayer(props: Props) {
     <div
       ref={videoContainerRef!}
       onMouseLeave={() => setShowControls(false)}
-      class={`relative flex h-screen w-screen items-center justify-center text-white ${showControls() ? "" : "cursor-none"}`}
+      class={`relative flex h-screen w-full items-center justify-center text-white ${showControls() ? "" : "cursor-none"}`}
     >
       <video
         onClick={handleClick}
