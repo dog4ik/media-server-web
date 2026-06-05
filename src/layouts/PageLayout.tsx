@@ -15,14 +15,14 @@ const OPTIONS = {
 
 export default function PageLayout(props: ParentProps) {
   return (
-    <div class="">
+    <div class="h-screen overflow-y-auto [scrollbar-gutter:stable]">
       <BackdropFilling />
       <aside class="fixed inset-0 flex w-18 items-center">
         <SideBar />
       </aside>
       <div class="pl-32">
         <NavBar />
-        <main class="mx-5 my-3 flex flex-col overflow-y-auto">{props.children}</main>
+        <main class="mx-5 my-3 flex flex-col">{props.children}</main>
       </div>
     </div>
   );
