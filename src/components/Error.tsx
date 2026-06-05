@@ -7,26 +7,91 @@ import {
   BadRequestError,
 } from "@/utils/errors";
 import { MEDIA_SERVER_URL } from "@/utils/serverApi";
-import { FiAlertOctagon, FiSearch, FiSmile, FiWifiOff } from "solid-icons/fi";
-import { ComponentProps, ErrorBoundary, JSX, ParentProps, Show } from "solid-js";
+import { useServerStatus } from "@/context/ServerStatusContext";
+import { FiAlertOctagon, FiAlertTriangle, FiRefreshCw, FiSearch, FiWifiOff } from "solid-icons/fi";
+import { ComponentProps, ErrorBoundary, JSX, onCleanup, ParentProps, Show } from "solid-js";
 
+/**
+ * Centers the error panel inside whatever content area it is rendered in.
+ * It claims a comfortable chunk of vertical space so the panel never feels
+ * cramped, while leaving the surrounding layout (sidebar, navbar, page title)
+ * untouched.
+ */
 function ErrorLayout(props: ParentProps) {
-  return <div class="flex size-full items-center justify-center">{props.children}</div>;
+  return (
+    <div class="flex min-h-[60vh] w-full items-center justify-center p-4">{props.children}</div>
+  );
 }
 
-function ServerUnavailable() {
+type Accent = "destructive" | "muted";
+
+type PanelProps = {
+  title: string;
+  message?: JSX.Element;
+  icon: JSX.Element;
+  accent?: Accent;
+  retry?: () => void;
+};
+
+function ErrorPanel(props: PanelProps) {
+  let accent = () => props.accent ?? "destructive";
   return (
-    <div class="bg-card flex max-w-md flex-col items-center gap-5 rounded-md p-6">
-      <span class="text-xl">Server is not available</span>
-      <p class="text-center">
-        Make sure it's on and reachable by url:{" "}
-        <a class="hover:underline" href={MEDIA_SERVER_URL}>
-          {MEDIA_SERVER_URL}
-        </a>
-      </p>
-      <FiWifiOff size={50} />
-      <Button onClick={() => window.location.reload()}>Try again</Button>
+    <div class="bg-card/70 border-border/60 flex w-full max-w-md flex-col items-center gap-5 rounded-2xl border p-8 text-center shadow-xl backdrop-blur-md">
+      <div
+        class="flex size-16 items-center justify-center rounded-full"
+        classList={{
+          "bg-destructive/10 text-destructive": accent() === "destructive",
+          "bg-muted text-muted-foreground": accent() === "muted",
+        }}
+      >
+        {props.icon}
+      </div>
+      <div class="space-y-1.5">
+        <h2 class="text-xl font-semibold">{props.title}</h2>
+        <Show when={props.message}>
+          <p class="text-muted-foreground text-sm leading-relaxed wrap-break-word">
+            {props.message}
+          </p>
+        </Show>
+      </div>
+      <Show when={props.retry}>
+        {(retry) => (
+          <Button onClick={retry()} class="gap-2">
+            <FiRefreshCw />
+            Try again
+          </Button>
+        )}
+      </Show>
     </div>
+  );
+}
+
+function ServerUnavailable(props: { reset: () => void }) {
+  // When the connection comes back, automatically retry instead of forcing
+  // the user to click. `useServerStatus` may be undefined if the panel is
+  // rendered outside the provider (e.g. the root error fallback), so guard it.
+  let status = useServerStatus();
+  if (status) {
+    let [, { addWakeSubscriber, removeWakeSubscriber }] = status;
+    let id = addWakeSubscriber(props.reset);
+    onCleanup(() => removeWakeSubscriber(id));
+  }
+
+  return (
+    <ErrorPanel
+      accent="muted"
+      icon={<FiWifiOff size={32} />}
+      title="Server is not available"
+      message={
+        <>
+          Make sure it's on and reachable at{" "}
+          <a class="text-foreground hover:underline" href={MEDIA_SERVER_URL}>
+            {MEDIA_SERVER_URL}
+          </a>
+        </>
+      }
+      retry={() => window.location.reload()}
+    />
   );
 }
 
@@ -68,20 +133,7 @@ export function ErrorComponent(props: Props) {
   if (props.err instanceof UnavailableError) {
     return (
       <ErrorLayout>
-        <ServerUnavailable />
-      </ErrorLayout>
-    );
-  }
-
-  if (props.err instanceof BadRequestError) {
-    return (
-      <ErrorLayout>
-        <GenericError
-          icon={<FiAlertOctagon size={40} />}
-          title="Request failed"
-          message={`${props.context ?? "Request failed"} (${props.err.message})`}
-          retry={props.reset}
-        />
+        <ServerUnavailable reset={props.reset} />
       </ErrorLayout>
     );
   }
@@ -89,10 +141,24 @@ export function ErrorComponent(props: Props) {
   if (props.err instanceof NotFoundError) {
     return (
       <ErrorLayout>
-        <GenericError
-          icon={<FiSearch size={40} />}
-          message={props.err.message}
-          title="Requested resource is not found"
+        <ErrorPanel
+          accent="muted"
+          icon={<FiSearch size={32} />}
+          title="Not found"
+          message={props.err.message || props.context || "The requested resource doesn't exist."}
+        />
+      </ErrorLayout>
+    );
+  }
+
+  if (props.err instanceof BadRequestError) {
+    return (
+      <ErrorLayout>
+        <ErrorPanel
+          icon={<FiAlertOctagon size={32} />}
+          title="Request failed"
+          message={props.context ? `${props.context} (${props.err.message})` : props.err.message}
+          retry={props.reset}
         />
       </ErrorLayout>
     );
@@ -101,42 +167,24 @@ export function ErrorComponent(props: Props) {
   if (props.err instanceof InternalServerError) {
     return (
       <ErrorLayout>
-        <GenericError
-          title="Internal server props.error"
-          message={props.err.message}
-          icon={<FiAlertOctagon size={40} />}
+        <ErrorPanel
+          icon={<FiAlertOctagon size={32} />}
+          title="Internal server error"
+          message={props.err.message || props.context}
+          retry={props.reset}
         />
       </ErrorLayout>
     );
   }
 
-  console.error(props.err);
-
   return (
     <ErrorLayout>
-      <div class="flex flex-col">
-        <span>Unhandled error fallback</span>
-        <span>Error: {props.context ?? props.err.message ?? "Unknown error"}</span>
-        <Button onClick={props.reset}>Reset</Button>
-      </div>
+      <ErrorPanel
+        icon={<FiAlertTriangle size={32} />}
+        title="Something went wrong"
+        message={props.context ?? props.err.message ?? "An unexpected error occurred."}
+        retry={props.reset}
+      />
     </ErrorLayout>
-  );
-}
-
-type GenericErrorProps = {
-  title: string;
-  message?: string;
-  icon?: JSX.Element;
-  retry?: () => void;
-};
-
-function GenericError(props: GenericErrorProps) {
-  return (
-    <div class="bg-card flex max-w-md flex-col items-center gap-5 rounded-md p-6">
-      <span class="text-xl">{props.title}</span>
-      <Show when={props.message}>{(message) => <p class="text-center">{message()}</p>}</Show>
-      <Show when={props.icon}>{props.icon}</Show>
-      <Show when={props.retry}>{(retry) => <Button onClick={retry}>Try again</Button>}</Show>
-    </div>
   );
 }
