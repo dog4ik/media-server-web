@@ -70,18 +70,18 @@ export const TORRENT_TABLE_COLUMNS: ColumnDef<Schemas["TorrentState"]>[] = [
     header: (props) => <TableColumnHeader column={props.column} title="Progress" />,
     cell: (props) => (
       <div
-        class="relative isolate flex h-4 w-25 items-center justify-center overflow-hidden rounded-md bg-gray-200"
+        class="relative isolate flex h-4 w-25 items-center justify-center overflow-hidden rounded-md bg-white"
         role="progressbar"
         aria-valuenow={props.row.original.percent}
         aria-valuemin={0}
         aria-valuemax={100}
       >
         <div
-          class="absolute top-0 left-0 h-full bg-green-500"
+          class="bg-accent absolute top-0 left-0 h-full"
           style={{ width: `${props.row.original.percent}%` }}
         />
 
-        <span class="relative z-10 font-mono text-xs">
+        <span class="text-accent-foreground relative z-10 font-mono text-xs">
           {props.row.original.percent.toFixed(1)}%
         </span>
       </div>
