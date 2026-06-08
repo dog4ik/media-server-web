@@ -1,4 +1,4 @@
-import { For, Match, ParentProps, Suspense, Switch, createSignal } from "solid-js";
+import { For, Match, ParentProps, Switch, createSignal } from "solid-js";
 import SectionSubTitle from "./SectionSubTitle";
 import { SETTINGS, Settings } from "../../utils/settingsDescriptors";
 import { Schemas } from "../../utils/serverApi";
@@ -273,6 +273,18 @@ export function SmartSetting<T extends keyof typeof SETTINGS>(props: SmartSettin
           />
         }
       >
+        <Match when={setting.typeHint == "string"}>
+          <TextField class="w-full max-w-xs">
+            <TextFieldInput
+              value={
+                (changedSettings[props.setting] as string) ??
+                remoteSettings.data![props.setting].config_value ??
+                remoteSettings.data![props.setting].default_value!
+              }
+              onInput={(e) => handleUpdate(e.currentTarget.value as T)}
+            />
+          </TextField>
+        </Match>
         <Match when={setting.typeHint == "path"}>
           <FileInput
             title="Select file"

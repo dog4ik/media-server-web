@@ -2,7 +2,7 @@ import { Schemas } from "./serverApi";
 
 type Config = Schemas["ConfigSchema"];
 
-type SettingTypeHint = "path" | "pathArr" | "secret";
+type SettingTypeHint = "path" | "pathArr" | "secret" | "string";
 
 type Variable<T extends Config[number]["key"]> = {
   description: string;
@@ -111,5 +111,33 @@ export const SETTINGS: Settings = {
       "Language to fetch metadata in. Selected language will be used in names, description and posters",
     name: "metadata_language",
     long_name: "Metadata Language",
+  },
+  otel_endpoint: {
+    description:
+      "OTLP endpoint for OpenTelemetry export (traces + metrics). When unset, OpenTelemetry is disabled.",
+    name: "otel_endpoint",
+    long_name: "OpenTelementry endpoint",
+    typeHint: "string",
+  },
+  use_season_episodes: {
+    description:
+      "Try to use episodes metadata from fetched season. It will speed up metadata fetch for newly added season, but episodes will end up with potentially incomplete metadata. Not recommended unless you have a huge show library you scan at once",
+    name: "use_season_episodes",
+    long_name: "Use season's episodes",
+  },
+  max_show_concurrency: {
+    description: "The amount of tv shows allowed to be fetched concurrently",
+    name: "max_show_concurrency",
+    long_name: "Max show concurrency",
+  },
+  max_movie_concurrency: {
+    description: "The amount of movies allowed to be fetched concurrently",
+    name: "max_movie_concurrency",
+    long_name: "Max movie concurrency",
+  },
+  max_asset_concurrency: {
+    description: "The amount of assets allowed to be fetched concurrently",
+    name: "max_asset_concurrency",
+    long_name: "Max assets concurrency",
   },
 } as const;

@@ -64,6 +64,15 @@ function GeneralSettings() {
           </div>
         </div>
 
+        <SectionTitle name="Library scan settings" />
+        <div>
+          <div class="divide-y divide-neutral-500">
+            <SmartSetting setting="use_season_episodes" />
+            <SmartSetting setting="max_show_concurrency" />
+            <SmartSetting setting="max_movie_concurrency" />
+            <SmartSetting setting="max_asset_concurrency" />
+          </div>
+        </div>
         <SectionTitle name="Advanced settings" />
         <div>
           <div class="divide-y divide-neutral-500">
@@ -75,6 +84,7 @@ function GeneralSettings() {
             <SmartSetting setting="ffprobe_path" />
             <SmartSetting setting="web_ui_path" />
             <SmartSetting setting="upnp_ttl" />
+            <SmartSetting setting="otel_endpoint" />
           </div>
         </div>
 

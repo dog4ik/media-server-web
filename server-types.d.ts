@@ -437,23 +437,6 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/log/latest": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Latest log */
-        get: operations["latest_log"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/metadata/{id}/history": {
         parameters: {
             query?: never;
@@ -854,23 +837,6 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/tasks/intro_detection": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all running tasks */
-        get: operations["intro_detection_tasks"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/tasks/previews": {
         parameters: {
             query?: never;
@@ -968,23 +934,6 @@ export type paths = {
         post?: never;
         /** Stop watch session */
         delete: operations["stop_watch_session"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/tasks/watch_sessions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all watching sessions */
-        get: operations["watch_sessions"];
-        put?: never;
-        post?: never;
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1764,6 +1713,30 @@ export type components = {
             key: "provod_url";
             require_restart: boolean;
         } | {
+            /**
+             * @description OTLP endpoint for OpenTelemetry export (traces + metrics), e.g.
+             *     `http://localhost:4317`. When unset, OpenTelemetry is disabled.
+             */
+            cli_value: string | null;
+            /**
+             * @description OTLP endpoint for OpenTelemetry export (traces + metrics), e.g.
+             *     `http://localhost:4317`. When unset, OpenTelemetry is disabled.
+             */
+            config_value: string | null;
+            /**
+             * @description OTLP endpoint for OpenTelemetry export (traces + metrics), e.g.
+             *     `http://localhost:4317`. When unset, OpenTelemetry is disabled.
+             */
+            default_value: string | null;
+            /**
+             * @description OTLP endpoint for OpenTelemetry export (traces + metrics), e.g.
+             *     `http://localhost:4317`. When unset, OpenTelemetry is disabled.
+             */
+            env_value: string | null;
+            /** @enum {string} */
+            key: "otel_endpoint";
+            require_restart: boolean;
+        } | {
             /** @description API key for Provod agent. Allows server to authenticate with Provod proxy server */
             cli_value: string | null;
             /** @description API key for Provod agent. Allows server to authenticate with Provod proxy server */
@@ -1882,6 +1855,74 @@ export type components = {
             env_value: number;
             /** @enum {string} */
             key: "upnp_ttl";
+            require_restart: boolean;
+        } | {
+            /** @description The amount of movies allowed to be fetched concurrently */
+            cli_value: number;
+            /** @description The amount of movies allowed to be fetched concurrently */
+            config_value: number;
+            /** @description The amount of movies allowed to be fetched concurrently */
+            default_value: number;
+            /** @description The amount of movies allowed to be fetched concurrently */
+            env_value: number;
+            /** @enum {string} */
+            key: "max_movie_concurrency";
+            require_restart: boolean;
+        } | {
+            /** @description The amount of shows allowed to be fetched concurrently */
+            cli_value: number;
+            /** @description The amount of shows allowed to be fetched concurrently */
+            config_value: number;
+            /** @description The amount of shows allowed to be fetched concurrently */
+            default_value: number;
+            /** @description The amount of shows allowed to be fetched concurrently */
+            env_value: number;
+            /** @enum {string} */
+            key: "max_show_concurrency";
+            require_restart: boolean;
+        } | {
+            /** @description The amount of assets allowed to be fetched concurrently */
+            cli_value: number;
+            /** @description The amount of assets allowed to be fetched concurrently */
+            config_value: number;
+            /** @description The amount of assets allowed to be fetched concurrently */
+            default_value: number;
+            /** @description The amount of assets allowed to be fetched concurrently */
+            env_value: number;
+            /** @enum {string} */
+            key: "max_asset_concurrency";
+            require_restart: boolean;
+        } | {
+            /**
+             * @description Try to use episodes metadata from fetched season.
+             *     It will speed up metadata fetch for newly added season, but episodes will end up with potentially incomplete metadata
+             *
+             *     Not recommended unless you have a huge show library you scan at once
+             */
+            cli_value: boolean;
+            /**
+             * @description Try to use episodes metadata from fetched season.
+             *     It will speed up metadata fetch for newly added season, but episodes will end up with potentially incomplete metadata
+             *
+             *     Not recommended unless you have a huge show library you scan at once
+             */
+            config_value: boolean;
+            /**
+             * @description Try to use episodes metadata from fetched season.
+             *     It will speed up metadata fetch for newly added season, but episodes will end up with potentially incomplete metadata
+             *
+             *     Not recommended unless you have a huge show library you scan at once
+             */
+            default_value: boolean;
+            /**
+             * @description Try to use episodes metadata from fetched season.
+             *     It will speed up metadata fetch for newly added season, but episodes will end up with potentially incomplete metadata
+             *
+             *     Not recommended unless you have a huge show library you scan at once
+             */
+            env_value: boolean;
+            /** @enum {string} */
+            key: "use_season_episodes";
             require_restart: boolean;
         } | {
             /** @description Language to fetch metadata in. Selected language will be used in names, plots and posters */
@@ -2126,8 +2167,6 @@ export type components = {
             season_number: number;
             title: string;
         };
-        /** @enum {string} */
-        Event: "start" | "finish" | "error";
         ExternalIdMetadata: {
             id: string;
             provider: components["schemas"]["MetadataProvider"];
@@ -2359,8 +2398,20 @@ export type components = {
             tick_num: number;
         };
         ProgressChunk: {
-            event: components["schemas"]["Event"];
-            progress_type: components["schemas"]["ProgressType"];
+            fail_count: number;
+            success_count: number;
+            total_video_files: number;
+            /** @enum {string} */
+            type: "metadata_fetch";
+        } | {
+            /** @enum {string} */
+            type: "metadata_save";
+        } | {
+            fail_count: number;
+            success_count: number;
+            total_assets_count: number;
+            /** @enum {string} */
+            type: "assets_save";
         };
         ProgressEvent: (components["schemas"]["PeerEvent"] & {
             /** @enum {string} */
@@ -2504,11 +2555,6 @@ export type components = {
             message?: string | null;
             /** @enum {string} */
             progress_type: "error";
-        };
-        ProgressType: {
-            asset: {
-                path: string;
-            };
         };
         ProviderOrder: {
             discover: components["schemas"]["MetadataProvider"][];
@@ -3744,6 +3790,8 @@ export interface operations {
                 search?: string | null;
                 take?: number | null;
                 cursor?: string | null;
+                /** @description Only include content with at least one local video file. Defaults to `true`. */
+                only_local?: boolean | null;
             };
             header?: never;
             path?: never;
@@ -3829,6 +3877,8 @@ export interface operations {
                 search?: string | null;
                 take?: number | null;
                 cursor?: string | null;
+                /** @description Only include content with at least one local video file. Defaults to `true`. */
+                only_local?: boolean | null;
             };
             header?: never;
             path?: never;
@@ -3843,25 +3893,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CursoredResponse_Show"];
-                };
-            };
-        };
-    };
-    latest_log: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["JsonTracingEvent"][];
                 };
             };
         };
@@ -4793,37 +4824,6 @@ export interface operations {
             };
         };
     };
-    intro_detection_tasks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        cancelable: boolean;
-                        /** Format: date-time */
-                        created: string;
-                        /** Format: uuid */
-                        id: string;
-                        kind: {
-                            season: number;
-                            /** Format: int64 */
-                            show_id: number;
-                        };
-                        latest_progress?: null | components["schemas"]["IntroProgress"];
-                    }[];
-                };
-            };
-        };
-    };
     previews_tasks: {
         parameters: {
             query?: never;
@@ -4993,49 +4993,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AppError"];
-                };
-            };
-        };
-    };
-    watch_sessions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        cancelable: boolean;
-                        /** Format: date-time */
-                        created: string;
-                        /** Format: uuid */
-                        id: string;
-                        /**
-                         * @description Task for watch tracking.
-                         *
-                         *     Be aware that currently watch tracking can be bypassed.
-                         *     Therefore, these tasks should not be considered fully reliable.
-                         */
-                        kind: {
-                            client_agent: string;
-                            client_type: components["schemas"]["ClientType"];
-                            method: components["schemas"]["StreamMethod"];
-                            stream: components["schemas"]["Stream"];
-                            total_duration: components["schemas"]["MediaDuration"];
-                            /** Format: uuid */
-                            variant_id?: string | null;
-                            /** Format: int64 */
-                            video_id: number;
-                        };
-                        latest_progress?: null | components["schemas"]["WatchProgress"];
-                    }[];
                 };
             };
         };
