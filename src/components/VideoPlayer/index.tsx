@@ -1,17 +1,16 @@
 import { FiLoader, FiMaximize, FiPause, FiPlay, FiSettings } from "solid-icons/fi";
 import { JSX, ParentProps, Show, createSignal, onCleanup, onMount } from "solid-js";
 import VolumeIcon from "./VolumeIcon";
-import Preview from "./Preview";
+import Timeline from "./Timeline";
 import { FaSolidClosedCaptioning } from "solid-icons/fa";
 import ActionIcon from "./ActionIcon";
 import Subtitles from "./Subtitles";
 import PlayerMenu from "./PlayerMenu";
-import { fullUrl, Schemas } from "../../utils/serverApi";
+import { Schemas } from "../../utils/serverApi";
 import clsx from "clsx";
 import { Button } from "@/ui/button";
 import { useTracksSelection } from "@/pages/Watch/TracksSelectionContext";
 import tracing from "@/utils/tracing";
-import { StreamParams } from "@/pages/Watch";
 import { Link, LinkOptions } from "@tanstack/solid-router";
 import { MediaSessionState } from "@/lib/mediaSession";
 
@@ -49,6 +48,7 @@ type Props = {
   previews?: { videoId: number; previewsAmount: number };
   mediaSession: MediaSessionState;
   intro?: Schemas["Intro"];
+  chapters: Schemas["DetailedChapter"][];
   nextVideo?: NextVideo;
 } & ParentProps;
 
@@ -94,21 +94,19 @@ function saveVolume(volume: number) {
 export default function VideoPlayer(props: Props) {
   let videoRef: HTMLVideoElement = {} as any;
   let videoContainerRef: HTMLDivElement = {} as any;
-  let timelineRef: HTMLDivElement = {} as any;
   let menuRef: HTMLDivElement = {} as any;
   let menuBtnRef: HTMLButtonElement = {} as any;
   let actionContainer: HTMLDivElement = {} as any;
 
   let [{ tracks }] = useTracksSelection();
   let showControlsTimeout: ReturnType<typeof setTimeout>;
-  let [previewPosition, setPreviewPosition] = createSignal<number | null>(null);
   let [isPaused, setIsPaused] = createSignal(true);
   let [isError, setIsError] = createSignal(false);
   let [isMetadataLoading, setIsMetadataLoading] = createSignal(true);
   let [isWaiting, setIsWaiting] = createSignal(false);
   let [isMuted, setIsMuted] = createSignal(false);
   let [isEnded, setIsEnded] = createSignal(false);
-  let isScubbing = false;
+  let [isScrubbing, setIsScrubbing] = createSignal(false);
   let lastSynced = 0;
   let [isFullScreen, setIsFullScreen] = createSignal(false);
   let [showControls, setShowControls] = createSignal(true);
@@ -120,7 +118,7 @@ export default function VideoPlayer(props: Props) {
   let [duration, setDuration] = createSignal(props.initialDuration);
 
   let shouldShowControls = () =>
-    (showControls() || isScubbing || isEnded() || showMenu()) &&
+    (showControls() || isScrubbing() || isEnded() || showMenu()) &&
     !isMetadataLoading() &&
     !isError() &&
     videoRef;
@@ -199,7 +197,7 @@ export default function VideoPlayer(props: Props) {
     }
   }
   function handleSync(curTime: number) {
-    if (!isMetadataLoading() && Math.abs(curTime - lastSynced) > 5 && !isScubbing) {
+    if (!isMetadataLoading() && Math.abs(curTime - lastSynced) > 5 && !isScrubbing()) {
       let time = Math.floor(curTime);
       tracing.trace({ time }, "Updating video history");
       props.onHistoryUpdate(time);
@@ -225,13 +223,13 @@ export default function VideoPlayer(props: Props) {
     toggleFullScreenMode();
   }
 
-  function handleScubbing(e: MouseEvent) {
-    e.preventDefault();
-    isScubbing = true;
-    let rect = timelineRef.getBoundingClientRect();
-    let offsetX = e.pageX - rect.left;
-    let percent = Math.min(Math.max(0, offsetX), rect.width) / rect.width;
+  function handleSeek(percent: number) {
     videoRef.currentTime = Math.min(percent * duration(), videoRef.duration - 1);
+  }
+
+  function handleScrubbingChange(scrubbing: boolean) {
+    setIsScrubbing(scrubbing);
+    if (!scrubbing && videoRef) handleSync(videoRef.currentTime);
   }
 
   function resetOverlayTimeout() {
@@ -305,14 +303,8 @@ export default function VideoPlayer(props: Props) {
   }
 
   function handleMouseUp(e: MouseEvent) {
-    isScubbing = false;
-    if (videoRef) handleSync(videoRef.currentTime);
     let target = e.target as HTMLElement;
     if (!menuRef?.contains(target) && !menuBtnRef?.contains(target)) setShowMenu(false);
-  }
-  function handleMouseMove(e: MouseEvent) {
-    if (!isScubbing) return;
-    handleScubbing(e);
   }
 
   onMount(() => {
@@ -321,13 +313,11 @@ export default function VideoPlayer(props: Props) {
     videoRef.volume = getInitialVolume();
     window.addEventListener("keydown", handleKeyboardPress);
     document.addEventListener("mouseup", handleMouseUp);
-    document.addEventListener("mousemove", handleMouseMove);
   });
 
   onCleanup(() => {
     tracing.debug("Unmounted video player");
     setIsMetadataLoading(true);
-    document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
     window.removeEventListener("keydown", handleKeyboardPress);
   });
@@ -449,9 +439,8 @@ export default function VideoPlayer(props: Props) {
         </div>
       </div>
       <div
-        class={`${
-          shouldShowControls() ? "opacity-100" : "opacity-0"
-        } transition-opacity duration-200`}
+        class={`${shouldShowControls() ? "opacity-100" : "opacity-0"
+          } transition-opacity duration-200`}
       >
         <div class="size-full">{props.children}</div>
         <div
@@ -461,51 +450,14 @@ export default function VideoPlayer(props: Props) {
           }}
           class={`animate-fade-in absolute right-0 bottom-0 left-0 transition-opacity`}
         >
-          <div
-            class="group flex h-4 cursor-pointer items-end"
-            ref={timelineRef!}
-            onMouseDown={handleScubbing}
-            onMouseMove={(e) => {
-              let bounds = timelineRef.getBoundingClientRect();
-              setPreviewPosition(e.pageX - bounds.left);
-            }}
-            onMouseLeave={() => {
-              setPreviewPosition(null);
-            }}
-          >
-            <Show when={previewPosition() !== null && props.previews}>
-              <Preview
-                src={fullUrl("/api/video/{id}/previews/{number}", {
-                  path: {
-                    id: props.previews!.videoId,
-                    number: Math.max(
-                      Math.round(
-                        (previewPosition()! / timelineRef!.offsetWidth) *
-                        props.previews!.previewsAmount,
-                      ),
-                      1,
-                    ),
-                  },
-                })}
-                X={previewPosition()!}
-                timelineWidth={timelineRef!.offsetWidth}
-                time={formatDuration(
-                  Math.max(
-                    Math.round((duration() * previewPosition()!) / timelineRef!.offsetWidth),
-                    0,
-                  ),
-                )}
-              />
-            </Show>
-            <div class="absolute right-0 left-0 flex h-1.5 w-full bg-neutral-900">
-              <div
-                class="after:content-[' '] flex h-full items-center justify-end rounded-md bg-white after:translate-x-2 after:rounded-full after:bg-white after:p-2 after:opacity-0 after:transition-opacity after:duration-150 group-hover:after:opacity-100"
-                style={{
-                  width: `${(time() / duration()) * 100}%`,
-                }}
-              ></div>
-            </div>
-          </div>
+          <Timeline
+            time={time()}
+            duration={duration()}
+            previews={props.previews}
+            chapters={props.chapters}
+            onSeek={handleSeek}
+            onScrubbingChange={handleScrubbingChange}
+          />
           <div class="flex items-center justify-between bg-black/70">
             <div class="flex gap-4">
               <div class="cursor-pointer p-2" onClick={() => togglePlay()}>

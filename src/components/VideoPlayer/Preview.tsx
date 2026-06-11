@@ -1,8 +1,11 @@
+import { Show } from "solid-js";
+
 type PreviewProps = {
   X: number;
   timelineWidth: number;
   time: string;
-  src: string;
+  src?: string;
+  chapter?: string;
 };
 
 export default function Preview(props: PreviewProps) {
@@ -15,17 +18,24 @@ export default function Preview(props: PreviewProps) {
   };
   return (
     <div
-      class="pointer-events-none absolute bottom-14 hidden shrink-0 -translate-x-1/2 flex-col items-center justify-center group-hover:flex"
+      class="pointer-events-none absolute bottom-6 flex shrink-0 -translate-x-1/2 flex-col items-center justify-center gap-1"
       style={{
         left: `${position()}px`,
-        width: `${IMG_WIDTH}px`,
-        height: `${IMG_HEIGHT}px`,
       }}
     >
-      <div class="p-0.5">
-        <img width={IMG_WIDTH} height={IMG_HEIGHT} src={props.src} alt="Preview"></img>
+      <Show when={props.src}>
+        <div class="overflow-hidden rounded-md p-0.5">
+          <img width={IMG_WIDTH} height={IMG_HEIGHT} src={props.src} alt="Preview" />
+        </div>
+      </Show>
+      <div class="bg-black/60 rounded-md text-sm px-2 py-1 space-x-2">
+        <Show when={props.chapter}>
+          <span class="max-w-48 truncate text-center text-sm font-semibold drop-shadow-md">
+            {props.chapter}
+          </span>
+        </Show>
+        <span>{props.time}</span>
       </div>
-      <span class="rounded-md bg-black/40 p-0.5 text-sm">{props.time}</span>
     </div>
   );
 }
