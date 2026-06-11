@@ -12,12 +12,18 @@ export default function Version() {
   }));
 
   return (
-    <p class="text-secondary text-xs">
-      <ErrorBoundary fallback={<p>Version is not available</p>}>
-        <Suspense fallback={<p>Fetching server version...</p>}>
-          <Show when={version.data}>{(data) => data()}</Show>
-        </Suspense>
-      </ErrorBoundary>
-    </p>
+    <>
+      {/*
+       * Global is defined in vite.config.ts
+       * @ts-ignore */}
+      <span class="text-secondary text-xs">web ui {__CLIENT_VERSION__}</span>
+      <span class="text-secondary text-xs">
+        <ErrorBoundary fallback={<p>Version is not available</p>}>
+          <Suspense fallback={<p>Fetching server version...</p>}>
+            <Show when={version.data}>{(data) => data()}</Show>
+          </Suspense>
+        </ErrorBoundary>
+      </span>
+    </>
   );
 }
