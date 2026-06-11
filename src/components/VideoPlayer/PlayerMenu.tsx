@@ -1,28 +1,50 @@
-import {
-  isBrowserVideoTracksSupported,
-  SelectedSubtitleTrack,
-  useTracksSelection,
-} from "@/pages/Watch/TracksSelectionContext";
+import { SelectedSubtitleTrack, useTracksSelection } from "@/pages/Watch/TracksSelectionContext";
+import { cn } from "@/lib/cn";
 import { formatCodec, formatResolution } from "@/utils/formats";
-import { isCompatible } from "@/utils/mediaCapabilities";
 import { Schemas } from "@/utils/serverApi";
-import { useQuery } from "@tanstack/solid-query";
-import { FiCheck } from "solid-icons/fi";
-import { createMemo, For, Match, Show, Switch } from "solid-js";
-import { createSignal } from "solid-js";
+import {
+  FiArrowLeft,
+  FiCheck,
+  FiChevronRight,
+  FiFastForward,
+  FiMusic,
+  FiType,
+  FiVideo,
+} from "solid-icons/fi";
+import { createSignal, For, Match, Show, Switch } from "solid-js";
+import { Dynamic } from "solid-js/web";
 import { unwrap } from "solid-js/store";
 
-type RowParams =
-  | { type: "separator"; title: string }
-  | {
-      type: "row";
-      key: string;
-      value?: () => string | number | boolean | undefined;
-      root?: boolean;
-      onClick: () => void;
-      codecSupport?: Promise<boolean>;
-      disabled?: boolean;
-    };
+type SubMenuKey = "subtitles" | "audio" | "video" | "playback";
+type MenuKey = "main" | SubMenuKey;
+
+type IconComponent = typeof FiVideo;
+
+/** A row in the main menu that drills down into a sub menu. */
+type NavRow = {
+  kind: "nav";
+  icon: IconComponent;
+  label: string;
+  value: () => string;
+  target: SubMenuKey;
+};
+
+/** A selectable option inside a sub menu. */
+type SelectRow = {
+  kind: "select";
+  label: string;
+  selected: () => boolean;
+  onSelect: () => void;
+  disabled?: boolean;
+};
+
+/** A non interactive group label inside a sub menu. */
+type SeparatorRow = {
+  kind: "separator";
+  label: string;
+};
+
+type Row = NavRow | SelectRow | SeparatorRow;
 
 type MenuProps = {
   currentPlaybackSpeed: number;
@@ -30,49 +52,14 @@ type MenuProps = {
   onPlaybackSpeedChange: (speed: number) => void;
 };
 
-export function MenuRow(
-  props: Exclude<RowParams, { type: "separator" }> & { borderBottom?: boolean },
-) {
-  let codecSupport = useQuery(() => ({
-    queryFn: async () => (props.codecSupport ? await props.codecSupport : true),
-    queryKey: ["codec_support"],
-  }));
-  let isDisabled = () => !codecSupport.data || props.disabled;
+const ROW_HEIGHT = 48;
 
-  return (
-    <button
-      disabled={isDisabled()}
-      onClick={props.onClick}
-      class={`flex h-12 w-full shrink-0 items-center justify-between disabled:text-gray-700 ${props.borderBottom ? "border-b" : ""}`}
-    >
-      <span>{props.key}</span>
-      <Switch>
-        <Match
-          when={
-            props.value && (typeof props.value() == "string" || typeof props.value() == "number")
-          }
-        >
-          <span>{props.value && props.value()}</span>
-        </Match>
-        <Match when={props.value && typeof props.value() == "boolean"}>
-          <Show when={props.value!()}>
-            <FiCheck size={20} />
-          </Show>
-        </Match>
-      </Switch>
-    </button>
-  );
-}
-
-export function Separator(props: Exclude<RowParams, { type: "row" }>) {
-  return (
-    <div class="w-full border-t border-b py-1">
-      <span class="text-xs font-bold">{props.title}</span>
-    </div>
-  );
-}
-
-const MAX_ROWS_BEFORE_SCROLL = 5;
+const SUB_MENU_TITLES: Record<SubMenuKey, string> = {
+  subtitles: "Subtitles",
+  audio: "Audio",
+  video: "Video",
+  playback: "Playback speed",
+};
 
 function formatSubtitlesTrack(selection?: SelectedSubtitleTrack) {
   if (selection?.origin == "container") {
@@ -111,188 +98,234 @@ function formatPlaybackSpeed(speed: number) {
   return `${speed}x`;
 }
 
+function PanelHeader(props: { title: string; onBack: () => void }) {
+  return (
+    <button
+      onClick={props.onBack}
+      class="border-border text-popover-foreground hover:bg-accent hover:text-accent-foreground flex h-12 w-full shrink-0 items-center gap-2 border-b px-2 text-sm font-medium transition-colors"
+      style={{ height: `${ROW_HEIGHT}px` }}
+    >
+      <FiArrowLeft class="size-5 shrink-0" />
+      <span class="truncate">{props.title}</span>
+    </button>
+  );
+}
+
+function NavMenuRow(props: { row: NavRow; onNavigate: (target: SubMenuKey) => void }) {
+  return (
+    <button
+      onClick={() => props.onNavigate(props.row.target)}
+      class="group text-popover-foreground hover:bg-accent hover:text-accent-foreground flex h-12 w-full shrink-0 items-center gap-3 px-3 text-sm transition-colors"
+      style={{ height: `${ROW_HEIGHT}px` }}
+    >
+      <Dynamic
+        component={props.row.icon}
+        class="text-muted-foreground group-hover:text-accent-foreground size-5 shrink-0 transition-colors"
+      />
+      <span class="flex-1 truncate text-left">{props.row.label}</span>
+      <span class="text-muted-foreground group-hover:text-accent-foreground truncate transition-colors">
+        {props.row.value()}
+      </span>
+      <FiChevronRight class="text-muted-foreground group-hover:text-accent-foreground size-4 shrink-0 transition-colors" />
+    </button>
+  );
+}
+
+function SelectMenuRow(props: { row: SelectRow; onSelected: () => void }) {
+  return (
+    <button
+      disabled={props.row.disabled}
+      onClick={() => {
+        props.row.onSelect();
+        props.onSelected();
+      }}
+      class="group text-popover-foreground hover:bg-accent hover:text-accent-foreground flex h-12 w-full shrink-0 items-center gap-3 px-3 text-sm transition-colors disabled:pointer-events-none disabled:opacity-40"
+      style={{ height: `${ROW_HEIGHT}px` }}
+    >
+      <span class="flex size-5 shrink-0 items-center justify-center">
+        <Show when={props.row.selected()}>
+          <FiCheck class="size-5" />
+        </Show>
+      </span>
+      <span class="flex-1 truncate text-left">{props.row.label}</span>
+    </button>
+  );
+}
+
+function SeparatorMenuRow(props: { row: SeparatorRow }) {
+  return (
+    <div class="text-muted-foreground px-3 pt-3 pb-1 text-xs font-semibold tracking-wide uppercase">
+      {props.row.label}
+    </div>
+  );
+}
+
 export default function PlayerMenu(props: MenuProps) {
   let [
     { tracks, videoTracks, audioTracks, containerSubtitlesTracks, externalSubtitlesTracks },
     {
       unsetSubtitlesTrack,
-
       selectVideoTrack,
       selectAudioTrack,
       selectExternalSubtitlesTrack,
-      selectImportedSubtitlesTrack,
       selectContainerSubtitlesTrack,
     },
   ] = useTracksSelection();
 
-  let [menu, setMenu] = createSignal<keyof typeof menus>("main");
+  let [menu, setMenu] = createSignal<MenuKey>("main");
+  let [direction, setDirection] = createSignal<"forward" | "backward">("forward");
+  let [hasNavigated, setHasNavigated] = createSignal(false);
 
-  const menus = {
-    main: (): RowParams[] => [
+  function navigate(target: SubMenuKey) {
+    setDirection("forward");
+    setHasNavigated(true);
+    setMenu(target);
+  }
+
+  function goToMain() {
+    setDirection("backward");
+    setHasNavigated(true);
+    setMenu("main");
+  }
+
+  const menus: Record<MenuKey, () => Row[]> = {
+    main: () => [
       {
-        type: "row",
-        key: "Playback speed",
+        kind: "nav",
+        icon: FiFastForward,
+        label: "Playback speed",
         value: () => formatPlaybackSpeed(props.currentPlaybackSpeed),
-        onClick: () => setMenu("playback"),
-        root: true,
+        target: "playback",
       },
       {
-        type: "row",
-        key: "Subtitles",
+        kind: "nav",
+        icon: FiType,
+        label: "Subtitles",
         value: () => formatSubtitlesTrack(tracks.subtitles),
-        onClick: () => setMenu("subtitles"),
-        root: true,
+        target: "subtitles",
       },
       {
-        type: "row",
-        key: "Audio track",
+        kind: "nav",
+        icon: FiMusic,
+        label: "Audio",
         value: () => formatAudioTrack(tracks.audio),
-        onClick: () => setMenu("audio"),
-        root: true,
+        target: "audio",
       },
       {
-        type: "row",
-        key: "Video track",
+        kind: "nav",
+        icon: FiVideo,
+        label: "Video",
         value: () => formatVideoTrack(tracks.video),
-        onClick: () => setMenu("video"),
-        root: true,
+        target: "video",
       },
     ],
 
-    subtitles: (): RowParams[] => [
+    subtitles: () => [
       {
-        type: "row",
-        key: "None",
-        onClick: () => unsetSubtitlesTrack(),
-        value: () => tracks.subtitles === undefined,
+        kind: "select",
+        label: "None",
+        selected: () => tracks.subtitles === undefined,
+        onSelect: () => unsetSubtitlesTrack(),
       },
-      ...[
-        {
-          type: "separator",
-          title: "External subtitles",
-        } as RowParams,
-      ].filter(() => externalSubtitlesTracks().length > 0),
+      ...(externalSubtitlesTracks().length > 0
+        ? [{ kind: "separator", label: "External subtitles" } as SeparatorRow]
+        : []),
       ...externalSubtitlesTracks().map(
-        (s) =>
-          ({
-            type: "row",
-            key: formatSubtitlesTrack({ origin: "external", id: s.id }),
-            onClick: () => selectExternalSubtitlesTrack(s.id),
-            value: () => {
-              const t = tracks.subtitles;
-              return t?.origin === "external" && unwrap(t).id === s.id;
-            },
-            disabled: false,
-          }) as RowParams,
+        (s): SelectRow => ({
+          kind: "select",
+          label: formatSubtitlesTrack({ origin: "external", id: s.id }),
+          selected: () => {
+            let t = tracks.subtitles;
+            return t?.origin === "external" && unwrap(t).id === s.id;
+          },
+          onSelect: () => selectExternalSubtitlesTrack(s.id),
+        }),
       ),
-      ...[
-        {
-          type: "separator",
-          title: "Container subtitles",
-        } as RowParams,
-      ].filter(() => containerSubtitlesTracks().length > 0),
+      ...(containerSubtitlesTracks().length > 0
+        ? [{ kind: "separator", label: "Container subtitles" } as SeparatorRow]
+        : []),
       ...containerSubtitlesTracks().map(
-        (s, i) =>
-          ({
-            type: "row",
-            key: formatSubtitlesTrack({ origin: "container", track: s }),
-            onClick: () => selectContainerSubtitlesTrack(i),
-            value: () => {
-              const t = tracks.subtitles;
-              return t?.origin === "container" && unwrap(t).track === s;
-            },
-            disabled: !s.is_text_format,
-          }) as RowParams,
+        (s, i): SelectRow => ({
+          kind: "select",
+          label: formatSubtitlesTrack({ origin: "container", track: s }),
+          selected: () => {
+            let t = tracks.subtitles;
+            return t?.origin === "container" && unwrap(t).track === s;
+          },
+          onSelect: () => selectContainerSubtitlesTrack(i),
+          disabled: !s.is_text_format,
+        }),
       ),
     ],
 
-    audio: (): RowParams[] =>
-      audioTracks().map((a, i) => ({
-        type: "row",
-        key: `${i + 1}. ${formatAudioTrack(a)}`,
-        onClick: () => selectAudioTrack(i),
-        value: () => a === unwrap(tracks.audio),
-        codecSupport: isCompatible(undefined, a).then((r) => r.audio.supported),
-        disabled: false,
-      })),
+    audio: () =>
+      audioTracks().map(
+        (a, i): SelectRow => ({
+          kind: "select",
+          label: `${i + 1}. ${formatAudioTrack(a)}`,
+          selected: () => a === unwrap(tracks.audio),
+          onSelect: () => selectAudioTrack(i),
+        }),
+      ),
 
-    video: (): RowParams[] =>
-      videoTracks().map((v, i) => ({
-        type: "row",
-        key: `${i + 1}. ${formatVideoTrack(v)}`,
-        onClick: () => selectVideoTrack(i, props.videoRef),
-        value: () => v === unwrap(tracks.video),
-        codecSupport: isCompatible(v, undefined).then((r) => r.video.supported),
-        disabled: !isBrowserVideoTracksSupported(),
-      })),
+    video: () =>
+      videoTracks().map(
+        (v, i): SelectRow => ({
+          kind: "select",
+          label: `${i + 1}. ${formatVideoTrack(v)}`,
+          selected: () => v === unwrap(tracks.video),
+          onSelect: () => selectVideoTrack(i, props.videoRef),
+          disabled: false,
+        }),
+      ),
 
-    playback: (): RowParams[] =>
-      [...Array(4)].map((_, i) => {
+    playback: () =>
+      [...Array(4)].map((_, i): SelectRow => {
         let speed = (i + 1) / 2;
         return {
-          type: "row",
-          key: formatPlaybackSpeed(speed),
-          value: () => props.currentPlaybackSpeed === speed,
-          onClick: () => props.onPlaybackSpeedChange(speed),
+          kind: "select",
+          label: formatPlaybackSpeed(speed),
+          selected: () => props.currentPlaybackSpeed === speed,
+          onSelect: () => props.onPlaybackSpeedChange(speed),
         };
       }),
   };
 
-  const menuHeight = createMemo(
-    () =>
-      Math.min(menus[menu()]().length + (menu() === "main" ? 0 : 1), MAX_ROWS_BEFORE_SCROLL) * 48,
-  );
-
   return (
-    <div
-      style={{
-        height: `${menuHeight()}px`,
-      }}
-      class="bg-secondary/80 text-secondary-foreground flex w-80 flex-col overflow-hidden rounded-md px-2 transition-all"
-    >
-      <div class="w-full overflow-y-auto">
-        <Show when={menu() !== "main"}>
-          <MenuRow
-            type="row"
-            key="Back"
-            root={false}
-            onClick={() => setMenu("main")}
-            borderBottom
-          />
-        </Show>
-        <For each={menus[menu()]()}>
-          {(row) => (
-            <>
-              <Show when={row.type == "row"}>
-                {(_) => {
-                  let r = () => row as Exclude<RowParams, { type: "separator" }>;
-                  return (
-                    <MenuRow
-                      type="row"
-                      key={r().key}
-                      value={r().value}
-                      root={r().root}
-                      codecSupport={r().codecSupport}
-                      disabled={r().disabled}
-                      onClick={() => {
-                        r().onClick();
-                        if (!r().root) {
-                          setMenu("main");
-                        }
-                      }}
-                    />
-                  );
-                }}
+    <div class="bg-popover/95 text-popover-foreground border-border w-80 overflow-hidden rounded-xl border shadow-xl backdrop-blur-md">
+      <div class="max-h-72 overflow-x-hidden overflow-y-auto">
+        <Show when={menu()} keyed>
+          {(key) => (
+            <div
+              class={cn(
+                "flex flex-col",
+                hasNavigated() &&
+                  (direction() === "forward"
+                    ? "animate-slide-from-right"
+                    : "animate-slide-from-left"),
+              )}
+            >
+              <Show when={key !== "main"}>
+                <PanelHeader title={SUB_MENU_TITLES[key as SubMenuKey]} onBack={goToMain} />
               </Show>
-              <Show when={row.type == "separator"}>
-                {(_) => {
-                  let r = () => row as Exclude<RowParams, { type: "row" }>;
-                  return <Separator type="separator" title={r().title} />;
-                }}
-              </Show>
-            </>
+              <For each={menus[key]()}>
+                {(row) => (
+                  <Switch>
+                    <Match when={row.kind === "separator" && row}>
+                      {(sep) => <SeparatorMenuRow row={sep()} />}
+                    </Match>
+                    <Match when={row.kind === "nav" && row}>
+                      {(nav) => <NavMenuRow row={nav()} onNavigate={navigate} />}
+                    </Match>
+                    <Match when={row.kind === "select" && row}>
+                      {(sel) => <SelectMenuRow row={sel()} onSelected={goToMain} />}
+                    </Match>
+                  </Switch>
+                )}
+              </For>
+            </div>
           )}
-        </For>
+        </Show>
       </div>
     </div>
   );

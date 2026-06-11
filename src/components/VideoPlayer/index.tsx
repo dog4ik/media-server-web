@@ -166,9 +166,11 @@ export default function VideoPlayer(props: Props) {
   function toggleFullScreenMode(force?: boolean) {
     resetOverlayTimeout();
     if (force !== undefined) {
-      force
-        ? videoContainerRef.requestFullscreen()
-        : document.fullscreenElement != null && document.exitFullscreen();
+      if (force) {
+        videoContainerRef.requestFullscreen();
+      } else if (document.fullscreenElement != null) {
+        document.exitFullscreen();
+      }
       setIsFullScreen(force);
       return;
     }
@@ -183,6 +185,7 @@ export default function VideoPlayer(props: Props) {
 
   function toggleCaptions() {
     resetOverlayTimeout();
+    if (!tracks.subtitles) return;
     dispatchAction("togglesubs");
     setShowCaptions(!showCaptions());
   }
@@ -208,6 +211,13 @@ export default function VideoPlayer(props: Props) {
   let pauseTimeout: ReturnType<typeof setTimeout>;
   let pauseClicked = false;
   function handleClick() {
+    // A click on the video while the menu is open should only dismiss the menu,
+    // not toggle playback. Handling it here (instead of in the document mouseup
+    // listener) lets us swallow the click before it reaches the play toggle.
+    if (showMenu()) {
+      setShowMenu(false);
+      return;
+    }
     if (pauseClicked === false) {
       pauseTimeout = setTimeout(() => {
         togglePlay();
@@ -303,8 +313,15 @@ export default function VideoPlayer(props: Props) {
   }
 
   function handleMouseUp(e: MouseEvent) {
+    if (videoRef) handleSync(videoRef.currentTime);
+    if (!showMenu()) return;
+    // Close the menu when clicking outside of it. Clicks on the video are
+    // handled in `handleClick` so the play toggle can be suppressed; the menu
+    // button toggles the menu itself.
     let target = e.target as HTMLElement;
-    if (!menuRef?.contains(target) && !menuBtnRef?.contains(target)) setShowMenu(false);
+    if (target !== videoRef && !menuRef?.contains(target) && !menuBtnRef?.contains(target)) {
+      setShowMenu(false);
+    }
   }
 
   onMount(() => {
@@ -426,18 +443,19 @@ export default function VideoPlayer(props: Props) {
           <FiLoader class="h-10 w-10 animate-spin" />
         </div>
       </Show>
-      {/* This "overlay" exists to prevent click on video that causes pause after closed menu */}
-      <div
-        class={`${showMenu() ? "absolute" : "hidden"} top-0 right-0 bottom-0 left-0 h-full min-h-full w-full min-w-full`}
-      >
-        <div ref={menuRef!} class="absolute right-5 bottom-16">
+      {/* Rendered only while open so its internal navigation resets on close. */}
+      <Show when={showMenu()}>
+        <div
+          ref={menuRef!}
+          class="animate-fade-in absolute right-5 bottom-16 z-10 [animation-duration:150ms]"
+        >
           <PlayerMenu
             videoRef={videoRef}
             onPlaybackSpeedChange={changePlaybackSpeed}
             currentPlaybackSpeed={playbackSpeed()}
           />
         </div>
-      </div>
+      </Show>
       <div
         class={`${shouldShowControls() ? "opacity-100" : "opacity-0"
           } transition-opacity duration-200`}
@@ -488,7 +506,7 @@ export default function VideoPlayer(props: Props) {
             <div class="flex items-center gap-5 select-none">
               <button class={"cursor-pointer"} onClick={() => toggleCaptions()}>
                 <FaSolidClosedCaptioning
-                  class={`${tracks.subtitles && showCaptions() ? "fill-white" : "fill-neutral-700"}`}
+                  class={`${tracks.subtitles && showCaptions() ? "text-white" : "text-neutral-700"}`}
                   size={30}
                 />
               </button>
@@ -502,7 +520,7 @@ export default function VideoPlayer(props: Props) {
                 <FiSettings size={30} />
               </button>
               <div
-                class="cursor-pointer p-2 hover:scale-105"
+                class="cursor-pointer p-2"
                 onClick={() => toggleFullScreenMode()}
               >
                 <FiMaximize size={30} />
