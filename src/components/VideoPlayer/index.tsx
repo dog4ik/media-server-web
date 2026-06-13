@@ -233,13 +233,52 @@ export default function VideoPlayer(props: Props) {
     toggleFullScreenMode();
   }
 
+  // Seeks are debounced for HLS streams only, to avoid frequent job restarts.
+  let seekDebounceTimeout: ReturnType<typeof setTimeout>;
+  let pendingSeekTarget: number | null = null;
+
+  function clampTime(seconds: number) {
+    let max = (duration() || videoRef.duration) - 1;
+    return Math.max(0, Math.min(seconds, max));
+  }
+
+  function commitSeek() {
+    if (pendingSeekTarget === null || !videoRef) return;
+    videoRef.currentTime = pendingSeekTarget;
+    pendingSeekTarget = null;
+    videoRef.play();
+  }
+
+  function requestSeek(seconds: number, defer: boolean) {
+    if (!videoRef) return;
+    clearTimeout(seekDebounceTimeout);
+    pendingSeekTarget = null;
+    let target = clampTime(seconds);
+    if (props.mediaSession.session?.type !== "hls") {
+      videoRef.currentTime = target;
+      return;
+    }
+    videoRef.pause();
+    pendingSeekTarget = target;
+    setTime(target);
+    if (defer) seekDebounceTimeout = setTimeout(commitSeek, 300);
+  }
+
   function handleSeek(percent: number) {
-    videoRef.currentTime = Math.min(percent * duration(), videoRef.duration - 1);
+    requestSeek(percent * duration(), !isScrubbing());
+  }
+
+  function seekRelative(delta: number) {
+    if (!videoRef) return;
+    requestSeek((pendingSeekTarget ?? videoRef.currentTime) + delta, true);
   }
 
   function handleScrubbingChange(scrubbing: boolean) {
     setIsScrubbing(scrubbing);
-    if (!scrubbing && videoRef) handleSync(videoRef.currentTime);
+    if (!scrubbing) {
+      commitSeek();
+      if (videoRef) handleSync(videoRef.currentTime);
+    }
   }
 
   function resetOverlayTimeout() {
@@ -266,23 +305,23 @@ export default function VideoPlayer(props: Props) {
       resetOverlayTimeout();
     }
     if (event.code == "KeyJ") {
-      videoRef.currentTime -= 10;
+      seekRelative(-10);
       resetOverlayTimeout();
     }
     if (event.code == "KeyK") {
       togglePlay();
     }
     if (event.code == "KeyL") {
-      videoRef.currentTime += 10;
+      seekRelative(10);
       resetOverlayTimeout();
     }
     if (event.code == "ArrowLeft") {
-      videoRef.currentTime -= 5;
+      seekRelative(-5);
       dispatchAction("seekleft");
       resetOverlayTimeout();
     }
     if (event.code == "ArrowRight") {
-      videoRef.currentTime += 5;
+      seekRelative(5);
       dispatchAction("seekright");
       resetOverlayTimeout();
     }
@@ -335,6 +374,7 @@ export default function VideoPlayer(props: Props) {
   onCleanup(() => {
     tracing.debug("Unmounted video player");
     setIsMetadataLoading(true);
+    clearTimeout(seekDebounceTimeout);
     document.removeEventListener("mouseup", handleMouseUp);
     window.removeEventListener("keydown", handleKeyboardPress);
   });
@@ -362,6 +402,7 @@ export default function VideoPlayer(props: Props) {
           resetOverlayTimeout();
         }}
         onTimeUpdate={(e) => {
+          if (pendingSeekTarget !== null) return; // keep showing the previewed seek target
           setTime(e.currentTarget.currentTime);
           handleSync(e.currentTarget.currentTime);
         }}
@@ -386,6 +427,7 @@ export default function VideoPlayer(props: Props) {
         }}
         muted={isMuted()}
         onSeeking={(e) => {
+          if (pendingSeekTarget !== null) return;
           setTime(e.currentTarget.currentTime);
         }}
         onSeeked={(e) => {
