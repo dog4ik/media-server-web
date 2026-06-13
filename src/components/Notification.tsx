@@ -66,10 +66,7 @@ export default function Notification(props: NotificationProps & { onClose: () =>
         shouldAnimateOut() ? "translate-x-full opacity-0" : "animate-fade-in",
       )}
     >
-      <div
-        class="bg-primary absolute right-0 bottom-0 left-0 z-10 h-0.5 w-0"
-        ref={timeLine!}
-      ></div>
+      <div class="bg-primary absolute right-0 bottom-0 left-0 z-10 h-0.5 w-0" ref={timeLine!}></div>
       <Show when={props.poster}>
         <img
           src={props.poster}

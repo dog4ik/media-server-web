@@ -1,11 +1,10 @@
 import { useServerStatus } from "@/context/ServerStatusContext";
-import { queryApi } from "@/utils/queryApi";
-import { revalidatePath } from "@/utils/serverApi";
+import { queryApi, queryClient } from "@/utils/queryApi";
 import { ErrorBoundary, onCleanup, Show, Suspense } from "solid-js";
 
 export default function Version() {
   let [{ serverStatus }] = useServerStatus();
-  let wake = () => revalidatePath("/api/version");
+  let wake = () => queryApi.invalidateQueries(queryClient, "get", "/api/version");
   onCleanup(() => serverStatus.removeWaker(wake));
   let version = queryApi.useQuery("get", "/api/version", () => ({
     parseAs: "text",

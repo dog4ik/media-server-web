@@ -26,7 +26,7 @@ export function ActorCard(props: Props) {
           </h3>
           <Show when={props.actor.character}>
             {(character) => (
-              <p title={character()} class="text-muted-foreground truncate max-w-40 mt-1 text-sm">
+              <p title={character()} class="text-muted-foreground mt-1 max-w-40 truncate text-sm">
                 Role: {character()}
               </p>
             )}

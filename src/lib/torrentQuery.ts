@@ -21,14 +21,12 @@ export const EPISODE_FORMATTER: Record<
     `${show.locale_metadata?.original_title ?? show.title} Сезон: ${episode.season_number}`,
 };
 
-export const SEASON_FORMATTER: Record<
-  Provider,
-  (show: Schemas["Show"], season: number) => string
-> = {
-  tpb: (show, season) => `${sanitizeTpbTitle(show.title)} Season ${season}`,
-  rutracker: (show, season) =>
-    `${show.locale_metadata?.original_title ?? show.title} Сезон: ${season}`,
-};
+export const SEASON_FORMATTER: Record<Provider, (show: Schemas["Show"], season: number) => string> =
+  {
+    tpb: (show, season) => `${sanitizeTpbTitle(show.title)} Season ${season}`,
+    rutracker: (show, season) =>
+      `${show.locale_metadata?.original_title ?? show.title} Сезон: ${season}`,
+  };
 
 export const SHOW_FORMATTER: Record<Provider, (show: Schemas["Show"]) => string> = {
   tpb: (show) => `${sanitizeTpbTitle(show.title)}`,

@@ -93,7 +93,7 @@ export function VideoList(props: Props) {
           </Show>
         </DialogContent>
       </Dialog>
-      <div class="space-y-4 mt-8">
+      <div class="mt-8 space-y-4">
         <For each={props.videos}>
           {(video) => (
             <ListItem

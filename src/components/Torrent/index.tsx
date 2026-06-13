@@ -48,7 +48,7 @@ export function BitTorrentClient() {
           <>
             <div
               ref={dividerRef!}
-              class="h-1.5 shrink-0 cursor-row-resize bg-border transition-colors hover:bg-primary active:bg-primary"
+              class="bg-border hover:bg-primary active:bg-primary h-1.5 shrink-0 cursor-row-resize transition-colors"
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
               onPointerUp={onPointerUp}

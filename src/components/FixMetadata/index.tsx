@@ -82,7 +82,7 @@ export default function FixMetadata(props: Props) {
 
   return (
     <Dialog onOpenChange={(isClosed) => isClosed || props.onClose()} open={props.open}>
-      <DialogContent class="grid-rows-[auto_auto_1fr] h-3/4 w-2/3">
+      <DialogContent class="h-3/4 w-2/3 grid-rows-[auto_auto_1fr]">
         <DialogHeader>
           <DialogTitle>Edit metadata</DialogTitle>
           <DialogDescription>Select correct metadata from the list below</DialogDescription>
@@ -109,7 +109,11 @@ export default function FixMetadata(props: Props) {
                 <span class="text-muted-foreground text-2xl">Search failed</span>
               </div>
             </Match>
-            <Match when={searchResult.isSuccess && !searchResult.isFetching && filteredResults().length === 0}>
+            <Match
+              when={
+                searchResult.isSuccess && !searchResult.isFetching && filteredResults().length === 0
+              }
+            >
               <div class="grid size-full place-items-center">
                 <span class="text-muted-foreground text-2xl">Nothing found</span>
               </div>

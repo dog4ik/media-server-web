@@ -60,11 +60,6 @@ export type GetPaths = {
     : never;
 }[keyof paths];
 
-export async function revalidatePath(path: GetPaths) {
-  tracing.error({ path }, "NOT Revalidating path");
-  // await revalidate(path);
-}
-
 export function fullUrl<T extends GetPaths>(
   path: T,
   args: ParamsOption<paths[T]["get"]>["params"],

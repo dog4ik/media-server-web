@@ -1,4 +1,4 @@
-import { Schemas, revalidatePath, server } from "../../utils/serverApi";
+import { Schemas, server } from "../../utils/serverApi";
 import MoreButton from "../ContextMenu/MoreButton";
 import { Show } from "solid-js";
 import { formatDuration, formatTimeBeforeRelease } from "../../utils/formats";
@@ -11,6 +11,7 @@ import promptConfirm from "../modals/ConfirmationModal";
 import { Link, linkOptions, LinkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
 import { InLibaryIcon } from "./InLibraryIcon";
+import { queryApi, queryClient } from "@/utils/queryApi";
 
 type Props = {
   episode: ExtendedEpisode;
@@ -24,12 +25,12 @@ type Props = {
 };
 
 function revalidateHistory() {
-  revalidatePath("/api/show/{id}/{season}");
-  revalidatePath("/api/history/suggest/shows");
-  revalidatePath("/api/history/suggest/movies");
-  revalidatePath("/api/history");
-  revalidatePath("/api/video/{id}");
-  revalidatePath("/api/video/by_content");
+  queryApi.invalidateQueries(queryClient, "get", "/api/show/{id}/{season}");
+  queryApi.invalidateQueries(queryClient, "get", "/api/history/suggest/shows");
+  queryApi.invalidateQueries(queryClient, "get", "/api/history/suggest/movies");
+  queryApi.invalidateQueries(queryClient, "get", "/api/history");
+  queryApi.invalidateQueries(queryClient, "get", "/api/video/{id}");
+  queryApi.invalidateQueries(queryClient, "get", "/api/video/by_content");
 }
 
 async function markWatched(historyId: number, force: boolean) {

@@ -54,10 +54,10 @@ function SecondsInput(props: SecondsInputProps) {
 
   return (
     <div class="flex flex-col gap-1">
-      <span class="text-xs text-muted-foreground">{props.children}</span>
+      <span class="text-muted-foreground text-xs">{props.children}</span>
       <div class="flex items-center rounded-md border border-white/10 bg-white/4">
         <button
-          class="flex h-8 w-8 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
+          class="text-muted-foreground hover:text-foreground flex h-8 w-8 shrink-0 items-center justify-center transition-colors disabled:opacity-40"
           onClick={() => props.onChange(Math.max(props.value - 1, props.min))}
         >
           <svg
@@ -78,7 +78,7 @@ function SecondsInput(props: SecondsInputProps) {
           onBlur={onBlur}
         />
         <button
-          class="flex h-8 w-8 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
+          class="text-muted-foreground hover:text-foreground flex h-8 w-8 shrink-0 items-center justify-center transition-colors disabled:opacity-40"
           onClick={() => props.onChange(Math.min(props.value + 1, props.max))}
         >
           <svg
@@ -115,7 +115,7 @@ function IntroRow(props: IntroRowProps) {
       <div class="flex items-center justify-between">
         <div class="flex flex-col">
           <span class="text-sm font-medium">E{props.episode.number}</span>
-          <span class="text-xs text-muted-foreground">{props.episode.title}</span>
+          <span class="text-muted-foreground text-xs">{props.episode.title}</span>
         </div>
         <div class="flex items-center gap-1.5">
           <Button
@@ -131,7 +131,7 @@ function IntroRow(props: IntroRowProps) {
             disabled={isDisabled() || !hasChanged()}
             onClick={props.onSave}
             size="sm"
-            class="h-7 px-3 text-xs gap-1.5"
+            class="h-7 gap-1.5 px-3 text-xs"
           >
             <FiSave size={12} />
             {props.data.saving ? "Saving…" : "Save"}
@@ -141,7 +141,7 @@ function IntroRow(props: IntroRowProps) {
             size="sm"
             onClick={props.onDelete}
             disabled={isDisabled() || props.data.intro === undefined}
-            class="h-7 w-7 p-0 text-destructive hover:text-destructive"
+            class="text-destructive hover:text-destructive h-7 w-7 p-0"
           >
             <FiTrash2 size={14} />
           </Button>
@@ -158,7 +158,7 @@ function IntroRow(props: IntroRowProps) {
             <button
               onClick={() => props.onChange(defaultIntro(props.data.duration))}
               disabled={props.data.videoId === undefined}
-              class="flex h-14 w-full items-center justify-center gap-2 rounded-md border border-dashed border-white/20 text-sm text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary disabled:pointer-events-none disabled:opacity-40"
+              class="text-muted-foreground hover:border-primary/60 hover:text-primary flex h-14 w-full items-center justify-center gap-2 rounded-md border border-dashed border-white/20 text-sm transition-colors disabled:pointer-events-none disabled:opacity-40"
             >
               <FiPlusCircle size={15} />
               Add intro
@@ -175,7 +175,10 @@ function IntroRow(props: IntroRowProps) {
             <div class="flex items-center gap-4 pb-2">
               <SecondsInput
                 onChange={(v) =>
-                  props.onChange({ start_sec: v, end_sec: props.data.intro!.end_sec })
+                  props.onChange({
+                    start_sec: v,
+                    end_sec: props.data.intro!.end_sec,
+                  })
                 }
                 value={props.data.intro!.start_sec}
                 max={props.data.intro!.end_sec}
@@ -185,7 +188,10 @@ function IntroRow(props: IntroRowProps) {
               </SecondsInput>
               <SecondsInput
                 onChange={(v) =>
-                  props.onChange({ start_sec: props.data.intro!.start_sec, end_sec: v })
+                  props.onChange({
+                    start_sec: props.data.intro!.start_sec,
+                    end_sec: v,
+                  })
                 }
                 value={props.data.intro!.end_sec}
                 max={props.data.duration}
@@ -193,7 +199,7 @@ function IntroRow(props: IntroRowProps) {
               >
                 End
               </SecondsInput>
-              <span class="ml-auto text-xs text-muted-foreground">
+              <span class="text-muted-foreground ml-auto text-xs">
                 {Math.floor(props.data.intro!.end_sec - props.data.intro!.start_sec)}s
               </span>
             </div>
@@ -274,7 +280,10 @@ export function IntrosModal(props: Props) {
     setData(index, "saving", true);
     await server.PUT("/api/video/{video_id}/intro", {
       params: { path: { video_id: d.videoId } },
-      body: { start: Math.floor(d.intro.start_sec), end: Math.floor(d.intro.end_sec) },
+      body: {
+        start: Math.floor(d.intro.start_sec),
+        end: Math.floor(d.intro.end_sec),
+      },
     });
     setData(index, { saving: false, originalIntro: { ...d.intro } });
   }
@@ -286,7 +295,11 @@ export function IntrosModal(props: Props) {
     await server.DELETE("/api/video/{video_id}/intro", {
       params: { path: { video_id: d.videoId } },
     });
-    setData(index, { saving: false, intro: undefined, originalIntro: undefined });
+    setData(index, {
+      saving: false,
+      intro: undefined,
+      originalIntro: undefined,
+    });
   }
 
   async function saveAll() {
@@ -306,7 +319,7 @@ export function IntrosModal(props: Props) {
 
         <div class="shrink-0 border-b border-white/8 px-6 py-3">
           <div class="flex items-center gap-3">
-            <span class="shrink-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+            <span class="text-muted-foreground/60 shrink-0 text-[10px] font-semibold tracking-widest uppercase">
               All
             </span>
             <div class="flex-1">
@@ -319,7 +332,7 @@ export function IntrosModal(props: Props) {
                   fallback={
                     <button
                       onClick={() => applyMaster(defaultIntro(masterDuration()))}
-                      class="flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-white/15 text-xs text-muted-foreground/60 transition-colors hover:border-primary/40 hover:text-primary"
+                      class="text-muted-foreground/60 hover:border-primary/40 hover:text-primary flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-white/15 text-xs transition-colors"
                     >
                       <FiPlusCircle size={12} />
                       Set range for all episodes
@@ -342,7 +355,7 @@ export function IntrosModal(props: Props) {
               size="sm"
               disabled={!anyChanged()}
               onClick={saveAll}
-              class="h-7 shrink-0 px-3 text-xs gap-1.5"
+              class="h-7 shrink-0 gap-1.5 px-3 text-xs"
             >
               <FiSave size={12} />
               Save all

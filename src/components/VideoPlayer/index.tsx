@@ -457,8 +457,9 @@ export default function VideoPlayer(props: Props) {
         </div>
       </Show>
       <div
-        class={`${shouldShowControls() ? "opacity-100" : "opacity-0"
-          } transition-opacity duration-200`}
+        class={`${
+          shouldShowControls() ? "opacity-100" : "opacity-0"
+        } transition-opacity duration-200`}
       >
         <div class="size-full">{props.children}</div>
         <div
@@ -519,10 +520,7 @@ export default function VideoPlayer(props: Props) {
               >
                 <FiSettings size={30} />
               </button>
-              <div
-                class="cursor-pointer p-2"
-                onClick={() => toggleFullScreenMode()}
-              >
+              <div class="cursor-pointer p-2" onClick={() => toggleFullScreenMode()}>
                 <FiMaximize size={30} />
               </div>
             </div>

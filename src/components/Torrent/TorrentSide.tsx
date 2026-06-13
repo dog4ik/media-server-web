@@ -13,11 +13,19 @@ export function TorrentSide(props: Props) {
   return (
     <Tabs defaultValue="files" class="h-full gap-0 overflow-hidden border-t">
       <TabsList class="h-9 w-full justify-start rounded-none border-b bg-transparent px-2 ring-0">
-        <TabsTrigger value="files" class="flex-none px-4">Files</TabsTrigger>
-        <TabsTrigger value="peers" class="flex-none px-4">Peers</TabsTrigger>
-        <TabsTrigger value="trackers" class="flex-none px-4">Trackers</TabsTrigger>
-        <TabsTrigger value="info" class="flex-none px-4">Info</TabsTrigger>
-        <TabsIndicator class="top-auto bottom-0 h-0.5 rounded-none border-none bg-primary shadow-none" />
+        <TabsTrigger value="files" class="flex-none px-4">
+          Files
+        </TabsTrigger>
+        <TabsTrigger value="peers" class="flex-none px-4">
+          Peers
+        </TabsTrigger>
+        <TabsTrigger value="trackers" class="flex-none px-4">
+          Trackers
+        </TabsTrigger>
+        <TabsTrigger value="info" class="flex-none px-4">
+          Info
+        </TabsTrigger>
+        <TabsIndicator class="bg-primary top-auto bottom-0 h-0.5 rounded-none border-none shadow-none" />
       </TabsList>
       <TabsContent value="files" class="overflow-auto p-2 [scrollbar-gutter:stable]">
         <FileList

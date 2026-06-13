@@ -17,9 +17,9 @@ export function IntroBar(props: Props) {
   let durationPercent = duration / strippedDuration;
 
   return (
-    <div class="relative mx-10 h-1 w-full bg-white/10 rounded-full">
+    <div class="relative mx-10 h-1 w-full rounded-full bg-white/10">
       <div
-        class="absolute h-full bg-primary rounded-full"
+        class="bg-primary absolute h-full rounded-full"
         style={{
           left: `${startPercent * 100}%`,
           width: `${durationPercent * 100}%`,
@@ -79,28 +79,26 @@ function IntroPointer(props: PointerProps) {
   let controller = new AbortController();
   let { signal } = controller;
 
-  document.addEventListener(
-    "mouseup",
-    () => setIsDragging(false),
-    { signal },
-  );
+  document.addEventListener("mouseup", () => setIsDragging(false), { signal });
   document.addEventListener(
     "mousemove",
-    (e) => { if (isDragging()) handleScrubbing(e); },
+    (e) => {
+      if (isDragging()) handleScrubbing(e);
+    },
     { signal },
   );
   onCleanup(() => controller.abort());
 
   return (
     <div
-      class="absolute top-0 z-20 flex h-full -translate-x-1/2 cursor-grab select-none flex-col items-center active:cursor-grabbing"
+      class="absolute top-0 z-20 flex h-full -translate-x-1/2 cursor-grab flex-col items-center select-none active:cursor-grabbing"
       style={{ left: `${props.positionOffset * 100}%` }}
       onMouseDown={() => setIsDragging(true)}
     >
-      <div class="h-full w-0.5 bg-primary" />
-      <div class="absolute top-1/2 -translate-y-1/2 h-5 w-2.5 rounded-sm bg-primary shadow-md" />
+      <div class="bg-primary h-full w-0.5" />
+      <div class="bg-primary absolute top-1/2 h-5 w-2.5 -translate-y-1/2 rounded-sm shadow-md" />
       <span
-        class={`pointer-events-none absolute whitespace-nowrap text-[11px] font-medium text-primary-foreground ${
+        class={`text-primary-foreground pointer-events-none absolute text-[11px] font-medium whitespace-nowrap ${
           props.labelPosition === "top" ? "-top-5" : "-bottom-5"
         }`}
       >
@@ -118,32 +116,35 @@ export function DynamicIntro(props: DynamicIntroProps) {
 
   let changeStartPosition = (newPercent: number) => {
     let clamped = Math.min(newPercent, endPercent());
-    props.onChange({ start_sec: clamped * strippedDuration, end_sec: props.end });
+    props.onChange({
+      start_sec: clamped * strippedDuration,
+      end_sec: props.end,
+    });
   };
 
   let changeEndPosition = (newPercent: number) => {
     let clamped = Math.max(newPercent, startPercent());
-    props.onChange({ start_sec: props.start, end_sec: clamped * strippedDuration });
+    props.onChange({
+      start_sec: props.start,
+      end_sec: clamped * strippedDuration,
+    });
   };
 
   return (
     <div class={props.compact ? "" : "relative mx-8 mt-4 mb-6"}>
       {!props.compact && (
         <>
-          <span class="absolute -left-8 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+          <span class="text-muted-foreground absolute top-1/2 -left-8 -translate-y-1/2 text-xs">
             {formatDuration(0)}
           </span>
-          <span class="absolute -right-8 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+          <span class="text-muted-foreground absolute top-1/2 -right-8 -translate-y-1/2 text-xs">
             {formatDuration(strippedDuration * 1000)}
           </span>
         </>
       )}
-      <div
-        ref={timelineRef!}
-        class="relative h-8 cursor-default rounded-md bg-white/[0.06]"
-      >
+      <div ref={timelineRef!} class="relative h-8 cursor-default rounded-md bg-white/[0.06]">
         <div
-          class="absolute top-0 h-full rounded-md bg-primary/25"
+          class="bg-primary/25 absolute top-0 h-full rounded-md"
           style={{
             left: `${startPercent() * 100}%`,
             width: `${(endPercent() - startPercent()) * 100}%`,

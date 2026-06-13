@@ -1,11 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger, TabsIndicator } from "@/ui/tabs";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/ui/dialog";
 import CircleAlert from "lucide-solid/icons/circle-alert";
 import { Alert, AlertDescription } from "@/ui/alert";
 import { createSignal, Show } from "solid-js";
@@ -58,7 +52,9 @@ export function AddTorrentModal() {
     } catch (err) {
       tracing.error({ err }, "Failed to add magnet link");
       setError(
-        err instanceof Error ? err.message : "Failed to add torrent. Check the magnet link and try again.",
+        err instanceof Error
+          ? err.message
+          : "Failed to add torrent. Check the magnet link and try again.",
       );
     } finally {
       setIsLoading(false);
@@ -125,10 +121,7 @@ export function AddTorrentModal() {
         <div class="space-y-4">
           <div class="space-y-1.5">
             <p class="text-sm font-medium">Save location</p>
-            <FilePicker
-              onChange={setSaveLocation}
-              disallowFiles
-            />
+            <FilePicker onChange={setSaveLocation} disallowFiles />
           </div>
           <Tabs defaultValue="magnet" class="w-full">
             <TabsList class="grid w-full grid-cols-2">

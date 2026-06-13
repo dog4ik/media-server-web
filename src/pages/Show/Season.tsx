@@ -8,7 +8,7 @@ import Icon from "@/components/ui/Icon";
 import { Skeleton } from "@/ui/skeleton";
 import { extendEpisode, extendSeason, Media, posterList } from "@/utils/library";
 import { queryApi, queryClient } from "@/utils/queryApi";
-import { revalidatePath, Schemas, server } from "@/utils/serverApi";
+import { Schemas, server } from "@/utils/serverApi";
 import useToggle from "@/utils/useToggle";
 import { getRouteApi, linkOptions } from "@tanstack/solid-router";
 import clsx from "clsx";
@@ -164,7 +164,9 @@ export default function Season(props: Props) {
                   variant="destructive"
                   tooltip={`Delete season ${season().number}`}
                   onClick={() =>
-                    deleteContent(season()).then(() => revalidatePath("/api/show/{id}/{season}"))
+                    deleteContent(season()).then(() =>
+                      queryApi.invalidateQueries(queryClient, "get", "/api/show/{id}/{season}"),
+                    )
                   }
                 >
                   <FiTrash />

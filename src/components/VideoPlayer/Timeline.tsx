@@ -42,7 +42,13 @@ export default function Timeline(props: Props) {
   let chapters = createMemo(() => {
     let duration = props.duration || 1;
     if (props.chapters.length === 0) {
-      return [{ start: 0, end: duration, title: undefined as string | null | undefined }];
+      return [
+        {
+          start: 0,
+          end: duration,
+          title: undefined as string | null | undefined,
+        },
+      ];
     }
     return props.chapters.map((c) => ({
       start: c.start / 1000,
@@ -163,13 +169,13 @@ export default function Timeline(props: Props) {
         <For each={segments()}>
           {(segment) => (
             <div
-              class="absolute top-0 h-full overflow-hidden rounded-[1px] bg-background/30"
+              class="bg-background/30 absolute top-0 h-full overflow-hidden rounded-[1px]"
               style={{
                 left: `calc(${segment.left}%)`,
                 width: `calc(${segment.width}% - 3px)`,
               }}
             >
-              <div class="h-full bg-accent" style={{ width: `${segment.fill}%` }} />
+              <div class="bg-accent h-full" style={{ width: `${segment.fill}%` }} />
             </div>
           )}
         </For>

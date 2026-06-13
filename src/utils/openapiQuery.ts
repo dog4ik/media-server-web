@@ -32,12 +32,17 @@ import type { Accessor } from "solid-js";
 type HttpMethod = "get" | "put" | "post" | "delete" | "options" | "head" | "patch" | "trace";
 type MediaType = `${string}/${string}`;
 type PathsWithMethod<Paths extends {}, PathnameMethod extends HttpMethod> = {
-  [Pathname in keyof Paths]: Paths[Pathname] extends { [K in PathnameMethod]: any } ? Pathname : never;
+  [Pathname in keyof Paths]: Paths[Pathname] extends {
+    [K in PathnameMethod]: any;
+  }
+    ? Pathname
+    : never;
 }[keyof Paths];
 type RequiredKeysOfHelper<T> = {
   [K in keyof T]: {} extends Pick<T, K> ? never : K;
 }[keyof T];
-type RequiredKeysOf<T> = RequiredKeysOfHelper<T> extends undefined ? never : RequiredKeysOfHelper<T>;
+type RequiredKeysOf<T> =
+  RequiredKeysOfHelper<T> extends undefined ? never : RequiredKeysOfHelper<T>;
 
 // Helper type to dynamically infer the type from the `select` property
 type InferSelectReturnType<TData, TSelect> = TSelect extends (data: TData) => infer R ? R : TData;
@@ -51,7 +56,10 @@ export type QueryKey<
   Init = MaybeOptionalInit<Paths[Path], Method>,
 > = Init extends undefined ? readonly [Method, Path] : readonly [Method, Path, Init];
 
-export type QueryOptionsFunction<Paths extends Record<string, Record<HttpMethod, {}>>, Media extends MediaType> = <
+export type QueryOptionsFunction<
+  Paths extends Record<string, Record<HttpMethod, {}>>,
+  Media extends MediaType,
+> = <
   Method extends HttpMethod,
   Path extends PathsWithMethod<Paths, Method>,
   Init extends MaybeOptionalInit<Paths[Path], Method>,
@@ -102,7 +110,10 @@ export type QueryOptionsFunction<Paths extends Record<string, Record<HttpMethod,
   >
 >;
 
-export type UseQueryMethod<Paths extends Record<string, Record<HttpMethod, {}>>, Media extends MediaType> = <
+export type UseQueryMethod<
+  Paths extends Record<string, Record<HttpMethod, {}>>,
+  Media extends MediaType,
+> = <
   Method extends HttpMethod,
   Path extends PathsWithMethod<Paths, Method>,
   Init extends MaybeOptionalInit<Paths[Path], Method>,
@@ -124,12 +135,18 @@ export type UseQueryMethod<Paths extends Record<string, Record<HttpMethod, {}>>,
   ...[init, options, queryClient]: RequiredKeysOf<Init> extends never
     ? [Accessor<InitWithUnknowns<Init>>?, Accessor<Options>?, QueryClient?]
     : [Accessor<InitWithUnknowns<Init>>, Accessor<Options>?, QueryClient?]
-) => UseQueryResult<InferSelectReturnType<Response["data"], Options["select"]>, Response["error"]> & {
+) => UseQueryResult<
+  InferSelectReturnType<Response["data"], Options["select"]>,
+  Response["error"]
+> & {
   /** Access data without triggering suspense */
   latest: () => InferSelectReturnType<Response["data"], Options["select"]> | undefined;
 };
 
-export type UseInfiniteQueryMethod<Paths extends Record<string, Record<HttpMethod, {}>>, Media extends MediaType> = <
+export type UseInfiniteQueryMethod<
+  Paths extends Record<string, Record<HttpMethod, {}>>,
+  Media extends MediaType,
+> = <
   Method extends HttpMethod,
   Path extends PathsWithMethod<Paths, Method>,
   Init extends MaybeOptionalInit<Paths[Path], Method>,
@@ -159,7 +176,10 @@ export type UseInfiniteQueryMethod<Paths extends Record<string, Record<HttpMetho
   Response["error"]
 >;
 
-export type UseMutationMethod<Paths extends Record<string, Record<HttpMethod, {}>>, Media extends MediaType> = <
+export type UseMutationMethod<
+  Paths extends Record<string, Record<HttpMethod, {}>>,
+  Media extends MediaType,
+> = <
   Method extends HttpMethod,
   Path extends PathsWithMethod<Paths, Method>,
   Init extends MaybeOptionalInit<Paths[Path], Method>,
@@ -177,7 +197,10 @@ export type UseMutationMethod<Paths extends Record<string, Record<HttpMethod, {}
   queryClient?: Accessor<QueryClient>,
 ) => UseMutationResult<Response["data"], Response["error"], Init, TOnMutateResult>;
 
-export type InvalidateQueriesMethod<Paths extends Record<string, Record<HttpMethod, {}>>, Media extends MediaType> = <
+export type InvalidateQueriesMethod<
+  Paths extends Record<string, Record<HttpMethod, {}>>,
+  Media extends MediaType,
+> = <
   Method extends HttpMethod,
   Path extends PathsWithMethod<Paths, Method>,
   Init extends MaybeOptionalInit<Paths[Path], Method>,
@@ -209,7 +232,10 @@ export type MethodResponse<
     : never,
   Options = object,
 > =
-  CreatedClient extends OpenapiQueryClient<infer Paths extends { [key: string]: any }, infer Media extends MediaType>
+  CreatedClient extends OpenapiQueryClient<
+    infer Paths extends { [key: string]: any },
+    infer Media extends MediaType
+  >
     ? NonNullable<FetchResponse<Paths[Path][Method], Options, Media>["data"]>
     : never;
 
@@ -223,7 +249,10 @@ export default function createClient<Paths extends {}, Media extends MediaType =
   }: QueryFunctionContext<QueryKey<Paths, Method, Path>>) => {
     const mth = method.toUpperCase() as Uppercase<typeof method>;
     const fn = client[mth] as ClientMethod<Paths, typeof method, Media>;
-    const { data, error, response } = await fn(path, { signal, ...(init as any) }); // TODO: find a way to avoid as any
+    const { data, error, response } = await fn(path, {
+      signal,
+      ...(init as any),
+    }); // TODO: find a way to avoid as any
     if (error) {
       throw error;
     }
@@ -240,7 +269,11 @@ export default function createClient<Paths extends {}, Media extends MediaType =
       ({
         queryKey: (init === undefined
           ? ([method, path] as const)
-          : ([method, path, init()] as const)) as DataTag<QueryKey<Paths, typeof method, typeof path>, any, any>,
+          : ([method, path, init()] as const)) as DataTag<
+          QueryKey<Paths, typeof method, typeof path>,
+          any,
+          any
+        >,
         queryFn,
         ...options?.(),
       }) as any;
@@ -253,7 +286,9 @@ export default function createClient<Paths extends {}, Media extends MediaType =
       // always-defined). We never set `initialData`, so widen the options to the
       // undefined-initial-data overload while preserving the inferred data/error generics.
       const query = useQuery(
-        queryOpts as () => ReturnType<typeof queryOpts> & { initialData?: undefined },
+        queryOpts as () => ReturnType<typeof queryOpts> & {
+          initialData?: undefined;
+        },
         queryClient === undefined ? undefined : () => queryClient,
       );
 
@@ -278,7 +313,10 @@ export default function createClient<Paths extends {}, Media extends MediaType =
               queryKey: [method, path, init],
               pageParam = 0,
               signal,
-            }: QueryFunctionContext<QueryKey<Paths, HttpMethod, PathsWithMethod<Paths, HttpMethod>>, unknown>) => {
+            }: QueryFunctionContext<
+              QueryKey<Paths, HttpMethod, PathsWithMethod<Paths, HttpMethod>>,
+              unknown
+            >) => {
               const mth = (method as HttpMethod).toUpperCase() as Uppercase<HttpMethod>;
               const fn = client[mth] as ClientMethod<Paths, HttpMethod, Media>;
               const mergedInit = {

@@ -273,14 +273,14 @@ export function WatchShow() {
 
 export type StreamParams = (
   | {
-    method: "hls";
-    audioCodec?: string;
-    videoCodec?: string;
-  }
+      method: "hls";
+      audioCodec?: string;
+      videoCodec?: string;
+    }
   | {
-    method: "direct";
-    watchUrl: string;
-  }
+      method: "direct";
+      watchUrl: string;
+    }
 ) & {
   streamId: string;
 };
@@ -354,9 +354,9 @@ function Watch(props: WatchProps) {
           previews={
             video().details.previews_count > 0
               ? {
-                previewsAmount: video().details.previews_count,
-                videoId: video().details.id,
-              }
+                  previewsAmount: video().details.previews_count,
+                  videoId: video().details.id,
+                }
               : undefined
           }
         >

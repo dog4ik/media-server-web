@@ -18,7 +18,9 @@ export class ServerConnection {
   private reconnectAttempts = 0;
   private reconnectTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
-  private handlers: { [T in keyof TaskProgressMap]?: ((progress: TaskProgressMap[T]) => void)[] };
+  private handlers: {
+    [T in keyof TaskProgressMap]?: ((progress: TaskProgressMap[T]) => void)[];
+  };
   private torrentHandler:
     | ((v: Schemas["TorrentProgress"] | Schemas["SessionState"]) => void)
     | undefined;

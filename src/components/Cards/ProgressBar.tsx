@@ -11,9 +11,9 @@ function progressBarPercent(history: Schemas["History"], runtime: number) {
 
 export function WatchProgressBar(props: Props) {
   return (
-    <div class="absolute bottom-0 left-0 right-0">
+    <div class="absolute right-0 bottom-0 left-0">
       <div
-        class="z-50 h-1 bg-primary"
+        class="bg-primary z-50 h-1"
         style={{
           width: `${progressBarPercent(props.history, props.runtime)}%`,
         }}

@@ -5,16 +5,16 @@ import { JSX } from "solid-js";
 
 export type Row =
   | {
-    onClick?: () => void;
-    title: string;
-  }
+      onClick?: () => void;
+      title: string;
+    }
   | {
-    custom: JSX.Element;
-  }
+      custom: JSX.Element;
+    }
   | {
-    expanded: Row[];
-    title: string;
-  };
+      expanded: Row[];
+      title: string;
+    };
 
 const menuClass =
   "z-50 w-56 origin-top animate-menu-in rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md";
@@ -88,7 +88,7 @@ export default function MoreButton(props: ParentProps) {
         style={`
 anchor-name: --${menuId};
 `}
-        class="flex cursor-pointer items-center justify-center rounded-md p-1.5 text-muted-foreground hover:bg-none hover:text-secondary-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        class="text-muted-foreground hover:text-secondary-foreground focus-visible:ring-ring flex cursor-pointer items-center justify-center rounded-md p-1.5 hover:bg-none focus-visible:ring-2 focus-visible:outline-none"
       >
         <FiMoreVertical size={20} />
       </button>

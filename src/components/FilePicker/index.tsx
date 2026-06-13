@@ -159,7 +159,7 @@ export function FilePicker(props: Props) {
         </div>
         <Show when={locations.latest()}>
           {(locations) => (
-            <div class="grid grid-cols-3 justify-between divide-x h-96">
+            <div class="grid h-96 grid-cols-3 justify-between divide-x">
               <div class="grow-0 flex-col overflow-y-auto">
                 <Show when={locations().home}>
                   {(home) => (

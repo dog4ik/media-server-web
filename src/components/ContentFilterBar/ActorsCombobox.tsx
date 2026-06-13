@@ -50,7 +50,7 @@ export function ActorsCombobox(props: Props) {
                   srcList={extendActor(props.item.rawValue).posterList()}
                   width={50}
                   height={50}
-                  class="rounded-full overflow-hidden object-cover"
+                  class="overflow-hidden rounded-full object-cover"
                 />
                 <ComboboxItemLabel>{props.item.rawValue.name}</ComboboxItemLabel>
               </ComboboxItem>

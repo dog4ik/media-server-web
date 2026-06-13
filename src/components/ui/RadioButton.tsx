@@ -23,12 +23,12 @@ export default function RadioButton(props: Props) {
           }`}
         />
         <div
-          class={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-blue-500 transition-all duration-300 ${
+          class={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-blue-500 transition-all duration-300 ${
             props.checked ? "size-4 opacity-100" : "h-0 w-0 opacity-0"
           }`}
         />
         <div
-          class={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform text-white transition-all duration-300 ${
+          class={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform text-white transition-all duration-300 ${
             props.checked ? "scale-100 opacity-100" : "scale-0 opacity-0"
           }`}
         >

@@ -1,4 +1,4 @@
-import { Schemas, formatCodec, revalidatePath, server } from "../../utils/serverApi";
+import { Schemas, formatCodec, server } from "../../utils/serverApi";
 import { ErrorBoundary, For, Match, Show, Suspense, Switch } from "solid-js";
 import { throwResponseErrors } from "../../utils/errors";
 import {
@@ -16,6 +16,7 @@ import promptConfirm from "../modals/ConfirmationModal";
 import { Table, TableBody, TableRow, TableHead, TableHeader, TableCell } from "@/ui/table";
 import { Link, LinkOptions } from "@tanstack/solid-router";
 import { useQuery } from "@tanstack/solid-query";
+import { queryApi, queryClient } from "@/utils/queryApi";
 
 type TableRowProps = {
   title: string;
@@ -175,7 +176,7 @@ export default function TranscodedVariantsList() {
       await server.DELETE("/api/video/{id}/variant/{variant_id}", {
         params: { path: { id: videoId, variant_id: variantId } },
       });
-      await revalidatePath("/api/variants");
+      await queryApi.invalidateQueries(queryClient, "get", "/api/variants");
     }
   }
 
@@ -183,7 +184,7 @@ export default function TranscodedVariantsList() {
     <div class="flex flex-col gap-5">
       <ErrorBoundary fallback={VariantsError}>
         <Suspense>
-          <Show fallback={<NoItemsDisplay />} when={videos.data?.length! > 0}>
+          <Show fallback={<NoItemsDisplay />} when={videos.data && videos.data.length > 0}>
             <Table class="border">
               <TableHeader>
                 <TableRow>

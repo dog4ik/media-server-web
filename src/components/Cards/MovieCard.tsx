@@ -1,6 +1,6 @@
 import MoreButton from "../ContextMenu/MoreButton";
 import FallbackImage from "../FallbackImage";
-import { Schemas, fullUrl, revalidatePath, server } from "../../utils/serverApi";
+import { Schemas, fullUrl, server } from "../../utils/serverApi";
 import { MenuRow } from "../ContextMenu/Menu";
 import useToggle from "../../utils/useToggle";
 import { createMemo, Show } from "solid-js";
@@ -9,6 +9,7 @@ import promptConfirm from "../modals/ConfirmationModal";
 import { Link, linkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
 import { InLibaryIcon } from "./InLibraryIcon";
+import { queryApi, queryClient } from "@/utils/queryApi";
 
 async function deleteMovie(id: number, title: string) {
   try {
@@ -19,7 +20,7 @@ async function deleteMovie(id: number, title: string) {
     }
   } catch (_) {
   } finally {
-    revalidatePath("/api/local_movies");
+    queryApi.invalidateQueries(queryClient, "get", "/api/local_movies");
   }
 }
 

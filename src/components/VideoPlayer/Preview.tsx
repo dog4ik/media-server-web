@@ -28,7 +28,7 @@ export default function Preview(props: PreviewProps) {
           <img width={IMG_WIDTH} height={IMG_HEIGHT} src={props.src} alt="Preview" />
         </div>
       </Show>
-      <div class="bg-black/60 rounded-md text-sm px-2 py-1 space-x-2">
+      <div class="space-x-2 rounded-md bg-black/60 px-2 py-1 text-sm">
         <Show when={props.chapter}>
           <span class="max-w-48 truncate text-center text-sm font-semibold drop-shadow-md">
             {props.chapter}

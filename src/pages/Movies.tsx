@@ -14,7 +14,12 @@ export default function Movies() {
     "get",
     "/api/local_movies",
     () => ({
-      params: { query: { search: filterState().titleFilter, actors: filterState().actorFilter } },
+      params: {
+        query: {
+          search: filterState().titleFilter,
+          actors: filterState().actorFilter,
+        },
+      },
     }),
     () => ({ placeholderData: (stale) => stale }),
   );

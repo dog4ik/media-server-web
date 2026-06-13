@@ -104,7 +104,10 @@ export default function SearchBar() {
 
   function handleSubmit() {
     setOpen(false);
-    navigator({ to: "/search", search: { provider: "local", search: input() } });
+    navigator({
+      to: "/search",
+      search: { provider: "local", search: input() },
+    });
   }
 
   function handleSelect() {

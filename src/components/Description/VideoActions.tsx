@@ -1,11 +1,11 @@
 import { FiImage } from "solid-icons/fi";
-import { revalidatePath } from "../../utils/serverApi";
 import Icon from "../ui/Icon";
 import { ParentProps, Show } from "solid-js";
 import PlayButton from "./PlayButton";
 import { useNotifications } from "../../context/NotificationContext";
 import { Video } from "@/utils/library";
 import { LinkOptions } from "@tanstack/solid-router";
+import { queryApi, queryClient } from "@/utils/queryApi";
 
 type Props = {
   video: Video;
@@ -27,13 +27,13 @@ export default function VideoActions(props: Props) {
         notificator("Failed to clear previews");
       })
       .finally(() => {
-        revalidatePath("/api/video/by_content");
+        queryApi.invalidateQueries(queryClient, "get", "/api/video/by_content");
       });
   };
 
   let generatePreviews = async () => {
     props.video.generatePreviews().finally(() => {
-      revalidatePath("/api/video/by_content");
+      queryApi.invalidateQueries(queryClient, "get", "/api/video/by_content");
     });
   };
 

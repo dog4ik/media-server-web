@@ -45,7 +45,7 @@ function File(props: FileProps) {
     <button
       title={props.path}
       onClick={() => props.onSelect(!props.isSelected)}
-      class="relative flex h-44 w-80 select-none flex-col overflow-hidden rounded-xl"
+      class="relative flex h-44 w-80 flex-col overflow-hidden rounded-xl select-none"
     >
       <img
         draggable={false}
@@ -54,23 +54,23 @@ function File(props: FileProps) {
         height={180}
         src={props.poster ?? "/no-photo.png"}
       />
-      <div class="absolute right-3 top-3">
+      <div class="absolute top-3 right-3">
         <Checkbox checked={props.isSelected}>
           <CheckboxControl />
         </Checkbox>
       </div>
       <Show when={props.subtitle}>
-        <div class="absolute left-3 top-3">
+        <div class="absolute top-3 left-3">
           <span>{props.subtitle}</span>
         </div>
       </Show>
       <div title={props.title} class="absolute bottom-3 left-3 w-3/4 max-w-52 truncate text-start">
         <span class="text-lg">{props.title}</span>
       </div>
-      <div class="absolute bottom-3 right-3 w-1/3 truncate text-end">
+      <div class="absolute right-3 bottom-3 w-1/3 truncate text-end">
         <span class="text-lg">{formatSize(props.size)}</span>
       </div>
-      <div class="absolute right-3 top-3">
+      <div class="absolute top-3 right-3">
         <Checkbox checked={props.isSelected}>
           <CheckboxControl />
         </Checkbox>

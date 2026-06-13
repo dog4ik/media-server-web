@@ -44,11 +44,11 @@ anchor-name: --${props.popoverTarget};
 `}
       class={cn(
         rowClass,
-        "justify-between hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground",
+        "hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground justify-between",
       )}
     >
       <span class="pointer-events-none">{props.children}</span>
-      <FiChevronRight size={16} class="pointer-events-none text-muted-foreground" />
+      <FiChevronRight size={16} class="text-muted-foreground pointer-events-none" />
     </button>
   );
 }

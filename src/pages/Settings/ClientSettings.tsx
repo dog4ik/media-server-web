@@ -109,15 +109,15 @@ function ThemeCard(props: ThemeCardProps) {
         "border-width": props.active ? "2px" : "1px",
       }}
     >
-      <div class="p-3 space-y-1.5">
+      <div class="space-y-1.5 p-3">
         <div class="flex items-center justify-between gap-2">
           <span
-            class="text-sm font-medium truncate"
+            class="truncate text-sm font-medium"
             style={{ color: props.theme.vars["--foreground"] }}
           >
             {props.theme.name}
           </span>
-          <div class="flex gap-1 shrink-0">
+          <div class="flex shrink-0 gap-1">
             <div
               class="size-3 rounded-full"
               style={{ background: props.theme.vars["--primary"] }}
@@ -130,7 +130,7 @@ function ThemeCard(props: ThemeCardProps) {
           </div>
         </div>
         <div
-          class="h-1.5 w-full rounded-full overflow-hidden"
+          class="h-1.5 w-full overflow-hidden rounded-full"
           style={{ background: props.theme.vars["--muted"] }}
         >
           <div
@@ -144,7 +144,7 @@ function ThemeCard(props: ThemeCardProps) {
       </div>
       <Show when={props.onDelete}>
         <button
-          class="absolute top-1 right-1 size-5 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+          class="absolute top-1 right-1 flex size-5 items-center justify-center rounded opacity-0 transition-opacity group-hover:opacity-100"
           style={{
             background: props.theme.vars["--destructive"],
             color: "#fff",
@@ -166,21 +166,21 @@ function UIPreview() {
   return (
     <div class="space-y-4">
       <div class="flex items-center gap-2">
-        <div class="w-2 h-2 rounded-full bg-primary" />
-        <span class="text-xs text-muted-foreground font-medium uppercase tracking-widest">
+        <div class="bg-primary h-2 w-2 rounded-full" />
+        <span class="text-muted-foreground text-xs font-medium tracking-widest uppercase">
           ui preview
         </span>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="bg-card border border-border rounded-lg p-4 space-y-3">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="bg-card border-border space-y-3 rounded-lg border p-4">
           <div class="flex items-start justify-between">
             <div>
-              <h3 class="font-semibold text-card-foreground">Media Server</h3>
-              <p class="text-sm text-muted-foreground mt-0.5">Manage your media library</p>
+              <h3 class="text-card-foreground font-semibold">Media Server</h3>
+              <p class="text-muted-foreground mt-0.5 text-sm">Manage your media library</p>
             </div>
             <Badge>active</Badge>
           </div>
-          <div class="flex gap-2 flex-wrap">
+          <div class="flex flex-wrap gap-2">
             <Button size="sm">Browse</Button>
             <Button size="sm" variant="secondary">
               Settings
@@ -190,22 +190,22 @@ function UIPreview() {
             </Button>
           </div>
           <div class="space-y-1.5">
-            <div class="flex justify-between text-xs text-muted-foreground">
+            <div class="text-muted-foreground flex justify-between text-xs">
               <span>Storage used</span>
               <span>62%</span>
             </div>
-            <div class="h-2 bg-muted rounded-full overflow-hidden">
-              <div class="h-full bg-primary rounded-full w-[62%]" />
+            <div class="bg-muted h-2 overflow-hidden rounded-full">
+              <div class="bg-primary h-full w-[62%] rounded-full" />
             </div>
           </div>
         </div>
 
-        <div class="bg-card border border-border rounded-lg p-4 space-y-3">
-          <h3 class="font-semibold text-card-foreground">Quick search</h3>
-          <div class="border border-input bg-background rounded-md flex items-center px-3 gap-2">
-            <Search class="size-4 text-muted-foreground shrink-0" />
+        <div class="bg-card border-border space-y-3 rounded-lg border p-4">
+          <h3 class="text-card-foreground font-semibold">Quick search</h3>
+          <div class="border-input bg-background flex items-center gap-2 rounded-md border px-3">
+            <Search class="text-muted-foreground size-4 shrink-0" />
             <input
-              class="bg-transparent text-sm py-2 text-foreground placeholder:text-muted-foreground outline-none w-full"
+              class="text-foreground placeholder:text-muted-foreground w-full bg-transparent py-2 text-sm outline-none"
               placeholder="Search movies, shows..."
               disabled
             />
@@ -221,11 +221,11 @@ function UIPreview() {
               {(item) => (
                 <div class="flex items-center justify-between py-1">
                   <div class="flex items-center gap-2">
-                    <Skeleton class="size-6 rounded shrink-0" />
-                    <span class="text-sm text-foreground">{item.title}</span>
+                    <Skeleton class="size-6 shrink-0 rounded" />
+                    <span class="text-foreground text-sm">{item.title}</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <span class="text-xs text-muted-foreground">{item.year}</span>
+                    <span class="text-muted-foreground text-xs">{item.year}</span>
                     <Badge variant="outline">{item.type}</Badge>
                   </div>
                 </div>
@@ -234,9 +234,9 @@ function UIPreview() {
           </div>
         </div>
 
-        <div class="bg-card border border-border rounded-lg p-4 space-y-3 sm:col-span-2">
+        <div class="bg-card border-border space-y-3 rounded-lg border p-4 sm:col-span-2">
           <div class="flex items-center justify-between">
-            <h3 class="font-semibold text-card-foreground">Typography & colors</h3>
+            <h3 class="text-card-foreground font-semibold">Typography & colors</h3>
             <Badge variant="secondary">preview</Badge>
           </div>
           <div class="flex flex-wrap gap-2">
@@ -246,15 +246,15 @@ function UIPreview() {
             <span class="text-destructive text-sm font-medium">destructive</span>
           </div>
           <div class="flex flex-wrap gap-2">
-            <div class="size-6 rounded bg-background border border-border" title="background" />
-            <div class="size-6 rounded bg-card border border-border" title="card" />
-            <div class="size-6 rounded bg-primary" title="primary" />
-            <div class="size-6 rounded bg-secondary border border-border" title="secondary" />
-            <div class="size-6 rounded bg-accent" title="accent" />
-            <div class="size-6 rounded bg-muted" title="muted" />
-            <div class="size-6 rounded bg-destructive" title="destructive" />
+            <div class="bg-background border-border size-6 rounded border" title="background" />
+            <div class="bg-card border-border size-6 rounded border" title="card" />
+            <div class="bg-primary size-6 rounded" title="primary" />
+            <div class="bg-secondary border-border size-6 rounded border" title="secondary" />
+            <div class="bg-accent size-6 rounded" title="accent" />
+            <div class="bg-muted size-6 rounded" title="muted" />
+            <div class="bg-destructive size-6 rounded" title="destructive" />
           </div>
-          <div class="flex gap-2 flex-wrap">
+          <div class="flex flex-wrap gap-2">
             <Button variant="outline" size="sm">
               outline
             </Button>
@@ -333,20 +333,20 @@ export function ColorSettingsPage() {
   const allThemes = createMemo(() => [...PRESET_THEMES, ...customThemes()]);
 
   return (
-    <div class="flex flex-col gap-8 p-5 max-w-5xl">
+    <div class="flex max-w-5xl flex-col gap-8 p-5">
       <div class="space-y-1">
-        <div class="flex items-center gap-2 text-muted-foreground">
+        <div class="text-muted-foreground flex items-center gap-2">
           <Palette class="size-4" />
-          <span class="text-xs uppercase tracking-widest font-medium">theme</span>
+          <span class="text-xs font-medium tracking-widest uppercase">theme</span>
         </div>
-        <div class="flex gap-0 items-center">
+        <div class="flex items-center gap-0">
           <button
             onClick={() => setTab("preset")}
             class={cx(
-              "px-4 py-1.5 text-sm border transition-all",
+              "border px-4 py-1.5 text-sm transition-all",
               tab() === "preset"
                 ? "bg-foreground text-background border-foreground"
-                : "bg-transparent text-muted-foreground border-border hover:text-foreground",
+                : "text-muted-foreground border-border hover:text-foreground bg-transparent",
             )}
           >
             preset
@@ -354,10 +354,10 @@ export function ColorSettingsPage() {
           <button
             onClick={() => setTab("custom")}
             class={cx(
-              "px-4 py-1.5 text-sm border transition-all",
+              "border px-4 py-1.5 text-sm transition-all",
               tab() === "custom"
                 ? "bg-foreground text-background border-foreground"
-                : "bg-transparent text-muted-foreground border-border hover:text-foreground",
+                : "text-muted-foreground border-border hover:text-foreground bg-transparent",
             )}
           >
             custom
@@ -366,7 +366,7 @@ export function ColorSettingsPage() {
       </div>
 
       <Show when={tab() === "preset"}>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+        <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           <For each={allThemes()}>
             {(theme) => (
               <ThemeCard
@@ -386,13 +386,13 @@ export function ColorSettingsPage() {
 
       <Show when={tab() === "custom"}>
         <div class="space-y-6">
-          <div class="flex flex-wrap gap-2 items-center">
-            <span class="text-sm text-muted-foreground">load from preset:</span>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-muted-foreground text-sm">load from preset:</span>
             <For each={PRESET_THEMES}>
               {(theme) => (
                 <button
                   onClick={() => loadPresetIntoEditor(theme)}
-                  class="px-3 py-1 text-xs border border-border hover:border-primary text-muted-foreground hover:text-foreground transition-all"
+                  class="border-border hover:border-primary text-muted-foreground hover:text-foreground border px-3 py-1 text-xs transition-all"
                 >
                   {theme.name}
                 </button>
@@ -404,24 +404,24 @@ export function ColorSettingsPage() {
             <For each={CUSTOM_VAR_GROUPS}>
               {(group) => (
                 <div class="space-y-2">
-                  <span class="text-xs uppercase tracking-widest text-muted-foreground font-medium">
+                  <span class="text-muted-foreground text-xs font-medium tracking-widest uppercase">
                     {group.label}
                   </span>
-                  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                     <For each={group.vars}>
                       {(varKey) => (
-                        <div class="flex items-center gap-2 border border-border bg-card px-3 py-2">
+                        <div class="border-border bg-card flex items-center gap-2 border px-3 py-2">
                           <input
                             type="color"
                             value={editVars()[varKey]}
                             onInput={(e) => handleCustomVarChange(varKey, e.currentTarget.value)}
-                            class="size-7 rounded cursor-pointer border-0 bg-transparent p-0 shrink-0"
+                            class="size-7 shrink-0 cursor-pointer rounded border-0 bg-transparent p-0"
                           />
                           <div class="min-w-0">
-                            <div class="text-xs text-muted-foreground truncate">
+                            <div class="text-muted-foreground truncate text-xs">
                               {VAR_LABELS[varKey]}
                             </div>
-                            <div class="text-xs text-foreground font-mono truncate">
+                            <div class="text-foreground truncate font-mono text-xs">
                               {editVars()[varKey]}
                             </div>
                           </div>
@@ -434,7 +434,7 @@ export function ColorSettingsPage() {
             </For>
 
             <div class="space-y-2">
-              <span class="text-xs uppercase tracking-widest text-muted-foreground font-medium">
+              <span class="text-muted-foreground text-xs font-medium tracking-widest uppercase">
                 radius
               </span>
               <div class="flex items-center gap-3">
@@ -450,34 +450,34 @@ export function ColorSettingsPage() {
                   }}
                   class="w-40"
                 />
-                <span class="text-sm font-mono text-muted-foreground">
+                <span class="text-muted-foreground font-mono text-sm">
                   {editVars()["--radius"]}
                 </span>
               </div>
             </div>
           </div>
 
-          <div class="flex items-center gap-3 pt-2 border-t border-border">
-            <div class="flex items-center gap-2 border border-border bg-card px-3 py-1.5">
+          <div class="border-border flex items-center gap-3 border-t pt-2">
+            <div class="border-border bg-card flex items-center gap-2 border px-3 py-1.5">
               <input
                 type="text"
                 value={customName()}
                 onInput={(e) => setCustomName(e.currentTarget.value)}
-                class="bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none w-36"
+                class="text-foreground placeholder:text-muted-foreground w-36 bg-transparent text-sm outline-none"
                 placeholder="theme name"
               />
             </div>
             <Button onClick={saveCustomTheme} size="sm">
               save theme
             </Button>
-            <span class="text-xs text-muted-foreground">
+            <span class="text-muted-foreground text-xs">
               saved themes appear in the preset grid
             </span>
           </div>
         </div>
       </Show>
 
-      <div class="border-t border-border pt-6">
+      <div class="border-border border-t pt-6">
         <UIPreview />
       </div>
     </div>

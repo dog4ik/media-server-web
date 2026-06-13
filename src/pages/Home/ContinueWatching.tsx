@@ -43,7 +43,15 @@ export function ContinueWatchingSection() {
           <Suspense>
             <For each={movieHistory.data}>
               {(movie) => {
-                return <MovieCard movie={{ ...movie.movie, provider: movie.movie.metadata_provider, provider_id: movie.movie.metadata_id }} />;
+                return (
+                  <MovieCard
+                    movie={{
+                      ...movie.movie,
+                      provider: movie.movie.metadata_provider,
+                      provider_id: movie.movie.metadata_id,
+                    }}
+                  />
+                );
               }}
             </For>
           </Suspense>

@@ -1,11 +1,12 @@
 import { ParentProps, createContext, createSignal, onCleanup, useContext } from "solid-js";
-import { revalidatePath, Schemas } from "../utils/serverApi";
+import { Schemas } from "../utils/serverApi";
 import { useRawNotifications } from "./NotificationContext";
 import { server } from "../utils/serverApi";
 import { NotificationProps } from "../components/Notification";
 import { extendEpisode, extendMovie, extendShow, fetchSeason, Media, Video } from "@/utils/library";
 import { ServerConnection } from "@/utils/serverStatus";
 import { createStore, produce } from "solid-js/store";
+import { queryApi, queryClient } from "@/utils/queryApi";
 
 type ServerStatusType = ReturnType<typeof createServerStatusContext>;
 
@@ -272,12 +273,12 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
     }
     if (progress.progress_type === "finish") {
       notificator({ message: "Finished library scan" });
-      revalidatePath("/api/local_shows");
-      revalidatePath("/api/show/{id}");
-      revalidatePath("/api/show/{id}/{season}");
-      revalidatePath("/api/show/{id}/{season}/{episode}");
-      revalidatePath("/api/local_movies");
-      revalidatePath("/api/movie/{id}");
+      queryApi.invalidateQueries(queryClient, "get", "/api/local_shows");
+      queryApi.invalidateQueries(queryClient, "get", "/api/show/{id}");
+      queryApi.invalidateQueries(queryClient, "get", "/api/show/{id}/{season}");
+      queryApi.invalidateQueries(queryClient, "get", "/api/show/{id}/{season}/{episode}");
+      queryApi.invalidateQueries(queryClient, "get", "/api/local_movies");
+      queryApi.invalidateQueries(queryClient, "get", "/api/movie/{id}");
     }
     if (progress.progress_type === "pending") {
       let idx = tasks.library_scan_tasks.findIndex((t) => t.id === progress.activity_id);

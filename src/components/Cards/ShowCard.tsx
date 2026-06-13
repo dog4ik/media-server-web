@@ -1,6 +1,6 @@
 import MoreButton from "../ContextMenu/MoreButton";
 import { createMemo, Show } from "solid-js";
-import { Schemas, fullUrl, revalidatePath, server } from "../../utils/serverApi";
+import { Schemas, fullUrl, server } from "../../utils/serverApi";
 import FallbackImage from "../FallbackImage";
 import useToggle from "../../utils/useToggle";
 import FixMetadata from "../FixMetadata";
@@ -9,6 +9,7 @@ import promptConfirm from "../modals/ConfirmationModal";
 import { Link, linkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
 import { InLibaryIcon } from "./InLibraryIcon";
+import { queryApi, queryClient } from "@/utils/queryApi";
 
 async function deleteShow(id: number, name: string) {
   try {
@@ -17,7 +18,7 @@ async function deleteShow(id: number, name: string) {
     }
   } catch (_) {
   } finally {
-    revalidatePath("/api/local_shows");
+    queryApi.invalidateQueries(queryClient, "get", "/api/local_shows");
   }
 }
 

@@ -52,7 +52,7 @@ export function SettingsLayout(props: ParentProps) {
 
   return (
     <>
-      <div class="flex w-full justify-center border-b border-border">
+      <div class="border-border flex w-full justify-center border-b">
         <nav ref={navRef!} class="relative flex items-center">
           <For each={TABS}>
             {(tab, i) => (
@@ -62,7 +62,7 @@ export function SettingsLayout(props: ParentProps) {
                 }}
                 {...tab.options}
                 activeOptions={{ exact: true }}
-                class="flex items-center gap-1.5 px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground"
+                class="text-muted-foreground hover:text-foreground [&.active]:text-foreground flex items-center gap-1.5 px-3 py-2 text-sm transition-colors"
               >
                 <tab.icon class="size-3.5 shrink-0" />
                 {tab.label}
@@ -70,8 +70,11 @@ export function SettingsLayout(props: ParentProps) {
             )}
           </For>
           <div
-            class="absolute bottom-0 h-0.5 bg-primary transition-all duration-200"
-            style={{ left: `${indicator().left}px`, width: `${indicator().width}px` }}
+            class="bg-primary absolute bottom-0 h-0.5 transition-all duration-200"
+            style={{
+              left: `${indicator().left}px`,
+              width: `${indicator().width}px`,
+            }}
           />
         </nav>
       </div>

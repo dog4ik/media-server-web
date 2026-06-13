@@ -262,7 +262,11 @@ const episodeRoute = createRoute({
             provider={search.provider}
           />
         ),
-        link: linkOptions({ to: "/shows/$id/$season/$episode", params, search }),
+        link: linkOptions({
+          to: "/shows/$id/$season/$episode",
+          params,
+          search,
+        }),
       },
     ],
   }),

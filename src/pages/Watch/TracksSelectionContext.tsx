@@ -84,7 +84,9 @@ function createSelectionContext(session: () => MediaSessionState) {
       tracing.trace("Fetching subtitles");
 
       if (sub.origin === "container") {
-        const rawTrack = unwrap(sub as Extract<SelectedSubtitleTrack, { origin: "container" }>).track;
+        const rawTrack = unwrap(
+          sub as Extract<SelectedSubtitleTrack, { origin: "container" }>,
+        ).track;
         const selectedTrackIdx = video().details.subtitle_tracks.findIndex((t) => t === rawTrack);
         if (selectedTrackIdx === -1) {
           tracing.warn(

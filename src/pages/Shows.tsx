@@ -14,7 +14,12 @@ export default function Shows() {
     "get",
     "/api/local_shows",
     () => ({
-      params: { query: { search: filterState().titleFilter, actors: filterState().actorFilter } },
+      params: {
+        query: {
+          search: filterState().titleFilter,
+          actors: filterState().actorFilter,
+        },
+      },
     }),
     () => ({ placeholderData: (stale) => stale }),
   );
