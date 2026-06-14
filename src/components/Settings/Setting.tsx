@@ -1,4 +1,4 @@
-import { For, Match, ParentProps, Switch, createSignal } from "solid-js";
+import { For, Match, ParentProps, Show, Switch, createMemo, createSignal } from "solid-js";
 import SectionSubTitle from "./SectionSubTitle";
 import { SETTINGS, Settings } from "../../utils/settingsDescriptors";
 import { Schemas } from "../../utils/serverApi";
@@ -246,77 +246,79 @@ type SmartSettingProps<T extends keyof typeof SETTINGS> = {
 export function SmartSetting<T extends keyof typeof SETTINGS>(props: SmartSettingProps<T>) {
   let setting = SETTINGS[props.setting];
   let { remoteSettings, changedSettings, change } = useSettingsContext();
-  if (
-    setting.typeHint === undefined &&
-    remoteSettings.data![props.setting].default_value === null
-  ) {
-    throw Error("No type hint with nullable setting");
+  let remoteSetting = createMemo(() => remoteSettings.data?.[props.setting]);
+  if (setting.typeHint === undefined && remoteSetting()?.default_value === null) {
+    throw Error("Nullable settings require a type hint");
   }
 
   function handleUpdate(value: InputPropType) {
-    let defaultValue = remoteSettings.data![props.setting];
+    let defaultValue = remoteSetting();
     change(props.setting, value as SettingsValuesObject[T]);
     return defaultValue;
   }
 
   return (
-    <Setting data={setting} remote={remoteSettings.data![props.setting]}>
-      <Switch
-        fallback={
-          <InferredInput
-            onInput={handleUpdate}
-            value={
-              changedSettings[props.setting] ??
-              remoteSettings.data![props.setting].config_value ??
-              remoteSettings.data![props.setting].default_value!
+    <Show when={remoteSetting()}>
+      {(remoteSetting) => (
+        <Setting data={setting} remote={remoteSetting()}>
+          <Switch
+            fallback={
+              <InferredInput
+                onInput={handleUpdate}
+                value={
+                  changedSettings[props.setting] ??
+                  remoteSettings.data![props.setting].config_value ??
+                  remoteSettings.data![props.setting].default_value!
+                }
+              />
             }
-          />
-        }
-      >
-        <Match when={setting.typeHint == "string"}>
-          <TextField class="w-full max-w-xs">
-            <TextFieldInput
-              value={
-                (changedSettings[props.setting] as string) ??
-                remoteSettings.data![props.setting].config_value ??
-                remoteSettings.data![props.setting].default_value!
-              }
-              onInput={(e) => handleUpdate(e.currentTarget.value as T)}
-            />
-          </TextField>
-        </Match>
-        <Match when={setting.typeHint == "path"}>
-          <FileInput
-            title="Select file"
-            onChange={handleUpdate}
-            value={
-              (changedSettings[props.setting] ??
-                remoteSettings.data![props.setting].config_value ??
-                remoteSettings.data![props.setting].default_value) as string
-            }
-          />
-        </Match>
-        <Match when={setting.typeHint == "pathArr"}>
-          <FileInputs
-            onChange={handleUpdate}
-            values={
-              (changedSettings[props.setting] ??
-                remoteSettings.data![props.setting].config_value ??
-                remoteSettings.data![props.setting].default_value!) as string[]
-            }
-          />
-        </Match>
-        <Match when={setting.typeHint == "secret"}>
-          <SecretInput
-            onChange={handleUpdate}
-            value={
-              (changedSettings[props.setting] ??
-                remoteSettings.data![props.setting].config_value ??
-                remoteSettings.data![props.setting].default_value!) as string
-            }
-          />
-        </Match>
-      </Switch>
-    </Setting>
+          >
+            <Match when={setting.typeHint == "string"}>
+              <TextField class="w-full max-w-xs">
+                <TextFieldInput
+                  value={
+                    (changedSettings[props.setting] as string) ??
+                    remoteSettings.data![props.setting].config_value ??
+                    remoteSettings.data![props.setting].default_value!
+                  }
+                  onInput={(e) => handleUpdate(e.currentTarget.value as T)}
+                />
+              </TextField>
+            </Match>
+            <Match when={setting.typeHint == "path"}>
+              <FileInput
+                title="Select file"
+                onChange={handleUpdate}
+                value={
+                  (changedSettings[props.setting] ??
+                    remoteSettings.data![props.setting].config_value ??
+                    remoteSettings.data![props.setting].default_value) as string
+                }
+              />
+            </Match>
+            <Match when={setting.typeHint == "pathArr"}>
+              <FileInputs
+                onChange={handleUpdate}
+                values={
+                  (changedSettings[props.setting] ??
+                    remoteSettings.data![props.setting].config_value ??
+                    remoteSettings.data![props.setting].default_value!) as string[]
+                }
+              />
+            </Match>
+            <Match when={setting.typeHint == "secret"}>
+              <SecretInput
+                onChange={handleUpdate}
+                value={
+                  (changedSettings[props.setting] ??
+                    remoteSettings.data![props.setting].config_value ??
+                    remoteSettings.data![props.setting].default_value!) as string
+                }
+              />
+            </Match>
+          </Switch>
+        </Setting>
+      )}
+    </Show>
   );
 }
