@@ -4,6404 +4,6288 @@
  */
 
 export type paths = {
-  "/api/actor/list": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get actor list */
-    get: operations["actor_list"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/actor/{id}/poster": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get actor poster */
-    get: operations["actor_poster"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/clear_db": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Clear the database. For debug purposes only. */
-    delete: operations["clear_db"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/configuration": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Server configuration */
-    get: operations["server_configuration"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Update server configuration */
-    patch: operations["update_server_configuration"];
-    trace?: never;
-  };
-  "/api/configuration/capabilities": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Server capabilities */
-    get: operations["server_capabilities"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/configuration/providers": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get providers order */
-    get: operations["get_providers_order"];
-    /**
-     * Update providers order
-     * @description Returns updated order
-     */
-    put: operations["order_providers"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/configuration/reset": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Reset server configuration to its defaults */
-    post: operations["reset_server_configuration"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/episode/{id}/poster": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get episode poster */
-    get: operations["episode_poster"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/external_ids/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** List external ids for desired content */
-    get: operations["external_ids"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/file_browser/browse/{key}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Browse internals of the given directory */
-    get: operations["browse_directory"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/file_browser/parent/{key}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get parent directory. Returns same directory if parent is not found */
-    get: operations["parent_directory"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/file_browser/root_dirs": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Root and other related directories/drives */
-    get: operations["root_dirs"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/fix_metadata/{metadata_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Fix metadata match */
-    post: operations["fix_metadata"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/history": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get all watch history of the default user. Limit defaults to 50 if not specified */
-    get: operations["all_history"];
-    put?: never;
-    post?: never;
-    /** Delete all history for the default user */
-    delete: operations["clear_history"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/history/suggest/movies": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Suggest to continue watching up to 3 movies based on history */
-    get: operations["suggest_movies"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/history/suggest/shows": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Suggest to continue watching up to 3 shows based on history */
-    get: operations["suggest_shows"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/history/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Update history entry */
-    put: operations["update_history"];
-    post?: never;
-    /** Delete history entry */
-    delete: operations["remove_history_item"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/local_episode/{episode_id}/watch": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Watch episode video */
-    get: operations["watch_episode"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/local_episode/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Local episode metadata by local episode id */
-    get: operations["local_episode"];
-    put?: never;
-    post?: never;
-    /** Delete episode from library. WARN: It will actually delete video files */
-    delete: operations["delete_episode"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/local_movie/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Delete movie from library. WARN: It will actually delete video files */
-    delete: operations["delete_movie"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/local_movie/{movie_id}/watch": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Watch movie video */
-    get: operations["watch_movie"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/local_movies": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** All local movies */
-    get: operations["all_local_movies"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/local_season/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Delete season from library. WARN: It will actually delete video files */
-    delete: operations["delete_season"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/local_show/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Delete show from library. WARN: It will actually delete video files */
-    delete: operations["delete_show"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/local_shows": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** All local shows */
-    get: operations["all_local_shows"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/metadata/{id}/history": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Update/Insert history for specific metadata item */
-    put: operations["update_metadata_history"];
-    post?: never;
-    /** Delete video history entry */
-    delete: operations["remove_metadata_history"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/movie/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get movie by id and provider */
-    get: operations["get_movie"];
-    /** Update movie metadata */
-    put: operations["alter_movie_metadata"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/movie/{id}/backdrop": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get movie backdrop image */
-    get: operations["movie_backdrop"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/movie/{id}/poster": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get movie poster */
-    get: operations["movie_poster"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/movie/{movie_id}/fix_metadata": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Fix movie metadata match */
-    post: operations["fix_movie_metadata"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/movie/{movie_id}/reset_metadata": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Reset movie metadata */
-    post: operations["reset_movie_metadata"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/reset_metadata/{metadata_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Reset content's metadata */
-    post: operations["reset_metadata"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/scan": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Perform full library refresh */
-    post: operations["reconciliate_lib"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/search/content": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Search for content. Allows to search for all types of content at once */
-    get: operations["search_content"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/search/trending_movies": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get trending movies */
-    get: operations["get_trending_movies"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/search/trending_shows": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get trending shows */
-    get: operations["get_trending_shows"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/season/{id}/poster": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get season poster */
-    get: operations["season_poster"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/show/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get show by id and provider */
-    get: operations["get_show"];
-    /** Update show metadata */
-    put: operations["alter_show_metadata"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/show/{id}/backdrop": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get show backdrop image */
-    get: operations["show_backdrop"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/show/{id}/poster": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get show poster */
-    get: operations["show_poster"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/show/{id}/{season}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get season metadata */
-    get: operations["get_season"];
-    /** Update season metadata */
-    put: operations["alter_season_metadata"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/show/{id}/{season}/{episode}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get episode metadata */
-    get: operations["get_episode"];
-    /** Update episode metadata */
-    put: operations["alter_episode_metadata"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/show/{show_id}/fix_metadata": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Fix show metadata match */
-    post: operations["fix_show_metadata"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/show/{show_id}/reset_metadata": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Reset show metadata */
-    post: operations["reset_show_metadata"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/show/{show_id}/{season}/detect_intros": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Detect intros for given season */
-    post: operations["detect_intros"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/show/{show_id}/{season}/intros": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Delete all season intros */
-    delete: operations["delete_season_intros"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/show/{show_id}/{season}/{episode}/intros": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Delete all intros for the episode */
-    delete: operations["delete_episode_intros"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/subtitles/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get subtitles in text format */
-    get: operations["get_subtitles"];
-    put?: never;
-    post?: never;
-    /**
-     * Delete subtitles on the server
-     * @description Note that if subtitles are referenced it will not delete referenced file
-     */
-    delete: operations["delete_subtitles"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/tasks/previews": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get all running tasks */
-    get: operations["previews_tasks"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/tasks/previews/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Cancel task with provided id */
-    delete: operations["cancel_previews_task"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/tasks/progress": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** SSE stream of current tasks progress */
-    get: operations["progress"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/tasks/transcode": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get all running transcode tasks */
-    get: operations["transcode_tasks"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/tasks/transcode/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Cancel task with provided id */
-    delete: operations["cancel_transcode_task"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/tasks/watch_session/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Stop watch session */
-    delete: operations["stop_watch_session"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/all": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get list of all torrents */
-    get: operations["all_torrents"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/batch_action": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Run action on a list of torrents */
-    post: operations["batch_action"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/index_magnet_link": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get magnet link by torrent provider index */
-    get: operations["index_magnet_link"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/open": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Open torrent using magnet link */
-    post: operations["open_torrent"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/open_torrent_file": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Open .torrent file */
-    post: operations["open_torrent_file"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/output_location": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Torrent default output location */
-    get: operations["output_location"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/parse_torrent_file": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Parse .torrent file */
-    post: operations["parse_torrent_file"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/resolve_magnet_link": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Resolve magnet link */
-    get: operations["resolve_magnet_link"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/search": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Search for torrent */
-    get: operations["search_torrent"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/session": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get full session state */
-    get: operations["session_state"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/updates": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** SSE stream of torrent updates */
-    get: operations["updates"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/{info_hash}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Remove torrent by its info hash */
-    delete: operations["delete_torrent"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/{info_hash}/files_priority": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Set file priority */
-    post: operations["set_files_priority"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/{info_hash}/state": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get fresh full torrent state */
-    get: operations["torrent_state"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/torrent/{info_hash}/validate": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Validate torrent by info hash */
-    post: operations["validate_torrent"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/variants": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get all videos that have transcoded variants */
-    get: operations["get_all_variants"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/version": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Server version */
-    get: operations["server_version"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/video/by_content": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Videos for local content */
-    get: operations["contents_video"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/video/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get video by id */
-    get: operations["get_video_by_id"];
-    put?: never;
-    post?: never;
-    /** Remove video from library. WARN: It will actually delete video file */
-    delete: operations["remove_video"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/video/{id}/metadata": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get metadata related to the video */
-    get: operations["video_content_metadata"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/video/{id}/previews": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Start previews generation job on video */
-    post: operations["generate_previews"];
-    /** Delete previews on video */
-    delete: operations["delete_previews"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/video/{id}/previews/{number}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get preview by video id */
-    get: operations["previews"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/video/{id}/pull_subtitle": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Pull subtitle from video file using its track number */
-    get: operations["pull_video_subtitle"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/video/{id}/reference_subtitles": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Create subtitles entry using path reference.
-     * @description This types of subtitles are just references to user files and not stored in server assets
-     *     directory.
-     *
-     *     TODO:
-     *     Read more about subtitles references here
-     */
-    post: operations["reference_external_subtitles"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/video/{id}/transcode": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Start transcode video job */
-    post: operations["transcode_video"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/video/{id}/upload_subtitles": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Upload subtitles on the server */
-    post: operations["upload_subtitles"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/video/{id}/variant/{variant_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Remove variant from the library. WARN: It will actually delete video file */
-    delete: operations["remove_variant"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/video/{id}/watch": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Video stream */
-    get: operations["watch"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/video/{video_id}/intro": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get intro for the video */
-    get: operations["video_intro"];
-    /**
-     * Update intros for the video
-     *     If into does not exist it will be created
-     */
-    put: operations["update_video_intro"];
-    post?: never;
-    /** Delete intro for the video */
-    delete: operations["delete_video_intro"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/watch/direct/start/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Start direct stream session */
-    post: operations["start_direct_stream"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/watch/hls/start/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Start new hls watch session */
-    post: operations["start_hls_stream"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/watch/hls/{id}/init": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Retrieve init segment */
-    get: operations["hls_init"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/watch/hls/{id}/manifest": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** M3U8 manifest of live transcode task */
-    get: operations["hls_manifest"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/watch/hls/{id}/segment/{segment}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Retrieve hls segment */
-    get: operations["hls_segment"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/ws": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Open websockets connection */
-    get: operations["ws"];
-    /** Open websockets connection */
-    put: operations["ws"];
-    /** Open websockets connection */
-    post: operations["ws"];
-    /** Open websockets connection */
-    delete: operations["ws"];
-    options?: never;
-    head?: never;
-    /** Open websockets connection */
-    patch: operations["ws"];
-    trace?: never;
-  };
+    "/api/actor/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get actor list */
+        get: operations["actor_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/actor/{id}/poster": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get actor poster */
+        get: operations["actor_poster"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/clear_db": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Clear the database. For debug purposes only. */
+        delete: operations["clear_db"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/configuration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Server configuration */
+        get: operations["server_configuration"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update server configuration */
+        patch: operations["update_server_configuration"];
+        trace?: never;
+    };
+    "/api/configuration/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Server capabilities */
+        get: operations["server_capabilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/configuration/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get providers order */
+        get: operations["get_providers_order"];
+        /**
+         * Update providers order
+         * @description Returns updated order
+         */
+        put: operations["order_providers"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/configuration/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset server configuration to its defaults */
+        post: operations["reset_server_configuration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/episode/{id}/poster": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get episode poster */
+        get: operations["episode_poster"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/external_ids/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List external ids for desired content */
+        get: operations["external_ids"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/file_browser/browse/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Browse internals of the given directory */
+        get: operations["browse_directory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/file_browser/parent/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get parent directory. Returns same directory if parent is not found */
+        get: operations["parent_directory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/file_browser/root_dirs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Root and other related directories/drives */
+        get: operations["root_dirs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fix_metadata/{metadata_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Fix metadata match */
+        post: operations["fix_metadata"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all watch history of the default user. Limit defaults to 50 if not specified */
+        get: operations["all_history"];
+        put?: never;
+        post?: never;
+        /** Delete all history for the default user */
+        delete: operations["clear_history"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/history/suggest/movies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Suggest to continue watching up to 3 movies based on history */
+        get: operations["suggest_movies"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/history/suggest/shows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Suggest to continue watching up to 3 shows based on history */
+        get: operations["suggest_shows"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/history/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update history entry */
+        put: operations["update_history"];
+        post?: never;
+        /** Delete history entry */
+        delete: operations["remove_history_item"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/local_episode/{episode_id}/watch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Watch episode video */
+        get: operations["watch_episode"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/local_episode/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Local episode metadata by local episode id */
+        get: operations["local_episode"];
+        put?: never;
+        post?: never;
+        /** Delete episode from library. WARN: It will actually delete video files */
+        delete: operations["delete_episode"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/local_movie/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete movie from library. WARN: It will actually delete video files */
+        delete: operations["delete_movie"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/local_movie/{movie_id}/watch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Watch movie video */
+        get: operations["watch_movie"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/local_movies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** All local movies */
+        get: operations["all_local_movies"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/local_season/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete season from library. WARN: It will actually delete video files */
+        delete: operations["delete_season"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/local_show/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete show from library. WARN: It will actually delete video files */
+        delete: operations["delete_show"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/local_shows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** All local shows */
+        get: operations["all_local_shows"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/metadata/{id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update/Insert history for specific metadata item */
+        put: operations["update_metadata_history"];
+        post?: never;
+        /** Delete video history entry */
+        delete: operations["remove_metadata_history"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/movie/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get movie by id and provider */
+        get: operations["get_movie"];
+        /** Update movie metadata */
+        put: operations["alter_movie_metadata"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/movie/{id}/backdrop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get movie backdrop image */
+        get: operations["movie_backdrop"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/movie/{id}/poster": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get movie poster */
+        get: operations["movie_poster"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/movie/{movie_id}/fix_metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Fix movie metadata match */
+        post: operations["fix_movie_metadata"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/movie/{movie_id}/reset_metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset movie metadata */
+        post: operations["reset_movie_metadata"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reset_metadata/{metadata_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset content's metadata */
+        post: operations["reset_metadata"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/scan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Perform full library refresh */
+        post: operations["reconciliate_lib"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search for content. Allows to search for all types of content at once */
+        get: operations["search_content"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search/trending_movies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get trending movies */
+        get: operations["get_trending_movies"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search/trending_shows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get trending shows */
+        get: operations["get_trending_shows"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/season/{id}/poster": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get season poster */
+        get: operations["season_poster"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/show/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get show by id and provider */
+        get: operations["get_show"];
+        /** Update show metadata */
+        put: operations["alter_show_metadata"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/show/{id}/backdrop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get show backdrop image */
+        get: operations["show_backdrop"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/show/{id}/poster": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get show poster */
+        get: operations["show_poster"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/show/{id}/{season}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get season metadata */
+        get: operations["get_season"];
+        /** Update season metadata */
+        put: operations["alter_season_metadata"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/show/{id}/{season}/{episode}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get episode metadata */
+        get: operations["get_episode"];
+        /** Update episode metadata */
+        put: operations["alter_episode_metadata"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/show/{show_id}/fix_metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Fix show metadata match */
+        post: operations["fix_show_metadata"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/show/{show_id}/reset_metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset show metadata */
+        post: operations["reset_show_metadata"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/show/{show_id}/{season}/detect_intros": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Detect intros for given season */
+        post: operations["detect_intros"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/show/{show_id}/{season}/intros": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete all season intros */
+        delete: operations["delete_season_intros"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/show/{show_id}/{season}/{episode}/intros": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete all intros for the episode */
+        delete: operations["delete_episode_intros"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/subtitles/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get subtitles in text format */
+        get: operations["get_subtitles"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete subtitles on the server
+         * @description Note that if subtitles are referenced it will not delete referenced file
+         */
+        delete: operations["delete_subtitles"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tasks/previews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all running tasks */
+        get: operations["previews_tasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tasks/previews/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Cancel task with provided id */
+        delete: operations["cancel_previews_task"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tasks/progress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** SSE stream of current tasks progress */
+        get: operations["progress"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tasks/transcode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all running transcode tasks */
+        get: operations["transcode_tasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tasks/transcode/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Cancel task with provided id */
+        delete: operations["cancel_transcode_task"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tasks/watch_session/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Stop watch session */
+        delete: operations["stop_watch_session"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get list of all torrents */
+        get: operations["all_torrents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/batch_action": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run action on a list of torrents */
+        post: operations["batch_action"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/index_magnet_link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get magnet link by torrent provider index */
+        get: operations["index_magnet_link"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/open": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Open torrent using magnet link */
+        post: operations["open_torrent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/open_torrent_file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Open .torrent file */
+        post: operations["open_torrent_file"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/output_location": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Torrent default output location */
+        get: operations["output_location"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/parse_torrent_file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Parse .torrent file */
+        post: operations["parse_torrent_file"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/resolve_magnet_link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Resolve magnet link */
+        get: operations["resolve_magnet_link"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search for torrent */
+        get: operations["search_torrent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get full session state */
+        get: operations["session_state"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/updates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** SSE stream of torrent updates */
+        get: operations["updates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/{info_hash}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove torrent by its info hash */
+        delete: operations["delete_torrent"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/{info_hash}/files_priority": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set file priority */
+        post: operations["set_files_priority"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/{info_hash}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get fresh full torrent state */
+        get: operations["torrent_state"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/torrent/{info_hash}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Validate torrent by info hash */
+        post: operations["validate_torrent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/variants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all videos that have transcoded variants */
+        get: operations["get_all_variants"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Server version */
+        get: operations["server_version"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/video/by_content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Videos for local content */
+        get: operations["contents_video"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/video/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get video by id */
+        get: operations["get_video_by_id"];
+        put?: never;
+        post?: never;
+        /** Remove video from library. WARN: It will actually delete video file */
+        delete: operations["remove_video"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/video/{id}/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get metadata related to the video */
+        get: operations["video_content_metadata"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/video/{id}/previews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start previews generation job on video */
+        post: operations["generate_previews"];
+        /** Delete previews on video */
+        delete: operations["delete_previews"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/video/{id}/previews/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get preview by video id */
+        get: operations["previews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/video/{id}/pull_subtitle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Pull subtitle from video file using its track number */
+        get: operations["pull_video_subtitle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/video/{id}/reference_subtitles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create subtitles entry using path reference.
+         * @description This types of subtitles are just references to user files and not stored in server assets
+         *     directory.
+         *
+         *     TODO:
+         *     Read more about subtitles references here
+         */
+        post: operations["reference_external_subtitles"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/video/{id}/transcode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start transcode video job */
+        post: operations["transcode_video"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/video/{id}/upload_subtitles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload subtitles on the server */
+        post: operations["upload_subtitles"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/video/{id}/variant/{variant_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove variant from the library. WARN: It will actually delete video file */
+        delete: operations["remove_variant"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/video/{id}/watch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Video stream */
+        get: operations["watch"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/video/{video_id}/intro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get intro for the video */
+        get: operations["video_intro"];
+        /**
+         * Update intros for the video
+         *     If into does not exist it will be created
+         */
+        put: operations["update_video_intro"];
+        post?: never;
+        /** Delete intro for the video */
+        delete: operations["delete_video_intro"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/watch/direct/start/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start direct stream session */
+        post: operations["start_direct_stream"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/watch/hls/start/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start new hls watch session */
+        post: operations["start_hls_stream"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/watch/hls/{id}/init": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Retrieve init segment */
+        get: operations["hls_init"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/watch/hls/{id}/manifest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** M3U8 manifest of live transcode task */
+        get: operations["hls_manifest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/watch/hls/{id}/segment/{segment}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Retrieve hls segment */
+        get: operations["hls_segment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ws": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Open websockets connection */
+        get: operations["ws"];
+        /** Open websockets connection */
+        put: operations["ws"];
+        /** Open websockets connection */
+        post: operations["ws"];
+        /** Open websockets connection */
+        delete: operations["ws"];
+        options?: never;
+        head?: never;
+        /** Open websockets connection */
+        patch: operations["ws"];
+        trace?: never;
+    };
 };
 export type webhooks = Record<string, never>;
 export type components = {
-  schemas: {
-    /** @enum {string} */
-    Action: "validate" | "abort" | "resume" | "pause";
-    Actor: {
-      character?: string | null;
-      imdb_id?: string | null;
-      local?: null | components["schemas"]["LocalActorData"];
-      metadata_id: string;
-      metadata_provider: components["schemas"]["MetadataProvider"];
-      name: string;
-      poster?: string | null;
-    };
-    AppError: {
-      message: string;
-    };
-    /** @enum {string} */
-    AppErrorKind: "InternalError" | "NotFound" | "Duplicate" | "BadRequest";
-    AppResources: {
-      app_version: string;
-      database_path: string;
-      log_path: string;
-      os: string;
-      os_version: string;
-      resources_path: string;
-      start_time: string;
-      statics_path: string;
-      temp_path: string;
-    };
-    AudioCodec:
-      | "aac"
-      | "ac3"
-      | "eac3"
-      | "dts"
-      | "flac"
-      | "opus"
-      | {
-          other: string;
+    schemas: {
+        /** @enum {string} */
+        Action: "validate" | "abort" | "resume" | "pause";
+        Actor: {
+            character?: string | null;
+            imdb_id?: string | null;
+            local?: null | components["schemas"]["LocalActorData"];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            name: string;
+            poster?: string | null;
         };
-    BatchActionPayload: {
-      action: components["schemas"]["Action"];
-      hashes: components["schemas"]["InfoHash"][];
-    };
-    BrowseDirectory: {
-      directories: components["schemas"]["BrowseFile"][];
-      files: components["schemas"]["BrowseFile"][];
-      size: number;
-    };
-    BrowseFile: {
-      key: string;
-      path: string;
-      title: string;
-    };
-    BrowseRootDirs: {
-      disks: components["schemas"]["BrowseFile"][];
-      home?: null | components["schemas"]["BrowseFile"];
-      root: components["schemas"]["BrowseFile"];
-      videos?: null | components["schemas"]["BrowseFile"];
-    };
-    Capabilities: {
-      chromaprint_enabled: boolean;
-    };
-    /** @enum {string} */
-    ClientType: "web_client" | "upnp";
-    Codec: {
-      codec_type: components["schemas"]["CodecType"];
-      decode_supported: boolean;
-      encode_supported: boolean;
-      long_name: string;
-      name: string;
-    };
-    /** @enum {string} */
-    CodecType: "audio" | "video" | "subtitle" | "data" | "attachment";
-    CompactTorrentProgress: {
-      /** Format: double */
-      download_speed: number;
-      /** Format: float */
-      percent: number;
-      /** Format: double */
-      upload_speed: number;
-    };
-    ConfigSchema: (
-      | {
-          /**
-           * Format: int32
-           * @description The network port on which the server listens for incoming connections
-           */
-          cli_value: number;
-          /**
-           * Format: int32
-           * @description The network port on which the server listens for incoming connections
-           */
-          config_value: number;
-          /**
-           * Format: int32
-           * @description The network port on which the server listens for incoming connections
-           */
-          default_value: number;
-          /**
-           * Format: int32
-           * @description The network port on which the server listens for incoming connections
-           */
-          env_value: number;
-          /** @enum {string} */
-          key: "port";
-          require_restart: boolean;
-        }
-      | {
-          /** @description List of directories that contain show files. All episode files from these directories will show up in the library */
-          cli_value: string[];
-          /** @description List of directories that contain show files. All episode files from these directories will show up in the library */
-          config_value: string[];
-          /** @description List of directories that contain show files. All episode files from these directories will show up in the library */
-          default_value: string[];
-          /** @description List of directories that contain show files. All episode files from these directories will show up in the library */
-          env_value: string[];
-          /** @enum {string} */
-          key: "show_folders";
-          require_restart: boolean;
-        }
-      | {
-          /** @description List of directories that contain movie files. All movie files from these directories will show up in the library */
-          cli_value: string[];
-          /** @description List of directories that contain movie files. All movie files from these directories will show up in the library */
-          config_value: string[];
-          /** @description List of directories that contain movie files. All movie files from these directories will show up in the library */
-          default_value: string[];
-          /** @description List of directories that contain movie files. All movie files from these directories will show up in the library */
-          env_value: string[];
-          /** @enum {string} */
-          key: "movie_folders";
-          require_restart: boolean;
-        }
-      | {
-          /** @description API key for TMDB. Allows server to authenticate with TMDB metadata provider */
-          cli_value: string | null;
-          /** @description API key for TMDB. Allows server to authenticate with TMDB metadata provider */
-          config_value: string | null;
-          /** @description API key for TMDB. Allows server to authenticate with TMDB metadata provider */
-          default_value: string | null;
-          /** @description API key for TMDB. Allows server to authenticate with TMDB metadata provider */
-          env_value: string | null;
-          /** @enum {string} */
-          key: "tmdb_key";
-          require_restart: boolean;
-        }
-      | {
-          /** @description API key for TVDB. Allows server to authenticate with TVDB metadata provider */
-          cli_value: string | null;
-          /** @description API key for TVDB. Allows server to authenticate with TVDB metadata provider */
-          config_value: string | null;
-          /** @description API key for TVDB. Allows server to authenticate with TVDB metadata provider */
-          default_value: string | null;
-          /** @description API key for TVDB. Allows server to authenticate with TVDB metadata provider */
-          env_value: string | null;
-          /** @enum {string} */
-          key: "tvdb_key";
-          require_restart: boolean;
-        }
-      | {
-          /** @description Url of Provod agent. */
-          cli_value: string | null;
-          /** @description Url of Provod agent. */
-          config_value: string | null;
-          /** @description Url of Provod agent. */
-          default_value: string | null;
-          /** @description Url of Provod agent. */
-          env_value: string | null;
-          /** @enum {string} */
-          key: "provod_url";
-          require_restart: boolean;
-        }
-      | {
-          /**
-           * @description OTLP endpoint for OpenTelemetry export (traces + metrics), e.g.
-           *     `http://localhost:4317`. When unset, OpenTelemetry is disabled.
-           */
-          cli_value: string | null;
-          /**
-           * @description OTLP endpoint for OpenTelemetry export (traces + metrics), e.g.
-           *     `http://localhost:4317`. When unset, OpenTelemetry is disabled.
-           */
-          config_value: string | null;
-          /**
-           * @description OTLP endpoint for OpenTelemetry export (traces + metrics), e.g.
-           *     `http://localhost:4317`. When unset, OpenTelemetry is disabled.
-           */
-          default_value: string | null;
-          /**
-           * @description OTLP endpoint for OpenTelemetry export (traces + metrics), e.g.
-           *     `http://localhost:4317`. When unset, OpenTelemetry is disabled.
-           */
-          env_value: string | null;
-          /** @enum {string} */
-          key: "otel_endpoint";
-          require_restart: boolean;
-        }
-      | {
-          /** @description API key for Provod agent. Allows server to authenticate with Provod proxy server */
-          cli_value: string | null;
-          /** @description API key for Provod agent. Allows server to authenticate with Provod proxy server */
-          config_value: string | null;
-          /** @description API key for Provod agent. Allows server to authenticate with Provod proxy server */
-          default_value: string | null;
-          /** @description API key for Provod agent. Allows server to authenticate with Provod proxy server */
-          env_value: string | null;
-          /** @enum {string} */
-          key: "provod_key";
-          require_restart: boolean;
-        }
-      | {
-          /** @description Path to ffmpeg binary. This ffmpeg binary will be used for media transcoding tasks */
-          cli_value: string;
-          /** @description Path to ffmpeg binary. This ffmpeg binary will be used for media transcoding tasks */
-          config_value: string;
-          /** @description Path to ffmpeg binary. This ffmpeg binary will be used for media transcoding tasks */
-          default_value: string;
-          /** @description Path to ffmpeg binary. This ffmpeg binary will be used for media transcoding tasks */
-          env_value: string;
-          /** @enum {string} */
-          key: "ffmpeg_path";
-          require_restart: boolean;
-        }
-      | {
-          /** @description Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg abi */
-          cli_value: string;
-          /** @description Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg abi */
-          config_value: string;
-          /** @description Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg abi */
-          default_value: string;
-          /** @description Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg abi */
-          env_value: string;
-          /** @enum {string} */
-          key: "ffprobe_path";
-          require_restart: boolean;
-        }
-      | {
-          /** @description Enable hardware acceleration to significantly improve transcoding performance, if supported by the system */
-          cli_value: boolean;
-          /** @description Enable hardware acceleration to significantly improve transcoding performance, if supported by the system */
-          config_value: boolean;
-          /** @description Enable hardware acceleration to significantly improve transcoding performance, if supported by the system */
-          default_value: boolean;
-          /** @description Enable hardware acceleration to significantly improve transcoding performance, if supported by the system */
-          env_value: boolean;
-          /** @enum {string} */
-          key: "hw_accel";
-          require_restart: boolean;
-        }
-      | {
-          /** @description Minimal intro duration in seconds. With very low values things like netflix logo will be considered as intro */
-          cli_value: number;
-          /** @description Minimal intro duration in seconds. With very low values things like netflix logo will be considered as intro */
-          config_value: number;
-          /** @description Minimal intro duration in seconds. With very low values things like netflix logo will be considered as intro */
-          default_value: number;
-          /** @description Minimal intro duration in seconds. With very low values things like netflix logo will be considered as intro */
-          env_value: number;
-          /** @enum {string} */
-          key: "intro_min_duration";
-          require_restart: boolean;
-        }
-      | {
-          /** @description Path to the FFmpeg build that supports Chromaprint. Required for intro detection feature to work */
-          cli_value: string;
-          /** @description Path to the FFmpeg build that supports Chromaprint. Required for intro detection feature to work */
-          config_value: string;
-          /** @description Path to the FFmpeg build that supports Chromaprint. Required for intro detection feature to work */
-          default_value: string;
-          /** @description Path to the FFmpeg build that supports Chromaprint. Required for intro detection feature to work */
-          env_value: string;
-          /** @enum {string} */
-          key: "intro_detection_ffmpeg_build";
-          require_restart: boolean;
-        }
-      | {
-          /** @description Path to Web UI assets, useful when Web UI located in a separate directory */
-          cli_value: string;
-          /** @description Path to Web UI assets, useful when Web UI located in a separate directory */
-          config_value: string;
-          /** @description Path to Web UI assets, useful when Web UI located in a separate directory */
-          default_value: string;
-          /** @description Path to Web UI assets, useful when Web UI located in a separate directory */
-          env_value: string;
-          /** @enum {string} */
-          key: "web_ui_path";
-          require_restart: boolean;
-        }
-      | {
-          /** @description Enable SSDP (Simple Service Discovery Protocol) for UPnP. This allows the server to be discovered on the local network by compatible devices */
-          cli_value: boolean;
-          /** @description Enable SSDP (Simple Service Discovery Protocol) for UPnP. This allows the server to be discovered on the local network by compatible devices */
-          config_value: boolean;
-          /** @description Enable SSDP (Simple Service Discovery Protocol) for UPnP. This allows the server to be discovered on the local network by compatible devices */
-          default_value: boolean;
-          /** @description Enable SSDP (Simple Service Discovery Protocol) for UPnP. This allows the server to be discovered on the local network by compatible devices */
-          env_value: boolean;
-          /** @enum {string} */
-          key: "upnp_enabled";
-          require_restart: boolean;
-        }
-      | {
-          /**
-           * Format: int32
-           * @description Amount of ip routing "hops" for SSDP packet.
-           */
-          cli_value: number;
-          /**
-           * Format: int32
-           * @description Amount of ip routing "hops" for SSDP packet.
-           */
-          config_value: number;
-          /**
-           * Format: int32
-           * @description Amount of ip routing "hops" for SSDP packet.
-           */
-          default_value: number;
-          /**
-           * Format: int32
-           * @description Amount of ip routing "hops" for SSDP packet.
-           */
-          env_value: number;
-          /** @enum {string} */
-          key: "upnp_ttl";
-          require_restart: boolean;
-        }
-      | {
-          /** @description The amount of movies allowed to be fetched concurrently */
-          cli_value: number;
-          /** @description The amount of movies allowed to be fetched concurrently */
-          config_value: number;
-          /** @description The amount of movies allowed to be fetched concurrently */
-          default_value: number;
-          /** @description The amount of movies allowed to be fetched concurrently */
-          env_value: number;
-          /** @enum {string} */
-          key: "max_movie_concurrency";
-          require_restart: boolean;
-        }
-      | {
-          /** @description The amount of shows allowed to be fetched concurrently */
-          cli_value: number;
-          /** @description The amount of shows allowed to be fetched concurrently */
-          config_value: number;
-          /** @description The amount of shows allowed to be fetched concurrently */
-          default_value: number;
-          /** @description The amount of shows allowed to be fetched concurrently */
-          env_value: number;
-          /** @enum {string} */
-          key: "max_show_concurrency";
-          require_restart: boolean;
-        }
-      | {
-          /** @description The amount of assets allowed to be fetched concurrently */
-          cli_value: number;
-          /** @description The amount of assets allowed to be fetched concurrently */
-          config_value: number;
-          /** @description The amount of assets allowed to be fetched concurrently */
-          default_value: number;
-          /** @description The amount of assets allowed to be fetched concurrently */
-          env_value: number;
-          /** @enum {string} */
-          key: "max_asset_concurrency";
-          require_restart: boolean;
-        }
-      | {
-          /**
-           * @description Try to use episodes metadata from fetched season.
-           *     It will speed up metadata fetch for newly added season, but episodes will end up with potentially incomplete metadata
-           *
-           *     Not recommended unless you have a huge show library you scan at once
-           */
-          cli_value: boolean;
-          /**
-           * @description Try to use episodes metadata from fetched season.
-           *     It will speed up metadata fetch for newly added season, but episodes will end up with potentially incomplete metadata
-           *
-           *     Not recommended unless you have a huge show library you scan at once
-           */
-          config_value: boolean;
-          /**
-           * @description Try to use episodes metadata from fetched season.
-           *     It will speed up metadata fetch for newly added season, but episodes will end up with potentially incomplete metadata
-           *
-           *     Not recommended unless you have a huge show library you scan at once
-           */
-          default_value: boolean;
-          /**
-           * @description Try to use episodes metadata from fetched season.
-           *     It will speed up metadata fetch for newly added season, but episodes will end up with potentially incomplete metadata
-           *
-           *     Not recommended unless you have a huge show library you scan at once
-           */
-          env_value: boolean;
-          /** @enum {string} */
-          key: "use_season_episodes";
-          require_restart: boolean;
-        }
-      | {
-          /** @description Language to fetch metadata in. Selected language will be used in names, plots and posters */
-          cli_value: components["schemas"]["Language"];
-          /** @description Language to fetch metadata in. Selected language will be used in names, plots and posters */
-          config_value: components["schemas"]["Language"];
-          /** @description Language to fetch metadata in. Selected language will be used in names, plots and posters */
-          default_value: components["schemas"]["Language"];
-          /** @description Language to fetch metadata in. Selected language will be used in names, plots and posters */
-          env_value: components["schemas"]["Language"];
-          /** @enum {string} */
-          key: "metadata_language";
-          require_restart: boolean;
-        }
-    )[];
-    ConfigurationApplyError: {
-      key: string;
-      message: string;
-    };
-    ConfigurationApplyResult: {
-      errors: components["schemas"]["ConfigurationApplyError"][];
-      require_restart: boolean;
-    };
-    /** @description Any content base data */
-    Content: {
-      locale_metadata?: null | components["schemas"]["LocaleMetadata"];
-      plot?: string | null;
-      poster?: string | null;
-      release_date?: string | null;
-      title: string;
-    };
-    /** @enum {string} */
-    ContentType: "movie" | "show";
-    CursoredResponse_Actor: {
-      cursor?: string | null;
-      data: {
-        character?: string | null;
-        imdb_id?: string | null;
-        local?: null | components["schemas"]["LocalActorData"];
-        metadata_id: string;
-        metadata_provider: components["schemas"]["MetadataProvider"];
-        name: string;
-        poster?: string | null;
-      }[];
-    };
-    CursoredResponse_HistoryEntry: {
-      cursor?: string | null;
-      data: (components["schemas"]["Content"] &
-        components["schemas"]["HistoryContentType"] & {
-          history: components["schemas"]["History"];
-          /** Format: int64 */
-          metadata_id: number;
-          runtime: components["schemas"]["MediaDuration"];
+        AppError: {
+            message: string;
+        };
+        /** @enum {string} */
+        AppErrorKind: "InternalError" | "NotFound" | "Duplicate" | "BadRequest";
+        AppResources: {
+            app_version: string;
+            database_path: string;
+            log_path: string;
+            os: string;
+            os_version: string;
+            resources_path: string;
+            start_time: string;
+            statics_path: string;
+            temp_path: string;
+        };
+        AudioCodec: "aac" | "ac3" | "eac3" | "dts" | "flac" | "opus" | {
+            other: string;
+        };
+        BatchActionPayload: {
+            action: components["schemas"]["Action"];
+            hashes: components["schemas"]["InfoHash"][];
+        };
+        BrowseDirectory: {
+            directories: components["schemas"]["BrowseFile"][];
+            files: components["schemas"]["BrowseFile"][];
+            size: number;
+        };
+        BrowseFile: {
+            key: string;
+            path: string;
+            title: string;
+        };
+        BrowseRootDirs: {
+            disks: components["schemas"]["BrowseFile"][];
+            home?: null | components["schemas"]["BrowseFile"];
+            root: components["schemas"]["BrowseFile"];
+            videos?: null | components["schemas"]["BrowseFile"];
+        };
+        Capabilities: {
+            chromaprint_enabled: boolean;
+        };
+        /** @enum {string} */
+        ClientType: "web_client" | "upnp";
+        Codec: {
+            codec_type: components["schemas"]["CodecType"];
+            decode_supported: boolean;
+            encode_supported: boolean;
+            long_name: string;
+            name: string;
+        };
+        /** @enum {string} */
+        CodecType: "audio" | "video" | "subtitle" | "data" | "attachment";
+        CompactTorrentProgress: {
+            /** Format: double */
+            download_speed: number;
+            /** Format: float */
+            percent: number;
+            /** Format: double */
+            upload_speed: number;
+        };
+        ConfigSchema: ({
+            /**
+             * Format: int32
+             * @description The network port on which the server listens for incoming connections
+             */
+            cli_value: number;
+            /**
+             * Format: int32
+             * @description The network port on which the server listens for incoming connections
+             */
+            config_value: number;
+            /**
+             * Format: int32
+             * @description The network port on which the server listens for incoming connections
+             */
+            default_value: number;
+            /**
+             * Format: int32
+             * @description The network port on which the server listens for incoming connections
+             */
+            env_value: number;
+            /** @enum {string} */
+            key: "port";
+            require_restart: boolean;
+        } | {
+            /** @description List of directories that contain show files. All episode files from these directories will show up in the library */
+            cli_value: string[];
+            /** @description List of directories that contain show files. All episode files from these directories will show up in the library */
+            config_value: string[];
+            /** @description List of directories that contain show files. All episode files from these directories will show up in the library */
+            default_value: string[];
+            /** @description List of directories that contain show files. All episode files from these directories will show up in the library */
+            env_value: string[];
+            /** @enum {string} */
+            key: "show_folders";
+            require_restart: boolean;
+        } | {
+            /** @description List of directories that contain movie files. All movie files from these directories will show up in the library */
+            cli_value: string[];
+            /** @description List of directories that contain movie files. All movie files from these directories will show up in the library */
+            config_value: string[];
+            /** @description List of directories that contain movie files. All movie files from these directories will show up in the library */
+            default_value: string[];
+            /** @description List of directories that contain movie files. All movie files from these directories will show up in the library */
+            env_value: string[];
+            /** @enum {string} */
+            key: "movie_folders";
+            require_restart: boolean;
+        } | {
+            /** @description API key for TMDB. Allows server to authenticate with TMDB metadata provider */
+            cli_value: string | null;
+            /** @description API key for TMDB. Allows server to authenticate with TMDB metadata provider */
+            config_value: string | null;
+            /** @description API key for TMDB. Allows server to authenticate with TMDB metadata provider */
+            default_value: string | null;
+            /** @description API key for TMDB. Allows server to authenticate with TMDB metadata provider */
+            env_value: string | null;
+            /** @enum {string} */
+            key: "tmdb_key";
+            require_restart: boolean;
+        } | {
+            /** @description API key for TVDB. Allows server to authenticate with TVDB metadata provider */
+            cli_value: string | null;
+            /** @description API key for TVDB. Allows server to authenticate with TVDB metadata provider */
+            config_value: string | null;
+            /** @description API key for TVDB. Allows server to authenticate with TVDB metadata provider */
+            default_value: string | null;
+            /** @description API key for TVDB. Allows server to authenticate with TVDB metadata provider */
+            env_value: string | null;
+            /** @enum {string} */
+            key: "tvdb_key";
+            require_restart: boolean;
+        } | {
+            /** @description Url of Provod agent. */
+            cli_value: string | null;
+            /** @description Url of Provod agent. */
+            config_value: string | null;
+            /** @description Url of Provod agent. */
+            default_value: string | null;
+            /** @description Url of Provod agent. */
+            env_value: string | null;
+            /** @enum {string} */
+            key: "provod_url";
+            require_restart: boolean;
+        } | {
+            /**
+             * @description OTLP endpoint for OpenTelemetry export (traces + metrics), e.g.
+             *     `http://localhost:4317`. When unset, OpenTelemetry is disabled.
+             */
+            cli_value: string | null;
+            /**
+             * @description OTLP endpoint for OpenTelemetry export (traces + metrics), e.g.
+             *     `http://localhost:4317`. When unset, OpenTelemetry is disabled.
+             */
+            config_value: string | null;
+            /**
+             * @description OTLP endpoint for OpenTelemetry export (traces + metrics), e.g.
+             *     `http://localhost:4317`. When unset, OpenTelemetry is disabled.
+             */
+            default_value: string | null;
+            /**
+             * @description OTLP endpoint for OpenTelemetry export (traces + metrics), e.g.
+             *     `http://localhost:4317`. When unset, OpenTelemetry is disabled.
+             */
+            env_value: string | null;
+            /** @enum {string} */
+            key: "otel_endpoint";
+            require_restart: boolean;
+        } | {
+            /** @description API key for Provod agent. Allows server to authenticate with Provod proxy server */
+            cli_value: string | null;
+            /** @description API key for Provod agent. Allows server to authenticate with Provod proxy server */
+            config_value: string | null;
+            /** @description API key for Provod agent. Allows server to authenticate with Provod proxy server */
+            default_value: string | null;
+            /** @description API key for Provod agent. Allows server to authenticate with Provod proxy server */
+            env_value: string | null;
+            /** @enum {string} */
+            key: "provod_key";
+            require_restart: boolean;
+        } | {
+            /** @description Path to ffmpeg binary. This ffmpeg binary will be used for media transcoding tasks */
+            cli_value: string;
+            /** @description Path to ffmpeg binary. This ffmpeg binary will be used for media transcoding tasks */
+            config_value: string;
+            /** @description Path to ffmpeg binary. This ffmpeg binary will be used for media transcoding tasks */
+            default_value: string;
+            /** @description Path to ffmpeg binary. This ffmpeg binary will be used for media transcoding tasks */
+            env_value: string;
+            /** @enum {string} */
+            key: "ffmpeg_path";
+            require_restart: boolean;
+        } | {
+            /** @description Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg abi */
+            cli_value: string;
+            /** @description Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg abi */
+            config_value: string;
+            /** @description Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg abi */
+            default_value: string;
+            /** @description Path to ffprobe binary. This setting will be deprecated in favor of ffmpeg abi */
+            env_value: string;
+            /** @enum {string} */
+            key: "ffprobe_path";
+            require_restart: boolean;
+        } | {
+            /** @description Enable hardware acceleration to significantly improve transcoding performance, if supported by the system */
+            cli_value: boolean;
+            /** @description Enable hardware acceleration to significantly improve transcoding performance, if supported by the system */
+            config_value: boolean;
+            /** @description Enable hardware acceleration to significantly improve transcoding performance, if supported by the system */
+            default_value: boolean;
+            /** @description Enable hardware acceleration to significantly improve transcoding performance, if supported by the system */
+            env_value: boolean;
+            /** @enum {string} */
+            key: "hw_accel";
+            require_restart: boolean;
+        } | {
+            /** @description Minimal intro duration in seconds. With very low values things like netflix logo will be considered as intro */
+            cli_value: number;
+            /** @description Minimal intro duration in seconds. With very low values things like netflix logo will be considered as intro */
+            config_value: number;
+            /** @description Minimal intro duration in seconds. With very low values things like netflix logo will be considered as intro */
+            default_value: number;
+            /** @description Minimal intro duration in seconds. With very low values things like netflix logo will be considered as intro */
+            env_value: number;
+            /** @enum {string} */
+            key: "intro_min_duration";
+            require_restart: boolean;
+        } | {
+            /** @description Path to the FFmpeg build that supports Chromaprint. Required for intro detection feature to work */
+            cli_value: string;
+            /** @description Path to the FFmpeg build that supports Chromaprint. Required for intro detection feature to work */
+            config_value: string;
+            /** @description Path to the FFmpeg build that supports Chromaprint. Required for intro detection feature to work */
+            default_value: string;
+            /** @description Path to the FFmpeg build that supports Chromaprint. Required for intro detection feature to work */
+            env_value: string;
+            /** @enum {string} */
+            key: "intro_detection_ffmpeg_build";
+            require_restart: boolean;
+        } | {
+            /** @description Path to Web UI assets, useful when Web UI located in a separate directory */
+            cli_value: string;
+            /** @description Path to Web UI assets, useful when Web UI located in a separate directory */
+            config_value: string;
+            /** @description Path to Web UI assets, useful when Web UI located in a separate directory */
+            default_value: string;
+            /** @description Path to Web UI assets, useful when Web UI located in a separate directory */
+            env_value: string;
+            /** @enum {string} */
+            key: "web_ui_path";
+            require_restart: boolean;
+        } | {
+            /** @description Enable SSDP (Simple Service Discovery Protocol) for UPnP. This allows the server to be discovered on the local network by compatible devices */
+            cli_value: boolean;
+            /** @description Enable SSDP (Simple Service Discovery Protocol) for UPnP. This allows the server to be discovered on the local network by compatible devices */
+            config_value: boolean;
+            /** @description Enable SSDP (Simple Service Discovery Protocol) for UPnP. This allows the server to be discovered on the local network by compatible devices */
+            default_value: boolean;
+            /** @description Enable SSDP (Simple Service Discovery Protocol) for UPnP. This allows the server to be discovered on the local network by compatible devices */
+            env_value: boolean;
+            /** @enum {string} */
+            key: "upnp_enabled";
+            require_restart: boolean;
+        } | {
+            /**
+             * Format: int32
+             * @description Amount of ip routing "hops" for SSDP packet.
+             */
+            cli_value: number;
+            /**
+             * Format: int32
+             * @description Amount of ip routing "hops" for SSDP packet.
+             */
+            config_value: number;
+            /**
+             * Format: int32
+             * @description Amount of ip routing "hops" for SSDP packet.
+             */
+            default_value: number;
+            /**
+             * Format: int32
+             * @description Amount of ip routing "hops" for SSDP packet.
+             */
+            env_value: number;
+            /** @enum {string} */
+            key: "upnp_ttl";
+            require_restart: boolean;
+        } | {
+            /** @description The amount of movies allowed to be fetched concurrently */
+            cli_value: number;
+            /** @description The amount of movies allowed to be fetched concurrently */
+            config_value: number;
+            /** @description The amount of movies allowed to be fetched concurrently */
+            default_value: number;
+            /** @description The amount of movies allowed to be fetched concurrently */
+            env_value: number;
+            /** @enum {string} */
+            key: "max_movie_concurrency";
+            require_restart: boolean;
+        } | {
+            /** @description The amount of shows allowed to be fetched concurrently */
+            cli_value: number;
+            /** @description The amount of shows allowed to be fetched concurrently */
+            config_value: number;
+            /** @description The amount of shows allowed to be fetched concurrently */
+            default_value: number;
+            /** @description The amount of shows allowed to be fetched concurrently */
+            env_value: number;
+            /** @enum {string} */
+            key: "max_show_concurrency";
+            require_restart: boolean;
+        } | {
+            /** @description The amount of assets allowed to be fetched concurrently */
+            cli_value: number;
+            /** @description The amount of assets allowed to be fetched concurrently */
+            config_value: number;
+            /** @description The amount of assets allowed to be fetched concurrently */
+            default_value: number;
+            /** @description The amount of assets allowed to be fetched concurrently */
+            env_value: number;
+            /** @enum {string} */
+            key: "max_asset_concurrency";
+            require_restart: boolean;
+        } | {
+            /**
+             * @description Try to use episodes metadata from fetched season.
+             *     It will speed up metadata fetch for newly added season, but episodes will end up with potentially incomplete metadata
+             *
+             *     Not recommended unless you have a huge show library you scan at once
+             */
+            cli_value: boolean;
+            /**
+             * @description Try to use episodes metadata from fetched season.
+             *     It will speed up metadata fetch for newly added season, but episodes will end up with potentially incomplete metadata
+             *
+             *     Not recommended unless you have a huge show library you scan at once
+             */
+            config_value: boolean;
+            /**
+             * @description Try to use episodes metadata from fetched season.
+             *     It will speed up metadata fetch for newly added season, but episodes will end up with potentially incomplete metadata
+             *
+             *     Not recommended unless you have a huge show library you scan at once
+             */
+            default_value: boolean;
+            /**
+             * @description Try to use episodes metadata from fetched season.
+             *     It will speed up metadata fetch for newly added season, but episodes will end up with potentially incomplete metadata
+             *
+             *     Not recommended unless you have a huge show library you scan at once
+             */
+            env_value: boolean;
+            /** @enum {string} */
+            key: "use_season_episodes";
+            require_restart: boolean;
+        } | {
+            /** @description Language to fetch metadata in. Selected language will be used in names, plots and posters */
+            cli_value: components["schemas"]["Language"];
+            /** @description Language to fetch metadata in. Selected language will be used in names, plots and posters */
+            config_value: components["schemas"]["Language"];
+            /** @description Language to fetch metadata in. Selected language will be used in names, plots and posters */
+            default_value: components["schemas"]["Language"];
+            /** @description Language to fetch metadata in. Selected language will be used in names, plots and posters */
+            env_value: components["schemas"]["Language"];
+            /** @enum {string} */
+            key: "metadata_language";
+            require_restart: boolean;
         })[];
-    };
-    CursoredResponse_Movie: {
-      cursor?: string | null;
-      data: {
-        backdrop?: string | null;
-        cast?: components["schemas"]["Actor"][] | null;
-        external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
-        genres?: components["schemas"]["Genre"][] | null;
-        local?: null | components["schemas"]["LocalMovieData"];
-        locale_metadata?: null | components["schemas"]["LocaleMetadata"];
-        plot?: string | null;
-        poster?: string | null;
-        provider: components["schemas"]["MetadataProvider"];
-        provider_id: string;
-        release_date?: string | null;
-        runtime?: null | components["schemas"]["MediaDuration"];
-        title: string;
-      }[];
-    };
-    CursoredResponse_Show: {
-      cursor?: string | null;
-      data: {
-        backdrop?: string | null;
-        cast?: components["schemas"]["Actor"][] | null;
-        episodes_amount?: number | null;
-        external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
-        genres?: components["schemas"]["Genre"][] | null;
-        local?: null | components["schemas"]["LocalShowData"];
-        locale_metadata?: null | components["schemas"]["LocaleMetadata"];
-        plot?: string | null;
-        poster?: string | null;
-        provider: components["schemas"]["MetadataProvider"];
-        provider_id: string;
-        release_date?: string | null;
-        /** @description Array of available season numbers */
-        seasons?: number[] | null;
-        title: string;
-      }[];
-    };
-    /**
-     * @description `external_ids` table maps content to external movie/show metadata provider ids.
-     *     `external_provider` and `external_id` identify the item on the remote provider (e.g. TMDB).
-     *     `metadata_id` is the FK to the local metadata table.
-     */
-    DbExternalId: {
-      external_id: string;
-      external_provider: components["schemas"]["MetadataProvider"];
-      /** Format: int64 */
-      id: number;
-      /** Format: int64 */
-      is_prime: number;
-      /** Format: int64 */
-      metadata_id?: number | null;
-    };
-    DetailedAudioTrack: {
-      /** Format: int32 */
-      channels: number;
-      codec: components["schemas"]["AudioCodec"];
-      is_default: boolean;
-      is_dub: boolean;
-      is_hearing_impaired: boolean;
-      is_visual_impaired: boolean;
-      language?: string | null;
-      /** Format: int32 */
-      profile_idc: number;
-      sample_rate: string;
-    };
-    DetailedChapter: {
-      end: components["schemas"]["MediaDuration"];
-      start: components["schemas"]["MediaDuration"];
-      title?: string | null;
-    };
-    DetailedSubtitleTrack: {
-      codec: components["schemas"]["SubtitlesCodec"];
-      is_default: boolean;
-      is_hearing_impaired: boolean;
-      is_text_format: boolean;
-      is_visual_impaired: boolean;
-      language?: string | null;
-    };
-    DetailedSubtitlesAsset: {
-      file_stem: string;
-      /** Format: int64 */
-      id: number;
-      is_available: boolean;
-      is_external: boolean;
-      language?: string | null;
-      path: string;
-    };
-    DetailedVariant: {
-      audio_tracks: components["schemas"]["DetailedAudioTrack"][];
-      container: components["schemas"]["VideoContainer"];
-      duration: components["schemas"]["MediaDuration"];
-      id: string;
-      path: string;
-      /** Format: int64 */
-      size: number;
-      video_tracks: components["schemas"]["DetailedVideoTrack"][];
-    };
-    DetailedVideo: {
-      audio_tracks: components["schemas"]["DetailedAudioTrack"][];
-      chapters: components["schemas"]["DetailedChapter"][];
-      container: components["schemas"]["VideoContainer"];
-      duration: components["schemas"]["MediaDuration"];
-      /** Format: int64 */
-      id: number;
-      path: string;
-      previews_count: number;
-      /** Format: date-time */
-      scan_date: string;
-      /** Format: int64 */
-      size: number;
-      subtitle_tracks: components["schemas"]["DetailedSubtitleTrack"][];
-      subtitles: components["schemas"]["DetailedSubtitlesAsset"][];
-      variants: components["schemas"]["DetailedVariant"][];
-      video_tracks: components["schemas"]["DetailedVideoTrack"][];
-    };
-    DetailedVideoTrack: {
-      bitrate: number;
-      codec: components["schemas"]["VideoCodec"];
-      /** Format: double */
-      framerate: number;
-      is_default: boolean;
-      /** Format: int32 */
-      level: number;
-      /** Format: int32 */
-      profile_idc: number;
-      resolution: components["schemas"]["Resolution"];
-    };
-    DownloadContentHint: {
-      content_type: components["schemas"]["ContentType"];
-      metadata_id: string;
-      metadata_provider: components["schemas"]["MetadataProvider"];
-    };
-    DownloadError: {
-      storage: components["schemas"]["StorageError"];
-    };
-    DownloadState:
-      | {
-          error: components["schemas"]["DownloadError"];
-          /** @enum {string} */
-          type: "error";
-        }
-      | {
-          /** @enum {string} */
-          type: "validation";
-        }
-      | {
-          /** @enum {string} */
-          type: "paused";
-        }
-      | {
-          /** @enum {string} */
-          type: "pending";
-        }
-      | {
-          /** @enum {string} */
-          type: "seeding";
+        ConfigurationApplyError: {
+            key: string;
+            message: string;
         };
-    EditIntroPayload: {
-      /**
-       * Format: int64
-       * @description End range specified in seconds
-       */
-      end: number;
-      /**
-       * Format: int64
-       * @description Start range specified in seconds
-       */
-      start: number;
-    };
-    Episode: {
-      cast?: components["schemas"]["Actor"][] | null;
-      local?: null | components["schemas"]["LocalEpisodeData"];
-      number: number;
-      plot?: string | null;
-      poster?: string | null;
-      provider: components["schemas"]["MetadataProvider"];
-      provider_id: string;
-      release_date?: string | null;
-      runtime?: null | components["schemas"]["MediaDuration"];
-      season_number: number;
-      title: string;
-    };
-    /** @description The unified episode data structure from any show provider */
-    EpisodeMetadata: {
-      cast?: components["schemas"]["PersonMetadata"][] | null;
-      metadata_id: string;
-      metadata_provider: components["schemas"]["MetadataProvider"];
-      number: number;
-      plot?: string | null;
-      poster?: string | null;
-      release_date?: string | null;
-      runtime?: null | components["schemas"]["MediaDuration"];
-      season_number: number;
-      title: string;
-    };
-    ExternalIdMetadata: {
-      id: string;
-      provider: components["schemas"]["MetadataProvider"];
-    };
-    /** @enum {string} */
-    Genre:
-      | "action"
-      | "adventure"
-      | "fantasy"
-      | "history"
-      | "horror"
-      | "music"
-      | "mystery"
-      | "romance"
-      | "science_fiction"
-      | "thriller"
-      | "war"
-      | "western"
-      | "action_adventure"
-      | "animation"
-      | "comedy"
-      | "crime"
-      | "documentary"
-      | "drama"
-      | "family"
-      | "kids"
-      | "news"
-      | "reality"
-      | "sci_fi_fantasy"
-      | "soap"
-      | "talk";
-    History: {
-      /** Format: int64 */
-      id: number;
-      is_finished: boolean;
-      /** Format: int64 */
-      time: number;
-      /** Format: date-time */
-      update_time: string;
-    };
-    HistoryContentType:
-      | {
-          /** Format: int64 */
-          episode_id: number;
-          /** Format: int64 */
-          number: number;
-          /** Format: int64 */
-          season_number: number;
-          /** Format: int64 */
-          show_id: number;
-          show_title: string;
-          /** @enum {string} */
-          type: "episode";
-        }
-      | {
-          /** Format: int64 */
-          movie_id: number;
-          /** @enum {string} */
-          type: "movie";
+        ConfigurationApplyResult: {
+            errors: components["schemas"]["ConfigurationApplyError"][];
+            require_restart: boolean;
         };
-    HistoryEntry: components["schemas"]["Content"] &
-      components["schemas"]["HistoryContentType"] & {
-        history: components["schemas"]["History"];
-        /** Format: int64 */
-        metadata_id: number;
-        runtime: components["schemas"]["MediaDuration"];
-      };
-    /** @description Encoder configuration for hls live streams */
-    HlsStreamConfiguration: {
-      /**
-       * @description Audio encoder name
-       *
-       *     If `None` selected audio track will be copied
-       */
-      audio_encoder?: string | null;
-      /** @description Audio track index */
-      audio_track: number;
-      /**
-       * @description Video encoder name
-       *
-       *     If `None` selected video track will be copied
-       */
-      video_encoder?: string | null;
-      /** @description Video track index */
-      video_track: number;
-    };
-    IndexMagnetLink: {
-      magnet_link: string;
-    };
-    InfoHash: string;
-    Intro: {
-      /** Format: int64 */
-      end_sec: number;
-      /** Format: int64 */
-      start_sec: number;
-    };
-    /** @default null */
-    IntroProgress: unknown;
-    JsonTracingEvent: {
-      fields: {
-        [key: string]: unknown;
-      };
-      level: string;
-      name: string;
-      target: string;
-      timestamp: string;
-    };
-    /** @enum {string} */
-    Language: "en" | "es" | "de" | "fr" | "ru" | "ja" | "sr";
-    LocalActorData: {
-      /** Format: int64 */
-      id: number;
-    };
-    LocalEpisodeData: {
-      history?: null | components["schemas"]["History"];
-      /** Format: int64 */
-      id: number;
-      intro?: null | components["schemas"]["Intro"];
-      /** Format: int64 */
-      metadata_id: number;
-    };
-    LocalMovieData: {
-      history?: null | components["schemas"]["History"];
-      /** Format: int64 */
-      id: number;
-      /** Format: int64 */
-      metadata_id: number;
-    };
-    LocalSeasonData: {
-      /** Format: int64 */
-      id: number;
-      /** Format: int64 */
-      metadata_id: number;
-    };
-    LocalShowData: {
-      /** Format: int64 */
-      id: number;
-      /** Format: int64 */
-      metadata_id: number;
-    };
-    /** @description Localization specific data */
-    LocaleMetadata: {
-      original_language: string;
-      original_title: string;
-    };
-    /** @description Wrapper around [std::time::Duration] that is serialized in milliseconds */
-    MediaDuration: number;
-    /** @enum {string} */
-    MetadataProvider: "local" | "tmdb" | "tvdb" | "imdb";
-    MetadataSearchResult: {
-      content_type: components["schemas"]["ContentType"];
-      locale_metadata?: null | components["schemas"]["LocaleMetadata"];
-      metadata_id: string;
-      metadata_provider: components["schemas"]["MetadataProvider"];
-      plot?: string | null;
-      poster?: string | null;
-      title: string;
-    };
-    Movie: {
-      backdrop?: string | null;
-      cast?: components["schemas"]["Actor"][] | null;
-      external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
-      genres?: components["schemas"]["Genre"][] | null;
-      local?: null | components["schemas"]["LocalMovieData"];
-      locale_metadata?: null | components["schemas"]["LocaleMetadata"];
-      plot?: string | null;
-      poster?: string | null;
-      provider: components["schemas"]["MetadataProvider"];
-      provider_id: string;
-      release_date?: string | null;
-      runtime?: null | components["schemas"]["MediaDuration"];
-      title: string;
-    };
-    MovieHistory: {
-      history: components["schemas"]["History"];
-      movie: components["schemas"]["MovieMetadata"];
-    };
-    /** @description The unified movie data structure from any movie provider */
-    MovieMetadata: {
-      backdrop?: string | null;
-      cast?: components["schemas"]["PersonMetadata"][] | null;
-      external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
-      genres?: components["schemas"]["Genre"][] | null;
-      locale_metadata?: null | components["schemas"]["LocaleMetadata"];
-      metadata_id: string;
-      metadata_provider: components["schemas"]["MetadataProvider"];
-      plot?: string | null;
-      poster?: string | null;
-      release_date?: string | null;
-      runtime?: null | components["schemas"]["MediaDuration"];
-      title: string;
-    };
-    Notification: components["schemas"]["TaskProgress"] & {
-      /**
-       * Format: uuid
-       * @description This is used to cancel activity
-       */
-      activity_id: string;
-    };
-    /**
-     * Format: date-time
-     * @description Wrapper around `time::OffsetDateTime`
-     */
-    OffsetDateTime: string;
-    PeerEvent: {
-      ip: string;
-      peer_event: components["schemas"]["PeerEventKind"];
-    };
-    PeerEventKind:
-      | (components["schemas"]["PeerStateChange"] & {
-          /** @enum {string} */
-          kind: "statupdate";
-        })
-      | {
-          /** @enum {string} */
-          kind: "disconnect";
-        }
-      | {
-          /** @enum {string} */
-          kind: "connect";
-          state: components["schemas"]["StatePeer"];
+        /** @description Any content base data */
+        Content: {
+            locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+            plot?: string | null;
+            poster?: string | null;
+            release_date?: string | null;
+            title: string;
         };
-    PeerStateChange: {
-      /** Format: int64 */
-      download_speed: number;
-      /** Format: int64 */
-      downloaded: number;
-      in_choked: boolean;
-      in_interested: boolean;
-      out_choked: boolean;
-      out_interested: boolean;
-      /** Format: int64 */
-      upload_speed: number;
-      /** Format: int64 */
-      uploaded: number;
-    };
-    PendingTorrent: {
-      info_hash: number[];
-      torrent_info: components["schemas"]["TorrentInfo"];
-      /** Format: int64 */
-      torrent_size: number;
-    };
-    PersonMetadata: {
-      imdb_id?: string | null;
-      metadata_id: string;
-      metadata_provider: components["schemas"]["MetadataProvider"];
-      name: string;
-      person_poster?: string | null;
-      role?: null | components["schemas"]["RoleMetadata"];
-    };
-    /** @enum {string} */
-    Priority: "disabled" | "low" | "medium" | "high";
-    PriorityPayload: {
-      files: number[];
-      priority: components["schemas"]["Priority"];
-    };
-    Progress: {
-      changed_torrents: components["schemas"]["TorrentUpdate"][];
-      session_update?: null | components["schemas"]["SessionUpdate"];
-      tick_num: number;
-    };
-    ProgressChunk:
-      | {
-          fail_count: number;
-          success_count: number;
-          total_video_files: number;
-          /** @enum {string} */
-          type: "metadata_fetch";
-        }
-      | {
-          /** @enum {string} */
-          type: "metadata_save";
-        }
-      | {
-          fail_count: number;
-          success_count: number;
-          total_assets_count: number;
-          /** @enum {string} */
-          type: "assets_save";
+        /** @enum {string} */
+        ContentType: "movie" | "show";
+        CursoredResponse_Actor: {
+            cursor?: string | null;
+            data: {
+                character?: string | null;
+                imdb_id?: string | null;
+                local?: null | components["schemas"]["LocalActorData"];
+                metadata_id: string;
+                metadata_provider: components["schemas"]["MetadataProvider"];
+                name: string;
+                poster?: string | null;
+            }[];
         };
-    ProgressEvent:
-      | (components["schemas"]["PeerEvent"] & {
-          /** @enum {string} */
-          event_kind: "peer";
-        })
-      | (components["schemas"]["TorrentStateChange"] & {
-          /** @enum {string} */
-          event_kind: "state";
-        })
-      | (components["schemas"]["TrackerEvent"] & {
-          /** @enum {string} */
-          event_kind: "tracker";
-        })
-      | (components["schemas"]["StoragePieceEvent"] & {
-          /** @enum {string} */
-          event_kind: "storagepiece";
-        })
-      | (components["schemas"]["StorageFileEvent"] & {
-          /** @enum {string} */
-          event_kind: "storagefile";
-        })
-      | {
-          /** @enum {string} */
-          event_kind: "validationcomplete";
-          valid_bitfield: number[];
-        }
-      | (components["schemas"]["SessionEvent"] & {
-          /** @enum {string} */
-          event_kind: "session";
+        CursoredResponse_HistoryEntry: {
+            cursor?: string | null;
+            data: (components["schemas"]["Content"] & components["schemas"]["HistoryContentType"] & {
+                history: components["schemas"]["History"];
+                /** Format: int64 */
+                metadata_id: number;
+                runtime: components["schemas"]["MediaDuration"];
+            })[];
+        };
+        CursoredResponse_Movie: {
+            cursor?: string | null;
+            data: {
+                backdrop?: string | null;
+                cast?: components["schemas"]["Actor"][] | null;
+                external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
+                genres?: components["schemas"]["Genre"][] | null;
+                local?: null | components["schemas"]["LocalMovieData"];
+                locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+                plot?: string | null;
+                poster?: string | null;
+                provider: components["schemas"]["MetadataProvider"];
+                provider_id: string;
+                release_date?: string | null;
+                runtime?: null | components["schemas"]["MediaDuration"];
+                title: string;
+            }[];
+        };
+        CursoredResponse_Show: {
+            cursor?: string | null;
+            data: {
+                backdrop?: string | null;
+                cast?: components["schemas"]["Actor"][] | null;
+                episodes_amount?: number | null;
+                external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
+                genres?: components["schemas"]["Genre"][] | null;
+                local?: null | components["schemas"]["LocalShowData"];
+                locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+                plot?: string | null;
+                poster?: string | null;
+                provider: components["schemas"]["MetadataProvider"];
+                provider_id: string;
+                release_date?: string | null;
+                /** @description Array of available season numbers */
+                seasons?: number[] | null;
+                title: string;
+            }[];
+        };
+        /**
+         * @description `external_ids` table maps content to external movie/show metadata provider ids.
+         *     `external_provider` and `external_id` identify the item on the remote provider (e.g. TMDB).
+         *     `metadata_id` is the FK to the local metadata table.
+         */
+        DbExternalId: {
+            external_id: string;
+            external_provider: components["schemas"]["MetadataProvider"];
+            /** Format: int64 */
+            id: number;
+            /** Format: int64 */
+            is_prime: number;
+            /** Format: int64 */
+            metadata_id?: number | null;
+        };
+        DetailedAudioTrack: {
+            /** Format: int32 */
+            channels: number;
+            codec: components["schemas"]["AudioCodec"];
+            is_default: boolean;
+            is_dub: boolean;
+            is_hearing_impaired: boolean;
+            is_visual_impaired: boolean;
+            language?: string | null;
+            /** Format: int32 */
+            profile_idc: number;
+            sample_rate: string;
+        };
+        DetailedChapter: {
+            end: components["schemas"]["MediaDuration"];
+            start: components["schemas"]["MediaDuration"];
+            title?: string | null;
+        };
+        DetailedSubtitleTrack: {
+            codec: components["schemas"]["SubtitlesCodec"];
+            is_default: boolean;
+            is_hearing_impaired: boolean;
+            is_text_format: boolean;
+            is_visual_impaired: boolean;
+            language?: string | null;
+        };
+        DetailedSubtitlesAsset: {
+            file_stem: string;
+            /** Format: int64 */
+            id: number;
+            is_available: boolean;
+            is_external: boolean;
+            language?: string | null;
+            path: string;
+        };
+        DetailedVariant: {
+            audio_tracks: components["schemas"]["DetailedAudioTrack"][];
+            container: components["schemas"]["VideoContainer"];
+            duration: components["schemas"]["MediaDuration"];
+            id: string;
+            path: string;
+            /** Format: int64 */
+            size: number;
+            video_tracks: components["schemas"]["DetailedVideoTrack"][];
+        };
+        DetailedVideo: {
+            audio_tracks: components["schemas"]["DetailedAudioTrack"][];
+            chapters: components["schemas"]["DetailedChapter"][];
+            container: components["schemas"]["VideoContainer"];
+            duration: components["schemas"]["MediaDuration"];
+            /** Format: int64 */
+            id: number;
+            path: string;
+            previews_count: number;
+            /** Format: date-time */
+            scan_date: string;
+            /** Format: int64 */
+            size: number;
+            subtitle_tracks: components["schemas"]["DetailedSubtitleTrack"][];
+            subtitles: components["schemas"]["DetailedSubtitlesAsset"][];
+            variants: components["schemas"]["DetailedVariant"][];
+            video_tracks: components["schemas"]["DetailedVideoTrack"][];
+        };
+        DetailedVideoTrack: {
+            bitrate: number;
+            codec: components["schemas"]["VideoCodec"];
+            /** Format: double */
+            framerate: number;
+            is_default: boolean;
+            /** Format: int32 */
+            level: number;
+            /** Format: int32 */
+            profile_idc: number;
+            resolution: components["schemas"]["Resolution"];
+        };
+        DownloadContentHint: {
+            content_type: components["schemas"]["ContentType"];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+        };
+        DownloadError: {
+            storage: components["schemas"]["StorageError"];
+        };
+        DownloadState: {
+            error: components["schemas"]["DownloadError"];
+            /** @enum {string} */
+            type: "error";
+        } | {
+            /** @enum {string} */
+            type: "validation";
+        } | {
+            /** @enum {string} */
+            type: "paused";
+        } | {
+            /** @enum {string} */
+            type: "pending";
+        } | {
+            /** @enum {string} */
+            type: "seeding";
+        };
+        EditIntroPayload: {
+            /**
+             * Format: int64
+             * @description End range specified in seconds
+             */
+            end: number;
+            /**
+             * Format: int64
+             * @description Start range specified in seconds
+             */
+            start: number;
+        };
+        Episode: {
+            cast?: components["schemas"]["Actor"][] | null;
+            local?: null | components["schemas"]["LocalEpisodeData"];
+            number: number;
+            plot?: string | null;
+            poster?: string | null;
+            provider: components["schemas"]["MetadataProvider"];
+            provider_id: string;
+            release_date?: string | null;
+            runtime?: null | components["schemas"]["MediaDuration"];
+            season_number: number;
+            title: string;
+        };
+        /** @description The unified episode data structure from any show provider */
+        EpisodeMetadata: {
+            cast?: components["schemas"]["PersonMetadata"][] | null;
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            number: number;
+            plot?: string | null;
+            poster?: string | null;
+            release_date?: string | null;
+            runtime?: null | components["schemas"]["MediaDuration"];
+            season_number: number;
+            title: string;
+        };
+        ExternalIdMetadata: {
+            id: string;
+            provider: components["schemas"]["MetadataProvider"];
+        };
+        /** @description Failed metadata fetch attempt */
+        FailedContent: {
+            content_type: components["schemas"]["ContentType"];
+            title: string;
+            videos: string[];
+        };
+        FetchParams: {
+            lang: components["schemas"]["Language"];
+        };
+        FetchResult: {
+            /** @enum {string} */
+            type: "success";
+        } | (components["schemas"]["FailedContent"] & {
+            /** @enum {string} */
+            type: "fail";
         });
-    ProgressStatus_IntroJob:
-      | {
-          /** @enum {string} */
-          progress_type: "start";
-          /** @description Use serde_json::Value since we just need the serialized payload */
-          task: components["schemas"]["Task_IntroJob"];
-        }
-      | {
-          /** @enum {string} */
-          progress_type: "finish";
-        }
-      | {
-          progress: components["schemas"]["IntroProgress"];
-          /** @enum {string} */
-          progress_type: "pending";
-        }
-      | {
-          /** @enum {string} */
-          progress_type: "cancel";
-        }
-      | {
-          message?: string | null;
-          /** @enum {string} */
-          progress_type: "error";
+        /** @enum {string} */
+        Genre: "action" | "adventure" | "fantasy" | "history" | "horror" | "music" | "mystery" | "romance" | "science_fiction" | "thriller" | "war" | "western" | "action_adventure" | "animation" | "comedy" | "crime" | "documentary" | "drama" | "family" | "kids" | "news" | "reality" | "sci_fi_fantasy" | "soap" | "talk";
+        History: {
+            /** Format: int64 */
+            id: number;
+            is_finished: boolean;
+            /** Format: int64 */
+            time: number;
+            /** Format: date-time */
+            update_time: string;
         };
-    ProgressStatus_LibraryScanTask:
-      | {
-          /** @enum {string} */
-          progress_type: "start";
-          /** @description Use serde_json::Value since we just need the serialized payload */
-          task: components["schemas"]["Task_LibraryScanTask"];
-        }
-      | {
-          /** @enum {string} */
-          progress_type: "finish";
-        }
-      | {
-          progress: components["schemas"]["ProgressChunk"];
-          /** @enum {string} */
-          progress_type: "pending";
-        }
-      | {
-          /** @enum {string} */
-          progress_type: "cancel";
-        }
-      | {
-          message?: string | null;
-          /** @enum {string} */
-          progress_type: "error";
+        HistoryContentType: {
+            /** Format: int64 */
+            episode_id: number;
+            /** Format: int64 */
+            number: number;
+            /** Format: int64 */
+            season_number: number;
+            /** Format: int64 */
+            show_id: number;
+            show_title: string;
+            /** @enum {string} */
+            type: "episode";
+        } | {
+            /** Format: int64 */
+            movie_id: number;
+            /** @enum {string} */
+            type: "movie";
         };
-    ProgressStatus_PendingTorrent:
-      | {
-          /** @enum {string} */
-          progress_type: "start";
-          /** @description Use serde_json::Value since we just need the serialized payload */
-          task: components["schemas"]["Task_PendingTorrent"];
-        }
-      | {
-          /** @enum {string} */
-          progress_type: "finish";
-        }
-      | {
-          progress: components["schemas"]["CompactTorrentProgress"];
-          /** @enum {string} */
-          progress_type: "pending";
-        }
-      | {
-          /** @enum {string} */
-          progress_type: "cancel";
-        }
-      | {
-          message?: string | null;
-          /** @enum {string} */
-          progress_type: "error";
+        HistoryEntry: components["schemas"]["Content"] & components["schemas"]["HistoryContentType"] & {
+            history: components["schemas"]["History"];
+            /** Format: int64 */
+            metadata_id: number;
+            runtime: components["schemas"]["MediaDuration"];
         };
-    ProgressStatus_PreviewsJob:
-      | {
-          /** @enum {string} */
-          progress_type: "start";
-          /** @description Use serde_json::Value since we just need the serialized payload */
-          task: components["schemas"]["Task_PreviewsJob"];
-        }
-      | {
-          /** @enum {string} */
-          progress_type: "finish";
-        }
-      | {
-          progress: components["schemas"]["VideoProgress"];
-          /** @enum {string} */
-          progress_type: "pending";
-        }
-      | {
-          /** @enum {string} */
-          progress_type: "cancel";
-        }
-      | {
-          message?: string | null;
-          /** @enum {string} */
-          progress_type: "error";
+        /** @description Encoder configuration for hls live streams */
+        HlsStreamConfiguration: {
+            /**
+             * @description Audio encoder name
+             *
+             *     If `None` selected audio track will be copied
+             */
+            audio_encoder?: string | null;
+            /** @description Audio track index */
+            audio_track: number;
+            /**
+             * @description Video encoder name
+             *
+             *     If `None` selected video track will be copied
+             */
+            video_encoder?: string | null;
+            /** @description Video track index */
+            video_track: number;
         };
-    ProgressStatus_TranscodeJob:
-      | {
-          /** @enum {string} */
-          progress_type: "start";
-          /** @description Use serde_json::Value since we just need the serialized payload */
-          task: components["schemas"]["Task_TranscodeJob"];
-        }
-      | {
-          /** @enum {string} */
-          progress_type: "finish";
-        }
-      | {
-          progress: components["schemas"]["VideoProgress"];
-          /** @enum {string} */
-          progress_type: "pending";
-        }
-      | {
-          /** @enum {string} */
-          progress_type: "cancel";
-        }
-      | {
-          message?: string | null;
-          /** @enum {string} */
-          progress_type: "error";
+        IndexMagnetLink: {
+            magnet_link: string;
         };
-    ProgressStatus_WatchTask:
-      | {
-          /** @enum {string} */
-          progress_type: "start";
-          /** @description Use serde_json::Value since we just need the serialized payload */
-          task: components["schemas"]["Task_WatchTask"];
-        }
-      | {
-          /** @enum {string} */
-          progress_type: "finish";
-        }
-      | {
-          progress: components["schemas"]["WatchProgress"];
-          /** @enum {string} */
-          progress_type: "pending";
-        }
-      | {
-          /** @enum {string} */
-          progress_type: "cancel";
-        }
-      | {
-          message?: string | null;
-          /** @enum {string} */
-          progress_type: "error";
+        InfoHash: string;
+        Intro: {
+            /** Format: int64 */
+            end_sec: number;
+            /** Format: int64 */
+            start_sec: number;
         };
-    ProviderOrder:
-      | {
-          discover: components["schemas"]["MetadataProvider"][];
-        }
-      | {
-          movie: components["schemas"]["MetadataProvider"][];
-        }
-      | {
-          show: components["schemas"]["MetadataProvider"][];
-        }
-      | {
-          torrent: components["schemas"]["TorrentIndexIdentifier"][];
+        /** @default null */
+        IntroProgress: unknown;
+        JsonTracingEvent: {
+            fields: {
+                [key: string]: unknown;
+            };
+            level: string;
+            name: string;
+            target: string;
+            timestamp: string;
         };
-    ProviderOrderResponse: {
-      discover: components["schemas"]["MetadataProvider"][];
-      movie: components["schemas"]["MetadataProvider"][];
-      show: components["schemas"]["MetadataProvider"][];
-      torrent: components["schemas"]["TorrentIndexIdentifier"][];
-    };
-    Resolution: {
-      height: number;
-      width: number;
-    };
-    ResolvedTorrentFile: {
-      /** Format: int64 */
-      offset: number;
-      path: string[];
-      priority: components["schemas"]["Priority"];
-      /** Format: int64 */
-      size: number;
-    };
-    RoleMetadata: {
-      character: string;
-      poster?: string | null;
-    };
-    /** @description Season API data structure */
-    Season: {
-      episodes: components["schemas"]["Episode"][];
-      local?: null | components["schemas"]["LocalSeasonData"];
-      metadata_id: string;
-      metadata_provider: components["schemas"]["MetadataProvider"];
-      number: number;
-      plot?: string | null;
-      poster?: string | null;
-      release_date?: string | null;
-      title?: string | null;
-    };
-    /** @description The unified season data structure from any show provider */
-    SeasonMetadata: {
-      cast?: components["schemas"]["PersonMetadata"][] | null;
-      episodes: components["schemas"]["EpisodeMetadata"][];
-      metadata_id: string;
-      metadata_provider: components["schemas"]["MetadataProvider"];
-      number: number;
-      plot?: string | null;
-      poster?: string | null;
-      release_date?: string | null;
-      title?: string | null;
-    };
-    SessionEvent:
-      | {
-          /** @enum {string} */
-          kind: "torrentadd";
-          state: components["schemas"]["TorrentState"];
-        }
-      | {
-          info_hash: string;
-          /** @enum {string} */
-          kind: "torrentremove";
+        /** @enum {string} */
+        Language: "en" | "es" | "de" | "fr" | "ru" | "ja" | "sr";
+        LocalActorData: {
+            /** Format: int64 */
+            id: number;
         };
-    SessionState: {
-      session_stats: components["schemas"]["SessionStats"];
-      torrents: components["schemas"]["TorrentState"][];
-    };
-    SessionStats: {
-      /** Format: int32 */
-      connected_peers: number;
-      /** Format: double */
-      download_speed: number;
-      /** Format: double */
-      upload_speed: number;
-    };
-    SessionUpdate: {
-      /** Format: int32 */
-      connected_peers: number;
-      /** Format: double */
-      download_speed: number;
-      /** Format: double */
-      upload_speed: number;
-    };
-    /** @description Show API data structure */
-    Show: {
-      backdrop?: string | null;
-      cast?: components["schemas"]["Actor"][] | null;
-      episodes_amount?: number | null;
-      external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
-      genres?: components["schemas"]["Genre"][] | null;
-      local?: null | components["schemas"]["LocalShowData"];
-      locale_metadata?: null | components["schemas"]["LocaleMetadata"];
-      plot?: string | null;
-      poster?: string | null;
-      provider: components["schemas"]["MetadataProvider"];
-      provider_id: string;
-      release_date?: string | null;
-      /** @description Array of available season numbers */
-      seasons?: number[] | null;
-      title: string;
-    };
-    /** @description The unified show data structure from any show provider */
-    ShowMetadata: {
-      backdrop?: string | null;
-      cast?: components["schemas"]["PersonMetadata"][] | null;
-      episodes_amount?: number | null;
-      external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
-      genres?: components["schemas"]["Genre"][] | null;
-      locale_metadata?: null | components["schemas"]["LocaleMetadata"];
-      metadata_id: string;
-      metadata_provider: components["schemas"]["MetadataProvider"];
-      plot?: string | null;
-      poster?: string | null;
-      release_date?: string | null;
-      /** @description Array of available season numbers */
-      seasons?: number[] | null;
-      title: string;
-    };
-    ShowSuggestion: {
-      episode: components["schemas"]["Episode"];
-      history?: null | components["schemas"]["History"];
-      /** Format: int64 */
-      show_id: number;
-    };
-    StartDirectStreamRequest: {
-      /** Format: uuid */
-      variant_id?: string | null;
-    };
-    StartHlsStreamRequest: {
-      audio_codec?: null | components["schemas"]["AudioCodec"];
-      audio_track?: number | null;
-      /** Format: uuid */
-      variant_id?: string | null;
-      video_codec?: null | components["schemas"]["VideoCodec"];
-      video_track?: number | null;
-    };
-    StartWatchSessionResponse: {
-      /** Format: uuid */
-      task_id: string;
-    };
-    StateFile: {
-      end_piece: number;
-      index: number;
-      path: string[];
-      priority: components["schemas"]["Priority"];
-      /** Format: int64 */
-      size: number;
-      start_piece: number;
-    };
-    StatePeer: {
-      addr: string;
-      client_name: string;
-      /** Format: int64 */
-      download_speed: number;
-      /** Format: int64 */
-      downloaded: number;
-      in_status: components["schemas"]["Status"];
-      interested_amount: number;
-      out_status: components["schemas"]["Status"];
-      pending_blocks_amount: number;
-      /** Format: int64 */
-      upload_speed: number;
-      /** Format: int64 */
-      uploaded: number;
-    };
-    StateTracker: components["schemas"]["TrackerStatus"] & {
-      announce_interval: components["schemas"]["MediaDuration"];
-      url: string;
-    };
-    Status: {
-      choked: boolean;
-      interested: boolean;
-    };
-    StorageError:
-      | {
-          fs: string;
-        }
-      | "hash"
-      | "bounds";
-    StorageFileEvent: {
-      file_event: components["schemas"]["StorageFileEventKind"];
-      idx: number;
-    };
-    StorageFileEventKind: {
-      /** @enum {string} */
-      kind: "prioritychange";
-      priority: components["schemas"]["Priority"];
-    };
-    StoragePieceEvent: {
-      piece: number;
-      piece_event: components["schemas"]["StoragePieceEventKind"];
-    };
-    StoragePieceEventKind:
-      | {
-          /** @enum {string} */
-          kind: "validated";
-        }
-      | {
-          /** @enum {string} */
-          kind: "hashfailed";
-        }
-      | {
-          /** @enum {string} */
-          kind: "savefailed";
-        }
-      | {
-          /** @enum {string} */
-          kind: "finished";
+        LocalEpisodeData: {
+            history?: null | components["schemas"]["History"];
+            /** Format: int64 */
+            id: number;
+            intro?: null | components["schemas"]["Intro"];
+            /** Format: int64 */
+            metadata_id: number;
         };
-    Stream:
-      | {
-          /** @enum {string} */
-          stream_type: "direct_play";
-        }
-      | {
-          configuration: components["schemas"]["HlsStreamConfiguration"];
-          /** @enum {string} */
-          stream_type: "hls";
+        LocalMovieData: {
+            history?: null | components["schemas"]["History"];
+            /** Format: int64 */
+            id: number;
+            /** Format: int64 */
+            metadata_id: number;
         };
-    /** @enum {string} */
-    StreamMethod: "direct_play" | "hls";
-    SubtitlesCodec: null | string;
-    SubtitlesReferencePayload: {
-      language?: string | null;
-      path: string;
-    };
-    TaskProgress:
-      | (components["schemas"]["ProgressStatus_WatchTask"] & {
-          /** @enum {string} */
-          task_type: "watchsession";
-        })
-      | (components["schemas"]["ProgressStatus_TranscodeJob"] & {
-          /** @enum {string} */
-          task_type: "transcode";
-        })
-      | (components["schemas"]["ProgressStatus_PreviewsJob"] & {
-          /** @enum {string} */
-          task_type: "previews";
-        })
-      | (components["schemas"]["ProgressStatus_PendingTorrent"] & {
-          /** @enum {string} */
-          task_type: "torrent";
-        })
-      | (components["schemas"]["ProgressStatus_LibraryScanTask"] & {
-          /** @enum {string} */
-          task_type: "libraryscan";
-        })
-      | (components["schemas"]["ProgressStatus_IntroJob"] & {
-          /** @enum {string} */
-          task_type: "introdetection";
+        LocalSeasonData: {
+            /** Format: int64 */
+            id: number;
+            /** Format: int64 */
+            metadata_id: number;
+        };
+        LocalShowData: {
+            /** Format: int64 */
+            id: number;
+            /** Format: int64 */
+            metadata_id: number;
+        };
+        /** @description Localization specific data */
+        LocaleMetadata: {
+            original_language: string;
+            original_title: string;
+        };
+        /** @description Wrapper around [std::time::Duration] that is serialized in milliseconds */
+        MediaDuration: number;
+        /** @enum {string} */
+        MetadataProvider: "local" | "tmdb" | "tvdb" | "imdb";
+        MetadataSearchResult: {
+            content_type: components["schemas"]["ContentType"];
+            locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            plot?: string | null;
+            poster?: string | null;
+            title: string;
+        };
+        Movie: {
+            backdrop?: string | null;
+            cast?: components["schemas"]["Actor"][] | null;
+            external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
+            genres?: components["schemas"]["Genre"][] | null;
+            local?: null | components["schemas"]["LocalMovieData"];
+            locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+            plot?: string | null;
+            poster?: string | null;
+            provider: components["schemas"]["MetadataProvider"];
+            provider_id: string;
+            release_date?: string | null;
+            runtime?: null | components["schemas"]["MediaDuration"];
+            title: string;
+        };
+        MovieHistory: {
+            history: components["schemas"]["History"];
+            movie: components["schemas"]["MovieMetadata"];
+        };
+        /** @description The unified movie data structure from any movie provider */
+        MovieMetadata: {
+            backdrop?: string | null;
+            cast?: components["schemas"]["PersonMetadata"][] | null;
+            external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
+            genres?: components["schemas"]["Genre"][] | null;
+            locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            plot?: string | null;
+            poster?: string | null;
+            release_date?: string | null;
+            runtime?: null | components["schemas"]["MediaDuration"];
+            title: string;
+        };
+        Notification: components["schemas"]["TaskProgress"] & {
+            /**
+             * Format: uuid
+             * @description This is used to cancel activity
+             */
+            activity_id: string;
+        };
+        /**
+         * Format: date-time
+         * @description Wrapper around `time::OffsetDateTime`
+         */
+        OffsetDateTime: string;
+        PeerEvent: {
+            ip: string;
+            peer_event: components["schemas"]["PeerEventKind"];
+        };
+        PeerEventKind: (components["schemas"]["PeerStateChange"] & {
+            /** @enum {string} */
+            kind: "statupdate";
+        }) | {
+            /** @enum {string} */
+            kind: "disconnect";
+        } | {
+            /** @enum {string} */
+            kind: "connect";
+            state: components["schemas"]["StatePeer"];
+        };
+        PeerStateChange: {
+            /** Format: int64 */
+            download_speed: number;
+            /** Format: int64 */
+            downloaded: number;
+            in_choked: boolean;
+            in_interested: boolean;
+            out_choked: boolean;
+            out_interested: boolean;
+            /** Format: int64 */
+            upload_speed: number;
+            /** Format: int64 */
+            uploaded: number;
+        };
+        PendingTorrent: {
+            info_hash: number[];
+            torrent_info: components["schemas"]["TorrentInfo"];
+            /** Format: int64 */
+            torrent_size: number;
+        };
+        PersonMetadata: {
+            imdb_id?: string | null;
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            name: string;
+            person_poster?: string | null;
+            role?: null | components["schemas"]["RoleMetadata"];
+        };
+        /** @enum {string} */
+        Priority: "disabled" | "low" | "medium" | "high";
+        PriorityPayload: {
+            files: number[];
+            priority: components["schemas"]["Priority"];
+        };
+        Progress: {
+            changed_torrents: components["schemas"]["TorrentUpdate"][];
+            session_update?: null | components["schemas"]["SessionUpdate"];
+            tick_num: number;
+        };
+        ProgressChunk: {
+            event_result: components["schemas"]["FetchResult"];
+            /** @description Count of undetected videos */
+            fail_count: number;
+            /** @description Count of successfully processed videos */
+            success_count: number;
+            total_video_files: number;
+            /** @enum {string} */
+            type: "metadata_fetch";
+        } | {
+            /** @enum {string} */
+            type: "metadata_save";
+        } | {
+            fail_count: number;
+            success_count: number;
+            total_assets_count: number;
+            /** @enum {string} */
+            type: "assets_save";
+        };
+        ProgressEvent: (components["schemas"]["PeerEvent"] & {
+            /** @enum {string} */
+            event_kind: "peer";
+        }) | (components["schemas"]["TorrentStateChange"] & {
+            /** @enum {string} */
+            event_kind: "state";
+        }) | (components["schemas"]["TrackerEvent"] & {
+            /** @enum {string} */
+            event_kind: "tracker";
+        }) | (components["schemas"]["StoragePieceEvent"] & {
+            /** @enum {string} */
+            event_kind: "storagepiece";
+        }) | (components["schemas"]["StorageFileEvent"] & {
+            /** @enum {string} */
+            event_kind: "storagefile";
+        }) | {
+            /** @enum {string} */
+            event_kind: "validationcomplete";
+            valid_bitfield: number[];
+        } | (components["schemas"]["SessionEvent"] & {
+            /** @enum {string} */
+            event_kind: "session";
         });
-    Task_IntroJob: {
-      cancelable: boolean;
-      /** Format: date-time */
-      created: string;
-      /** Format: uuid */
-      id: string;
-      kind: {
-        season: number;
-        /** Format: int64 */
-        show_id: number;
-      };
-      latest_progress?: null | components["schemas"]["IntroProgress"];
-    };
-    Task_LibraryScanTask: {
-      cancelable: boolean;
-      /** Format: date-time */
-      created: string;
-      /** Format: uuid */
-      id: string;
-      /** @default null */
-      kind: unknown;
-      latest_progress?: null | components["schemas"]["ProgressChunk"];
-    };
-    Task_PendingTorrent: {
-      cancelable: boolean;
-      /** Format: date-time */
-      created: string;
-      /** Format: uuid */
-      id: string;
-      kind: {
-        info_hash: number[];
-        torrent_info: components["schemas"]["TorrentInfo"];
-        /** Format: int64 */
-        torrent_size: number;
-      };
-      latest_progress?: null | components["schemas"]["CompactTorrentProgress"];
-    };
-    Task_PreviewsJob: {
-      cancelable: boolean;
-      /** Format: date-time */
-      created: string;
-      /** Format: uuid */
-      id: string;
-      kind: {
-        output_path: string[];
-        source_path: string[];
-        /** Format: int64 */
-        video_id: number;
-      };
-      latest_progress?: null | components["schemas"]["VideoProgress"];
-    };
-    Task_TranscodeJob: {
-      cancelable: boolean;
-      /** Format: date-time */
-      created: string;
-      /** Format: uuid */
-      id: string;
-      kind: {
-        configuration: components["schemas"]["TranscodeConfiguration"];
-        hw_accel: boolean;
-        output_path: string[];
-        payload: components["schemas"]["TranscodePayload"];
-        source_path: string[];
-        /** Format: int64 */
-        video_id: number;
-      };
-      latest_progress?: null | components["schemas"]["VideoProgress"];
-    };
-    Task_WatchTask: {
-      cancelable: boolean;
-      /** Format: date-time */
-      created: string;
-      /** Format: uuid */
-      id: string;
-      /**
-       * @description Task for watch tracking.
-       *
-       *     Be aware that currently watch tracking can be bypassed.
-       *     Therefore, these tasks should not be considered fully reliable.
-       */
-      kind: {
-        client_agent: string;
-        client_type: components["schemas"]["ClientType"];
-        method: components["schemas"]["StreamMethod"];
-        stream: components["schemas"]["Stream"];
-        total_duration: components["schemas"]["MediaDuration"];
-        /** Format: uuid */
-        variant_id?: string | null;
-        /** Format: int64 */
-        video_id: number;
-      };
-      latest_progress?: null | components["schemas"]["WatchProgress"];
-    };
-    /** @description State snapshot of all the running tasks */
-    TasksSnapshot: {
-      intro_detection_tasks: components["schemas"]["Task_IntroJob"][];
-      library_scan_tasks: components["schemas"]["Task_LibraryScanTask"][];
-      previews_tasks: components["schemas"]["Task_PreviewsJob"][];
-      torrent_tasks: components["schemas"]["Task_PendingTorrent"][];
-      transcode_tasks: components["schemas"]["Task_TranscodeJob"][];
-      watch_sessions: components["schemas"]["Task_WatchTask"][];
-    };
-    Torrent: {
-      author?: string | null;
-      /** Format: date-time */
-      created: string;
-      imdb_id?: string | null;
-      leechers: number;
-      /** Format: uri */
-      magnet?: string | null;
-      name: string;
-      provider: components["schemas"]["TorrentIndexIdentifier"];
-      provider_id: string;
-      seeders: number;
-      /** Format: int64 */
-      size: number;
-    };
-    TorrentContent:
-      | {
-          show: components["schemas"]["TorrentShow"];
-        }
-      | {
-          movie: components["schemas"]["TorrentMovie"][];
+        ProgressStatus_IntroJob: {
+            /** @enum {string} */
+            progress_type: "start";
+            /** @description Use serde_json::Value since we just need the serialized payload */
+            task: components["schemas"]["Task_IntroJob"];
+        } | {
+            /** @enum {string} */
+            progress_type: "finish";
+        } | {
+            progress: components["schemas"]["IntroProgress"];
+            /** @enum {string} */
+            progress_type: "pending";
+        } | {
+            /** @enum {string} */
+            progress_type: "cancel";
+        } | {
+            message?: string | null;
+            /** @enum {string} */
+            progress_type: "error";
         };
-    TorrentContents: {
-      content?: null | components["schemas"]["TorrentContent"];
-      files: components["schemas"]["ResolvedTorrentFile"][];
-    };
-    TorrentDefaultLocation: {
-      movie_location?: string | null;
-      show_location?: string | null;
-    };
-    TorrentDownloadPayload: {
-      content_hint?: null | components["schemas"]["DownloadContentHint"];
-      enabled_files?: number[] | null;
-      magnet_link: string;
-      save_location?: string | null;
-    };
-    TorrentEpisode: {
-      file_idx: number;
-      metadata: components["schemas"]["EpisodeMetadata"];
-    };
-    /** @enum {string} */
-    TorrentIndexIdentifier: "tpb" | "rutracker";
-    TorrentInfo: {
-      contents: components["schemas"]["TorrentContents"];
-      name: string;
-      /** Format: int32 */
-      piece_length: number;
-      pieces_amount: number;
-      /** Format: int64 */
-      total_size: number;
-    };
-    TorrentMovie: {
-      file_idx: number;
-      metadata: components["schemas"]["MovieMetadata"];
-    };
-    TorrentProgress: components["schemas"]["Progress"] & {
-      torrent_hash: number[];
-    };
-    TorrentShow: {
-      seasons: {
-        [key: string]: components["schemas"]["TorrentEpisode"][];
-      };
-      show_metadata: components["schemas"]["ShowMetadata"];
-    };
-    TorrentState: {
-      /** Format: double */
-      download_speed: number;
-      /** @description This is a little too much for a state */
-      downloaded_pieces: boolean[];
-      files: components["schemas"]["StateFile"][];
-      info_hash: string;
-      name: string;
-      peers: components["schemas"]["StatePeer"][];
-      pending_pieces: number[];
-      /** Format: float */
-      percent: number;
-      state: components["schemas"]["DownloadState"];
-      total_pieces: number;
-      /** Format: int64 */
-      total_size: number;
-      trackers: components["schemas"]["StateTracker"][];
-      /** Format: double */
-      upload_speed: number;
-    };
-    TorrentStateChange: {
-      state: components["schemas"]["DownloadState"];
-    };
-    TorrentUpdate: {
-      /** Format: double */
-      download_speed: number;
-      events: components["schemas"]["ProgressEvent"][];
-      info_hash: number[];
-      state: components["schemas"]["DownloadState"];
-      /** Format: int64 */
-      total_downloaded: number;
-      /** Format: int64 */
-      total_uploaded: number;
-      /** Format: double */
-      upload_speed: number;
-    };
-    TrackerEvent: {
-      tracker_event: components["schemas"]["TrackerEventKind"];
-      url: string;
-    };
-    TrackerEventKind:
-      | {
-          interval: components["schemas"]["MediaDuration"];
-          /** @enum {string} */
-          kind: "reannounce";
-        }
-      | {
-          /** @enum {string} */
-          kind: "failed";
-          reason: string;
+        ProgressStatus_LibraryScanTask: {
+            /** @enum {string} */
+            progress_type: "start";
+            /** @description Use serde_json::Value since we just need the serialized payload */
+            task: components["schemas"]["Task_LibraryScanTask"];
+        } | {
+            /** @enum {string} */
+            progress_type: "finish";
+        } | {
+            progress: components["schemas"]["ProgressChunk"];
+            /** @enum {string} */
+            progress_type: "pending";
+        } | {
+            /** @enum {string} */
+            progress_type: "cancel";
+        } | {
+            message?: string | null;
+            /** @enum {string} */
+            progress_type: "error";
         };
-    TrackerStatus:
-      | {
-          /** @enum {string} */
-          status: "working";
-        }
-      | {
-          /** @enum {string} */
-          status: "notcontacted";
-        }
-      | {
-          message: string;
-          /** @enum {string} */
-          status: "error";
+        ProgressStatus_PendingTorrent: {
+            /** @enum {string} */
+            progress_type: "start";
+            /** @description Use serde_json::Value since we just need the serialized payload */
+            task: components["schemas"]["Task_PendingTorrent"];
+        } | {
+            /** @enum {string} */
+            progress_type: "finish";
+        } | {
+            progress: components["schemas"]["CompactTorrentProgress"];
+            /** @enum {string} */
+            progress_type: "pending";
+        } | {
+            /** @enum {string} */
+            progress_type: "cancel";
+        } | {
+            message?: string | null;
+            /** @enum {string} */
+            progress_type: "error";
         };
-    TranscodeConfiguration: {
-      audio_codec: components["schemas"]["AudioCodec"];
-      resolution: components["schemas"]["Resolution"];
-      video_codec: components["schemas"]["VideoCodec"];
-    };
-    TranscodePayload: {
-      audio_codec?: null | components["schemas"]["AudioCodec"];
-      audio_track?: number | null;
-      resolution?: null | components["schemas"]["Resolution"];
-      video_codec?: null | components["schemas"]["VideoCodec"];
-    };
-    UpdateHistoryPayload: {
-      is_finished: boolean;
-      /** Format: int64 */
-      time: number;
-    };
-    VideoCodec:
-      | "hevc"
-      | "h264"
-      | "av1"
-      | "vp8"
-      | "vp9"
-      | {
-          other: string;
+        ProgressStatus_PreviewsJob: {
+            /** @enum {string} */
+            progress_type: "start";
+            /** @description Use serde_json::Value since we just need the serialized payload */
+            task: components["schemas"]["Task_PreviewsJob"];
+        } | {
+            /** @enum {string} */
+            progress_type: "finish";
+        } | {
+            progress: components["schemas"]["VideoProgress"];
+            /** @enum {string} */
+            progress_type: "pending";
+        } | {
+            /** @enum {string} */
+            progress_type: "cancel";
+        } | {
+            message?: string | null;
+            /** @enum {string} */
+            progress_type: "error";
         };
-    /** @enum {string} */
-    VideoContainer: "avi" | "mkv" | "mov" | "mp4" | "ogg" | "webm";
-    VideoContentMetadata:
-      | {
-          /** @enum {string} */
-          content_type: "episode";
-          episode: components["schemas"]["Episode"];
-          show: components["schemas"]["Show"];
-        }
-      | {
-          /** @enum {string} */
-          content_type: "movie";
-          movie: components["schemas"]["Movie"];
+        ProgressStatus_TranscodeJob: {
+            /** @enum {string} */
+            progress_type: "start";
+            /** @description Use serde_json::Value since we just need the serialized payload */
+            task: components["schemas"]["Task_TranscodeJob"];
+        } | {
+            /** @enum {string} */
+            progress_type: "finish";
+        } | {
+            progress: components["schemas"]["VideoProgress"];
+            /** @enum {string} */
+            progress_type: "pending";
+        } | {
+            /** @enum {string} */
+            progress_type: "cancel";
+        } | {
+            message?: string | null;
+            /** @enum {string} */
+            progress_type: "error";
         };
-    VideoProgress: {
-      /** Format: float */
-      percent: number;
-      /** Format: float */
-      relative_speed: number;
+        ProgressStatus_WatchTask: {
+            /** @enum {string} */
+            progress_type: "start";
+            /** @description Use serde_json::Value since we just need the serialized payload */
+            task: components["schemas"]["Task_WatchTask"];
+        } | {
+            /** @enum {string} */
+            progress_type: "finish";
+        } | {
+            progress: components["schemas"]["WatchProgress"];
+            /** @enum {string} */
+            progress_type: "pending";
+        } | {
+            /** @enum {string} */
+            progress_type: "cancel";
+        } | {
+            message?: string | null;
+            /** @enum {string} */
+            progress_type: "error";
+        };
+        ProviderOrder: {
+            discover: components["schemas"]["MetadataProvider"][];
+        } | {
+            movie: components["schemas"]["MetadataProvider"][];
+        } | {
+            show: components["schemas"]["MetadataProvider"][];
+        } | {
+            torrent: components["schemas"]["TorrentIndexIdentifier"][];
+        };
+        ProviderOrderResponse: {
+            discover: components["schemas"]["MetadataProvider"][];
+            movie: components["schemas"]["MetadataProvider"][];
+            show: components["schemas"]["MetadataProvider"][];
+            torrent: components["schemas"]["TorrentIndexIdentifier"][];
+        };
+        Resolution: {
+            height: number;
+            width: number;
+        };
+        ResolvedTorrentFile: {
+            /** Format: int64 */
+            offset: number;
+            path: string[];
+            priority: components["schemas"]["Priority"];
+            /** Format: int64 */
+            size: number;
+        };
+        RoleMetadata: {
+            character: string;
+            poster?: string | null;
+        };
+        /** @description Configuration for scan operations. */
+        ScanConfig: {
+            fetch_params: components["schemas"]["FetchParams"];
+            max_asset_concurrency: number;
+            max_movie_concurrency: number;
+            max_show_concurrency: number;
+            /**
+             * @description Try to use season's episodes list to resolve episodes metadata
+             *     It will speed up metadata fetch for newly added season, but episodes will end up with partially incomplete metadata
+             */
+            use_season_episodes: boolean;
+        };
+        /** @description Season API data structure */
+        Season: {
+            episodes: components["schemas"]["Episode"][];
+            local?: null | components["schemas"]["LocalSeasonData"];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            number: number;
+            plot?: string | null;
+            poster?: string | null;
+            release_date?: string | null;
+            title?: string | null;
+        };
+        /** @description The unified season data structure from any show provider */
+        SeasonMetadata: {
+            cast?: components["schemas"]["PersonMetadata"][] | null;
+            episodes: components["schemas"]["EpisodeMetadata"][];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            number: number;
+            plot?: string | null;
+            poster?: string | null;
+            release_date?: string | null;
+            title?: string | null;
+        };
+        SessionEvent: {
+            /** @enum {string} */
+            kind: "torrentadd";
+            state: components["schemas"]["TorrentState"];
+        } | {
+            info_hash: string;
+            /** @enum {string} */
+            kind: "torrentremove";
+        };
+        SessionState: {
+            session_stats: components["schemas"]["SessionStats"];
+            torrents: components["schemas"]["TorrentState"][];
+        };
+        SessionStats: {
+            /** Format: int32 */
+            connected_peers: number;
+            /** Format: double */
+            download_speed: number;
+            /** Format: double */
+            upload_speed: number;
+        };
+        SessionUpdate: {
+            /** Format: int32 */
+            connected_peers: number;
+            /** Format: double */
+            download_speed: number;
+            /** Format: double */
+            upload_speed: number;
+        };
+        /** @description Show API data structure */
+        Show: {
+            backdrop?: string | null;
+            cast?: components["schemas"]["Actor"][] | null;
+            episodes_amount?: number | null;
+            external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
+            genres?: components["schemas"]["Genre"][] | null;
+            local?: null | components["schemas"]["LocalShowData"];
+            locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+            plot?: string | null;
+            poster?: string | null;
+            provider: components["schemas"]["MetadataProvider"];
+            provider_id: string;
+            release_date?: string | null;
+            /** @description Array of available season numbers */
+            seasons?: number[] | null;
+            title: string;
+        };
+        /** @description The unified show data structure from any show provider */
+        ShowMetadata: {
+            backdrop?: string | null;
+            cast?: components["schemas"]["PersonMetadata"][] | null;
+            episodes_amount?: number | null;
+            external_ids?: components["schemas"]["ExternalIdMetadata"][] | null;
+            genres?: components["schemas"]["Genre"][] | null;
+            locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+            metadata_id: string;
+            metadata_provider: components["schemas"]["MetadataProvider"];
+            plot?: string | null;
+            poster?: string | null;
+            release_date?: string | null;
+            /** @description Array of available season numbers */
+            seasons?: number[] | null;
+            title: string;
+        };
+        ShowSuggestion: {
+            episode: components["schemas"]["Episode"];
+            history?: null | components["schemas"]["History"];
+            /** Format: int64 */
+            show_id: number;
+        };
+        StartDirectStreamRequest: {
+            /** Format: uuid */
+            variant_id?: string | null;
+        };
+        StartHlsStreamRequest: {
+            audio_codec?: null | components["schemas"]["AudioCodec"];
+            audio_track?: number | null;
+            /** Format: uuid */
+            variant_id?: string | null;
+            video_codec?: null | components["schemas"]["VideoCodec"];
+            video_track?: number | null;
+        };
+        StartWatchSessionResponse: {
+            /** Format: uuid */
+            task_id: string;
+        };
+        StateFile: {
+            end_piece: number;
+            index: number;
+            path: string[];
+            priority: components["schemas"]["Priority"];
+            /** Format: int64 */
+            size: number;
+            start_piece: number;
+        };
+        StatePeer: {
+            addr: string;
+            client_name: string;
+            /** Format: int64 */
+            download_speed: number;
+            /** Format: int64 */
+            downloaded: number;
+            in_status: components["schemas"]["Status"];
+            interested_amount: number;
+            out_status: components["schemas"]["Status"];
+            pending_blocks_amount: number;
+            /** Format: int64 */
+            upload_speed: number;
+            /** Format: int64 */
+            uploaded: number;
+        };
+        StateTracker: components["schemas"]["TrackerStatus"] & {
+            announce_interval: components["schemas"]["MediaDuration"];
+            url: string;
+        };
+        Status: {
+            choked: boolean;
+            interested: boolean;
+        };
+        StorageError: {
+            fs: string;
+        } | "hash" | "bounds";
+        StorageFileEvent: {
+            file_event: components["schemas"]["StorageFileEventKind"];
+            idx: number;
+        };
+        StorageFileEventKind: {
+            /** @enum {string} */
+            kind: "prioritychange";
+            priority: components["schemas"]["Priority"];
+        };
+        StoragePieceEvent: {
+            piece: number;
+            piece_event: components["schemas"]["StoragePieceEventKind"];
+        };
+        StoragePieceEventKind: {
+            /** @enum {string} */
+            kind: "validated";
+        } | {
+            /** @enum {string} */
+            kind: "hashfailed";
+        } | {
+            /** @enum {string} */
+            kind: "savefailed";
+        } | {
+            /** @enum {string} */
+            kind: "finished";
+        };
+        Stream: {
+            /** @enum {string} */
+            stream_type: "direct_play";
+        } | {
+            configuration: components["schemas"]["HlsStreamConfiguration"];
+            /** @enum {string} */
+            stream_type: "hls";
+        };
+        /** @enum {string} */
+        StreamMethod: "direct_play" | "hls";
+        SubtitlesCodec: null | string;
+        SubtitlesReferencePayload: {
+            language?: string | null;
+            path: string;
+        };
+        TaskProgress: (components["schemas"]["ProgressStatus_WatchTask"] & {
+            /** @enum {string} */
+            task_type: "watchsession";
+        }) | (components["schemas"]["ProgressStatus_TranscodeJob"] & {
+            /** @enum {string} */
+            task_type: "transcode";
+        }) | (components["schemas"]["ProgressStatus_PreviewsJob"] & {
+            /** @enum {string} */
+            task_type: "previews";
+        }) | (components["schemas"]["ProgressStatus_PendingTorrent"] & {
+            /** @enum {string} */
+            task_type: "torrent";
+        }) | (components["schemas"]["ProgressStatus_LibraryScanTask"] & {
+            /** @enum {string} */
+            task_type: "libraryscan";
+        }) | (components["schemas"]["ProgressStatus_IntroJob"] & {
+            /** @enum {string} */
+            task_type: "introdetection";
+        });
+        Task_IntroJob: {
+            cancelable: boolean;
+            /** Format: date-time */
+            created: string;
+            /** Format: uuid */
+            id: string;
+            kind: {
+                season: number;
+                /** Format: int64 */
+                show_id: number;
+            };
+            latest_progress?: null | components["schemas"]["IntroProgress"];
+        };
+        Task_LibraryScanTask: {
+            cancelable: boolean;
+            /** Format: date-time */
+            created: string;
+            /** Format: uuid */
+            id: string;
+            kind: {
+                /** @description Content without proper metadata */
+                failed_content: components["schemas"]["FailedContent"][];
+                scan_config: components["schemas"]["ScanConfig"];
+            };
+            latest_progress?: null | components["schemas"]["ProgressChunk"];
+        };
+        Task_PendingTorrent: {
+            cancelable: boolean;
+            /** Format: date-time */
+            created: string;
+            /** Format: uuid */
+            id: string;
+            kind: {
+                info_hash: number[];
+                torrent_info: components["schemas"]["TorrentInfo"];
+                /** Format: int64 */
+                torrent_size: number;
+            };
+            latest_progress?: null | components["schemas"]["CompactTorrentProgress"];
+        };
+        Task_PreviewsJob: {
+            cancelable: boolean;
+            /** Format: date-time */
+            created: string;
+            /** Format: uuid */
+            id: string;
+            kind: {
+                output_path: string[];
+                source_path: string[];
+                /** Format: int64 */
+                video_id: number;
+            };
+            latest_progress?: null | components["schemas"]["VideoProgress"];
+        };
+        Task_TranscodeJob: {
+            cancelable: boolean;
+            /** Format: date-time */
+            created: string;
+            /** Format: uuid */
+            id: string;
+            kind: {
+                configuration: components["schemas"]["TranscodeConfiguration"];
+                hw_accel: boolean;
+                output_path: string[];
+                payload: components["schemas"]["TranscodePayload"];
+                source_path: string[];
+                /** Format: int64 */
+                video_id: number;
+            };
+            latest_progress?: null | components["schemas"]["VideoProgress"];
+        };
+        Task_WatchTask: {
+            cancelable: boolean;
+            /** Format: date-time */
+            created: string;
+            /** Format: uuid */
+            id: string;
+            /**
+             * @description Task for watch tracking.
+             *
+             *     Be aware that currently watch tracking can be bypassed.
+             *     Therefore, these tasks should not be considered fully reliable.
+             */
+            kind: {
+                client_agent: string;
+                client_type: components["schemas"]["ClientType"];
+                method: components["schemas"]["StreamMethod"];
+                stream: components["schemas"]["Stream"];
+                total_duration: components["schemas"]["MediaDuration"];
+                /** Format: uuid */
+                variant_id?: string | null;
+                /** Format: int64 */
+                video_id: number;
+            };
+            latest_progress?: null | components["schemas"]["WatchProgress"];
+        };
+        /** @description State snapshot of all the running tasks */
+        TasksSnapshot: {
+            intro_detection_tasks: components["schemas"]["Task_IntroJob"][];
+            library_scan_tasks: components["schemas"]["Task_LibraryScanTask"][];
+            previews_tasks: components["schemas"]["Task_PreviewsJob"][];
+            torrent_tasks: components["schemas"]["Task_PendingTorrent"][];
+            transcode_tasks: components["schemas"]["Task_TranscodeJob"][];
+            watch_sessions: components["schemas"]["Task_WatchTask"][];
+        };
+        Torrent: {
+            author?: string | null;
+            /** Format: date-time */
+            created: string;
+            imdb_id?: string | null;
+            leechers: number;
+            /** Format: uri */
+            magnet?: string | null;
+            name: string;
+            provider: components["schemas"]["TorrentIndexIdentifier"];
+            provider_id: string;
+            seeders: number;
+            /** Format: int64 */
+            size: number;
+        };
+        TorrentContent: {
+            show: components["schemas"]["TorrentShow"];
+        } | {
+            movie: components["schemas"]["TorrentMovie"][];
+        };
+        TorrentContents: {
+            content?: null | components["schemas"]["TorrentContent"];
+            files: components["schemas"]["ResolvedTorrentFile"][];
+        };
+        TorrentDefaultLocation: {
+            movie_location?: string | null;
+            show_location?: string | null;
+        };
+        TorrentDownloadPayload: {
+            content_hint?: null | components["schemas"]["DownloadContentHint"];
+            enabled_files?: number[] | null;
+            magnet_link: string;
+            save_location?: string | null;
+        };
+        TorrentEpisode: {
+            file_idx: number;
+            metadata: components["schemas"]["EpisodeMetadata"];
+        };
+        /** @enum {string} */
+        TorrentIndexIdentifier: "tpb" | "rutracker";
+        TorrentInfo: {
+            contents: components["schemas"]["TorrentContents"];
+            name: string;
+            /** Format: int32 */
+            piece_length: number;
+            pieces_amount: number;
+            /** Format: int64 */
+            total_size: number;
+        };
+        TorrentMovie: {
+            file_idx: number;
+            metadata: components["schemas"]["MovieMetadata"];
+        };
+        TorrentProgress: components["schemas"]["Progress"] & {
+            torrent_hash: number[];
+        };
+        TorrentShow: {
+            seasons: {
+                [key: string]: components["schemas"]["TorrentEpisode"][];
+            };
+            show_metadata: components["schemas"]["ShowMetadata"];
+        };
+        TorrentState: {
+            /** Format: double */
+            download_speed: number;
+            /** @description This is a little too much for a state */
+            downloaded_pieces: boolean[];
+            files: components["schemas"]["StateFile"][];
+            info_hash: string;
+            name: string;
+            peers: components["schemas"]["StatePeer"][];
+            pending_pieces: number[];
+            /** Format: float */
+            percent: number;
+            state: components["schemas"]["DownloadState"];
+            total_pieces: number;
+            /** Format: int64 */
+            total_size: number;
+            trackers: components["schemas"]["StateTracker"][];
+            /** Format: double */
+            upload_speed: number;
+        };
+        TorrentStateChange: {
+            state: components["schemas"]["DownloadState"];
+        };
+        TorrentUpdate: {
+            /** Format: double */
+            download_speed: number;
+            events: components["schemas"]["ProgressEvent"][];
+            info_hash: number[];
+            state: components["schemas"]["DownloadState"];
+            /** Format: int64 */
+            total_downloaded: number;
+            /** Format: int64 */
+            total_uploaded: number;
+            /** Format: double */
+            upload_speed: number;
+        };
+        TrackerEvent: {
+            tracker_event: components["schemas"]["TrackerEventKind"];
+            url: string;
+        };
+        TrackerEventKind: {
+            interval: components["schemas"]["MediaDuration"];
+            /** @enum {string} */
+            kind: "reannounce";
+        } | {
+            /** @enum {string} */
+            kind: "failed";
+            reason: string;
+        };
+        TrackerStatus: {
+            /** @enum {string} */
+            status: "working";
+        } | {
+            /** @enum {string} */
+            status: "notcontacted";
+        } | {
+            message: string;
+            /** @enum {string} */
+            status: "error";
+        };
+        TranscodeConfiguration: {
+            audio_codec: components["schemas"]["AudioCodec"];
+            resolution: components["schemas"]["Resolution"];
+            video_codec: components["schemas"]["VideoCodec"];
+        };
+        TranscodePayload: {
+            audio_codec?: null | components["schemas"]["AudioCodec"];
+            audio_track?: number | null;
+            resolution?: null | components["schemas"]["Resolution"];
+            video_codec?: null | components["schemas"]["VideoCodec"];
+        };
+        UpdateHistoryPayload: {
+            is_finished: boolean;
+            /** Format: int64 */
+            time: number;
+        };
+        VideoCodec: "hevc" | "h264" | "av1" | "vp8" | "vp9" | {
+            other: string;
+        };
+        /** @enum {string} */
+        VideoContainer: "avi" | "mkv" | "mov" | "mp4" | "ogg" | "webm";
+        VideoContentMetadata: {
+            /** @enum {string} */
+            content_type: "episode";
+            episode: components["schemas"]["Episode"];
+            show: components["schemas"]["Show"];
+        } | {
+            /** @enum {string} */
+            content_type: "movie";
+            movie: components["schemas"]["Movie"];
+        };
+        VideoProgress: {
+            /** Format: float */
+            percent: number;
+            /** Format: float */
+            relative_speed: number;
+        };
+        WatchProgress: {
+            current_time: components["schemas"]["MediaDuration"];
+        };
+        /** @description Websockets connection output message */
+        WsMessage: {
+            session: components["schemas"]["SessionState"];
+            /** @enum {string} */
+            type: "torrentsessionstate";
+        } | {
+            progress: components["schemas"]["TorrentProgress"];
+            /** @enum {string} */
+            type: "torrentprogress";
+        } | {
+            progress: components["schemas"]["Notification"];
+            /** @enum {string} */
+            type: "progress";
+        } | {
+            state: components["schemas"]["TasksSnapshot"];
+            /** @enum {string} */
+            type: "connected";
+        } | {
+            /** @enum {string} */
+            type: "torrentunsubscribe";
+        };
+        /** @description Websockets connection input message */
+        WsRequest: {
+            /** @enum {string} */
+            type: "torrentsubscribe";
+        } | {
+            /** @enum {string} */
+            type: "torrentunsubscribe";
+        } | {
+            /** Format: uuid */
+            task_id: string;
+            /** @enum {string} */
+            type: "trackwatchsession";
+        };
     };
-    WatchProgress: {
-      current_time: components["schemas"]["MediaDuration"];
-    };
-    /** @description Websockets connection output message */
-    WsMessage:
-      | {
-          session: components["schemas"]["SessionState"];
-          /** @enum {string} */
-          type: "torrentsessionstate";
-        }
-      | {
-          progress: components["schemas"]["TorrentProgress"];
-          /** @enum {string} */
-          type: "torrentprogress";
-        }
-      | {
-          progress: components["schemas"]["Notification"];
-          /** @enum {string} */
-          type: "progress";
-        }
-      | {
-          state: components["schemas"]["TasksSnapshot"];
-          /** @enum {string} */
-          type: "connected";
-        }
-      | {
-          /** @enum {string} */
-          type: "torrentunsubscribe";
-        };
-    /** @description Websockets connection input message */
-    WsRequest:
-      | {
-          /** @enum {string} */
-          type: "torrentsubscribe";
-        }
-      | {
-          /** @enum {string} */
-          type: "torrentunsubscribe";
-        }
-      | {
-          /** Format: uuid */
-          task_id: string;
-          /** @enum {string} */
-          type: "trackwatchsession";
-        };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 };
 export type $defs = Record<string, never>;
 export interface operations {
-  actor_list: {
-    parameters: {
-      query?: {
-        take?: number | null;
-        cursor?: string | null;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Actor list */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CursoredResponse_Actor"];
-        };
-      };
-    };
-  };
-  actor_poster: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Actor id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "image/*": unknown;
-        };
-      };
-      304: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  clear_db: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "text/plain": string;
-        };
-      };
-    };
-  };
-  server_configuration: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ConfigSchema"];
-        };
-      };
-    };
-  };
-  update_server_configuration: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** @description Key/value configuration pairs */
-    requestBody: {
-      content: {
-        "application/json": unknown;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ConfigurationApplyResult"];
-        };
-      };
-    };
-  };
-  server_capabilities: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Capabilities"];
-        };
-      };
-    };
-  };
-  get_providers_order: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Ordering of providers */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProviderOrderResponse"];
-        };
-      };
-    };
-  };
-  order_providers: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ProviderOrder"];
-      };
-    };
-    responses: {
-      /** @description Updated ordering of providers */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": string[];
-        };
-      };
-    };
-  };
-  reset_server_configuration: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Server configuration is reset */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  episode_poster: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Episode id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "image/*": unknown;
-        };
-      };
-      304: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  external_ids: {
-    parameters: {
-      query: {
-        provider: "local" | "tmdb" | "tvdb" | "imdb";
-        content_type: "movie" | "show";
-      };
-      header?: never;
-      path: {
-        /** @description External id */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description External ids */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ExternalIdMetadata"][];
-        };
-      };
-    };
-  };
-  browse_directory: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Key of directory to explore. It is base64 encoded path in current implementation */
-        key: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["BrowseDirectory"];
-        };
-      };
-      /** @description Directory is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-      /** @description Invalid permissions, other errors */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  parent_directory: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Get parent directory */
-        key: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["BrowseFile"];
-        };
-      };
-    };
-  };
-  root_dirs: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["BrowseRootDirs"];
-        };
-      };
-    };
-  };
-  fix_metadata: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Id of the content that needs to be fixed */
-        metadata_id: string;
-        provider: "local" | "tmdb" | "tvdb" | "imdb";
-        id: string;
-        content_type: "movie" | "show";
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Fixed metadata match */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Content is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  all_history: {
-    parameters: {
-      query?: {
-        take?: number | null;
-        cursor?: string | null;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description All history */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CursoredResponse_HistoryEntry"];
-        };
-      };
-    };
-  };
-  clear_history: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  suggest_movies: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Suggested movies */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MovieHistory"][];
-        };
-      };
-    };
-  };
-  suggest_shows: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Suggested shows */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ShowSuggestion"][];
-        };
-      };
-    };
-  };
-  update_history: {
-    parameters: {
-      query?: {
-        id?: string | null;
-      };
-      header?: never;
-      path: {
-        /** @description History id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateHistoryPayload"];
-      };
-    };
-    responses: {
-      /** @description History update is successful */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description History entry is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  remove_history_item: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description History id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successfully removed history item */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description History entry is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  watch_episode: {
-    parameters: {
-      query?: {
-        variant?: string | null;
-      };
-      header?: never;
-      path: {
-        /** @description episode id */
-        episode_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Video progressive download stream */
-      206: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "video/*": unknown;
-        };
-      };
-      /** @description Video is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  local_episode: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Local id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Local episode */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["EpisodeMetadata"];
-        };
-      };
-      /** @description Episode is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  delete_episode: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Episode id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Episode is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  delete_movie: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Movie id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successfully deleted movie */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Movie is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  watch_movie: {
-    parameters: {
-      query?: {
-        variant?: string | null;
-      };
-      header?: never;
-      path: {
-        /** @description movie id */
-        movie_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Movie video progressive download stream */
-      206: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "video/*": unknown;
-        };
-      };
-      /** @description Video is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  all_local_movies: {
-    parameters: {
-      query?: {
-        actors?: number[];
-        search?: string | null;
-        take?: number | null;
-        cursor?: string | null;
-        /** @description Only include content with at least one local video file. Defaults to `true`. */
-        only_local?: boolean | null;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description All local movies */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CursoredResponse_Movie"];
-        };
-      };
-    };
-  };
-  delete_season: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Season id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successfully deleted season */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Season is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  delete_show: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Show id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successfully deleted show */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Show is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  all_local_shows: {
-    parameters: {
-      query?: {
-        actors?: number[];
-        search?: string | null;
-        take?: number | null;
-        cursor?: string | null;
-        /** @description Only include content with at least one local video file. Defaults to `true`. */
-        only_local?: boolean | null;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description All local shows */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CursoredResponse_Show"];
-        };
-      };
-    };
-  };
-  update_metadata_history: {
-    parameters: {
-      query?: {
-        id?: string | null;
-      };
-      header?: never;
-      path: {
-        /** @description Metadata id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateHistoryPayload"];
-      };
-    };
-    responses: {
-      /** @description History entry is updated */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description History is created */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Metadata is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  remove_metadata_history: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Metadata id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description History entry is deleted */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Metadata is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  get_movie: {
-    parameters: {
-      query: {
-        provider: "local" | "tmdb" | "tvdb" | "imdb";
-      };
-      header?: never;
-      path: {
-        /** @description Movie id */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Requested movie */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Movie"];
-        };
-      };
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  alter_movie_metadata: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Movie id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["MovieMetadata"];
-      };
-    };
-    responses: {
-      /** @description Updated movie metadata */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Movie is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  movie_backdrop: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Movie id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "image/*": unknown;
-        };
-      };
-      304: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  movie_poster: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Movie id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "image/*": unknown;
-        };
-      };
-      304: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  fix_movie_metadata: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Id of the movie that needs to be fixed */
-        movie_id: string;
-        provider: "local" | "tmdb" | "tvdb" | "imdb";
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Fixed movie metadata */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Movie is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  reset_movie_metadata: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Id of the movie that needs to be fixed */
-        movie_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  reset_metadata: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Id of the content that needs to be fixed */
-        metadata_id: string;
-        content_type: "movie" | "show";
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Content is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  reconciliate_lib: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Scan is successfully started */
-      202: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Scan is already in progress */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  search_content: {
-    parameters: {
-      query: {
-        search: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Content search results */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MetadataSearchResult"][];
-        };
-      };
-    };
-  };
-  get_trending_movies: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description List of trending shows */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Movie"][];
-        };
-      };
-    };
-  };
-  get_trending_shows: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description List of trending shows */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Show"][];
-        };
-      };
-    };
-  };
-  season_poster: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Season id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "image/*": unknown;
-        };
-      };
-      304: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  get_show: {
-    parameters: {
-      query: {
-        provider: "local" | "tmdb" | "tvdb" | "imdb";
-      };
-      header?: never;
-      path: {
-        /** @description Show id */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Requested show */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Show"];
-        };
-      };
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  alter_show_metadata: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Show id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ShowMetadata"];
-      };
-    };
-    responses: {
-      /** @description Updated show metadata */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Show is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  show_backdrop: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Show id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "image/*": unknown;
-        };
-      };
-      304: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Image not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  show_poster: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Show id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "image/*": unknown;
-        };
-      };
-      304: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  get_season: {
-    parameters: {
-      query: {
-        provider: "local" | "tmdb" | "tvdb" | "imdb";
-      };
-      header?: never;
-      path: {
-        /** @description Show id */
-        id: string;
-        /** @description Season number */
-        season: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Desired season metadata */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Season"];
-        };
-      };
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  alter_season_metadata: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Show id */
-        id: number;
-        /** @description Season number */
-        season: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["SeasonMetadata"];
-      };
-    };
-    responses: {
-      /** @description Updated season metadata */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Season is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  get_episode: {
-    parameters: {
-      query: {
-        provider: "local" | "tmdb" | "tvdb" | "imdb";
-      };
-      header?: never;
-      path: {
-        /** @description Show id */
-        id: string;
-        /** @description Season number */
-        season: number;
-        /** @description Episode number */
-        episode: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Desired episode metadata */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Episode"];
-        };
-      };
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  alter_episode_metadata: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Show id */
-        id: number;
-        /** @description Season number */
-        season: number;
-        /** @description Episode number */
-        episode: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["EpisodeMetadata"];
-      };
-    };
-    responses: {
-      /** @description Updated episode metadata */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Episode is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  fix_show_metadata: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Id of the show that needs to be fixed */
-        show_id: string;
-        provider: "local" | "tmdb" | "tvdb" | "imdb";
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Fixed show metadata */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Show is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  reset_show_metadata: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Id of the show that needs to be fixed */
-        show_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successfully reset show metadata */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Show is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  detect_intros: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Show id */
-        show_id: number;
-        /** @description Season number */
-        season: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Intro detection task is started */
-      202: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Season is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  delete_season_intros: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Show id */
-        show_id: number;
-        /** @description Season number */
-        season: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Intros are removed */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Season is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  delete_episode_intros: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Show id */
-        show_id: number;
-        /** @description Season number */
-        season: number;
-        /** @description Episode number */
-        episode: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Intros are removed */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Episode is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  get_subtitles: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description subtitles id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Subtitles stream */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "text/plain": string;
-        };
-      };
-      /** @description Subtitles are not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  delete_subtitles: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description subtitles id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Subtitles are successfully deleted */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Subtitles are not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  previews_tasks: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            cancelable: boolean;
-            /** Format: date-time */
-            created: string;
-            /** Format: uuid */
-            id: string;
-            kind: {
-              output_path: string[];
-              source_path: string[];
-              /** Format: int64 */
-              video_id: number;
+    actor_list: {
+        parameters: {
+            query?: {
+                take?: number | null;
+                cursor?: string | null;
             };
-            latest_progress?: null | components["schemas"]["VideoProgress"];
-          }[];
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-    };
-  };
-  cancel_previews_task: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Task id */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Task can't be found */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  progress: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/octet-stream": number[];
-        };
-      };
-    };
-  };
-  transcode_tasks: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            cancelable: boolean;
-            /** Format: date-time */
-            created: string;
-            /** Format: uuid */
-            id: string;
-            kind: {
-              configuration: components["schemas"]["TranscodeConfiguration"];
-              hw_accel: boolean;
-              output_path: string[];
-              payload: components["schemas"]["TranscodePayload"];
-              source_path: string[];
-              /** Format: int64 */
-              video_id: number;
+        requestBody?: never;
+        responses: {
+            /** @description Actor list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CursoredResponse_Actor"];
+                };
             };
-            latest_progress?: null | components["schemas"]["VideoProgress"];
-          }[];
-        };
-      };
-    };
-  };
-  cancel_transcode_task: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Task id */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Task can't be canceled or it is not found */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  stop_watch_session: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Task id */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Task can't be found */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  all_torrents: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["TorrentState"][];
-        };
-      };
-    };
-  };
-  batch_action: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["BatchActionPayload"];
-      };
-    };
-    responses: {
-      202: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  index_magnet_link: {
-    parameters: {
-      query: {
-        id: string;
-        provider: "tpb" | "rutracker";
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["IndexMagnetLink"];
-        };
-      };
-      /** @description Failed to obtain magnet link */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  open_torrent: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["TorrentDownloadPayload"];
-      };
-    };
-    responses: {
-      /** @description Torrent is added */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Magnet link is incorrect */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-      /** @description Failed to add torrent */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  open_torrent_file: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "multipart/form-data": {
-          save_location?: string | null;
-          /** Format: binary */
-          torrent_file: string;
-        };
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Failed to parse/open torrent file */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  output_location: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["TorrentDefaultLocation"];
-        };
-      };
-    };
-  };
-  parse_torrent_file: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        content_type: null | ("movie" | "show");
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "multipart/form-data": {
-          save_location?: string | null;
-          /** Format: binary */
-          torrent_file: string;
-        };
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["TorrentInfo"];
-        };
-      };
-      /** @description Failed to parse torrent file */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  resolve_magnet_link: {
-    parameters: {
-      query: {
-        magnet_link: string;
-        hint?: null | components["schemas"]["DownloadContentHint"];
-        /** @description Content type */
-        content_type?: components["schemas"]["ContentType"];
-        /** @description Metadata provider */
-        metadata_provider?: components["schemas"]["MetadataProvider"];
-        /** @description Metadata id */
-        metadata_id?: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["TorrentInfo"];
-        };
-      };
-      /** @description Failed to parse magnet link */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  search_torrent: {
-    parameters: {
-      query: {
-        search: string;
-        content_type?: null | ("movie" | "show");
-        provider?: null | ("tpb" | "rutracker");
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Torrent search results */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Torrent"][];
-        };
-      };
-    };
-  };
-  session_state: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["SessionState"];
-        };
-      };
-    };
-  };
-  updates: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/octet-stream": number[];
-        };
-      };
-    };
-  };
-  delete_torrent: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Hex encoded info_hash of the torrent */
-        info_hash: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Torrent is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  set_files_priority: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Hex encoded info_hash of the torrent */
-        info_hash: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["PriorityPayload"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  torrent_state: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Hex encoded info_hash of the torrent */
-        info_hash: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["TorrentState"];
-        };
-      };
-      /** @description Torrent not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  validate_torrent: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Hex encoded info_hash of the torrent */
-        info_hash: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      202: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Torrent is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  get_all_variants: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["DetailedVideo"][];
-        };
-      };
-    };
-  };
-  server_version: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "text/plain": string;
-        };
-      };
-    };
-  };
-  contents_video: {
-    parameters: {
-      query: {
-        content_type: "movie" | "show";
-        id: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Videos for the content */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["DetailedVideo"][];
-        };
-      };
-      /** @description Content is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  get_video_by_id: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Video id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Requested video */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["DetailedVideo"];
-        };
-      };
-    };
-  };
-  remove_video: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Video id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Video is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  video_content_metadata: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Video id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Metadata related to the video */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["VideoContentMetadata"];
-        };
-      };
-    };
-  };
-  generate_previews: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Video id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Previews task is started */
-      202: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Video is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  delete_previews: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Video id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Previews directory is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  previews: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description video id */
-        id: number;
-        /** @description preview number */
-        number: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Binary image */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/octet-stream": number[];
-        };
-      };
-      304: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Preiew is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  pull_video_subtitle: {
-    parameters: {
-      query: {
-        number: number;
-      };
-      header?: never;
-      path: {
-        /** @description video id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Subtitles */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "text/plain": string;
-        };
-      };
-      /** @description Video is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  reference_external_subtitles: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description video id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["SubtitlesReferencePayload"];
-      };
-    };
-    responses: {
-      /** @description Subtitles are referenced successfully */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Video is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  transcode_video: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Video id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["TranscodePayload"];
-      };
-    };
-    responses: {
-      /** @description Transcode task is started */
-      202: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Video is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  upload_subtitles: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description video id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "multipart/form-data": {
-          language?: string | null;
-          /** Format: binary */
-          subtitles: string;
-        };
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Video is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  remove_variant: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Video id */
-        id: number;
-        /** @description Variant id */
-        variant_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successfully deleted variant */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Variant is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  watch: {
-    parameters: {
-      query?: {
-        variant?: string | null;
-      };
-      header?: never;
-      path: {
-        /** @description video id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Video progressive download stream */
-      206: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "video/*": number[];
-        };
-      };
-      /** @description Video is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  video_intro: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Video Id */
-        video_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Intro */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Intro is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  update_video_intro: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Video Id */
-        video_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["EditIntroPayload"];
-      };
-    };
-    responses: {
-      /** @description Intro is updated */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Intro is newly created */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Intro payload is incorrect */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-      /** @description Video is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  delete_video_intro: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Video Id */
-        video_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Intro was removed successfully */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Intro is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  start_direct_stream: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Video id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["StartDirectStreamRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["StartWatchSessionResponse"];
-        };
-      };
-      /** @description Video is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  start_hls_stream: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Video id */
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["StartHlsStreamRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["StartWatchSessionResponse"];
-        };
-      };
-      /** @description Video is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  hls_init: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Transcode job */
-        id: string;
-        /** @description Desired segment */
-        segment: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/octet-stream": number[];
-        };
-      };
-      /** @description Transcode job is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-      /** @description Transcode job is available */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  hls_manifest: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Task id */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "text/plain": string;
-        };
-      };
-      /** @description Task uuid is incorrect */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-      /** @description Task is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  hls_segment: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Transcode job */
-        id: string;
-        /** @description Desired segment */
-        segment: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/octet-stream": number[];
-        };
-      };
-      /** @description Transcode job is not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-      /** @description Transcode job is available */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AppError"];
-        };
-      };
-    };
-  };
-  ws: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Protocol upgrade */
-      101: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ws: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Protocol upgrade */
-      101: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ws: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Protocol upgrade */
-      101: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ws: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Protocol upgrade */
-      101: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ws: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Protocol upgrade */
-      101: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
+        };
+    };
+    actor_poster: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Actor id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": unknown;
+                };
+            };
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    clear_db: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+        };
+    };
+    server_configuration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConfigSchema"];
+                };
+            };
+        };
+    };
+    update_server_configuration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Key/value configuration pairs */
+        requestBody: {
+            content: {
+                "application/json": unknown;
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConfigurationApplyResult"];
+                };
+            };
+        };
+    };
+    server_capabilities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Capabilities"];
+                };
+            };
+        };
+    };
+    get_providers_order: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ordering of providers */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProviderOrderResponse"];
+                };
+            };
+        };
+    };
+    order_providers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProviderOrder"];
+            };
+        };
+        responses: {
+            /** @description Updated ordering of providers */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
+        };
+    };
+    reset_server_configuration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Server configuration is reset */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    episode_poster: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Episode id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": unknown;
+                };
+            };
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    external_ids: {
+        parameters: {
+            query: {
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+                content_type: "movie" | "show";
+            };
+            header?: never;
+            path: {
+                /** @description External id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description External ids */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExternalIdMetadata"][];
+                };
+            };
+        };
+    };
+    browse_directory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Key of directory to explore. It is base64 encoded path in current implementation */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrowseDirectory"];
+                };
+            };
+            /** @description Directory is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+            /** @description Invalid permissions, other errors */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    parent_directory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Get parent directory */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrowseFile"];
+                };
+            };
+        };
+    };
+    root_dirs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrowseRootDirs"];
+                };
+            };
+        };
+    };
+    fix_metadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Id of the content that needs to be fixed */
+                metadata_id: string;
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+                id: string;
+                content_type: "movie" | "show";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Fixed metadata match */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Content is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    all_history: {
+        parameters: {
+            query?: {
+                take?: number | null;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description All history */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CursoredResponse_HistoryEntry"];
+                };
+            };
+        };
+    };
+    clear_history: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    suggest_movies: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Suggested movies */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MovieHistory"][];
+                };
+            };
+        };
+    };
+    suggest_shows: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Suggested shows */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShowSuggestion"][];
+                };
+            };
+        };
+    };
+    update_history: {
+        parameters: {
+            query?: {
+                id?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description History id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateHistoryPayload"];
+            };
+        };
+        responses: {
+            /** @description History update is successful */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description History entry is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    remove_history_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description History id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully removed history item */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description History entry is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    watch_episode: {
+        parameters: {
+            query?: {
+                variant?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description episode id */
+                episode_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Video progressive download stream */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "video/*": unknown;
+                };
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    local_episode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Local id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Local episode */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EpisodeMetadata"];
+                };
+            };
+            /** @description Episode is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    delete_episode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Episode id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Episode is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    delete_movie: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Movie id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully deleted movie */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Movie is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    watch_movie: {
+        parameters: {
+            query?: {
+                variant?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description movie id */
+                movie_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Movie video progressive download stream */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "video/*": unknown;
+                };
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    all_local_movies: {
+        parameters: {
+            query?: {
+                actors?: number[];
+                search?: string | null;
+                take?: number | null;
+                cursor?: string | null;
+                /** @description Only include content with at least one local video file. Defaults to `true`. */
+                only_local?: boolean | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description All local movies */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CursoredResponse_Movie"];
+                };
+            };
+        };
+    };
+    delete_season: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Season id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully deleted season */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Season is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    delete_show: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully deleted show */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Show is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    all_local_shows: {
+        parameters: {
+            query?: {
+                actors?: number[];
+                search?: string | null;
+                take?: number | null;
+                cursor?: string | null;
+                /** @description Only include content with at least one local video file. Defaults to `true`. */
+                only_local?: boolean | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description All local shows */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CursoredResponse_Show"];
+                };
+            };
+        };
+    };
+    update_metadata_history: {
+        parameters: {
+            query?: {
+                id?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description Metadata id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateHistoryPayload"];
+            };
+        };
+        responses: {
+            /** @description History entry is updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description History is created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Metadata is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    remove_metadata_history: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Metadata id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description History entry is deleted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Metadata is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    get_movie: {
+        parameters: {
+            query: {
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+            };
+            header?: never;
+            path: {
+                /** @description Movie id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Requested movie */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Movie"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    alter_movie_metadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Movie id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MovieMetadata"];
+            };
+        };
+        responses: {
+            /** @description Updated movie metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Movie is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    movie_backdrop: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Movie id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": unknown;
+                };
+            };
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    movie_poster: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Movie id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": unknown;
+                };
+            };
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    fix_movie_metadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Id of the movie that needs to be fixed */
+                movie_id: string;
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Fixed movie metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Movie is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    reset_movie_metadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Id of the movie that needs to be fixed */
+                movie_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    reset_metadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Id of the content that needs to be fixed */
+                metadata_id: string;
+                content_type: "movie" | "show";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Content is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    reconciliate_lib: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scan is successfully started */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Scan is already in progress */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    search_content: {
+        parameters: {
+            query: {
+                search: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Content search results */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MetadataSearchResult"][];
+                };
+            };
+        };
+    };
+    get_trending_movies: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of trending shows */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Movie"][];
+                };
+            };
+        };
+    };
+    get_trending_shows: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of trending shows */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Show"][];
+                };
+            };
+        };
+    };
+    season_poster: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Season id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": unknown;
+                };
+            };
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    get_show: {
+        parameters: {
+            query: {
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+            };
+            header?: never;
+            path: {
+                /** @description Show id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Requested show */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Show"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    alter_show_metadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShowMetadata"];
+            };
+        };
+        responses: {
+            /** @description Updated show metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Show is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    show_backdrop: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": unknown;
+                };
+            };
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Image not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    show_poster: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": unknown;
+                };
+            };
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    get_season: {
+        parameters: {
+            query: {
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+            };
+            header?: never;
+            path: {
+                /** @description Show id */
+                id: string;
+                /** @description Season number */
+                season: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Desired season metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Season"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    alter_season_metadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                id: number;
+                /** @description Season number */
+                season: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SeasonMetadata"];
+            };
+        };
+        responses: {
+            /** @description Updated season metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Season is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    get_episode: {
+        parameters: {
+            query: {
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+            };
+            header?: never;
+            path: {
+                /** @description Show id */
+                id: string;
+                /** @description Season number */
+                season: number;
+                /** @description Episode number */
+                episode: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Desired episode metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Episode"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    alter_episode_metadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                id: number;
+                /** @description Season number */
+                season: number;
+                /** @description Episode number */
+                episode: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EpisodeMetadata"];
+            };
+        };
+        responses: {
+            /** @description Updated episode metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Episode is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    fix_show_metadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Id of the show that needs to be fixed */
+                show_id: string;
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Fixed show metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Show is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    reset_show_metadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Id of the show that needs to be fixed */
+                show_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully reset show metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Show is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    detect_intros: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                show_id: number;
+                /** @description Season number */
+                season: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Intro detection task is started */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Season is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    delete_season_intros: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                show_id: number;
+                /** @description Season number */
+                season: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Intros are removed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Season is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    delete_episode_intros: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                show_id: number;
+                /** @description Season number */
+                season: number;
+                /** @description Episode number */
+                episode: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Intros are removed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Episode is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    get_subtitles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description subtitles id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Subtitles stream */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description Subtitles are not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    delete_subtitles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description subtitles id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Subtitles are successfully deleted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Subtitles are not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    previews_tasks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        cancelable: boolean;
+                        /** Format: date-time */
+                        created: string;
+                        /** Format: uuid */
+                        id: string;
+                        kind: {
+                            output_path: string[];
+                            source_path: string[];
+                            /** Format: int64 */
+                            video_id: number;
+                        };
+                        latest_progress?: null | components["schemas"]["VideoProgress"];
+                    }[];
+                };
+            };
+        };
+    };
+    cancel_previews_task: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Task id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Task can't be found */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    progress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": number[];
+                };
+            };
+        };
+    };
+    transcode_tasks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        cancelable: boolean;
+                        /** Format: date-time */
+                        created: string;
+                        /** Format: uuid */
+                        id: string;
+                        kind: {
+                            configuration: components["schemas"]["TranscodeConfiguration"];
+                            hw_accel: boolean;
+                            output_path: string[];
+                            payload: components["schemas"]["TranscodePayload"];
+                            source_path: string[];
+                            /** Format: int64 */
+                            video_id: number;
+                        };
+                        latest_progress?: null | components["schemas"]["VideoProgress"];
+                    }[];
+                };
+            };
+        };
+    };
+    cancel_transcode_task: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Task id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Task can't be canceled or it is not found */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    stop_watch_session: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Task id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Task can't be found */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    all_torrents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TorrentState"][];
+                };
+            };
+        };
+    };
+    batch_action: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchActionPayload"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    index_magnet_link: {
+        parameters: {
+            query: {
+                id: string;
+                provider: "tpb" | "rutracker";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexMagnetLink"];
+                };
+            };
+            /** @description Failed to obtain magnet link */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    open_torrent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TorrentDownloadPayload"];
+            };
+        };
+        responses: {
+            /** @description Torrent is added */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Magnet link is incorrect */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+            /** @description Failed to add torrent */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    open_torrent_file: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    save_location?: string | null;
+                    /** Format: binary */
+                    torrent_file: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Failed to parse/open torrent file */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    output_location: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TorrentDefaultLocation"];
+                };
+            };
+        };
+    };
+    parse_torrent_file: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                content_type: null | ("movie" | "show");
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    save_location?: string | null;
+                    /** Format: binary */
+                    torrent_file: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TorrentInfo"];
+                };
+            };
+            /** @description Failed to parse torrent file */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    resolve_magnet_link: {
+        parameters: {
+            query: {
+                magnet_link: string;
+                hint?: null | components["schemas"]["DownloadContentHint"];
+                /** @description Content type */
+                content_type?: components["schemas"]["ContentType"];
+                /** @description Metadata provider */
+                metadata_provider?: components["schemas"]["MetadataProvider"];
+                /** @description Metadata id */
+                metadata_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TorrentInfo"];
+                };
+            };
+            /** @description Failed to parse magnet link */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    search_torrent: {
+        parameters: {
+            query: {
+                search: string;
+                content_type?: null | ("movie" | "show");
+                provider?: null | ("tpb" | "rutracker");
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Torrent search results */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Torrent"][];
+                };
+            };
+        };
+    };
+    session_state: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionState"];
+                };
+            };
+        };
+    };
+    updates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": number[];
+                };
+            };
+        };
+    };
+    delete_torrent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Hex encoded info_hash of the torrent */
+                info_hash: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Torrent is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    set_files_priority: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Hex encoded info_hash of the torrent */
+                info_hash: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriorityPayload"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    torrent_state: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Hex encoded info_hash of the torrent */
+                info_hash: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TorrentState"];
+                };
+            };
+            /** @description Torrent not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    validate_torrent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Hex encoded info_hash of the torrent */
+                info_hash: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Torrent is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    get_all_variants: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DetailedVideo"][];
+                };
+            };
+        };
+    };
+    server_version: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+        };
+    };
+    contents_video: {
+        parameters: {
+            query: {
+                content_type: "movie" | "show";
+                id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Videos for the content */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DetailedVideo"][];
+                };
+            };
+            /** @description Content is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    get_video_by_id: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Requested video */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DetailedVideo"];
+                };
+            };
+        };
+    };
+    remove_video: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    video_content_metadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Metadata related to the video */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VideoContentMetadata"];
+                };
+            };
+        };
+    };
+    generate_previews: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Previews task is started */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    delete_previews: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Previews directory is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    previews: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description video id */
+                id: number;
+                /** @description preview number */
+                number: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Binary image */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": number[];
+                };
+            };
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Preiew is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    pull_video_subtitle: {
+        parameters: {
+            query: {
+                number: number;
+            };
+            header?: never;
+            path: {
+                /** @description video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Subtitles */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    reference_external_subtitles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubtitlesReferencePayload"];
+            };
+        };
+        responses: {
+            /** @description Subtitles are referenced successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    transcode_video: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TranscodePayload"];
+            };
+        };
+        responses: {
+            /** @description Transcode task is started */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    upload_subtitles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    language?: string | null;
+                    /** Format: binary */
+                    subtitles: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    remove_variant: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video id */
+                id: number;
+                /** @description Variant id */
+                variant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully deleted variant */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Variant is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    watch: {
+        parameters: {
+            query?: {
+                variant?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Video progressive download stream */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "video/*": number[];
+                };
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    video_intro: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video Id */
+                video_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Intro */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Intro is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    update_video_intro: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video Id */
+                video_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditIntroPayload"];
+            };
+        };
+        responses: {
+            /** @description Intro is updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Intro is newly created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Intro payload is incorrect */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    delete_video_intro: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video Id */
+                video_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Intro was removed successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Intro is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    start_direct_stream: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartDirectStreamRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StartWatchSessionResponse"];
+                };
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    start_hls_stream: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartHlsStreamRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StartWatchSessionResponse"];
+                };
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    hls_init: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Transcode job */
+                id: string;
+                /** @description Desired segment */
+                segment: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": number[];
+                };
+            };
+            /** @description Transcode job is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+            /** @description Transcode job is available */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    hls_manifest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Task id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description Task uuid is incorrect */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+            /** @description Task is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    hls_segment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Transcode job */
+                id: string;
+                /** @description Desired segment */
+                segment: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": number[];
+                };
+            };
+            /** @description Transcode job is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+            /** @description Transcode job is available */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    ws: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Protocol upgrade */
+            101: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ws: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Protocol upgrade */
+            101: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ws: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Protocol upgrade */
+            101: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ws: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Protocol upgrade */
+            101: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ws: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Protocol upgrade */
+            101: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
 }

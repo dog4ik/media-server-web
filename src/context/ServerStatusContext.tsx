@@ -281,8 +281,19 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
       queryApi.invalidateQueries(queryClient, "get", "/api/movie/{id}");
     }
     if (progress.progress_type === "pending") {
-      let idx = tasks.library_scan_tasks.findIndex((t) => t.id === progress.activity_id);
-      if (idx !== -1) setTasks("library_scan_tasks", idx, "latest_progress", progress.progress);
+      setTasks("library_scan_tasks", 0, "latest_progress", progress.progress);
+      let chunk = progress.progress;
+      if (chunk.type === "metadata_fetch" && chunk.event_result.type === "fail") {
+        let failed = chunk.event_result;
+        setTasks("library_scan_tasks", 0, "kind", "failed_content", (content) => [
+          ...content,
+          {
+            content_type: failed.content_type,
+            title: failed.title,
+            videos: failed.videos,
+          },
+        ]);
+      }
       return;
     }
     if (isTerminal(progress.progress_type)) {
