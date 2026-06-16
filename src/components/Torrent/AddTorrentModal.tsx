@@ -152,6 +152,7 @@ export function AddTorrentModal() {
                     onInput={handleFileChange}
                     value={""}
                     type="file"
+                    class="max-w-2xl"
                     accept=".torrent"
                   />
                 </TextField>
