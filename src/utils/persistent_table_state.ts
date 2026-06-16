@@ -28,7 +28,7 @@ export class PersistentTableState {
             out[value] = false;
           }
         }
-        tracing.debug({ key: this.storageKey(), out }, "Loaded persistant storage visibility");
+        tracing.debug({ key: this.storageKey(), out }, "Loaded persistent storage visibility");
         return out;
       }
     } catch {}

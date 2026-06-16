@@ -5,7 +5,7 @@ type Props = {
   link: LinkOptions;
 };
 
-export function InLibaryIcon(props: Props) {
+export function InLibraryIcon(props: Props) {
   return (
     <Link
       {...props.link}

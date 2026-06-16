@@ -8,7 +8,7 @@ import FixMetadata from "../FixMetadata";
 import promptConfirm from "../modals/ConfirmationModal";
 import { Link, linkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
-import { InLibaryIcon } from "./InLibraryIcon";
+import { InLibraryIcon } from "./InLibraryIcon";
 import { queryApi, queryClient } from "@/utils/queryApi";
 
 async function deleteMovie(id: number, title: string) {
@@ -66,7 +66,7 @@ export function MovieCard(props: { movie: Schemas["Movie"] }) {
             height={415}
           />
           <Show when={props.movie.local?.id && props.movie.provider !== "local"}>
-            <InLibaryIcon
+            <InLibraryIcon
               link={linkOptions({
                 to: "/shows/$id",
                 search: { provider: "local" },

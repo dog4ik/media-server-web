@@ -10,7 +10,7 @@ import { useMediaNotifications } from "@/context/NotificationContext";
 import promptConfirm from "../modals/ConfirmationModal";
 import { Link, linkOptions, LinkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
-import { InLibaryIcon } from "./InLibraryIcon";
+import { InLibraryIcon } from "./InLibraryIcon";
 import { queryApi, queryClient } from "@/utils/queryApi";
 
 type Props = {
@@ -114,7 +114,7 @@ export function EpisodeCard(props: Props) {
         <Show
           when={props.episode.local?.id && props.localShowId && props.episode.provider !== "local"}
         >
-          <InLibaryIcon
+          <InLibraryIcon
             link={linkOptions({
               to: "/shows/$id/$season/$episode",
               search: { provider: "local" },

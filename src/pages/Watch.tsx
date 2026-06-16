@@ -286,7 +286,7 @@ export type StreamParams = (
 };
 
 function Watch(props: WatchProps) {
-  // todo: deligate a separate route
+  // todo: delegate a separate route
   let route = getRouteApi("/watch");
   let search = route.useSearch();
   let [, { addNotification }] = useNotificationsContext();

@@ -128,11 +128,11 @@ const COLUMNS: ColumnDef<Schemas["StatePeer"]>[] = [
 ];
 
 export function PeerList(props: Props) {
-  let persistantTableState = new PersistentTableState("peers");
+  let persistentTableState = new PersistentTableState("peers");
   const data = createMemo(() => props.peers);
   const [rowSelection, setRowSelection] = createSignal({});
   const [columnVisibility, setColumnVisibility] = createSignal<VisibilityState>(
-    persistantTableState.loadVisibilityState() ?? {},
+    persistentTableState.loadVisibilityState() ?? {},
   );
   const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>([]);
   const [sorting, setSorting] = createSignal<SortingState>([]);
@@ -164,7 +164,7 @@ export function PeerList(props: Props) {
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: (update) => {
       setColumnVisibility(update);
-      persistantTableState.saveVisibilyState(columnVisibility());
+      persistentTableState.saveVisibilyState(columnVisibility());
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

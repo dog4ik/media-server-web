@@ -122,7 +122,7 @@ export class ServerConnection {
       }
     }
     if (event.type == "connected") {
-      tracing.info("Successfuly received connect event from the server");
+      tracing.info("Successfully received connect event from the server");
       if (this.connectedHandler) {
         this.connectedHandler(event.state);
       }

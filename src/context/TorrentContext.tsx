@@ -275,7 +275,7 @@ class TorrentProgressHandler {
     if (tracker_event.kind == "reannounce") {
       tracing.trace(
         { url },
-        `Recieved reannounce event with new interval: ${tracker_event.interval} ms`,
+        `Received reannounce event with new interval: ${tracker_event.interval} ms`,
       );
       tracker.status = "working";
       tracker.announce_interval = tracker_event.interval;
@@ -298,7 +298,7 @@ class TorrentProgressHandler {
 
     let peer = this.torrent.peers[peerIdx];
     if (peer_event.kind == "statupdate") {
-      tracing.trace({ ip }, `Recieved stats update for peer`);
+      tracing.trace({ ip }, `Received stats update for peer`);
       peer.downloaded = peer_event.downloaded;
       peer.download_speed = peer_event.download_speed;
       peer.uploaded = peer_event.uploaded;
@@ -311,7 +311,7 @@ class TorrentProgressHandler {
   }
 
   applyPieceUpdate({ piece, piece_event }: Schemas["StoragePieceEvent"]) {
-    tracing.warn("Storage pice events are not yet implemented");
+    tracing.warn("Storage piece events are not yet implemented");
   }
 
   applyFileUpdate({ idx, file_event }: Schemas["StorageFileEvent"]) {

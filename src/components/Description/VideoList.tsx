@@ -63,7 +63,7 @@ type Props = {
 
 export function VideoList(props: Props) {
   let [subtitlesModalVideo, setSubtitlesModalVideo] = createSignal<Video>();
-  let [transcodeModalVideo, setTrancodeModalVideo] = createSignal<Video>();
+  let [transcodeModalVideo, setTranscodeModalVideo] = createSignal<Video>();
   return (
     <>
       <Dialog
@@ -80,7 +80,7 @@ export function VideoList(props: Props) {
         </DialogContent>
       </Dialog>
       <Dialog
-        onOpenChange={(open) => !open && setTrancodeModalVideo(undefined)}
+        onOpenChange={(open) => !open && setTranscodeModalVideo(undefined)}
         open={transcodeModalVideo() !== undefined}
       >
         <DialogContent class="h-5/6 w-5/6">
@@ -88,7 +88,7 @@ export function VideoList(props: Props) {
             <TranscodeModal
               isOpen={transcodeModalVideo() !== undefined}
               video={transcodeModalVideo()!}
-              onClose={() => setTrancodeModalVideo(undefined)}
+              onClose={() => setTranscodeModalVideo(undefined)}
             />
           </Show>
         </DialogContent>
@@ -98,7 +98,7 @@ export function VideoList(props: Props) {
           {(video) => (
             <ListItem
               selectedVideo={props.selectedVideo}
-              onTranscodeOpen={() => setTrancodeModalVideo(video)}
+              onTranscodeOpen={() => setTranscodeModalVideo(video)}
               onSubtitlesOpen={() => setSubtitlesModalVideo(video)}
               onSelect={(variantId) =>
                 props.selectedVideo.video_id == video.details.id &&

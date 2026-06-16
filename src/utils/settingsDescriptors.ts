@@ -116,7 +116,7 @@ export const SETTINGS: Settings = {
     description:
       "OTLP endpoint for OpenTelemetry export (traces + metrics). When unset, OpenTelemetry is disabled.",
     name: "otel_endpoint",
-    long_name: "OpenTelementry endpoint",
+    long_name: "OpenTelemetry endpoint",
     typeHint: "string",
   },
   use_season_episodes: {

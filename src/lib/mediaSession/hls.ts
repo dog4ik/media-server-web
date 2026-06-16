@@ -20,7 +20,7 @@ export class HlsSession implements PlaybackMethod {
     const video = this.video;
     if (!video) return;
     const target = video.currentTime;
-    // flush the buffer when seeked backwards so we don't play segements of the old hls job.
+    // flush the buffer when sought backwards so we don't play segments of the old hls job.
     if (target < this.lastTime - BACKWARD_SEEK_FLUSH_THRESHOLD) {
       this.hls.trigger(Hls.Events.BUFFER_FLUSHING, {
         startOffset: 0,

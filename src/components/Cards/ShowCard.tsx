@@ -8,7 +8,7 @@ import { MenuRow } from "../ContextMenu/Menu";
 import promptConfirm from "../modals/ConfirmationModal";
 import { Link, linkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
-import { InLibaryIcon } from "./InLibraryIcon";
+import { InLibraryIcon } from "./InLibraryIcon";
 import { queryApi, queryClient } from "@/utils/queryApi";
 
 async function deleteShow(id: number, name: string) {
@@ -75,7 +75,7 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
             </div>
           </Show>
           <Show when={props.show.local?.id && props.show.provider !== "local"}>
-            <InLibaryIcon
+            <InLibraryIcon
               link={linkOptions({
                 to: "/shows/$id",
                 search: { provider: "local" },
