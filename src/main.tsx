@@ -10,7 +10,7 @@ const root = document.getElementById("root");
 const router = createRouter({
   routeTree,
   defaultPreload: "intent",
-  defaultPreloadStaleTime: 0,
+  defaultPreloadStaleTime: 30_000,
   // Errors thrown by a page render via this component inside its parent layout's
   // <Outlet/> (so the sidebar/navbar stay visible), and TanStack's CatchBoundary
   // resets it automatically on navigation — keeping links usable after an error.

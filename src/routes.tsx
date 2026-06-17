@@ -29,7 +29,7 @@ import { Schemas } from "./utils/serverApi";
 import WatchLayout from "./layouts/WatchLayout";
 import { WatchMovie, WatchShow } from "./pages/Watch";
 import tracing from "./utils/tracing";
-import { queryClient } from "./utils/queryApi";
+import { queryApi, queryClient } from "./utils/queryApi";
 import { QueryClientProvider } from "@tanstack/solid-query";
 import { SolidQueryDevtools } from "@tanstack/solid-query-devtools";
 import History from "./pages/Settings/History";
@@ -38,6 +38,7 @@ import { ColorSettingsPage } from "@/pages/Settings/ClientSettings";
 import { ErrorComponent } from "@/components/Error";
 import { SettingsLayout } from "./layouts/SettingsLayout";
 import { ResourcesPage } from "./pages/Settings/Resources";
+import { DEFAULT_FILTER_STATE } from "./components/ContentFilterBar";
 
 type RouterContext = {
   crumbs?: Crumb[];
@@ -60,17 +61,7 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
     console.error(error, info);
     return <ErrorComponent err={error} reset={reset} />;
   },
-  head: (_) => {
-    return {
-      meta: [
-        {
-          name: "Provod media server",
-          content: "Web interface for provod media server",
-          title: "Provod",
-        },
-      ],
-    };
-  },
+  head: () => metaHead("", "Web interface for your media server."),
 });
 
 const pageRoute = createRoute({
@@ -152,10 +143,61 @@ function validateWatchParams(search: Record<string, unknown>): WatchParams {
   return { variant_id, video_id };
 }
 
+const movieOpts = (id: string, provider: Schemas["MetadataProvider"]) =>
+  queryApi.queryOptions("get", "/api/movie/{id}", () => ({
+    params: { query: { provider }, path: { id } },
+  }));
+
+const showOpts = (id: string, provider: Schemas["MetadataProvider"]) =>
+  queryApi.queryOptions("get", "/api/show/{id}", () => ({
+    params: { query: { provider }, path: { id } },
+  }));
+
+const seasonOpts = (id: string, season: number, provider: Schemas["MetadataProvider"]) =>
+  queryApi.queryOptions("get", "/api/show/{id}/{season}", () => ({
+    params: { path: { id, season }, query: { provider } },
+  }));
+
+const episodeOpts = (
+  id: string,
+  season: number,
+  episode: number,
+  provider: Schemas["MetadataProvider"],
+) =>
+  queryApi.queryOptions("get", "/api/show/{id}/{season}/{episode}", () => ({
+    params: { path: { id, season, episode }, query: { provider } },
+  }));
+
+const byContentOpts = (content_type: "movie" | "show", id: number) =>
+  queryApi.queryOptions("get", "/api/video/by_content", () => ({
+    params: { query: { content_type, id } },
+  }));
+
+const capabilitiesOpts = () => queryApi.queryOptions("get", "/api/configuration/capabilities");
+
+const searchContentOpts = (search: string) =>
+  queryApi.queryOptions("get", "/api/search/content", () => ({
+    params: { query: { search } },
+  }));
+
+function metaHead(title: string, description: string) {
+  const fullTitle = title ? `${title} – Provod` : "Provod";
+  return {
+    meta: [
+      { title: fullTitle },
+      { name: "description", content: description },
+      { property: "og:title", content: fullTitle },
+      { property: "og:description", content: description },
+      { property: "og:type", content: "website" },
+    ],
+  };
+}
+
 const dashboardRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "dashboard",
   component: Dashboard,
+  head: () => metaHead("Dashboard", "Live server activity."),
 });
 
 const moviesRoute = createRoute({
@@ -165,6 +207,19 @@ const moviesRoute = createRoute({
   beforeLoad: () => ({
     crumbs: [{ label: "Movies", link: linkOptions({ to: "/movies" }) }],
   }),
+  loader: () => {
+    queryClient.prefetchQuery(
+      queryApi.queryOptions("get", "/api/local_movies", () => ({
+        params: {
+          query: {
+            search: DEFAULT_FILTER_STATE.titleFilter,
+            actors: DEFAULT_FILTER_STATE.actorFilter,
+          },
+        },
+      }))(),
+    );
+  },
+  head: () => metaHead("Movies", "Browse your movie library."),
 });
 
 const movieRoute = createRoute({
@@ -181,6 +236,21 @@ const movieRoute = createRoute({
       },
     ],
   }),
+  loaderDeps: ({ search }) => ({ provider: search.provider }),
+  loader: async ({ params, deps }) => {
+    // Blocking: head needs the title/plot
+    const movie = await queryClient.ensureQueryData(movieOpts(params.id, deps.provider)());
+
+    if (movie.provider === "local") {
+      queryClient.prefetchQuery(byContentOpts("movie", +movie.provider_id)());
+    }
+    return { title: movie.title, description: movie.plot ?? "" };
+  },
+  head: ({ loaderData }) =>
+    metaHead(
+      loaderData ? loaderData.title : "Movie",
+      loaderData?.description || "Watch this movie.",
+    ),
 });
 
 const showsRoute = createRoute({
@@ -190,6 +260,19 @@ const showsRoute = createRoute({
   beforeLoad: () => ({
     crumbs: [{ label: "Shows", link: linkOptions({ to: "/shows" }) }],
   }),
+  loader: () => {
+    queryClient.prefetchQuery(
+      queryApi.queryOptions("get", "/api/local_shows", () => ({
+        params: {
+          query: {
+            search: DEFAULT_FILTER_STATE.titleFilter,
+            actors: DEFAULT_FILTER_STATE.actorFilter,
+          },
+        },
+      }))(),
+    );
+  },
+  head: () => metaHead("Shows", "Browse your TV show library."),
 });
 
 const showRoute = createRoute({
@@ -206,27 +289,18 @@ const showRoute = createRoute({
       },
     ],
   }),
-  // loader: ({ params, deps }) => {
-  //   let showOptions = queryApi.queryOptions("get", "/api/show/{id}", () => ({
-  //     params: { path: { id: params.id }, query: { provider: deps.provider } },
-  //   }));
-  //   queryClient.prefetchQuery(showOptions());
-  //
-  //   let season = deps.season;
-  //   if (season !== undefined) {
-  //     let seasonOptions = queryApi.queryOptions(
-  //       "get",
-  //       "/api/show/{id}/{season}",
-  //       () => ({
-  //         params: {
-  //           path: { id: params.id, season },
-  //           query: { provider: deps.provider },
-  //         },
-  //       }),
-  //     );
-  //     queryClient.prefetchQueryData(seasonOptions());
-  //   }
-  // },
+  loaderDeps: ({ search }) => ({ provider: search.provider, season: search.season }),
+  loader: async ({ params, deps }) => {
+    // Blocking: head needs the title/plot. The page reads the same cache entry.
+    const show = await queryClient.ensureQueryData(showOpts(params.id, deps.provider)());
+    queryClient.prefetchQuery(capabilitiesOpts()());
+    if (deps.season !== undefined) {
+      queryClient.prefetchQuery(seasonOpts(params.id, deps.season, deps.provider)());
+    }
+    return { title: show.title, description: show.plot ?? "" };
+  },
+  head: ({ loaderData }) =>
+    metaHead(loaderData ? loaderData.title : "Show", loaderData?.description || "Watch this show."),
 });
 
 const episodeRoute = createRoute({
@@ -270,33 +344,35 @@ const episodeRoute = createRoute({
       },
     ],
   }),
-  // loader: ({ params, deps }) => {
-  //   let showOptions = queryApi.queryOptions("get", "/api/show/{id}", () => ({
-  //     params: { path: { id: params.id }, query: { provider: deps.provider } },
-  //   }));
-  //   queryClient.ensureQueryData(showOptions());
-  //   let episodeOptions = queryApi.queryOptions(
-  //     "get",
-  //     "/api/show/{id}/{season}/{episode}",
-  //     () => ({
-  //       params: {
-  //         path: {
-  //           id: params.id,
-  //           season: +params.season,
-  //           episode: +params.episode,
-  //         },
-  //         query: { provider: deps.provider },
-  //       },
-  //     }),
-  //   );
-  //   queryClient.ensureQueryData(episodeOptions());
-  // },
+  loaderDeps: ({ search }) => ({ provider: search.provider }),
+  loader: async ({ params, deps }) => {
+    // Blocking: head needs the episode title/number
+    const episode = await queryClient.ensureQueryData(
+      episodeOpts(params.id, +params.season, +params.episode, deps.provider)(),
+    );
+    queryClient.prefetchQuery(showOpts(params.id, deps.provider)());
+    if (episode.provider === "local") {
+      queryClient.prefetchQuery(byContentOpts("show", +episode.provider_id)());
+    }
+    return {
+      title: episode.title,
+      season: episode.season_number,
+      number: episode.number,
+      description: episode.plot ?? "",
+    };
+  },
+  head: ({ loaderData }) =>
+    metaHead(
+      loaderData ? `${loaderData.title} (S${loaderData.season}E${loaderData.number})` : "Episode",
+      loaderData?.description || "Watch this episode.",
+    ),
 });
 
 const torrentRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "torrent",
   component: Torrent,
+  head: () => metaHead("Torrents", "Active torrent downloads."),
 });
 
 const settingsRoute = createRoute({
@@ -313,18 +389,24 @@ const serverSettingsRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: "/settings",
   component: GeneralSettingsPage,
+  loader: () => {
+    queryClient.prefetchQuery(queryApi.queryOptions("get", "/api/configuration")());
+  },
+  head: () => metaHead("Settings", "Configure your media server."),
 });
 
 const resourcesSettingsRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: "settings/resources",
   component: ResourcesPage,
+  head: () => metaHead("Resources", "Resource usage."),
 });
 
 const clientSettingsRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: "settings/client",
   component: ColorSettingsPage,
+  head: () => metaHead("Appearance", "Customize the interface."),
 });
 
 const searchRoute = createRoute({
@@ -332,30 +414,52 @@ const searchRoute = createRoute({
   path: "search",
   component: SearchPage,
   validateSearch: validateSearchParams,
+  loaderDeps: ({ search }) => ({ search: search.search }),
+  loader: ({ deps }) => {
+    if (deps.search) {
+      queryClient.prefetchQuery(searchContentOpts(deps.search)());
+    }
+    return { search: deps.search };
+  },
+  head: ({ loaderData }) =>
+    metaHead(
+      loaderData?.search ? `Search: "${loaderData.search}"` : "Search",
+      "Search movies and shows.",
+    ),
 });
 
 const testRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "test",
   component: TestPage,
+  head: () => metaHead("Test", "Test page."),
 });
 
 const historyRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "history",
   component: History,
+  head: () => metaHead("History", "Your watch history."),
 });
 
 const logsRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "logs",
   component: TestPage,
+  head: () => metaHead("Logs", "Server logs."),
 });
 
 const homeRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "/",
   component: Home,
+  loader: () => {
+    queryClient.prefetchQuery(queryApi.queryOptions("get", "/api/search/trending_shows")());
+    queryClient.prefetchQuery(queryApi.queryOptions("get", "/api/search/trending_movies")());
+    queryClient.prefetchQuery(queryApi.queryOptions("get", "/api/history/suggest/shows")());
+    queryClient.prefetchQuery(queryApi.queryOptions("get", "/api/history/suggest/movies")());
+  },
+  head: () => metaHead("", "Continue watching and discover new movies and shows."),
 });
 
 const watchShow = createRoute({
@@ -363,6 +467,28 @@ const watchShow = createRoute({
   path: "shows/$id/$season/$episode/watch",
   component: WatchShow,
   validateSearch: validateWatchParams,
+  loader: async ({ params }) => {
+    // Watch pages always use the local provider.
+    const episode = await queryClient.ensureQueryData(
+      episodeOpts(params.id, +params.season, +params.episode, "local")(),
+    );
+    queryClient.prefetchQuery(showOpts(params.id, "local")());
+    if (episode.provider === "local") {
+      queryClient.prefetchQuery(byContentOpts("show", +episode.provider_id)());
+    }
+    // Prefetch the next episode so it is ready when the current one ends.
+    queryClient.prefetchQuery(
+      episodeOpts(params.id, +params.season, +params.episode + 1, "local")(),
+    );
+    return { title: episode.title, season: episode.season_number, number: episode.number };
+  },
+  head: ({ loaderData }) =>
+    metaHead(
+      loaderData
+        ? `Watch ${loaderData.title} (S${loaderData.season}E${loaderData.number})`
+        : "Watch",
+      loaderData ? `Now playing ${loaderData.title}.` : "Now playing",
+    ),
 });
 
 const watchMovie = createRoute({
@@ -370,6 +496,17 @@ const watchMovie = createRoute({
   path: "movies/$id/watch",
   component: WatchMovie,
   validateSearch: validateWatchParams,
+  loader: async ({ params }) => {
+    // Watch pages always use the local provider.
+    const movie = await queryClient.ensureQueryData(movieOpts(params.id, "local")());
+    queryClient.prefetchQuery(byContentOpts("movie", +params.id)());
+    return { title: movie.title };
+  },
+  head: ({ loaderData }) =>
+    metaHead(
+      loaderData ? `Watch ${loaderData.title}` : "Watch",
+      loaderData ? `Now playing ${loaderData.title}.` : "Now playing",
+    ),
 });
 
 export const routeTree = rootRoute.addChildren([
