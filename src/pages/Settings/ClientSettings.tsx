@@ -102,11 +102,10 @@ function ThemeCard(props: ThemeCardProps) {
   return (
     <button
       onClick={props.onSelect}
-      class="group relative rounded border text-left transition-all focus:outline-none"
+      class="group relative rounded border-2 text-left transition-all focus:outline-none"
       style={{
         background: props.theme.vars["--background"],
         "border-color": props.active ? props.theme.vars["--primary"] : props.theme.vars["--border"],
-        "border-width": props.active ? "2px" : "1px",
       }}
     >
       <div class="space-y-1.5 p-3">
