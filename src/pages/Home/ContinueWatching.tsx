@@ -3,7 +3,7 @@ import { MovieCard } from "@/components/Cards/MovieCard";
 import { extendEpisode } from "@/utils/library";
 import { queryApi } from "@/utils/queryApi";
 import { linkOptions } from "@tanstack/solid-router";
-import { For, Suspense } from "solid-js";
+import { For, Show, Suspense } from "solid-js";
 
 export function ContinueWatchingSection() {
   let showHistory = queryApi.useQuery("get", "/api/history/suggest/shows");
@@ -11,7 +11,9 @@ export function ContinueWatchingSection() {
 
   return (
     <>
-      <p class="my-8 text-3xl">Continue watching</p>
+      <Show when={showHistory.latest()?.length || movieHistory.latest()?.length}>
+        <p class="my-8 text-3xl">Continue watching</p>
+      </Show>
       <div class="space-y-4">
         <div class="flex items-center gap-4">
           <Suspense>
