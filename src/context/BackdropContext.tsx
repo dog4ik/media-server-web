@@ -1,7 +1,15 @@
 import tracing from "@/utils/tracing";
 import { useQuery } from "@tanstack/solid-query";
 import { useRouterState } from "@tanstack/solid-router";
-import { ParentProps, Show, createContext, createSignal, onCleanup, useContext } from "solid-js";
+import {
+  ParentProps,
+  Show,
+  createContext,
+  createEffect,
+  createSignal,
+  onCleanup,
+  useContext,
+} from "solid-js";
 
 type BackdropContextType = ReturnType<typeof createBackdropContext>;
 
@@ -52,24 +60,23 @@ function createBackdropContext() {
     setBackdropSrcList(url);
   }
 
-  // createEffect(() => {
-  //   if (
-  //     !routerState().location.pathname.startsWith("/shows/") &&
-  //     !routerState().location.pathname.startsWith("/movies/")
-  //   ) {
-  //     removeBackdrop();
-  //   }
-  // });
-
   function removeBackdrop() {
     changeBackdrop([]);
   }
+
+  createEffect(() => {
+    let onBackdropRoute = routerState().matches.some((match) => match.staticData.backdrop);
+    if (!onBackdropRoute) {
+      removeBackdrop();
+    }
+  });
 
   let backdropQuery = useQuery(() => ({
     queryFn: () => {
       return loadImages(backdropSrcList());
     },
     queryKey: ["backdrop", backdropSrcList()],
+    enabled: backdropSrcList().length > 0,
   }));
 
   return [

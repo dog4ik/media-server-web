@@ -40,7 +40,6 @@ export default function ShowPage() {
   let capabilities = queryApi.useQuery("get", "/api/configuration/capabilities");
 
   createEffect(() => {
-    console.log("running show backdrop effect");
     if (show.data) {
       let localImage =
         show.data.provider == "local"

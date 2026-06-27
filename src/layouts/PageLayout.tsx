@@ -1,18 +1,8 @@
-import { ParentProps, Show, createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { ParentProps, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { useRouter } from "@tanstack/solid-router";
 import { useBackdropContext } from "../context/BackdropContext";
 import SideBar from "../components/SideBar";
 import NavBar from "../components/NavBar";
-import clsx from "clsx";
-
-const ANIMATION = {
-  opacity: [0, 1],
-};
-
-const OPTIONS = {
-  duration: 200,
-  easing: "ease-in-out",
-};
 
 const NAVBAR_SCROLL_RANGE = 300;
 
@@ -55,31 +45,30 @@ export default function PageLayout(props: ParentProps) {
 
 function BackdropFilling() {
   let [{ backdropQuery }] = useBackdropContext();
-  let backdropElement: HTMLImageElement = {} as any;
-  let gradientElement: HTMLDivElement = {} as any;
 
+  // The image element stays mounted and we only animate its opacity, so the
+  // backdrop both fades in (when a new image finishes loading) and fades out
+  // (when we leave a content page) instead of popping in/out.
+  let visible = () => backdropQuery.isSuccess;
+
+  // Keep the last loaded src painted through the fade-out so there's something to
+  // fade. It's only swapped once the next image has fully loaded, so a backdrop
+  // that's still loading never shows the previous page's image.
+  let [shownSrc, setShownSrc] = createSignal<string>();
   createEffect(() => {
-    if (backdropQuery.isSuccess) {
-      backdropElement.animate(ANIMATION, OPTIONS);
-    } else {
-      gradientElement.animate(ANIMATION, OPTIONS);
+    if (backdropQuery.isSuccess && backdropQuery.data) {
+      setShownSrc(backdropQuery.data.src);
     }
   });
+
   return (
-    <div ref={backdropElement!} class="fixed inset-0 -z-10 size-full">
-      <div class="size-full">
-        <Show when={!backdropQuery.isSuccess}>
-          <div ref={gradientElement!} class="h-full w-full object-cover transition-opacity"></div>
-        </Show>
-        <Show when={backdropQuery.isSuccess}>
-          <img
-            ref={backdropElement!}
-            src={backdropQuery.isSuccess ? backdropQuery.data.src : undefined}
-            class={clsx("h-full w-full object-cover", backdropQuery.isSuccess ? "block" : "hidden")}
-          />
-        </Show>
-        <div class="hover-hide bg-background/90 fixed inset-0" />
-      </div>
+    <div class="fixed inset-0 -z-10 size-full">
+      <img
+        src={shownSrc()}
+        class="h-full w-full object-cover transition-opacity duration-300"
+        classList={{ "opacity-100": visible(), "opacity-0": !visible() }}
+      />
+      <div class="hover-hide bg-background/90 fixed inset-0" />
     </div>
   );
 }

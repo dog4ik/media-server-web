@@ -44,6 +44,12 @@ type RouterContext = {
   crumbs?: Crumb[];
 };
 
+declare module "@tanstack/solid-router" {
+  interface StaticDataRouteOption {
+    backdrop?: boolean;
+  }
+}
+
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: () => (
     <>
@@ -226,6 +232,7 @@ const movieRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "movies/$id",
   component: Movie,
+  staticData: { backdrop: true },
   validateSearch: validateProviderParam,
   beforeLoad: ({ params, search }) => ({
     crumbs: [
@@ -279,6 +286,7 @@ const showRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "shows/$id",
   component: ShowPage,
+  staticData: { backdrop: true },
   validateSearch: validateSeasonParams,
   beforeLoad: ({ params, search }) => ({
     crumbs: [
@@ -289,7 +297,10 @@ const showRoute = createRoute({
       },
     ],
   }),
-  loaderDeps: ({ search }) => ({ provider: search.provider, season: search.season }),
+  loaderDeps: ({ search }) => ({
+    provider: search.provider,
+    season: search.season,
+  }),
   loader: async ({ params, deps }) => {
     // Blocking: head needs the title/plot. The page reads the same cache entry.
     const show = await queryClient.ensureQueryData(showOpts(params.id, deps.provider)());
@@ -307,6 +318,7 @@ const episodeRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "shows/$id/$season/$episode",
   component: Episode,
+  staticData: { backdrop: true },
   validateSearch: validateProviderParam,
   beforeLoad: ({ params, search }) => ({
     crumbs: [
@@ -480,7 +492,11 @@ const watchShow = createRoute({
     queryClient.prefetchQuery(
       episodeOpts(params.id, +params.season, +params.episode + 1, "local")(),
     );
-    return { title: episode.title, season: episode.season_number, number: episode.number };
+    return {
+      title: episode.title,
+      season: episode.season_number,
+      number: episode.number,
+    };
   },
   head: ({ loaderData }) =>
     metaHead(
