@@ -30,14 +30,14 @@ export default function PageLayout(props: ParentProps) {
   return (
     <div ref={container} class="h-screen overflow-y-auto [scrollbar-gutter:stable]">
       <BackdropFilling />
-      <aside class="fixed inset-0 flex w-18 items-center">
+      <aside class="fixed inset-0 hidden w-18 items-center md:flex">
         <SideBar />
       </aside>
       <div class="sticky top-0 z-30">
         <NavBar scrollProgress={scrollProgress()} />
       </div>
-      <div class="pl-32">
-        <main class="mx-5 my-3 flex flex-col">{props.children}</main>
+      <div class="md:pl-32">
+        <main class="mx-4 my-3 flex flex-col sm:mx-5">{props.children}</main>
       </div>
     </div>
   );

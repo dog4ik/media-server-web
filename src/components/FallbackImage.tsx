@@ -9,6 +9,7 @@ type Props = {
   height?: number;
   width?: number;
   alt: string;
+  fluid?: boolean;
 };
 
 // Prevent flicker when the image component remounts with the cached image
@@ -59,9 +60,8 @@ export default function FallbackImage(props: Props) {
     active = false;
   });
 
-  // Only impose explicit pixel dimensions when provided; otherwise let `class`/CSS size the image.
   let sizeStyle = () =>
-    props.height !== undefined || props.width !== undefined
+    !props.fluid && (props.height !== undefined || props.width !== undefined)
       ? { height: `${props.height}px`, width: `${props.width}px` }
       : undefined;
 
@@ -69,7 +69,10 @@ export default function FallbackImage(props: Props) {
     <Show
       when={!loading() && currentImage()}
       fallback={
-        <Skeleton class={clsx(sizeStyle() === undefined && "h-full w-full")} style={sizeStyle()} />
+        <Skeleton
+          class={clsx((props.fluid || sizeStyle() === undefined) && "h-full w-full")}
+          style={sizeStyle()}
+        />
       }
     >
       {(_) => (
@@ -78,7 +81,7 @@ export default function FallbackImage(props: Props) {
           height={props.height}
           width={props.width}
           alt={props.alt}
-          class={clsx(props.class)}
+          class={clsx(props.class, props.fluid && "size-full object-cover")}
           style={sizeStyle()}
         />
       )}

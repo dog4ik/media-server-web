@@ -70,7 +70,7 @@ export function VideoList(props: Props) {
         onOpenChange={(open) => !open && setSubtitlesModalVideo(undefined)}
         open={subtitlesModalVideo() !== undefined}
       >
-        <DialogContent class="h-5/6 w-5/6">
+        <DialogContent class="sm:h-5/6 sm:w-5/6">
           <Show when={subtitlesModalVideo()}>
             <UploadSubtitles
               videoId={subtitlesModalVideo()!.details.id}
@@ -83,7 +83,7 @@ export function VideoList(props: Props) {
         onOpenChange={(open) => !open && setTranscodeModalVideo(undefined)}
         open={transcodeModalVideo() !== undefined}
       >
-        <DialogContent class="h-5/6 w-5/6">
+        <DialogContent class="sm:h-5/6 sm:w-5/6">
           <Show when={transcodeModalVideo()}>
             <TranscodeModal
               isOpen={transcodeModalVideo() !== undefined}

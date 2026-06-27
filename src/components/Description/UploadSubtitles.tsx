@@ -151,7 +151,7 @@ export function UploadSubtitles(props: Props) {
           <Show
             fallback={
               <>
-                <div class="flex items-center gap-4">
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                   <span class="text-lg">Select subtitles on the server</span>
                   <span class="text-sm">or</span>{" "}
                   <TextField class="flex max-w-fit flex-col space-y-1.5">

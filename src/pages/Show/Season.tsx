@@ -119,59 +119,62 @@ export default function Season(props: Props) {
       </Show>
       <div
         class={clsx(
-          "bg-card top-navbar sticky z-10 flex h-48 gap-4 rounded-xl p-4 transition-opacity",
+          "bg-card top-navbar sticky z-10 flex flex-wrap items-start gap-3 rounded-xl p-3 transition-opacity sm:h-48 sm:flex-nowrap sm:items-stretch sm:gap-4 sm:p-4",
           seasonQuery.isFetching && seasonQuery.isPlaceholderData && "opacity-50",
         )}
       >
         <Show when={seasonQuery.latest()} fallback={<SkeletonSeasonBar />}>
           {(season) => (
             <>
-              <div class="aspect-poster max-h-full">
+              <div class="aspect-poster h-28 shrink-0 overflow-hidden rounded-xl sm:h-full">
                 <FallbackImage
+                  fluid
                   alt="Poster image"
-                  class="rounded-xl object-cover"
+                  class="rounded-xl"
                   srcList={posterList(season())}
                 />
               </div>
-              <div class="flex flex-1 flex-col gap-4">
+              <div class="flex min-w-0 flex-1 basis-48 flex-col gap-3">
                 <div>
-                  <h3 class="text-2xl">Season {season().number}</h3>
-                  <span class="text-xs">{season().release_date}</span>
+                  <h3 class="text-xl sm:text-2xl">Season {season().number}</h3>
+                  <span class="text-muted-foreground text-xs">{season().release_date}</span>
                 </div>
                 <Show when={season().plot}>
-                  <p class="line-clamp-3">{season().plot}</p>
+                  <p class="line-clamp-2 text-sm sm:line-clamp-3">{season().plot}</p>
                 </Show>
               </div>
-              <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
-                <FiDownload />
-              </Icon>
-              <Icon tooltip="Manage intros" onClick={() => setIntrosModal(true)}>
-                <FiSkipForward />
-              </Icon>
-              <Show when={season().provider == "local"}>
-                <Icon
-                  tooltip={
-                    props.canDetectIntros
-                      ? `Detect intros for season ${season().number}`
-                      : "Server does not support intro detection"
-                  }
-                  disabled={!props.canDetectIntros}
-                  onClick={() => detectIntros(+props.showId, season().number)}
-                >
-                  <FiSearch />
+              <div class="flex shrink-0 flex-wrap items-center gap-2">
+                <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
+                  <FiDownload />
                 </Icon>
-                <Icon
-                  variant="destructive"
-                  tooltip={`Delete season ${season().number}`}
-                  onClick={() =>
-                    deleteContent(season()).then(() =>
-                      queryApi.invalidateQueries(queryClient, "get", "/api/show/{id}/{season}"),
-                    )
-                  }
-                >
-                  <FiTrash />
+                <Icon tooltip="Manage intros" onClick={() => setIntrosModal(true)}>
+                  <FiSkipForward />
                 </Icon>
-              </Show>
+                <Show when={season().provider == "local"}>
+                  <Icon
+                    tooltip={
+                      props.canDetectIntros
+                        ? `Detect intros for season ${season().number}`
+                        : "Server does not support intro detection"
+                    }
+                    disabled={!props.canDetectIntros}
+                    onClick={() => detectIntros(+props.showId, season().number)}
+                  >
+                    <FiSearch />
+                  </Icon>
+                  <Icon
+                    variant="destructive"
+                    tooltip={`Delete season ${season().number}`}
+                    onClick={() =>
+                      deleteContent(season()).then(() =>
+                        queryApi.invalidateQueries(queryClient, "get", "/api/show/{id}/{season}"),
+                      )
+                    }
+                  >
+                    <FiTrash />
+                  </Icon>
+                </Show>
+              </div>
             </>
           )}
         </Show>
@@ -182,6 +185,7 @@ export default function Season(props: Props) {
           seasonQuery.isFetching && seasonQuery.isPlaceholderData && "opacity-50",
         )}
         elementSize={320}
+        mobileCols={1}
       >
         <For each={seasonQuery.latest()?.extended_episodes}>
           {(ep) => (

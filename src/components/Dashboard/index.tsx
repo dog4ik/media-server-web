@@ -13,7 +13,7 @@ export default function Activity() {
     <>
       <PageTitle>Activity</PageTitle>
       <ErrorBoundary fallback={errorBoundaryFallback()}>
-        <div class="w-5/6 space-y-8">
+        <div class="w-full space-y-8 lg:w-5/6">
           <WatchSessions tasks={tasks.watch_sessions} />
           <TranscodeTasks tasks={tasks.transcode_tasks} />
           <PreviewsTasks tasks={tasks.previews_tasks} />

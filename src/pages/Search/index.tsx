@@ -30,14 +30,20 @@ function SearchResultRow(props: SearchResultProps) {
     throw Error(`Uhnandled content type: ${props.item.content_type}`);
   };
   return (
-    <Link class="flex w-full items-center gap-6 p-2 transition-colors hover:bg-white/10" {...url()}>
-      <img class="aspect-poster h-40" src={props.item.poster || "/no-photo.png"} />
-      <div class="flex flex-1 flex-col gap-1">
+    <Link
+      class="flex w-full items-center gap-3 p-2 transition-colors hover:bg-white/10 sm:gap-6"
+      {...url()}
+    >
+      <img
+        class="aspect-poster h-28 shrink-0 rounded-md object-cover sm:h-40"
+        src={props.item.poster || "/no-photo.png"}
+      />
+      <div class="flex min-w-0 flex-1 flex-col gap-1">
         <span class="font-bold">{props.item.title}</span>
         <span class="text-xs">{capitalize(props.item.content_type)}</span>
         <Show when={props.item.plot}>{(p) => <p class="line-clamp-3 text-sm">{p()}</p>}</Show>
       </div>
-      <div class="h-10 w-10">
+      <div class="h-8 w-8 shrink-0 sm:h-10 sm:w-10">
         <ProviderLogo provider={props.item.metadata_provider} />
       </div>
     </Link>

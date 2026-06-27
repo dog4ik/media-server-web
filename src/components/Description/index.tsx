@@ -62,11 +62,16 @@ function Addition(props: { data: AdditionalInfo[] }) {
 export function Description(props: Props & ParentProps) {
   let imageDirection = () => props.imageDirection ?? "vertical";
   return (
-    <div class="flex w-full flex-col gap-8 md:flex-row">
+    <div class="flex w-full flex-col gap-6 md:flex-row md:gap-8">
       <div
-        class={`${imageDirection() == "horizontal" ? "w-80" : "w-52"} relative h-fit shrink-0 overflow-hidden rounded-xl`}
+        class={`${
+          imageDirection() == "horizontal"
+            ? "aspect-video w-full max-w-sm sm:w-80"
+            : "aspect-poster w-44 max-w-full sm:w-52"
+        } relative shrink-0 overflow-hidden rounded-xl`}
       >
         <FallbackImage
+          fluid
           alt="Description image"
           width={imageDirection() == "horizontal" ? 320 : 208}
           class="rounded-xl"
@@ -79,11 +84,11 @@ export function Description(props: Props & ParentProps) {
           )}
         </Show>
       </div>
-      <div class="space-y-4">
-        <div class="text-3xl">
+      <div class="min-w-0 space-y-4">
+        <div class="text-2xl sm:text-3xl">
           <span>{props.title}</span>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <Show when={props.additionalInfo}>{(info) => <Addition data={info()} />}</Show>
           <Show when={props.releaseDate}>{(date) => <span>{date()}</span>}</Show>
           <For each={props.genres}>{(genre) => <span>{GenreMap[genre]}</span>}</For>
@@ -104,11 +109,13 @@ export function Description(props: Props & ParentProps) {
 
 export function DescriptionSkeleton(props: { direction: ImageDirection }) {
   return (
-    <div class="flex w-full flex-col gap-8 md:flex-row">
+    <div class="flex w-full flex-col gap-6 md:flex-row md:gap-8">
       <Skeleton
         class={clsx(
-          props.direction == "horizontal" ? "h-[180px] w-[320px]" : "h-[312px] w-52",
-          "shrink-0",
+          props.direction == "horizontal"
+            ? "aspect-video w-full max-w-sm sm:w-80"
+            : "aspect-poster w-44 sm:w-52",
+          "h-auto shrink-0",
         )}
       />
       <div class="w-full flex-col space-y-4">

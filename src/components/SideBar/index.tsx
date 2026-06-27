@@ -1,55 +1,13 @@
 import { For } from "solid-js";
 import Version from "./Version";
-import { Link, linkOptions, useRouterState } from "@tanstack/solid-router";
+import { Link, useRouterState } from "@tanstack/solid-router";
 import { clsx } from "clsx";
-
-const ROUTES = linkOptions([
-  {
-    to: "/",
-    label: "Home",
-  },
-  {
-    to: "/dashboard",
-    label: "Dashboard",
-  },
-  {
-    to: "/torrent",
-    label: "Torrent",
-  },
-  {
-    to: "/shows",
-    label: "Shows",
-  },
-  {
-    to: "/movies",
-    label: "Movies",
-  },
-  {
-    to: "/settings",
-    label: "Settings",
-  },
-  {
-    to: "/history",
-    label: "History",
-  },
-]);
+import { NAV_ROUTES, activeRouteIndex } from "./routes";
 
 export default function SideBar() {
   let routerState = useRouterState();
 
-  let currentIndex = () => {
-    return Math.max(
-      ROUTES.findIndex(({ to }) => {
-        if (routerState().location.pathname == "/" && to == "/") {
-          return true;
-        } else if (to != "/") {
-          return routerState().location.pathname.startsWith(to);
-        }
-        return false;
-      }),
-      0,
-    );
-  };
+  let currentIndex = () => activeRouteIndex(routerState().location.pathname);
 
   return (
     <div class="hover-hide z-10 flex flex-col items-center justify-between rounded-md p-2">
@@ -57,11 +15,11 @@ export default function SideBar() {
         <div
           class={`bg-sidebar-accent absolute right-0 left-0 z-10 w-full rounded-md transition-all duration-200`}
           style={{
-            height: `${100 / ROUTES.length}%`,
-            top: `${(currentIndex() / ROUTES.length) * 100}%`,
+            height: `${100 / NAV_ROUTES.length}%`,
+            top: `${(currentIndex() / NAV_ROUTES.length) * 100}%`,
           }}
         />
-        <For each={ROUTES}>
+        <For each={NAV_ROUTES}>
           {(link, idx) => {
             let isActive = () => {
               return currentIndex() == idx();

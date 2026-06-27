@@ -310,7 +310,7 @@ export function IntrosModal(props: Props) {
 
   return (
     <Dialog open={props.open} onOpenChange={(isOpen) => isOpen || props.onClose()}>
-      <DialogContent class="flex h-[80vh] w-170 max-w-[95vw] flex-col gap-0 overflow-hidden p-0">
+      <DialogContent class="flex flex-col gap-0 overflow-hidden p-0 sm:h-[80vh] sm:w-170 sm:max-w-[95vw]">
         <DialogHeader class="shrink-0 border-b border-white/8 px-6 py-4">
           <DialogTitle class="text-base font-semibold">
             Manage intros — Season {props.season}

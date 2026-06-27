@@ -185,8 +185,8 @@ export function TorrentTable() {
 
   return (
     <>
-      <div class="flex shrink-0 items-center justify-between gap-2">
-        <div class="flex items-center gap-2">
+      <div class="flex shrink-0 flex-wrap items-center justify-between gap-2 pb-2">
+        <div class="flex flex-wrap items-center gap-2">
           <TextField>
             <TextFieldInput
               type="text"
@@ -233,7 +233,7 @@ export function TorrentTable() {
             <RefreshCw size={ICON_SIZE} />
           </Button>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <AddTorrentModal />
           <Select
             onChange={(e) => {

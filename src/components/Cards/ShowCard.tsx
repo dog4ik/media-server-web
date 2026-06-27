@@ -57,12 +57,16 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
           onClose={() => toggleFixModal(false)}
         />
       </Show>
-      <div class="max-w-60 min-w-60 flex-none space-y-2 overflow-hidden">
-        <Link class="relative block size-full" {...showLinkOptions()}>
+      <div class="w-full space-y-2">
+        <Link
+          class="aspect-poster relative block w-full overflow-hidden rounded-xl"
+          {...showLinkOptions()}
+        >
           <FallbackImage
+            fluid
             alt="Show poster"
             srcList={[imageUrl, props.show.poster ?? undefined]}
-            class="aspect-poster rounded-xl object-cover"
+            class="rounded-xl"
             width={312}
             height={415}
           />
@@ -115,8 +119,8 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
 
 export function ShowCardSkeleton() {
   return (
-    <div class="max-w-60 min-w-60 flex-none space-y-2 overflow-hidden">
-      <Skeleton class="aspect-poster h-[415px] w-full rounded-xl" />
+    <div class="w-full space-y-2">
+      <Skeleton class="aspect-poster h-auto w-full rounded-xl" />
 
       <div class="flex items-center justify-between">
         <Skeleton class="h-4 w-32" />

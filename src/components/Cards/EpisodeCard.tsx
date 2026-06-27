@@ -95,13 +95,14 @@ export function EpisodeCard(props: Props) {
   };
 
   return (
-    <div class="flex w-80 cursor-pointer flex-col">
-      <Link class="relative w-full overflow-hidden rounded-xl" {...props.link}>
+    <div class="flex w-full cursor-pointer flex-col">
+      <Link class="aspect-video relative block w-full overflow-hidden rounded-xl" {...props.link}>
         <FallbackImage
+          fluid
           alt="Episode poster"
           width={320}
           height={180}
-          class="aspect-video rounded-xl"
+          class="rounded-xl"
           srcList={posterList(props.episode)}
         />
         <Show when={props.episode.release_date}>
@@ -201,8 +202,8 @@ export function EpisodeCard(props: Props) {
 
 export function EpisodeCardSkeleton() {
   return (
-    <div class="flex w-80 cursor-pointer flex-col">
-      <Skeleton height={180} class="aspect-video rounded-xl" />
+    <div class="flex w-full cursor-pointer flex-col">
+      <Skeleton class="aspect-video h-auto w-full rounded-xl" />
       <div class="flex items-center justify-between">
         <span class="flex flex-col pt-2">
           <Skeleton width={20} />

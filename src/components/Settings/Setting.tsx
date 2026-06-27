@@ -168,7 +168,7 @@ function FileInputs(props: FileInputsProps) {
   return (
     <>
       <Dialog onOpenChange={setModalOpen} open={modalOpen()}>
-        <DialogContent class="w-5/6">
+        <DialogContent class="sm:w-5/6">
           <DialogHeader>
             <DialogTitle>Select directory</DialogTitle>
           </DialogHeader>

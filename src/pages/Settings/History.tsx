@@ -1,10 +1,19 @@
 import { Schemas, server } from "../../utils/serverApi";
-import { createMemo, ErrorBoundary, For, Match, onCleanup, onMount, Show, Switch } from "solid-js";
+import {
+  createMemo,
+  ErrorBoundary,
+  For,
+  Match,
+  onCleanup,
+  onMount,
+  Show,
+  Switch,
+} from "solid-js";
 import { WatchProgressBar } from "../../components/Cards/ProgressBar";
 import { FiX } from "solid-icons/fi";
 import FallbackImage from "../../components/FallbackImage";
 import { extendMovie, extendEpisode, posterList } from "@/utils/library";
-import { Card, CardContent } from "@/ui/card";
+import { Card } from "@/ui/card";
 import { Button } from "@/ui/button";
 import { Link } from "@tanstack/solid-router";
 import { queryClient } from "@/utils/queryApi";
@@ -30,42 +39,57 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
     ),
   );
   return (
-    <Card class="relative grid grid-cols-4 gap-2 py-0">
-      <Link class="relative aspect-video h-fit overflow-hidden rounded-xl" {...episode().url()}>
-        <FallbackImage
-          width={342}
-          height={192}
-          alt="Episode poster"
-          class="min-h-full min-w-full object-cover"
-          srcList={posterList(episode())}
-        />
-        <Show when={episode().runtime}>
-          {(r) => <WatchProgressBar runtime={r()} history={props.entry.history} />}
-        </Show>
-      </Link>
-      <div class="col-span-3 flex flex-col p-2">
-        <Link class="flex items-center gap-4" {...episode().url()}>
-          <span class="text-2xl">{episode().title}</span>
-          <span title={props.entry.history.update_time} class="text-muted-foreground text-sm">
-            {timeAgo(new Date(props.entry.history.update_time))}
-          </span>
+    <Card class="relative py-0">
+      <div class="flex items-center gap-3 pl-3 sm:gap-4 sm:pl-4">
+        <Link
+          class="relative aspect-video w-36 shrink-0 overflow-hidden rounded-xl sm:w-64"
+          {...episode().url()}
+        >
+          <FallbackImage
+            fluid
+            width={342}
+            height={192}
+            alt="Episode poster"
+            srcList={posterList(episode())}
+          />
+          <Show when={episode().runtime}>
+            {(r) => (
+              <WatchProgressBar runtime={r()} history={props.entry.history} />
+            )}
+          </Show>
         </Link>
-        <div class="flex items-center gap-2 text-sm">
-          <Link {...episode().url()}>
-            <span class="hover:underline">{props.entry.show_title}</span>
+        <div class="flex min-w-0 flex-1 flex-col py-3 pr-3 sm:pr-4">
+          <Link
+            class="flex flex-wrap items-baseline gap-x-4 gap-y-1 pr-9 sm:pr-0"
+            {...episode().url()}
+          >
+            <span class="text-lg sm:text-2xl">{episode().title}</span>
+            <span
+              title={props.entry.history.update_time}
+              class="text-muted-foreground text-sm"
+            >
+              {timeAgo(new Date(props.entry.history.update_time))}
+            </span>
           </Link>
-          <span>-</span>
-          <Link {...episode().seasonUrl()}>
-            <span class="hover:underline">Season {episode().season_number}</span>
-          </Link>
-          <span>-</span>
-          <Link {...episode().url()}>
-            <span class="hover:underline">Episode {episode().number}</span>
-          </Link>
+          <div class="flex flex-wrap items-center gap-2 text-sm">
+            <Link {...episode().url()}>
+              <span class="hover:underline">{props.entry.show_title}</span>
+            </Link>
+            <span>-</span>
+            <Link {...episode().seasonUrl()}>
+              <span class="hover:underline">
+                Season {episode().season_number}
+              </span>
+            </Link>
+            <span>-</span>
+            <Link {...episode().url()}>
+              <span class="hover:underline">Episode {episode().number}</span>
+            </Link>
+          </div>
+          <p title={episode().plot ?? undefined} class="mt-2 line-clamp-2">
+            {episode().plot}
+          </p>
         </div>
-        <p title={episode().plot ?? undefined} class="mt-2 line-clamp-2">
-          {episode().plot}
-        </p>
       </div>
       <Button
         variant={"destructive"}
@@ -91,23 +115,31 @@ function DisplayMovie(props: DisplayMovieProps) {
       provider_id: props.entry.movie_id.toString(),
     });
   return (
-    <Card class="py-0">
-      <CardContent class="relative grid grid-cols-4 gap-2">
-        <Link class="aspect-poster relative h-fit overflow-hidden rounded-xl" {...movie().url()}>
+    <Card class="relative py-0">
+      <div class="flex items-start gap-3 pl-3 sm:gap-4 sm:pl-4">
+        <Link
+          class="aspect-poster relative w-28 shrink-0 overflow-hidden rounded-xl sm:w-56"
+          {...movie().url()}
+        >
           <FallbackImage
+            fluid
             width={100}
             height={192}
             alt="Movie poster"
-            class="min-h-full min-w-full object-cover"
             srcList={posterList(movie())}
           />
           <Show when={movie().runtime}>
-            {(r) => <WatchProgressBar runtime={r()} history={props.entry.history} />}
+            {(r) => (
+              <WatchProgressBar runtime={r()} history={props.entry.history} />
+            )}
           </Show>
         </Link>
-        <div class="col-span-3 flex flex-col p-2">
-          <Link class="flex items-center gap-4" {...movie().url()}>
-            <span class="text-2xl">{movie().friendlyTitle()}</span>
+        <div class="flex min-w-0 flex-1 flex-col py-3 pr-3 sm:pr-4">
+          <Link
+            class="flex flex-wrap items-baseline gap-x-4 gap-y-1 pr-9 sm:pr-0"
+            {...movie().url()}
+          >
+            <span class="text-lg sm:text-2xl">{movie().friendlyTitle()}</span>
             <span class="text-muted-foreground text-sm">
               {timeAgo(new Date(props.entry.history.update_time))}
             </span>
@@ -116,14 +148,14 @@ function DisplayMovie(props: DisplayMovieProps) {
             {movie().plot}
           </p>
         </div>
-        <Button
-          variant={"destructive"}
-          class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full"
-          onClick={props.onRemove}
-        >
-          <FiX size={20} />
-        </Button>
-      </CardContent>
+      </div>
+      <Button
+        variant={"destructive"}
+        class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full"
+        onClick={props.onRemove}
+      >
+        <FiX size={20} />
+      </Button>
     </Card>
   );
 }
@@ -175,7 +207,11 @@ export default function History() {
   onMount(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && history.hasNextPage && !history.isFetchingNextPage) {
+        if (
+          entry.isIntersecting &&
+          history.hasNextPage &&
+          !history.isFetchingNextPage
+        ) {
           history.fetchNextPage();
         }
       },
@@ -202,7 +238,10 @@ export default function History() {
       <div class="max-w-5xl space-y-4">
         <For each={allHistory()}>
           {(entry) => (
-            <HistoryEntry history={entry} onRemove={() => handleRemove(entry.history.id)} />
+            <HistoryEntry
+              history={entry}
+              onRemove={() => handleRemove(entry.history.id)}
+            />
           )}
         </For>
       </div>
@@ -211,7 +250,8 @@ export default function History() {
       </Show>
       <Show
         when={
-          (history.hasNextPage === false && allHistory().length > 0) || allHistory().length === 0
+          (history.hasNextPage === false && allHistory().length > 0) ||
+          allHistory().length === 0
         }
       >
         <div class="mt-12 flex items-center justify-center">

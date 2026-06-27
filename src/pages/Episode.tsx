@@ -198,7 +198,7 @@ export default function Episode() {
                 ]}
                 releaseDate={episode().release_date ?? undefined}
               >
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                   <Show
                     when={video()}
                     fallback={
@@ -215,7 +215,7 @@ export default function Episode() {
                       </VideoActions>
                     )}
                   </Show>
-                  <div class="w-96">
+                  <div class="w-full sm:w-96">
                     <Show when={episode().local?.intro && video()}>
                       {(video) => (
                         <IntroBar

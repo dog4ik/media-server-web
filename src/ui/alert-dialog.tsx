@@ -2,7 +2,7 @@ import type { ComponentProps, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 import { AlertDialog as AlertDialogPrimitive } from "@kobalte/core/alert-dialog";
 
-import { cx } from "cva";
+import { cn } from "@/lib/cn";
 
 import { buttonVariants } from "./button";
 
@@ -36,7 +36,7 @@ export const AlertDialogOverlay = <T extends ValidComponent = "div">(
   return (
     <AlertDialogPrimitive.Overlay
       data-slot="alert-dialog-overlay"
-      class={cx(
+      class={cn(
         "data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 fixed inset-0 z-50 bg-black/50",
         props.class,
       )}
@@ -59,7 +59,7 @@ export const AlertDialogContent = <T extends ValidComponent = "div">(
       <AlertDialogOverlay />
       <AlertDialogPrimitive.Content
         data-slot="alert-dialog-content"
-        class={cx(
+        class={cn(
           "bg-background data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
           props.class,
         )}
@@ -77,7 +77,7 @@ export const AlertDialogHeader = (props: AlertDialogHeaderProps) => {
   return (
     <div
       data-slot="alert-dialog-header"
-      class={cx("flex flex-col gap-2 text-center sm:text-left", props.class)}
+      class={cn("flex flex-col gap-2 text-center sm:text-left", props.class)}
       {...rest}
     />
   );
@@ -91,7 +91,7 @@ export const AlertDialogFooter = (props: AlertDialogFooterProps) => {
   return (
     <div
       data-slot="alert-dialog-footer"
-      class={cx("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", props.class)}
+      class={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", props.class)}
       {...rest}
     />
   );
@@ -109,7 +109,7 @@ export const AlertDialogTitle = <T extends ValidComponent = "h2">(
   return (
     <AlertDialogPrimitive.Title
       data-slot="alert-dialog-title"
-      class={cx("text-lg font-semibold", props.class)}
+      class={cn("text-lg font-semibold", props.class)}
       {...rest}
     />
   );
@@ -127,7 +127,7 @@ export const AlertDialogDescription = <T extends ValidComponent = "p">(
   return (
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
-      class={cx("text-muted-foreground text-sm", props.class)}
+      class={cn("text-muted-foreground text-sm", props.class)}
       {...rest}
     />
   );

@@ -10,7 +10,7 @@ import { Skeleton } from "@/ui/skeleton";
 export function BottomBar() {
   let { sessionStats } = useTorrentContext();
   return (
-    <div class="flex w-full shrink-0 items-center gap-2 border-t px-2 py-1 text-sm">
+    <div class="flex w-full shrink-0 flex-wrap items-center gap-x-2 border-t px-2 py-1 text-sm">
       <span>{formatSize(sessionStats().download_speed)}/s</span>
       <span>/</span>
       <span>{formatSize(sessionStats().upload_speed)}/s</span>

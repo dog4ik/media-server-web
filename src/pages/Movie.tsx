@@ -102,8 +102,8 @@ export default function Movie() {
                 content_type="movie"
                 ref={downloadModal!}
               />
-              <div class="grid grid-cols-4 items-center gap-2">
-                <div class="hover-hide col-span-3">
+              <div class="grid grid-cols-1 items-center gap-2 md:grid-cols-4">
+                <div class="hover-hide md:col-span-3">
                   <Description
                     title={movie().title}
                     progress={
@@ -146,7 +146,7 @@ export default function Movie() {
                     </div>
                   </Description>
                 </div>
-                <div class="z-20 col-span-1">
+                <div class="z-20 hidden md:col-span-1 md:block">
                   <HoverArea />
                 </div>
               </div>

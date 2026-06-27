@@ -107,8 +107,8 @@ export function TorrentDownloadSteps(props: Props) {
   }
 
   return (
-    <div class="flex h-full w-full flex-col items-center">
-      <div class="size-full overflow-y-auto">
+    <div class="flex h-full w-full min-w-0 flex-col items-center">
+      <div class="size-full min-w-0 overflow-y-auto">
         <Switch fallback={<StepLoading currentStep={currentStep()} />}>
           <Match when={currentStep() === 0}>
             <Step1

@@ -114,7 +114,7 @@ export function AddTorrentModal() {
           Add Torrent
         </Button>
       </DialogTrigger>
-      <DialogContent class="flex max-h-[90vh] max-w-2xl flex-col overflow-y-auto">
+      <DialogContent class="flex flex-col sm:max-h-[90vh] sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Add Torrent</DialogTitle>
         </DialogHeader>

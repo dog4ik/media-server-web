@@ -52,8 +52,8 @@ export function SettingsLayout(props: ParentProps) {
 
   return (
     <>
-      <div class="border-border flex w-full justify-center border-b">
-        <nav ref={navRef!} class="relative flex items-center">
+      <div class="border-border flex w-full justify-start overflow-x-auto border-b sm:justify-center">
+        <nav ref={navRef!} class="relative flex shrink-0 items-center">
           <For each={TABS}>
             {(tab, i) => (
               <Link
@@ -62,7 +62,7 @@ export function SettingsLayout(props: ParentProps) {
                 }}
                 {...tab.options}
                 activeOptions={{ exact: true }}
-                class="text-muted-foreground hover:text-foreground [&.active]:text-foreground flex items-center gap-1.5 px-3 py-2 text-sm transition-colors"
+                class="text-muted-foreground hover:text-foreground [&.active]:text-foreground flex shrink-0 items-center gap-1.5 px-3 py-2 text-sm whitespace-nowrap transition-colors"
               >
                 <tab.icon class="size-3.5 shrink-0" />
                 {tab.label}

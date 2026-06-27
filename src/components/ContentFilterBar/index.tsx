@@ -36,8 +36,8 @@ export function ContentFilterBar(props: Props) {
   onCleanup(() => clearTimeout(timeout));
 
   return (
-    <div class="flex items-center justify-end gap-4">
-      <TextField class="bg-secondary text-secondary-foreground max-w-3xs">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end sm:gap-4">
+      <TextField class="bg-secondary text-secondary-foreground w-full sm:max-w-3xs">
         <TextFieldInput onInput={(e) => onInput(e.currentTarget.value)} placeholder="Filter" />
       </TextField>
 

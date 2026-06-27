@@ -82,7 +82,7 @@ export default function FixMetadata(props: Props) {
 
   return (
     <Dialog onOpenChange={(isClosed) => isClosed || props.onClose()} open={props.open}>
-      <DialogContent class="h-3/4 w-2/3 grid-rows-[auto_auto_1fr]">
+      <DialogContent class="grid-rows-[auto_auto_1fr] sm:h-3/4 sm:w-2/3">
         <DialogHeader>
           <DialogTitle>Edit metadata</DialogTitle>
           <DialogDescription>Select correct metadata from the list below</DialogDescription>

@@ -16,7 +16,7 @@ function Item(props: ItemProps & ParentProps) {
   let route = getRouteApi("/page/shows/$id");
   return (
     <route.Link
-      class={`flex h-8 flex-1 items-center justify-center gap-4 rounded-xl py-8 whitespace-nowrap ${
+      class={`flex h-16 flex-1 items-center justify-center gap-2 rounded-xl whitespace-nowrap @6xl:gap-4 ${
         props.isSelected ? "text-white" : "text-white/70"
       }`}
       search={(prev) => ({ season: props.number, provider: prev.provider })}
