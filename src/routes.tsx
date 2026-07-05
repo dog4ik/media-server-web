@@ -297,16 +297,20 @@ const showRoute = createRoute({
       },
     ],
   }),
+  // Season is intentionally NOT a loader dep: making it one re-runs the loader on
+  // every season switch, which re-suspends the match and remounts the whole page
+  // (the season tabs included, breaking their slide animation, and resetting the
+  // scroll position).
   loaderDeps: ({ search }) => ({
     provider: search.provider,
-    season: search.season,
   }),
-  loader: async ({ params, deps }) => {
+  loader: async ({ params, deps, location }) => {
     // Blocking: head needs the title/plot. The page reads the same cache entry.
     const show = await queryClient.ensureQueryData(showOpts(params.id, deps.provider)());
     queryClient.prefetchQuery(capabilitiesOpts()());
-    if (deps.season !== undefined) {
-      queryClient.prefetchQuery(seasonOpts(params.id, deps.season, deps.provider)());
+    const season = (location.search as SeasonParams).season;
+    if (season !== undefined) {
+      queryClient.prefetchQuery(seasonOpts(params.id, season, deps.provider)());
     }
     return { title: show.title, description: show.plot ?? "" };
   },

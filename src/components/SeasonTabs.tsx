@@ -1,5 +1,5 @@
-import { getRouteApi, linkOptions, LinkOptions } from "@tanstack/solid-router";
-import { createMemo, For, ParentProps } from "solid-js";
+import { getRouteApi } from "@tanstack/solid-router";
+import { createEffect, createMemo, For, on, ParentProps } from "solid-js";
 
 type Props = {
   tabs: number[];
@@ -8,7 +8,6 @@ type Props = {
 
 type ItemProps = {
   isSelected: boolean;
-  linkOptions: LinkOptions;
   number: number;
 };
 
@@ -31,26 +30,30 @@ function Item(props: ItemProps & ParentProps) {
 export function SeasonTabs(props: Props) {
   let route = getRouteApi("/page/shows/$id");
   let search = route.useSearch();
-  let params = route.useParams();
   let season = createMemo(() => search().season || props.tabs.at(0) || 1);
+  let indicatorLeft = createMemo(() => (props.tabs.indexOf(season()) / props.tabs.length) * 100);
+
+  let indicator: HTMLDivElement | undefined;
+  createEffect(
+    on(indicatorLeft, (to, from) => {
+      if (from === undefined || from === to || !indicator) return;
+      indicator.animate({ left: [`${from}%`, `${to}%`] }, { duration: 200, easing: "ease" });
+    }),
+  );
 
   return (
     <div class="@container relative flex items-center">
       <div
-        class="bg-primary absolute bottom-0 h-1 divide-x rounded-xl transition-all duration-200"
+        ref={indicator}
+        class="bg-primary absolute bottom-0 h-1 divide-x rounded-xl"
         style={{
           width: `${100 / props.tabs.length}%`,
-          left: `${(props.tabs.indexOf(season()) / props.tabs.length) * 100}%`,
+          left: `${indicatorLeft()}%`,
         }}
       />
       <For each={props.tabs}>
         {(number) => {
-          let link = linkOptions({
-            to: "/shows/$id",
-            params: { id: params().id },
-            search: { season: number, provider: search().provider },
-          });
-          return <Item number={number} linkOptions={link} isSelected={number == season()} />;
+          return <Item number={number} isSelected={number == season()} />;
         }}
       </For>
     </div>

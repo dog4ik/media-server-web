@@ -7,28 +7,22 @@ import NavBar from "../components/NavBar";
 const NAVBAR_SCROLL_RANGE = 300;
 
 export default function PageLayout(props: ParentProps) {
-  let container: HTMLDivElement | undefined;
   let [scrollProgress, setScrollProgress] = createSignal(0);
   let router = useRouter();
 
-  let updateProgress = () => {
-    if (container) setScrollProgress(Math.min(container.scrollTop / NAVBAR_SCROLL_RANGE, 1));
-  };
+  let updateProgress = () => setScrollProgress(Math.min(window.scrollY / NAVBAR_SCROLL_RANGE, 1));
 
   onMount(() => {
-    if (!container) return;
-    container.addEventListener("scroll", updateProgress, { passive: true });
-    // Scroll events don't fire on navigation, so also resync once the new route
-    // is rendered.
-    let unsubscribe = router.subscribe("onRendered", updateProgress);
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    let unsubRendered = router.subscribe("onRendered", updateProgress);
     onCleanup(() => {
-      container!.removeEventListener("scroll", updateProgress);
-      unsubscribe();
+      window.removeEventListener("scroll", updateProgress);
+      unsubRendered();
     });
   });
 
   return (
-    <div ref={container} class="h-screen overflow-y-auto [scrollbar-gutter:stable]">
+    <div class="min-h-dvh">
       <BackdropFilling />
       <aside class="fixed inset-0 hidden w-18 items-center md:flex">
         <SideBar />
