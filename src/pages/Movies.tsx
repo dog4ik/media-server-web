@@ -1,5 +1,4 @@
 import { createSignal, ErrorBoundary, For, Show, Suspense } from "solid-js";
-import PageTitle from "@/components/PageTitle";
 import { ElementsGrid } from "@/components/ElementsGrid";
 import { MovieCard, MovieCardSkeleton } from "@/components/Cards/MovieCard";
 import AddFoldersHelp from "@/components/AddFoldersHelp";
@@ -27,7 +26,6 @@ export default function Movies() {
 
   return (
     <>
-      <PageTitle>Movies</PageTitle>
       <ContentFilterBar state={filterState()} onChange={setFilterState} />
       <ErrorBoundary fallback={errorBoundaryFallback("Failed to fetch movies")}>
         <Show when={movies.latest() !== undefined && movies.latest()?.data.length === 0}>

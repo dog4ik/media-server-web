@@ -3,7 +3,7 @@ import { splitProps } from "solid-js";
 import { Root as ButtonPrimitive } from "@kobalte/core/button";
 import type { VariantProps } from "cva";
 
-import { cva } from "cva";
+import { cva } from "@/lib/cva";
 
 export const buttonVariants = cva({
   base: [

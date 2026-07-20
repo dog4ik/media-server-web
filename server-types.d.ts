@@ -1814,6 +1814,14 @@ export type components = {
         };
         /** @enum {string} */
         CodecType: "audio" | "video" | "subtitle" | "data" | "attachment";
+        CompactList: {
+            /** Format: int64 */
+            id: number;
+            kind: components["schemas"]["ListKind"];
+            name: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
         CompactTorrentProgress: {
             /** Format: double */
             download_speed: number;
@@ -2481,10 +2489,18 @@ export type components = {
         }) | (components["schemas"]["Movie"] & {
             /** @enum {string} */
             content_type: "movie";
-        }) | (components["schemas"]["Episode"] & {
+        }) | (components["schemas"]["ListEpisode"] & {
             /** @enum {string} */
             content_type: "episode";
         });
+        ListEpisode: components["schemas"]["Episode"] & {
+            /**
+             * Format: int64
+             * @description Local id of the show this episode belongs to
+             */
+            show_id: number;
+            show_title: string;
+        };
         ListItemContentType: {
             /** @enum {string} */
             content_type: "movie";
@@ -2503,6 +2519,8 @@ export type components = {
                 provider: components["schemas"]["MetadataProvider"];
             };
         };
+        /** @enum {string} */
+        ListKind: "user" | "saved" | "watchlist";
         LocalActorData: {
             /** Format: int64 */
             id: number;
@@ -2512,6 +2530,7 @@ export type components = {
             /** Format: int64 */
             id: number;
             intro?: null | components["schemas"]["Intro"];
+            lists: components["schemas"]["CompactList"][];
             /** Format: int64 */
             metadata_id: number;
             /** Format: int64 */
@@ -2521,6 +2540,7 @@ export type components = {
             history?: null | components["schemas"]["History"];
             /** Format: int64 */
             id: number;
+            lists: components["schemas"]["CompactList"][];
             local_duration: components["schemas"]["MediaDuration"];
             /** Format: int64 */
             metadata_id: number;
@@ -2536,6 +2556,7 @@ export type components = {
         LocalShowData: {
             /** Format: int64 */
             id: number;
+            lists: components["schemas"]["CompactList"][];
             /** Format: int64 */
             metadata_id: number;
         };

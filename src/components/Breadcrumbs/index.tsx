@@ -95,6 +95,13 @@ export function ShowTitleCrumb(props: { id: string; provider: Provider }) {
   return <>{show.data?.title ?? "Show"}</>;
 }
 
+export function ListTitleCrumb(props: { id: number }) {
+  let list = queryApi.useQuery("get", "/api/lists/{id}", () => ({
+    params: { path: { id: props.id } },
+  }));
+  return <>{list.data?.name ?? "List"}</>;
+}
+
 export function EpisodeTitleCrumb(props: {
   id: string;
   season: number;

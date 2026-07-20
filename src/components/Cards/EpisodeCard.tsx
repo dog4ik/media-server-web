@@ -10,8 +10,10 @@ import { useMediaNotifications } from "@/context/NotificationContext";
 import promptConfirm from "../modals/ConfirmationModal";
 import { Link, linkOptions, LinkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
-import { InLibraryIcon } from "./InLibraryIcon";
+import { ContentPosterIconSet } from "./ContentPosterIconSet";
 import { queryApi, queryClient } from "@/utils/queryApi";
+import { AddToListMenu } from "@/components/Lists/AddToListMenu";
+import { episodeListItems } from "@/lib/lists";
 
 type Props = {
   episode: ExtendedEpisode;
@@ -64,7 +66,7 @@ export function EpisodeCard(props: Props) {
 
   return (
     <div class="flex w-full cursor-pointer flex-col">
-      <Link class="aspect-video relative block w-full overflow-hidden rounded-xl" {...props.link}>
+      <Link class="relative block aspect-video w-full overflow-hidden rounded-xl" {...props.link}>
         <FallbackImage
           fluid
           alt="Episode poster"
@@ -83,7 +85,7 @@ export function EpisodeCard(props: Props) {
         <Show
           when={props.episode.local?.id && props.localShowId && props.episode.provider !== "local"}
         >
-          <InLibraryIcon
+          <ContentPosterIconSet
             link={linkOptions({
               to: "/shows/$id/$season/$episode",
               search: { provider: "local" },
@@ -115,6 +117,10 @@ export function EpisodeCard(props: Props) {
           <span class="pt-1 text-sm">Episode {props.episode.number}</span>
         </Link>
         <MoreButton>
+          <AddToListMenu
+            items={() => episodeListItems(props.episode, props.episode.showId)}
+            onAdded={(name) => notify(`Added to ${name}`)}
+          />
           <Show
             when={props.episode.local?.history}
             fallback={
@@ -142,7 +148,10 @@ export function EpisodeCard(props: Props) {
                 onClick={() =>
                   markAsWatched.mutate({
                     params: { path: { id: props.episode.local!.history!.id } },
-                    body: { is_finished: true, time: props.episode.local?.history?.time ?? 0 },
+                    body: {
+                      is_finished: true,
+                      time: props.episode.local?.history?.time ?? 0,
+                    },
                   })
                 }
               >
@@ -167,7 +176,9 @@ export function EpisodeCard(props: Props) {
                   `Are you sure you want to delete ${props.episode.friendlyTitle()}?`,
                 ).then((confirmed) => {
                   if (confirmed)
-                    deleteEpisode.mutate({ params: { path: { id: props.episode.local!.id } } });
+                    deleteEpisode.mutate({
+                      params: { path: { id: props.episode.local!.id } },
+                    });
                 })
               }
             >

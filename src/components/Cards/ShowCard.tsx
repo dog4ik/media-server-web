@@ -8,8 +8,12 @@ import { MenuRow } from "../ContextMenu/Menu";
 import promptConfirm from "../modals/ConfirmationModal";
 import { Link, linkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
-import { InLibraryIcon } from "./InLibraryIcon";
+import { ContentPosterIconSet } from "./ContentPosterIconSet";
 import { queryApi, queryClient } from "@/utils/queryApi";
+import { AddToListMenu } from "@/components/Lists/AddToListMenu";
+import { showListItems } from "@/lib/lists";
+import { extendShow } from "@/utils/library";
+import { useMediaNotifications } from "@/context/NotificationContext";
 
 export function ShowCard(props: { show: Schemas["Show"] }) {
   let [fixModal, toggleFixModal] = useToggle(false);
@@ -41,6 +45,12 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
     },
   }));
 
+  let notificator = useMediaNotifications();
+  let notify = (message: string) => notificator(extendShow(props.show), message);
+
+  let likedList = () => props.show.local?.lists.find((l) => l.kind === "saved");
+  let watchList = () => props.show.local?.lists.find((l) => l.kind === "watchlist");
+
   return (
     <>
       <Show when={fixModal()}>
@@ -52,7 +62,7 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
           onClose={() => toggleFixModal(false)}
         />
       </Show>
-      <div class="w-full space-y-2">
+      <div class="w-full group space-y-2">
         <Link
           class="aspect-poster relative block w-full overflow-hidden rounded-xl"
           {...showLinkOptions()}
@@ -73,15 +83,23 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
               <span class="text-sm font-semibold text-black">{props.show.episodes_amount}</span>
             </div>
           </Show>
-          <Show when={props.show.local?.id && props.show.provider !== "local"}>
-            <InLibraryIcon
-              link={linkOptions({
-                to: "/shows/$id",
-                search: { provider: "local" },
-                params: { id: props.show.local!.id.toString() },
-              })}
-            />
-          </Show>
+          <ContentPosterIconSet
+            liked={likedList()}
+            onLike={() => null}
+            onMarkWatched={() => null}
+            watch={watchList()}
+            localLink={
+              props.show.local?.id && props.show.provider !== "local"
+                ? {
+                    ...linkOptions({
+                      to: "/shows/$id",
+                      search: { provider: "local" },
+                      params: { id: props.show.local!.id.toString() },
+                    }),
+                  }
+                : undefined
+            }
+          />
         </Link>
         <div class="flex items-center justify-between">
           <Link class="text-md truncate" {...showLinkOptions()}>
@@ -95,8 +113,12 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
               </div>
             </Show>
           </Link>
-          <Show when={props.show.provider === "local"}>
-            <MoreButton>
+          <MoreButton>
+            <AddToListMenu
+              items={() => showListItems(props.show)}
+              onAdded={(name) => notify(`Added to ${name}`)}
+            />
+            <Show when={props.show.provider === "local"}>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
               <MenuRow
                 variant="destructive"
@@ -104,14 +126,16 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
                   promptConfirm(`Are you sure you want to delete ${props.show.title}?`).then(
                     (confirmed) =>
                       confirmed &&
-                      deleteShow.mutate({ params: { path: { id: +props.show.provider_id } } }),
+                      deleteShow.mutate({
+                        params: { path: { id: +props.show.provider_id } },
+                      }),
                   )
                 }
               >
                 Delete show
               </MenuRow>
-            </MoreButton>
-          </Show>
+            </Show>
+          </MoreButton>
         </div>
       </div>
     </>

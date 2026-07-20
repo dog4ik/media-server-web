@@ -1,6 +1,5 @@
 import { createSignal, ErrorBoundary, For, Show, Suspense } from "solid-js";
 import { ShowCard, ShowCardSkeleton } from "../components/Cards/ShowCard";
-import PageTitle from "../components/PageTitle";
 import { ElementsGrid } from "../components/ElementsGrid";
 import AddFoldersHelp from "@/components/AddFoldersHelp";
 import { queryApi } from "@/utils/queryApi";
@@ -26,7 +25,6 @@ export default function Shows() {
 
   return (
     <>
-      <PageTitle>Shows</PageTitle>
       <ContentFilterBar
         state={filterState()}
         onChange={(s) => {

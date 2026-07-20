@@ -5,6 +5,7 @@ import LayoutDashboard from "lucide-solid/icons/layout-dashboard";
 import Download from "lucide-solid/icons/download";
 import Tv from "lucide-solid/icons/tv";
 import Film from "lucide-solid/icons/film";
+import ListVideo from "lucide-solid/icons/list-video";
 import Settings from "lucide-solid/icons/settings";
 import History from "lucide-solid/icons/history";
 
@@ -16,10 +17,15 @@ export type NavRoute = {
 
 export const NAV_ROUTES: NavRoute[] = [
   { ...linkOptions({ to: "/" }), label: "Home", icon: House },
-  { ...linkOptions({ to: "/dashboard" }), label: "Dashboard", icon: LayoutDashboard },
+  {
+    ...linkOptions({ to: "/dashboard" }),
+    label: "Dashboard",
+    icon: LayoutDashboard,
+  },
   { ...linkOptions({ to: "/torrent" }), label: "Torrent", icon: Download },
   { ...linkOptions({ to: "/shows" }), label: "Shows", icon: Tv },
   { ...linkOptions({ to: "/movies" }), label: "Movies", icon: Film },
+  { ...linkOptions({ to: "/lists" }), label: "Lists", icon: ListVideo },
   { ...linkOptions({ to: "/settings" }), label: "Settings", icon: Settings },
   { ...linkOptions({ to: "/history" }), label: "History", icon: History },
 ];
