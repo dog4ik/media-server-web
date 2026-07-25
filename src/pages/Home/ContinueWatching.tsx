@@ -51,11 +51,7 @@ export function ContinueWatchingSection() {
                   <div class="w-32 shrink-0 sm:w-40">
                     <MovieCard
                       onMarkWatched={() =>
-                        queryApi.invalidateQueries(
-                          queryClient,
-                          "get",
-                          "/api/history/suggest/movies",
-                        )
+                        queryApi.invalidateQueries("get", "/api/history/suggest/movies")
                       }
                       movie={extendMovie({
                         ...movie.movie,

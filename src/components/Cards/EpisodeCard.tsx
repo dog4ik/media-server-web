@@ -11,7 +11,7 @@ import promptConfirm from "../modals/ConfirmationModal";
 import { Link, linkOptions, LinkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
 import { ContentPosterIconSet } from "./ContentPosterIconSet";
-import { queryApi, queryClient } from "@/utils/queryApi";
+import { queryApi } from "@/utils/queryApi";
 import { AddToListMenu } from "@/components/Lists/AddToListMenu";
 import { episodeListItems } from "@/lib/lists";
 
@@ -27,10 +27,10 @@ type Props = {
 };
 
 function revalidateHistory() {
-  queryApi.invalidateQueries(queryClient, "get", "/api/show/{id}/{season}");
-  queryApi.invalidateQueries(queryClient, "get", "/api/history/suggest/shows");
-  queryApi.invalidateQueries(queryClient, "get", "/api/history/suggest/movies");
-  queryApi.invalidateQueries(queryClient, "get", "/api/history");
+  queryApi.invalidateQueries("get", "/api/show/{id}/{season}");
+  queryApi.invalidateQueries("get", "/api/history/suggest/shows");
+  queryApi.invalidateQueries("get", "/api/history/suggest/movies");
+  queryApi.invalidateQueries("get", "/api/history");
 }
 
 export function EpisodeCard(props: Props) {
@@ -47,13 +47,18 @@ export function EpisodeCard(props: Props) {
     }),
   );
 
+  let markMetadataWatched = queryApi.useMutation("put", "/api/metadata/{id}/history", () => ({
+    onSuccess: () => onWatchStatusChange("Marked as watched"),
+    onSettled: () => revalidateHistory(),
+  }));
+
   let markAsWatched = queryApi.useMutation("put", "/api/history/{id}", () => ({
     onSuccess: () => onWatchStatusChange("Marked as watched"),
     onSettled: () => revalidateHistory(),
   }));
 
   let markAsUnwatched = queryApi.useMutation("delete", "/api/history/{id}", () => ({
-    onSuccess: () => onWatchStatusChange("Marked as watched"),
+    onSuccess: () => onWatchStatusChange("Marked as unwatched"),
     onSettled: () => revalidateHistory(),
   }));
 
@@ -86,7 +91,7 @@ export function EpisodeCard(props: Props) {
           when={props.episode.local?.id && props.localShowId && props.episode.provider !== "local"}
         >
           <ContentPosterIconSet
-            link={linkOptions({
+            localLink={linkOptions({
               to: "/shows/$id/$season/$episode",
               search: { provider: "local" },
               params: {
@@ -124,23 +129,41 @@ export function EpisodeCard(props: Props) {
           <Show
             when={props.episode.local?.history}
             fallback={
-              <MenuRow
-                onClick={() =>
-                  markExternalWatched.mutate({
-                    body: {
-                      content: {
-                        content_type: "show",
-                        season: props.episode.season_number,
-                        episodes: [props.episode.number],
-                      },
-                      provider: props.episode.provider,
-                      provider_id: props.episode.showId,
-                    },
-                  })
+              <Show
+                when={props.episode.local?.metadata_id}
+                fallback={
+                  <MenuRow
+                    onClick={() =>
+                      markExternalWatched.mutate({
+                        body: {
+                          content: {
+                            content_type: "show",
+                            season: props.episode.season_number,
+                            episodes: [props.episode.number],
+                          },
+                          provider: props.episode.provider,
+                          provider_id: props.episode.showId,
+                        },
+                      })
+                    }
+                  >
+                    Mark as watched
+                  </MenuRow>
                 }
               >
-                Mark as watched
-              </MenuRow>
+                {(metadata_id) => (
+                  <MenuRow
+                    onClick={() =>
+                      markMetadataWatched.mutate({
+                        body: { is_finished: true, time: 0 },
+                        params: { path: { id: metadata_id() } },
+                      })
+                    }
+                  >
+                    Mark as watched
+                  </MenuRow>
+                )}
+              </Show>
             }
           >
             <Show when={!props.episode.local?.history?.is_finished}>

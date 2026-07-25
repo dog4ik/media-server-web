@@ -49,15 +49,15 @@ export default function ListDetails() {
 
   let removeItem = queryApi.useMutation("delete", "/api/lists/{id}/remove/{metadata_id}", () => ({
     onSettled: () => {
-      queryApi.invalidateQueries(queryClient, "get", "/api/lists/{id}/items");
-      queryApi.invalidateQueries(queryClient, "get", "/api/lists/{id}");
-      queryApi.invalidateQueries(queryClient, "get", "/api/lists");
+      queryApi.invalidateQueries("get", "/api/lists/{id}/items");
+      queryApi.invalidateQueries("get", "/api/lists/{id}");
+      queryApi.invalidateQueries("get", "/api/lists");
     },
   }));
 
   let deleteList = queryApi.useMutation("delete", "/api/lists/{id}", () => ({
     onSuccess: () => {
-      queryApi.invalidateQueries(queryClient, "get", "/api/lists");
+      queryApi.invalidateQueries("get", "/api/lists");
       navigate({ to: "/lists" });
     },
   }));

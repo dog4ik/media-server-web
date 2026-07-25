@@ -167,7 +167,7 @@ export default function Season(props: Props) {
                     tooltip={`Delete season ${season().number}`}
                     onClick={() =>
                       deleteContent(season()).then(() =>
-                        queryApi.invalidateQueries(queryClient, "get", "/api/show/{id}/{season}"),
+                        queryApi.invalidateQueries("get", "/api/show/{id}/{season}"),
                       )
                     }
                   >
@@ -209,7 +209,7 @@ export default function Season(props: Props) {
                 onOptimize={() => null}
                 onDelete={() => null}
                 onMarkWatched={() =>
-                  queryApi.invalidateQueries(queryClient, "get", "/api/show/{id}/{season}")
+                  queryApi.invalidateQueries("get", "/api/show/{id}/{season}")
                 }
                 video={undefined}
                 episode={ep}

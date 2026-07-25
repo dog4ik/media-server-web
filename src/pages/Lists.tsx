@@ -82,7 +82,7 @@ export default function Lists() {
   });
 
   let deleteList = queryApi.useMutation("delete", "/api/lists/{id}", () => ({
-    onSettled: () => queryApi.invalidateQueries(queryClient, "get", "/api/lists"),
+    onSettled: () => queryApi.invalidateQueries("get", "/api/lists"),
   }));
 
   async function handleDelete(list: Schemas["List"]) {

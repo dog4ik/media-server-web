@@ -1,24 +1,22 @@
 import { Button } from "@/ui/button";
 import { Schemas } from "@/utils/serverApi";
 import { Link, LinkOptions } from "@tanstack/solid-router";
-import { clsx } from "clsx";
 import BookCheck from "lucide-solid/icons/book-check";
-import Clock from "lucide-solid/icons/clock";
 import Check from "lucide-solid/icons/check";
 import Heart from "lucide-solid/icons/heart";
 import { Show } from "solid-js";
 
 type Props = {
   liked?: Schemas["CompactList"];
-  onLike: () => void;
+  onRemoveLike?: () => void;
   watch?: Schemas["CompactList"];
-  onMarkWatched: () => void;
+  onRemoveWatched?: () => void;
   localLink?: LinkOptions;
 };
 
 export function ContentPosterIconSet(props: Props) {
   return (
-    <div class="absolute top-1 right-1 flex gap-1 transition-opacity items-center justify-center">
+    <div class="absolute top-1 right-1 flex gap-1 items-center justify-center">
       <Show when={props.localLink}>
         <Link
           {...props.localLink}
@@ -29,31 +27,27 @@ export function ContentPosterIconSet(props: Props) {
         </Link>
       </Show>
 
-      <Button
-        class={clsx(
-          props.liked ? "block" : "hidden group-hover:block",
-          "bg-secondary/50 hover:bg-secondary/40 group-hover:opacity-100",
-        )}
-        onClick={props.onMarkWatched}
-        title={props.liked ? "In watchlist" : "Add to watchlist"}
-        variant={"ghost"}
-      >
-        <Show when={props.watch} fallback={<Clock class="text-white" />}>
+      <Show when={props.watch}>
+        <Button
+          class="bg-secondary/50 hover:bg-secondary/40"
+          onClick={props.onRemoveWatched}
+          title="Remove from watchlist"
+          variant={"ghost"}
+        >
           <Check class="text-white" />
-        </Show>
-      </Button>
+        </Button>
+      </Show>
 
-      <Button
-        class={clsx(
-          props.liked ? "block" : "hidden group-hover:block",
-          "bg-secondary/50 hover:bg-secondary/40 group-hover:opacity-100",
-        )}
-        onClick={props.onLike}
-        title={props.liked ? "In liked list" : "Add to liked"}
-        variant={"ghost"}
-      >
-        <Heart class={clsx(props.liked && "fill-pink-500 text-pink-500", "text-white")} />
-      </Button>
+      <Show when={props.liked}>
+        <Button
+          class="bg-secondary/50 hover:bg-secondary/40"
+          onClick={props.onRemoveLike}
+          title="Remove from liked"
+          variant={"ghost"}
+        >
+          <Heart class="fill-pink-500 text-pink-500" />
+        </Button>
+      </Show>
     </div>
   );
 }

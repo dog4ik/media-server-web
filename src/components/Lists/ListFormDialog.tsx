@@ -13,9 +13,9 @@ type Props = {
 
 export function ListFormDialog(props: Props) {
   function onSaved() {
-    queryApi.invalidateQueries(queryClient, "get", "/api/lists");
+    queryApi.invalidateQueries("get", "/api/lists");
     if (props.list) {
-      queryApi.invalidateQueries(queryClient, "get", "/api/lists/{id}");
+      queryApi.invalidateQueries("get", "/api/lists/{id}");
     }
     props.onClose();
   }

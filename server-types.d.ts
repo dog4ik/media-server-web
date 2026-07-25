@@ -38,23 +38,6 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/clear_db": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Clear the database. For debug purposes only. */
-        delete: operations["clear_db"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/configuration": {
         parameters: {
             query?: never;
@@ -1762,10 +1745,11 @@ export type components = {
             watch: components["schemas"]["List"];
         };
         AppError: {
+            kind: components["schemas"]["AppErrorKind"];
             message: string;
         };
         /** @enum {string} */
-        AppErrorKind: "InternalError" | "NotFound" | "Duplicate" | "BadRequest";
+        AppErrorKind: "internal_error" | "not_found" | "duplicate" | "bad_request" | "database_locked";
         AppResources: {
             app_version: string;
             database_path: string;
@@ -1814,6 +1798,7 @@ export type components = {
         };
         /** @enum {string} */
         CodecType: "audio" | "video" | "subtitle" | "data" | "attachment";
+        /** @description Compact representation of a list. */
         CompactList: {
             /** Format: int64 */
             id: number;
@@ -3463,25 +3448,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AppError"];
-                };
-            };
-        };
-    };
-    clear_db: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/plain": string;
                 };
             };
         };

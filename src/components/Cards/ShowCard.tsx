@@ -15,7 +15,12 @@ import { showListItems } from "@/lib/lists";
 import { extendShow } from "@/utils/library";
 import { useMediaNotifications } from "@/context/NotificationContext";
 
-export function ShowCard(props: { show: Schemas["Show"] }) {
+type Props = {
+  show: Schemas["Show"];
+  onInvalidate: () => void;
+};
+
+export function ShowCard(props: Props) {
   let [fixModal, toggleFixModal] = useToggle(false);
   function handleFix() {
     toggleFixModal(true);
@@ -41,7 +46,13 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
 
   let deleteShow = queryApi.useMutation("delete", "/api/local_show/{id}", () => ({
     onSettled: () => {
-      queryApi.invalidateQueries(queryClient, "get", "/api/local_shows");
+      queryApi.invalidateQueries("get", "/api/local_shows");
+    },
+  }));
+
+  let removeLiked = queryApi.useMutation("delete", "/api/lists/saved/remove/{metadata_id}", () => ({
+    onSettled: () => {
+      props.onInvalidate();
     },
   }));
 
@@ -63,18 +74,17 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
         />
       </Show>
       <div class="w-full group space-y-2">
-        <Link
-          class="aspect-poster relative block w-full overflow-hidden rounded-xl"
-          {...showLinkOptions()}
-        >
-          <FallbackImage
-            fluid
-            alt="Show poster"
-            srcList={[imageUrl, props.show.poster ?? undefined]}
-            class="rounded-xl"
-            width={312}
-            height={415}
-          />
+        <div class="aspect-poster relative block w-full overflow-hidden rounded-xl">
+          <Link {...showLinkOptions()}>
+            <FallbackImage
+              fluid
+              alt="Show poster"
+              srcList={[imageUrl, props.show.poster ?? undefined]}
+              class="rounded-xl"
+              width={312}
+              height={415}
+            />
+          </Link>
           <Show when={props.show.episodes_amount}>
             <div
               title={`${props.show.episodes_amount} ${props.show.episodes_amount == 1 ? "episode" : "episodes"}`}
@@ -85,8 +95,14 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
           </Show>
           <ContentPosterIconSet
             liked={likedList()}
-            onLike={() => null}
-            onMarkWatched={() => null}
+            onRemoveLike={() => {
+              if (props.show.local?.metadata_id) {
+                removeLiked.mutate({
+                  params: { path: { metadata_id: props.show.local?.metadata_id } },
+                });
+              }
+            }}
+            onRemoveWatched={props.onInvalidate}
             watch={watchList()}
             localLink={
               props.show.local?.id && props.show.provider !== "local"
@@ -100,7 +116,8 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
                 : undefined
             }
           />
-        </Link>
+        </div>
+
         <div class="flex items-center justify-between">
           <Link class="text-md truncate" {...showLinkOptions()}>
             <span class="truncate" title={props.show.title}>

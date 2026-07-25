@@ -3,7 +3,7 @@ import { MovieCard } from "../../components/Cards/MovieCard";
 import { ShowCard, ShowCardSkeleton } from "@/components/Cards/ShowCard";
 import { ElementsGrid } from "@/components/ElementsGrid";
 import { ApplicationErrorBoundary, ErrorComponent } from "@/components/Error";
-import { queryApi } from "@/utils/queryApi";
+import { queryApi, queryClient } from "@/utils/queryApi";
 import { ContinueWatchingSection } from "./ContinueWatching";
 import { extendMovie } from "@/utils/library";
 
@@ -34,7 +34,16 @@ function TrendingShows() {
           }
         >
           <ElementsGrid elementSize={200}>
-            <For each={trendingShows.data}>{(show) => <ShowCard show={show} />}</For>
+            <For each={trendingShows.data}>
+              {(show) => (
+                <ShowCard
+                  onInvalidate={() =>
+                    queryApi.invalidateQueries("get", "/api/search/trending_shows")
+                  }
+                  show={show}
+                />
+              )}
+            </For>
           </ElementsGrid>
         </Suspense>
       </ApplicationErrorBoundary>

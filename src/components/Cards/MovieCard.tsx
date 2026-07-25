@@ -43,7 +43,7 @@ export function MovieCard(props: Props) {
   );
 
   let deleteMovie = queryApi.useMutation("delete", "/api/local_movie/{id}", () => ({
-    onSettled: () => queryApi.invalidateQueries(queryClient, "get", "/api/local_movies"),
+    onSettled: () => queryApi.invalidateQueries("get", "/api/local_movies"),
   }));
 
   let markExternalWatched = queryApi.useMutation(
@@ -97,7 +97,7 @@ export function MovieCard(props: Props) {
           />
           <Show when={props.movie.local?.id && props.movie.provider !== "local"}>
             <ContentPosterIconSet
-              link={linkOptions({
+              localLink={linkOptions({
                 to: "/shows/$id",
                 search: { provider: "local" },
                 params: { id: props.movie.local!.id.toString() },

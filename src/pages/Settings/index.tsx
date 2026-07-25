@@ -25,7 +25,7 @@ function GeneralSettings() {
           if (r.error) notificator("Failed to reset configuration");
         })
         .finally(async () => {
-          await queryApi.invalidateQueries(queryClient, "get", "/api/configuration");
+          await queryApi.invalidateQueries("get", "/api/configuration");
         });
     }
   }

@@ -83,7 +83,7 @@ function createSettingsContext() {
       Object.assign(pendingCommit, snapshot);
     }
 
-    await queryApi.invalidateQueries(queryClient, "get", "/api/configuration");
+    await queryApi.invalidateQueries("get", "/api/configuration");
 
     // Fresh data is in — clear pending tracking for this batch.
     for (let key of Object.keys(snapshot)) {

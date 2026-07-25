@@ -43,7 +43,7 @@ export default function Movies() {
                   <MovieCard
                     movie={extendMovie(movie)}
                     onMarkWatched={() =>
-                      queryApi.invalidateQueries(queryClient, "get", "/api/local_movies")
+                      queryApi.invalidateQueries("get", "/api/local_movies")
                     }
                   />
                 </div>

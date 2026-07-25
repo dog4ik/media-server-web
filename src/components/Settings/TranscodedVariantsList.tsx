@@ -176,7 +176,7 @@ export default function TranscodedVariantsList() {
       await server.DELETE("/api/video/{id}/variant/{variant_id}", {
         params: { path: { id: videoId, variant_id: variantId } },
       });
-      await queryApi.invalidateQueries(queryClient, "get", "/api/variants");
+      await queryApi.invalidateQueries("get", "/api/variants");
     }
   }
 

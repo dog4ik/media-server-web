@@ -11,8 +11,8 @@ type Props = {
 };
 
 function invalidateLists() {
-  queryApi.invalidateQueries(queryClient, "get", "/api/lists");
-  queryApi.invalidateQueries(queryClient, "get", "/api/lists/{id}/items");
+  queryApi.invalidateQueries("get", "/api/lists");
+  queryApi.invalidateQueries("get", "/api/lists/{id}/items");
 }
 
 /** "Add to list" submenu for card context menus */
