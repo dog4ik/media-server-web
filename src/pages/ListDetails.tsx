@@ -2,14 +2,19 @@ import { createSignal, ErrorBoundary, For, Show, Suspense } from "solid-js";
 import { getRouteApi } from "@tanstack/solid-router";
 import { queryApi, queryClient } from "@/utils/queryApi";
 import { errorBoundaryFallback } from "@/components/Error";
-import MoreButton from "@/components/ContextMenu/MoreButton";
-import { MenuRow } from "@/components/ContextMenu/Menu";
 import promptConfirm from "@/components/modals/ConfirmationModal";
 import { ListFormDialog } from "@/components/Lists/ListFormDialog";
-import { ViewModeToggle, type ViewMode } from "@/components/Lists/ViewModeToggle";
+import { ListHeader } from "@/components/Lists/ListHeader";
+import { type ViewMode } from "@/components/Lists/ViewModeToggle";
 import { ListContentTile, ListContentTileSkeleton } from "@/components/Lists/ListContentItem";
 import { ListContentTable } from "@/components/Lists/ListContentTable";
-import { extendListContent, type ExtendedListContent } from "@/lib/lists";
+import {
+  extendListContent,
+  invalidateListQueries,
+  SAVED_LIST_ID,
+  WATCH_LIST_ID,
+  type ExtendedListContent,
+} from "@/lib/lists";
 import { Skeleton } from "@/ui/skeleton";
 import tracing from "@/utils/tracing";
 
@@ -39,6 +44,13 @@ export default function ListDetails() {
 
   let isSystem = () => id() === allLists.latest()?.watch.id || id() === allLists.latest()?.saved.id;
 
+  // The export/import endpoints address the system lists by their static server-side ids
+  let exportImportId = () => {
+    if (id() === allLists.latest()?.watch.id) return WATCH_LIST_ID;
+    if (id() === allLists.latest()?.saved.id) return SAVED_LIST_ID;
+    return id();
+  };
+
   let [mode, setModeRaw] = createSignal<ViewMode>(initialViewMode());
   function setMode(mode: ViewMode) {
     localStorage.setItem(VIEW_MODE_KEY, mode);
@@ -48,16 +60,12 @@ export default function ListDetails() {
   let [editOpen, setEditOpen] = createSignal(false);
 
   let removeItem = queryApi.useMutation("delete", "/api/lists/{id}/remove/{metadata_id}", () => ({
-    onSettled: () => {
-      queryApi.invalidateQueries("get", "/api/lists/{id}/items");
-      queryApi.invalidateQueries("get", "/api/lists/{id}");
-      queryApi.invalidateQueries("get", "/api/lists");
-    },
+    onSettled: invalidateListQueries,
   }));
 
   let deleteList = queryApi.useMutation("delete", "/api/lists/{id}", () => ({
     onSuccess: () => {
-      queryApi.invalidateQueries("get", "/api/lists");
+      invalidateListQueries();
       navigate({ to: "/lists" });
     },
   }));
@@ -86,32 +94,15 @@ export default function ListDetails() {
       <Show when={editOpen()}>
         <ListFormDialog open={editOpen()} list={list.latest()} onClose={() => setEditOpen(false)} />
       </Show>
-      <div class="flex items-start justify-between gap-4 px-2 py-4 sm:px-8">
-        <Suspense fallback={<ListHeaderSkeleton />}>
-          <div class="min-w-0">
-            <h1 class="truncate text-2xl text-white">{list.data?.name}</h1>
-            <Show when={list.data?.description}>
-              {(description) => (
-                <p class="text-muted-foreground mt-1 line-clamp-2 text-sm">{description()}</p>
-              )}
-            </Show>
-            <p class="text-muted-foreground mt-1 text-sm">
-              {list.data?.size} {list.data?.size === 1 ? "item" : "items"}
-            </p>
-          </div>
-        </Suspense>
-        <div class="flex shrink-0 items-center gap-2">
-          <ViewModeToggle mode={mode()} onChange={setMode} />
-          <Show when={!isSystem()}>
-            <MoreButton>
-              <MenuRow onClick={() => setEditOpen(true)}>Edit list</MenuRow>
-              <MenuRow variant="destructive" onClick={handleDeleteList}>
-                Delete list
-              </MenuRow>
-            </MoreButton>
-          </Show>
-        </div>
-      </div>
+      <ListHeader
+        list={list.data}
+        listId={exportImportId()}
+        isSystem={isSystem()}
+        mode={mode()}
+        onModeChange={setMode}
+        onEdit={() => setEditOpen(true)}
+        onDelete={handleDeleteList}
+      />
       <Suspense fallback={<ItemsSkeleton mode={mode()} />}>
         <Show
           when={items.data?.length}
@@ -138,15 +129,6 @@ export default function ListDetails() {
         </Show>
       </Suspense>
     </ErrorBoundary>
-  );
-}
-
-function ListHeaderSkeleton() {
-  return (
-    <div class="flex flex-col gap-2">
-      <Skeleton class="h-7 w-48" />
-      <Skeleton class="h-4 w-24" />
-    </div>
   );
 }
 

@@ -14,6 +14,8 @@ import { SuspenseLoader } from "@/components/Loader";
 import { ExternalLocalIdButtons } from "@/components/ExternalLocalIdButtons";
 import * as torrentQuery from "@/lib/torrentQuery";
 import { ActorSection } from "@/components/Cast/ActorSection";
+import { ListActions } from "@/components/Description/ListActions";
+import { showListItems } from "@/lib/lists";
 
 export default function ShowPage() {
   let route = getRouteApi("/page/shows/$id");
@@ -113,6 +115,11 @@ export default function ShowPage() {
                           </Icon>
                         </Suspense>
                       </Show>
+                      <ListActions
+                        items={() => showListItems(show())}
+                        memberships={show().local?.lists}
+                        metadataId={show().local?.metadata_id}
+                      />
                       <ExternalLocalIdButtons
                         contentType="show"
                         current_provider={search().provider}

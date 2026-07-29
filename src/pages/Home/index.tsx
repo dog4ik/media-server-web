@@ -34,16 +34,7 @@ function TrendingShows() {
           }
         >
           <ElementsGrid elementSize={200}>
-            <For each={trendingShows.data}>
-              {(show) => (
-                <ShowCard
-                  onInvalidate={() =>
-                    queryApi.invalidateQueries("get", "/api/search/trending_shows")
-                  }
-                  show={show}
-                />
-              )}
-            </For>
+            <For each={trendingShows.data}>{(show) => <ShowCard show={show} />}</For>
           </ElementsGrid>
         </Suspense>
       </ApplicationErrorBoundary>

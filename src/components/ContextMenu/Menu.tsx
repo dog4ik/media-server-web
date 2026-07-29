@@ -21,7 +21,7 @@ export function MenuRow(props: RowProps & ParentProps) {
       )}
       onClick={props.onClick}
     >
-      <span class="pointer-events-none">{props.children}</span>
+      <span class="pointer-events-none flex w-full items-center gap-2">{props.children}</span>
     </button>
   );
 }

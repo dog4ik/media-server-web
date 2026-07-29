@@ -13,7 +13,7 @@ import { Skeleton } from "@/ui/skeleton";
 import { ContentPosterIconSet } from "./ContentPosterIconSet";
 import { queryApi } from "@/utils/queryApi";
 import { AddToListMenu } from "@/components/Lists/AddToListMenu";
-import { episodeListItems } from "@/lib/lists";
+import { episodeListItems, invalidateListQueries } from "@/lib/lists";
 
 type Props = {
   episode: ExtendedEpisode;
@@ -64,6 +64,21 @@ export function EpisodeCard(props: Props) {
 
   let deleteEpisode = queryApi.useMutation("delete", "/api/local_episode/{id}", () => ({}));
 
+  let removeLiked = queryApi.useMutation("delete", "/api/lists/saved/remove/{metadata_id}", () => ({
+    onSettled: invalidateListQueries,
+  }));
+
+  let removeWatchlist = queryApi.useMutation(
+    "delete",
+    "/api/lists/watchlist/remove/{metadata_id}",
+    () => ({
+      onSettled: invalidateListQueries,
+    }),
+  );
+
+  let likedList = () => props.episode.local?.lists.find((l) => l.kind === "saved");
+  let watchList = () => props.episode.local?.lists.find((l) => l.kind === "watchlist");
+
   let onWatchStatusChange = (message: string) => {
     notify(message);
     props.onMarkWatched?.();
@@ -71,49 +86,67 @@ export function EpisodeCard(props: Props) {
 
   return (
     <div class="flex w-full cursor-pointer flex-col">
-      <Link class="relative block aspect-video w-full overflow-hidden rounded-xl" {...props.link}>
-        <FallbackImage
-          fluid
-          alt="Episode poster"
-          width={320}
-          height={180}
-          class="rounded-xl"
-          srcList={posterList(props.episode)}
-        />
-        <Show when={props.episode.release_date}>
-          {(date) => (
-            <div class="bg-black-20 absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full">
-              <span class="text-xl">{formatTimeBeforeRelease(date())}</span>
+      <div class="relative aspect-video w-full overflow-hidden rounded-xl">
+        <Link class="block h-full w-full" {...props.link}>
+          <FallbackImage
+            fluid
+            alt="Episode poster"
+            width={320}
+            height={180}
+            class="rounded-xl"
+            srcList={posterList(props.episode)}
+          />
+          <Show when={props.episode.release_date}>
+            {(date) => (
+              <div class="bg-black-20 absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full">
+                <span class="text-xl">{formatTimeBeforeRelease(date())}</span>
+              </div>
+            )}
+          </Show>
+          <Show when={props.episode.runtime}>
+            <div class="absolute right-2 bottom-2 flex items-center justify-center bg-black/90 p-1">
+              <span class="text-xs font-semibold">{formatDuration(props.episode.runtime!)}</span>
             </div>
-          )}
-        </Show>
-        <Show
-          when={props.episode.local?.id && props.localShowId && props.episode.provider !== "local"}
-        >
-          <ContentPosterIconSet
-            localLink={linkOptions({
-              to: "/shows/$id/$season/$episode",
-              search: { provider: "local" },
-              params: {
-                id: props.localShowId!.toString(),
-                season: props.episode.season_number.toString(),
-                episode: props.episode.number.toString(),
-              },
-            })}
-          />
-        </Show>
-        <Show when={props.episode.runtime}>
-          <div class="absolute right-2 bottom-2 flex items-center justify-center bg-black/90 p-1">
-            <span class="text-xs font-semibold">{formatDuration(props.episode.runtime!)}</span>
-          </div>
-        </Show>
-        <Show when={props.episode.runtime && props.episode.local?.history}>
-          <WatchProgressBar
-            history={props.episode.local!.history!}
-            runtime={props.episode.runtime!}
-          />
-        </Show>
-      </Link>
+          </Show>
+          <Show when={props.episode.runtime && props.episode.local?.history}>
+            <WatchProgressBar
+              history={props.episode.local!.history!}
+              runtime={props.episode.runtime!}
+            />
+          </Show>
+        </Link>
+        <ContentPosterIconSet
+          liked={likedList()}
+          onRemoveLike={() => {
+            if (props.episode.local?.metadata_id) {
+              removeLiked.mutate({
+                params: { path: { metadata_id: props.episode.local.metadata_id } },
+              });
+            }
+          }}
+          watch={watchList()}
+          onRemoveWatched={() => {
+            if (props.episode.local?.metadata_id) {
+              removeWatchlist.mutate({
+                params: { path: { metadata_id: props.episode.local.metadata_id } },
+              });
+            }
+          }}
+          localLink={
+            props.episode.local?.id && props.localShowId && props.episode.provider !== "local"
+              ? linkOptions({
+                  to: "/shows/$id/$season/$episode",
+                  search: { provider: "local" },
+                  params: {
+                    id: props.localShowId!.toString(),
+                    season: props.episode.season_number.toString(),
+                    episode: props.episode.number.toString(),
+                  },
+                })
+              : undefined
+          }
+        />
+      </div>
       <div class="flex items-center justify-between">
         <Link class="flex flex-col pt-2" {...props.link}>
           <span class="text-base" title={props.episode.title}>
@@ -124,7 +157,10 @@ export function EpisodeCard(props: Props) {
         <MoreButton>
           <AddToListMenu
             items={() => episodeListItems(props.episode, props.episode.showId)}
+            memberships={() => props.episode.local?.lists}
+            metadataId={() => props.episode.local?.metadata_id}
             onAdded={(name) => notify(`Added to ${name}`)}
+            onRemoved={(name) => notify(`Removed from ${name}`)}
           />
           <Show
             when={props.episode.local?.history}

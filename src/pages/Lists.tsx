@@ -15,6 +15,7 @@ import MoreButton from "@/components/ContextMenu/MoreButton";
 import { MenuRow } from "@/components/ContextMenu/Menu";
 import promptConfirm from "@/components/modals/ConfirmationModal";
 import { ListFormDialog } from "@/components/Lists/ListFormDialog";
+import { invalidateListQueries } from "@/lib/lists";
 import type { Schemas } from "@/utils/serverApi";
 
 type ListCardProps = {
@@ -82,7 +83,7 @@ export default function Lists() {
   });
 
   let deleteList = queryApi.useMutation("delete", "/api/lists/{id}", () => ({
-    onSettled: () => queryApi.invalidateQueries("get", "/api/lists"),
+    onSettled: invalidateListQueries,
   }));
 
   async function handleDelete(list: Schemas["List"]) {

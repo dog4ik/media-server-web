@@ -438,6 +438,40 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/lists/{id}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export list in json but group all episodes into a single show */
+        get: operations["export_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lists/{id}/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Import grouped list in json */
+        post: operations["import_list"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/lists/{id}/items": {
         parameters: {
             query?: never;
@@ -1749,7 +1783,7 @@ export type components = {
             message: string;
         };
         /** @enum {string} */
-        AppErrorKind: "internal_error" | "not_found" | "duplicate" | "bad_request" | "database_locked";
+        AppErrorKind: "internal_error" | "not_found" | "duplicate" | "bad_request" | "database_locked" | "unprocessable";
         AppResources: {
             app_version: string;
             database_path: string;
@@ -2140,8 +2174,6 @@ export type components = {
             release_date?: string | null;
             title: string;
         };
-        /** @enum {string} */
-        ContentType: "movie" | "show";
         CreateList: {
             description?: string | null;
             name: string;
@@ -2296,7 +2328,7 @@ export type components = {
             resolution: components["schemas"]["Resolution"];
         };
         DownloadContentHint: {
-            content_type: components["schemas"]["ContentType"];
+            content_type: components["schemas"]["ParentMediaType"];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
         };
@@ -2362,13 +2394,35 @@ export type components = {
             episodes: number[];
             season: number;
         };
+        ExportedExternalId: {
+            id: string;
+            is_prime: boolean;
+            provider: components["schemas"]["MetadataProvider"];
+        };
+        ExportedGroupedContentType: {
+            /** @enum {string} */
+            type: "movie";
+        } | {
+            /** @description Map seasons to episode list */
+            episodes: {
+                [key: string]: number[];
+            };
+            /** @description Is the show itself in list */
+            self_in_list: boolean;
+            /** @enum {string} */
+            type: "show";
+        };
+        ExportedGroupedItem: components["schemas"]["ExportedGroupedContentType"] & {
+            external_ids: components["schemas"]["ExportedExternalId"][];
+            title: string;
+        };
         ExternalIdMetadata: {
             id: string;
             provider: components["schemas"]["MetadataProvider"];
         };
         /** @description Failed metadata fetch attempt */
         FailedContent: {
-            content_type: components["schemas"]["ContentType"];
+            content_type: components["schemas"]["ParentMediaType"];
             title: string;
             videos: string[];
         };
@@ -2436,6 +2490,9 @@ export type components = {
             /** @description Video track index */
             video_track: number;
         };
+        ImportResult: {
+            count: number;
+        };
         IndexMagnetLink: {
             magnet_link: string;
         };
@@ -2459,6 +2516,11 @@ export type components = {
         };
         /** @enum {string} */
         Language: "en" | "es" | "de" | "fr" | "ru" | "ja" | "sr";
+        /**
+         * @description Leaf node type of the any content tree
+         * @enum {string}
+         */
+        LeafMediaType: "movie" | "episode";
         List: {
             created_at: components["schemas"]["OffsetDateTime"];
             description?: string | null;
@@ -2564,10 +2626,15 @@ export type components = {
         });
         /** @description Wrapper around [std::time::Duration] that is serialized in milliseconds */
         MediaDuration: number;
+        /**
+         * @description Any media content type supported by the media server
+         * @enum {string}
+         */
+        MediaType: "movie" | "show" | "episode" | "season";
         /** @enum {string} */
         MetadataProvider: "local" | "tmdb" | "tvdb" | "imdb";
         MetadataSearchResult: {
-            content_type: components["schemas"]["ContentType"];
+            content_type: components["schemas"]["ParentMediaType"];
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
@@ -2621,6 +2688,11 @@ export type components = {
          * @description Wrapper around `time::OffsetDateTime`
          */
         OffsetDateTime: string;
+        /**
+         * @description Leaf node type of the any content tree
+         * @enum {string}
+         */
+        ParentMediaType: "movie" | "show";
         PeerEvent: {
             ip: string;
             peer_event: components["schemas"]["PeerEventKind"];
@@ -4213,6 +4285,74 @@ export interface operations {
             };
             /** @description List or content not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    export_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description List id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Exported list in json format */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportedGroupedItem"][];
+                };
+            };
+            /** @description List not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    import_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description List id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExportedGroupedItem"][];
+            };
+        };
+        responses: {
+            /** @description Import results */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResult"];
+                };
+            };
+            /** @description Import error */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5858,7 +5998,7 @@ export interface operations {
                 magnet_link: string;
                 hint?: null | components["schemas"]["DownloadContentHint"];
                 /** @description Content type */
-                content_type?: components["schemas"]["ContentType"];
+                content_type?: components["schemas"]["ParentMediaType"];
                 /** @description Metadata provider */
                 metadata_provider?: components["schemas"]["MetadataProvider"];
                 /** @description Metadata id */

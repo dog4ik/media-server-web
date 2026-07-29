@@ -14,7 +14,7 @@ import { useMediaNotifications } from "@/context/NotificationContext";
 import { ExtendedMovie } from "@/utils/library";
 import { WatchProgressBar } from "./ProgressBar";
 import { AddToListMenu } from "@/components/Lists/AddToListMenu";
-import { movieListItems } from "@/lib/lists";
+import { invalidateListQueries, movieListItems } from "@/lib/lists";
 
 type Props = {
   movie: ExtendedMovie;
@@ -62,6 +62,21 @@ export function MovieCard(props: Props) {
     onSuccess: () => onWatchStatusChange("Marked as watched"),
   }));
 
+  let removeLiked = queryApi.useMutation("delete", "/api/lists/saved/remove/{metadata_id}", () => ({
+    onSettled: invalidateListQueries,
+  }));
+
+  let removeWatchlist = queryApi.useMutation(
+    "delete",
+    "/api/lists/watchlist/remove/{metadata_id}",
+    () => ({
+      onSettled: invalidateListQueries,
+    }),
+  );
+
+  let likedList = () => props.movie.local?.lists.find((l) => l.kind === "saved");
+  let watchList = () => props.movie.local?.lists.find((l) => l.kind === "watchlist");
+
   let notificator = useMediaNotifications();
 
   let notify = (message: string) => notificator(props.movie, message);
@@ -83,27 +98,44 @@ export function MovieCard(props: Props) {
         />
       </Show>
       <div class="w-full space-y-2">
-        <Link
-          class="aspect-poster relative block w-full overflow-hidden rounded-xl"
-          {...movieLinkOptions()}
-        >
-          <FallbackImage
-            fluid
-            alt="Movie poster"
-            srcList={[localUrl, props.movie.poster ?? undefined]}
-            class="rounded-xl"
-            width={312}
-            height={415}
-          />
-          <Show when={props.movie.local?.id && props.movie.provider !== "local"}>
-            <ContentPosterIconSet
-              localLink={linkOptions({
-                to: "/shows/$id",
-                search: { provider: "local" },
-                params: { id: props.movie.local!.id.toString() },
-              })}
+        <div class="aspect-poster relative block w-full overflow-hidden rounded-xl">
+          <Link {...movieLinkOptions()}>
+            <FallbackImage
+              fluid
+              alt="Movie poster"
+              srcList={[localUrl, props.movie.poster ?? undefined]}
+              class="rounded-xl"
+              width={312}
+              height={415}
             />
-          </Show>
+          </Link>
+          <ContentPosterIconSet
+            liked={likedList()}
+            onRemoveLike={() => {
+              if (props.movie.local?.metadata_id) {
+                removeLiked.mutate({
+                  params: { path: { metadata_id: props.movie.local.metadata_id } },
+                });
+              }
+            }}
+            watch={watchList()}
+            onRemoveWatched={() => {
+              if (props.movie.local?.metadata_id) {
+                removeWatchlist.mutate({
+                  params: { path: { metadata_id: props.movie.local.metadata_id } },
+                });
+              }
+            }}
+            localLink={
+              props.movie.local?.id && props.movie.provider !== "local"
+                ? linkOptions({
+                    to: "/movies/$id",
+                    search: { provider: "local" },
+                    params: { id: props.movie.local!.id.toString() },
+                  })
+                : undefined
+            }
+          />
           <Show
             when={
               (props.movie.local?.local_duration ?? props.movie.runtime) &&
@@ -115,7 +147,7 @@ export function MovieCard(props: Props) {
               runtime={props.movie.local?.local_duration ?? props.movie.runtime!}
             />
           </Show>
-        </Link>
+        </div>
         <div class="flex items-center justify-between">
           <Link title={props.movie.title} class="text-md truncate" {...movieLinkOptions()}>
             {props.movie.title}
@@ -123,7 +155,10 @@ export function MovieCard(props: Props) {
           <MoreButton>
             <AddToListMenu
               items={() => movieListItems(props.movie)}
+              memberships={() => props.movie.local?.lists}
+              metadataId={() => props.movie.local?.metadata_id}
               onAdded={(name) => notify(`Added to ${name}`)}
+              onRemoved={(name) => notify(`Removed from ${name}`)}
             />
             <Show when={props.movie.provider === "local"}>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>

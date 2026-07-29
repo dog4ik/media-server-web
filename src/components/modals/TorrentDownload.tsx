@@ -5,7 +5,7 @@ import { TorrentDownloadSteps } from "../TorrentDownload";
 type Props = {
   metadata_provider: Schemas["MetadataProvider"];
   metadata_id: string;
-  content_type: Schemas["ContentType"];
+  content_type: Schemas["ParentMediaType"];
   onClose: () => void;
   query: (provider: Schemas["TorrentIndexIdentifier"]) => string;
   open: boolean;

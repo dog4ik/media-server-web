@@ -1,7 +1,7 @@
 import { Schemas } from "@/utils/serverApi";
 import { Link, linkOptions } from "@tanstack/solid-router";
 
-type Props = { contentType: Schemas["ContentType"] };
+type Props = { contentType: Schemas["ParentMediaType"] };
 
 export default function AddFoldersHelp(props: Props) {
   let url = () => {

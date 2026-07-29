@@ -11,13 +11,12 @@ import { Skeleton } from "@/ui/skeleton";
 import { ContentPosterIconSet } from "./ContentPosterIconSet";
 import { queryApi, queryClient } from "@/utils/queryApi";
 import { AddToListMenu } from "@/components/Lists/AddToListMenu";
-import { showListItems } from "@/lib/lists";
+import { invalidateListQueries, showListItems } from "@/lib/lists";
 import { extendShow } from "@/utils/library";
 import { useMediaNotifications } from "@/context/NotificationContext";
 
 type Props = {
   show: Schemas["Show"];
-  onInvalidate: () => void;
 };
 
 export function ShowCard(props: Props) {
@@ -51,10 +50,16 @@ export function ShowCard(props: Props) {
   }));
 
   let removeLiked = queryApi.useMutation("delete", "/api/lists/saved/remove/{metadata_id}", () => ({
-    onSettled: () => {
-      props.onInvalidate();
-    },
+    onSettled: invalidateListQueries,
   }));
+
+  let removeWatchlist = queryApi.useMutation(
+    "delete",
+    "/api/lists/watchlist/remove/{metadata_id}",
+    () => ({
+      onSettled: invalidateListQueries,
+    }),
+  );
 
   let notificator = useMediaNotifications();
   let notify = (message: string) => notificator(extendShow(props.show), message);
@@ -73,7 +78,7 @@ export function ShowCard(props: Props) {
           onClose={() => toggleFixModal(false)}
         />
       </Show>
-      <div class="w-full group space-y-2">
+      <div class="group w-full space-y-2">
         <div class="aspect-poster relative block w-full overflow-hidden rounded-xl">
           <Link {...showLinkOptions()}>
             <FallbackImage
@@ -102,7 +107,13 @@ export function ShowCard(props: Props) {
                 });
               }
             }}
-            onRemoveWatched={props.onInvalidate}
+            onRemoveWatched={() => {
+              if (props.show.local?.metadata_id) {
+                removeWatchlist.mutate({
+                  params: { path: { metadata_id: props.show.local.metadata_id } },
+                });
+              }
+            }}
             watch={watchList()}
             localLink={
               props.show.local?.id && props.show.provider !== "local"
@@ -133,7 +144,10 @@ export function ShowCard(props: Props) {
           <MoreButton>
             <AddToListMenu
               items={() => showListItems(props.show)}
+              memberships={() => props.show.local?.lists}
+              metadataId={() => props.show.local?.metadata_id}
               onAdded={(name) => notify(`Added to ${name}`)}
+              onRemoved={(name) => notify(`Removed from ${name}`)}
             />
             <Show when={props.show.provider === "local"}>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
