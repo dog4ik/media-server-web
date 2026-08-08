@@ -7,13 +7,13 @@ export class PersistentTableState {
     return `${this.key}_table_visibility`;
   }
 
-  saveVisibilyState(visibilityState: VisibilityState) {
+  saveVisibilityState(visibilityState: VisibilityState) {
     let visibleKeys = Object.entries(visibilityState)
       .filter(([_, v]) => !v)
       .map(([key]) => key);
     tracing.debug(
       { key: this.storageKey(), visibility: visibleKeys },
-      "Saving column visibily to local storage",
+      "Saving column visibility to local storage",
     );
     localStorage.setItem(this.storageKey(), JSON.stringify(visibleKeys));
   }

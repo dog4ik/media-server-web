@@ -25,7 +25,7 @@ type Props = {
    */
   chapters: Schemas["DetailedChapter"][];
   /**
-   * Called with the seeked position as a fraction of the duration (0..1)
+   * Called with the sought position as a fraction of the duration (0..1)
    */
   onSeek: (percent: number) => void;
   onScrubbingChange: (isScrubbing: boolean) => void;

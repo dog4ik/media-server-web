@@ -201,7 +201,7 @@ export function PeerList(props: Props) {
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: (update) => {
       setColumnVisibility(update);
-      persistentTableState.saveVisibilyState(columnVisibility());
+      persistentTableState.saveVisibilityState(columnVisibility());
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

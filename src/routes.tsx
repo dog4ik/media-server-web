@@ -107,11 +107,11 @@ function isProvider(value: unknown): value is Schemas["MetadataProvider"] {
   return PROVIDERS.includes(value as Schemas["MetadataProvider"]);
 }
 
-type MediaProviderParm = { provider: Schemas["MetadataProvider"] };
+type MediaProviderParam = { provider: Schemas["MetadataProvider"] };
 
 function validateProviderParam(
   search: Record<string, unknown>,
-): MediaProviderParm {
+): MediaProviderParam {
   let provider = search.provider;
   if (isProvider(provider)) {
     return { provider };

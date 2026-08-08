@@ -20,3 +20,5 @@ jobs:
           version: latest
       - name: Run Biome
         run: biome ci .
+      - name: Check spelling
+        uses: crate-ci/typos@master

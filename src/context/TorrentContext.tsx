@@ -62,11 +62,11 @@ function createTorrentContext(sessionState: TorrentStateManager) {
     return sessionState.session.session_stats;
   }
 
-  let persintentVisibily = new PersistentTableState("torrent");
+  let persistentVisibility = new PersistentTableState("torrent");
   let data = createMemo(() => Object.values(sessionState.session.torrents));
   const [rowSelection, setRowSelection] = createSignal({});
   const [columnVisibility, setColumnVisibility] = createSignal<VisibilityState>(
-    persintentVisibily.loadVisibilityState() ?? {},
+    persistentVisibility.loadVisibilityState() ?? {},
   );
 
   const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>(
@@ -103,7 +103,7 @@ function createTorrentContext(sessionState: TorrentStateManager) {
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: (update) => {
       setColumnVisibility(update);
-      persintentVisibily.saveVisibilyState(columnVisibility());
+      persistentVisibility.saveVisibilityState(columnVisibility());
     },
     onExpandedChange: (newExpanded) => {
       const nextExpanded =
