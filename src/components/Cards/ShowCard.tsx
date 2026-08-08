@@ -1,6 +1,6 @@
 import MoreButton from "../ContextMenu/MoreButton";
 import { createMemo, Show } from "solid-js";
-import { Schemas, fullUrl, server } from "../../utils/serverApi";
+import { Schemas, fullUrl } from "../../utils/serverApi";
 import FallbackImage from "../FallbackImage";
 import useToggle from "../../utils/useToggle";
 import FixMetadata from "../FixMetadata";
@@ -10,17 +10,6 @@ import { Link, linkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
 import { InLibraryIcon } from "./InLibraryIcon";
 import { queryApi, queryClient } from "@/utils/queryApi";
-
-async function deleteShow(id: number, name: string) {
-  try {
-    if (await promptConfirm(`Are you sure you want to delete ${name}?`)) {
-      await server.DELETE("/api/local_show/{id}", { params: { path: { id } } });
-    }
-  } catch (_) {
-  } finally {
-    queryApi.invalidateQueries(queryClient, "get", "/api/local_shows");
-  }
-}
 
 export function ShowCard(props: { show: Schemas["Show"] }) {
   let [fixModal, toggleFixModal] = useToggle(false);
@@ -45,6 +34,12 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
       },
     }),
   );
+
+  let deleteShow = queryApi.useMutation("delete", "/api/local_show/{id}", () => ({
+    onSettled: () => {
+      queryApi.invalidateQueries(queryClient, "get", "/api/local_shows");
+    },
+  }));
 
   return (
     <>
@@ -105,7 +100,13 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
               <MenuRow
                 variant="destructive"
-                onClick={() => deleteShow(+props.show.provider_id, props.show.title)}
+                onClick={() =>
+                  promptConfirm(`Are you sure you want to delete ${props.show.title}?`).then(
+                    (confirmed) =>
+                      confirmed &&
+                      deleteShow.mutate({ params: { path: { id: +props.show.provider_id } } }),
+                  )
+                }
               >
                 Delete show
               </MenuRow>

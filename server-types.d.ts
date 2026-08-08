@@ -248,6 +248,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/history/external_mark_as_watched": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark external metadata item as watched */
+        post: operations["external_mark_as_watched"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/history/suggest/movies": {
         parameters: {
             query?: never;
@@ -295,6 +312,178 @@ export type paths = {
         post?: never;
         /** Delete history entry */
         delete: operations["remove_history_item"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all lists */
+        get: operations["all_lists"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lists/create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create custom list */
+        post: operations["create_list"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lists/saved/add": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add content to the saved list */
+        post: operations["add_to_saved"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lists/saved/remove/{metadata_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove item from saved list */
+        delete: operations["remove_saved_item"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lists/watchlist/add": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add content to the watchlist */
+        post: operations["add_to_watchlist"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lists/watchlist/remove/{metadata_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove item from watch list */
+        delete: operations["remove_watchlist_item"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lists/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get single list info */
+        get: operations["get_list"];
+        /** Update custom list */
+        put: operations["update_list"];
+        post?: never;
+        /** Delete custom list */
+        delete: operations["delete_list"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lists/{id}/add": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add content to custom list */
+        post: operations["add_item"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lists/{id}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get list contents */
+        get: operations["list_contents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lists/{id}/remove/{metadata_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove item from custom list */
+        delete: operations["remove_item"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1567,6 +1756,11 @@ export type components = {
             name: string;
             poster?: string | null;
         };
+        AllLists: {
+            custom: components["schemas"]["List"][];
+            saved: components["schemas"]["List"];
+            watch: components["schemas"]["List"];
+        };
         AppError: {
             message: string;
         };
@@ -1955,6 +2149,10 @@ export type components = {
         };
         /** @enum {string} */
         ContentType: "movie" | "show";
+        CreateList: {
+            description?: string | null;
+            name: string;
+        };
         CursoredResponse_Actor: {
             cursor?: string | null;
             data: {
@@ -2167,6 +2365,10 @@ export type components = {
             season_number: number;
             title: string;
         };
+        EpisodesList: {
+            episodes: number[];
+            season: number;
+        };
         ExternalIdMetadata: {
             id: string;
             provider: components["schemas"]["MetadataProvider"];
@@ -2264,6 +2466,43 @@ export type components = {
         };
         /** @enum {string} */
         Language: "en" | "es" | "de" | "fr" | "ru" | "ja" | "sr";
+        List: {
+            created_at: components["schemas"]["OffsetDateTime"];
+            description?: string | null;
+            /** Format: int64 */
+            id: number;
+            name: string;
+            size: number;
+            updated_at: components["schemas"]["OffsetDateTime"];
+        };
+        ListContent: (components["schemas"]["Show"] & {
+            /** @enum {string} */
+            content_type: "show";
+        }) | (components["schemas"]["Movie"] & {
+            /** @enum {string} */
+            content_type: "movie";
+        }) | (components["schemas"]["Episode"] & {
+            /** @enum {string} */
+            content_type: "episode";
+        });
+        ListItemContentType: {
+            /** @enum {string} */
+            content_type: "movie";
+        } | {
+            /** @enum {string} */
+            content_type: "show";
+            episodes?: null | components["schemas"]["EpisodesList"];
+        };
+        ListItems: {
+            local: {
+                metadata_ids: number[];
+            };
+        } | {
+            external: components["schemas"]["ListItemContentType"] & {
+                id: string;
+                provider: components["schemas"]["MetadataProvider"];
+            };
+        };
         LocalActorData: {
             /** Format: int64 */
             id: number;
@@ -2275,13 +2514,18 @@ export type components = {
             intro?: null | components["schemas"]["Intro"];
             /** Format: int64 */
             metadata_id: number;
+            /** Format: int64 */
+            videos_count: number;
         };
         LocalMovieData: {
             history?: null | components["schemas"]["History"];
             /** Format: int64 */
             id: number;
+            local_duration: components["schemas"]["MediaDuration"];
             /** Format: int64 */
             metadata_id: number;
+            /** Format: int64 */
+            videos_count: number;
         };
         LocalSeasonData: {
             /** Format: int64 */
@@ -2300,6 +2544,18 @@ export type components = {
             original_language: string;
             original_title: string;
         };
+        MarkAsWatched: {
+            content: components["schemas"]["MarkAsWatchedContent"];
+            provider: components["schemas"]["MetadataProvider"];
+            provider_id: string;
+        };
+        MarkAsWatchedContent: {
+            /** @enum {string} */
+            content_type: "movie";
+        } | (components["schemas"]["EpisodesList"] & {
+            /** @enum {string} */
+            content_type: "show";
+        });
         /** @description Wrapper around [std::time::Duration] that is serialized in milliseconds */
         MediaDuration: number;
         /** @enum {string} */
@@ -3549,6 +3805,37 @@ export interface operations {
             };
         };
     };
+    external_mark_as_watched: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarkAsWatched"];
+            };
+        };
+        responses: {
+            /** @description History entry is created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Metadata is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
     suggest_movies: {
         parameters: {
             query?: never;
@@ -3645,6 +3932,354 @@ export interface operations {
                 content?: never;
             };
             /** @description History entry is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    all_lists: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of all lists */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AllLists"];
+                };
+            };
+        };
+    };
+    create_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateList"];
+            };
+        };
+        responses: {
+            /** @description Successfully created list */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    add_to_saved: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ListItems"];
+            };
+        };
+        responses: {
+            /** @description Successfully saved content item */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Content not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    remove_saved_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Target metadata id */
+                metadata_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully removed content item */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Content not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    add_to_watchlist: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ListItems"];
+            };
+        };
+        responses: {
+            /** @description Successfully added content to watchlist */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Content not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    remove_watchlist_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Target metadata id */
+                metadata_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully removed content item */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Content not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    get_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List info */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["List"];
+                };
+            };
+            /** @description List was not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    update_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description List id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateList"];
+            };
+        };
+        responses: {
+            /** @description Successfully updated list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description List not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    delete_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description List id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully deleted list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description List not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    add_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description List id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ListItems"];
+            };
+        };
+        responses: {
+            /** @description Successfully added content item */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description List or content not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    list_contents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description List id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Content stored in the list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListContent"][];
+                };
+            };
+        };
+    };
+    remove_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description List id */
+                id: number;
+                /** @description Target metadata id */
+                metadata_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully removed content item */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description List or content not found */
             404: {
                 headers: {
                     [name: string]: unknown;

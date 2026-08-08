@@ -1,7 +1,7 @@
 import { EpisodeCard } from "@/components/Cards/EpisodeCard";
 import { MovieCard } from "@/components/Cards/MovieCard";
-import { extendEpisode } from "@/utils/library";
-import { queryApi } from "@/utils/queryApi";
+import { extendEpisode, extendMovie } from "@/utils/library";
+import { queryApi, queryClient } from "@/utils/queryApi";
 import { linkOptions } from "@tanstack/solid-router";
 import { For, Show, Suspense } from "solid-js";
 
@@ -50,11 +50,18 @@ export function ContinueWatchingSection() {
                 return (
                   <div class="w-32 shrink-0 sm:w-40">
                     <MovieCard
-                      movie={{
+                      onMarkWatched={() =>
+                        queryApi.invalidateQueries(
+                          queryClient,
+                          "get",
+                          "/api/history/suggest/movies",
+                        )
+                      }
+                      movie={extendMovie({
                         ...movie.movie,
                         provider: movie.movie.metadata_provider,
                         provider_id: movie.movie.metadata_id,
-                      }}
+                      })}
                     />
                   </div>
                 );

@@ -1,4 +1,4 @@
-import { Schemas, server } from "../../utils/serverApi";
+import { Schemas } from "../../utils/serverApi";
 import MoreButton from "../ContextMenu/MoreButton";
 import { Show } from "solid-js";
 import { formatDuration, formatTimeBeforeRelease } from "../../utils/formats";
@@ -29,57 +29,6 @@ function revalidateHistory() {
   queryApi.invalidateQueries(queryClient, "get", "/api/history/suggest/shows");
   queryApi.invalidateQueries(queryClient, "get", "/api/history/suggest/movies");
   queryApi.invalidateQueries(queryClient, "get", "/api/history");
-  queryApi.invalidateQueries(queryClient, "get", "/api/video/{id}");
-  queryApi.invalidateQueries(queryClient, "get", "/api/video/by_content");
-}
-
-async function markWatched(historyId: number, force: boolean) {
-  try {
-    if (force) {
-      await server.PUT("/api/history/{id}", {
-        body: { is_finished: true, time: 0 },
-        params: { path: { id: historyId } },
-      });
-    } else {
-      await server.DELETE("/api/history/{id}", {
-        params: { path: { id: historyId } },
-      });
-    }
-  } catch (_) {
-  } finally {
-    revalidateHistory();
-  }
-}
-
-async function deleteEpisode(id: number, title: string) {
-  try {
-    if (await promptConfirm(`Are you sure you want to delete ${title}?`)) {
-      await server.DELETE("/api/local_episode/{id}", {
-        params: { path: { id } },
-      });
-    }
-  } catch (_) {
-  } finally {
-    revalidateHistory();
-  }
-}
-
-async function markWatchedVideo(metadataId: number, force: boolean) {
-  try {
-    if (force) {
-      await server.PUT("/api/metadata/{id}/history", {
-        body: { is_finished: true, time: 0 },
-        params: { path: { id: metadataId } },
-      });
-    } else {
-      await server.DELETE("/api/metadata/{id}/history", {
-        params: { path: { id: metadataId } },
-      });
-    }
-  } catch (_) {
-  } finally {
-    revalidateHistory();
-  }
 }
 
 export function EpisodeCard(props: Props) {
@@ -87,8 +36,27 @@ export function EpisodeCard(props: Props) {
 
   let notify = (message: string) => notificator(props.episode, message);
 
-  // Fire after the episode's watch status changes (watched/unwatched) so the parent
-  // can refresh any queries that embed this episode's progress (e.g. the season list).
+  let markExternalWatched = queryApi.useMutation(
+    "post",
+    "/api/history/external_mark_as_watched",
+    () => ({
+      onSuccess: () => onWatchStatusChange("Marked as watched"),
+      onSettled: () => revalidateHistory(),
+    }),
+  );
+
+  let markAsWatched = queryApi.useMutation("put", "/api/history/{id}", () => ({
+    onSuccess: () => onWatchStatusChange("Marked as watched"),
+    onSettled: () => revalidateHistory(),
+  }));
+
+  let markAsUnwatched = queryApi.useMutation("delete", "/api/history/{id}", () => ({
+    onSuccess: () => onWatchStatusChange("Marked as watched"),
+    onSettled: () => revalidateHistory(),
+  }));
+
+  let deleteEpisode = queryApi.useMutation("delete", "/api/local_episode/{id}", () => ({}));
+
   let onWatchStatusChange = (message: string) => {
     notify(message);
     props.onMarkWatched?.();
@@ -146,55 +114,67 @@ export function EpisodeCard(props: Props) {
           </span>
           <span class="pt-1 text-sm">Episode {props.episode.number}</span>
         </Link>
-        <Show when={props.video || props.episode.provider === "local"}>
-          <MoreButton>
-            <Show
-              when={props.episode.local?.history}
-              fallback={
-                <MenuRow
-                  onClick={() =>
-                    markWatchedVideo(+props.episode.local?.metadata_id!, true).then(() =>
-                      onWatchStatusChange("Marked as watched"),
-                    )
-                  }
-                >
-                  Mark as watched
-                </MenuRow>
+        <MoreButton>
+          <Show
+            when={props.episode.local?.history}
+            fallback={
+              <MenuRow
+                onClick={() =>
+                  markExternalWatched.mutate({
+                    body: {
+                      content: {
+                        content_type: "show",
+                        season: props.episode.season_number,
+                        episodes: [props.episode.number],
+                      },
+                      provider: props.episode.provider,
+                      provider_id: props.episode.showId,
+                    },
+                  })
+                }
+              >
+                Mark as watched
+              </MenuRow>
+            }
+          >
+            <Show when={!props.episode.local?.history?.is_finished}>
+              <MenuRow
+                onClick={() =>
+                  markAsWatched.mutate({
+                    params: { path: { id: props.episode.local!.history!.id } },
+                    body: { is_finished: true, time: props.episode.local?.history?.time ?? 0 },
+                  })
+                }
+              >
+                Mark as watched
+              </MenuRow>
+            </Show>
+            <MenuRow
+              onClick={() =>
+                markAsUnwatched.mutate({
+                  params: { path: { id: props.episode.local!.history!.id } },
+                })
               }
             >
-              <Show when={!props.episode.local?.history?.is_finished}>
-                <MenuRow
-                  onClick={() =>
-                    markWatched(props.episode.local!.history!.id, true).then(() =>
-                      onWatchStatusChange("Marked as watched"),
-                    )
-                  }
-                >
-                  Mark as watched
-                </MenuRow>
-              </Show>
-              <MenuRow
-                onClick={() =>
-                  markWatched(props.episode.local!.history!.id, false).then(() =>
-                    onWatchStatusChange("Marked as unwatched"),
-                  )
-                }
-              >
-                Mark as unwatched
-              </MenuRow>
-            </Show>
-            <Show when={props.episode.provider == "local"}>
-              <MenuRow
-                variant="destructive"
-                onClick={() =>
-                  deleteEpisode(+props.episode.provider_id, props.episode.friendlyTitle())
-                }
-              >
-                Delete episode
-              </MenuRow>
-            </Show>
-          </MoreButton>
-        </Show>
+              Mark as unwatched
+            </MenuRow>
+          </Show>
+          <Show when={props.episode.provider == "local"}>
+            <MenuRow
+              variant="destructive"
+              onClick={() =>
+                promptConfirm(
+                  `Are you sure you want to delete ${props.episode.friendlyTitle()}?`,
+                ).then((confirmed) => {
+                  if (confirmed)
+                    deleteEpisode.mutate({ params: { path: { id: props.episode.local!.id } } });
+                })
+              }
+            >
+              Delete episode
+            </MenuRow>
+          </Show>
+        </MoreButton>
       </div>
     </div>
   );
