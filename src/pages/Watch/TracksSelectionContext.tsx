@@ -1,4 +1,5 @@
 import { MediaSessionState } from "@/lib/mediaSession";
+import { throwResponseErrors } from "@/utils/errors";
 import { Schemas, server } from "@/utils/serverApi";
 import tracing from "@/utils/tracing";
 import { useQuery } from "@tanstack/solid-query";
@@ -104,7 +105,7 @@ function createSelectionContext(session: () => MediaSessionState) {
             },
             parseAs: "text",
           })
-          .then((r) => r.data);
+          .then(throwResponseErrors);
       }
 
       if (sub.origin === "external") {
@@ -113,17 +114,17 @@ function createSelectionContext(session: () => MediaSessionState) {
         const res = await server.GET("/api/subtitles/{id}", {
           params: { path: { id } },
           parseAs: "text",
-        });
-        if (res.error) {
-          tracing.error({ message: res.error.message }, "Failed to fetch external subtitles");
-        }
-        return res.data;
+        })
+        .then(throwResponseErrors);
+        return res;
       }
 
       if (sub.origin === "imported") {
         return sub.text;
       }
     },
+    throwOnError: false,
+    enabled: store.subtitles !== undefined,
     queryKey: subtitleQueryKey(store.subtitles, video().details.subtitle_tracks),
   }));
 
