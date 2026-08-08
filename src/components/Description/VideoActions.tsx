@@ -27,13 +27,13 @@ export default function VideoActions(props: Props) {
         notificator("Failed to clear previews");
       })
       .finally(() => {
-        queryApi.invalidateQueries(queryClient, "get", "/api/video/by_content");
+        queryApi.invalidateQueries("get", "/api/video/by_content");
       });
   };
 
   let generatePreviews = async () => {
     props.video.generatePreviews().finally(() => {
-      queryApi.invalidateQueries(queryClient, "get", "/api/video/by_content");
+      queryApi.invalidateQueries("get", "/api/video/by_content");
     });
   };
 

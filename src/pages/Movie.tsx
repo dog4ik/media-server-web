@@ -9,6 +9,8 @@ import VideoActions from "@/components/Description/VideoActions";
 import { extendMovie, posterList, Video } from "@/utils/library";
 import { ExternalLocalIdButtons } from "@/components/ExternalLocalIdButtons";
 import { ListItemSkeleton, VideoList, VideoSelection } from "@/components/Description/VideoList";
+import { ListActions } from "@/components/Description/ListActions";
+import { movieListItems } from "@/lib/lists";
 import { queryApi } from "@/utils/queryApi";
 import { getRouteApi, linkOptions } from "@tanstack/solid-router";
 import * as torrentQuery from "@/lib/torrentQuery";
@@ -137,6 +139,11 @@ export default function Movie() {
                           </VideoActions>
                         )}
                       </Show>
+                      <ListActions
+                        items={() => movieListItems(movie())}
+                        memberships={movie().local?.lists}
+                        metadataId={movie().local?.metadata_id}
+                      />
                       <ExternalLocalIdButtons
                         contentType="movie"
                         current_provider={search().provider}

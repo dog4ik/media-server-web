@@ -1,6 +1,6 @@
 import MoreButton from "../ContextMenu/MoreButton";
 import { createMemo, Show } from "solid-js";
-import { Schemas, fullUrl, server } from "../../utils/serverApi";
+import { Schemas, fullUrl } from "../../utils/serverApi";
 import FallbackImage from "../FallbackImage";
 import useToggle from "../../utils/useToggle";
 import FixMetadata from "../FixMetadata";
@@ -8,21 +8,18 @@ import { MenuRow } from "../ContextMenu/Menu";
 import promptConfirm from "../modals/ConfirmationModal";
 import { Link, linkOptions } from "@tanstack/solid-router";
 import { Skeleton } from "@/ui/skeleton";
-import { InLibraryIcon } from "./InLibraryIcon";
+import { ContentPosterIconSet } from "./ContentPosterIconSet";
 import { queryApi, queryClient } from "@/utils/queryApi";
+import { AddToListMenu } from "@/components/Lists/AddToListMenu";
+import { invalidateListQueries, showListItems } from "@/lib/lists";
+import { extendShow } from "@/utils/library";
+import { useMediaNotifications } from "@/context/NotificationContext";
 
-async function deleteShow(id: number, name: string) {
-  try {
-    if (await promptConfirm(`Are you sure you want to delete ${name}?`)) {
-      await server.DELETE("/api/local_show/{id}", { params: { path: { id } } });
-    }
-  } catch (_) {
-  } finally {
-    queryApi.invalidateQueries(queryClient, "get", "/api/local_shows");
-  }
-}
+type Props = {
+  show: Schemas["Show"];
+};
 
-export function ShowCard(props: { show: Schemas["Show"] }) {
+export function ShowCard(props: Props) {
   let [fixModal, toggleFixModal] = useToggle(false);
   function handleFix() {
     toggleFixModal(true);
@@ -46,6 +43,30 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
     }),
   );
 
+  let deleteShow = queryApi.useMutation("delete", "/api/local_show/{id}", () => ({
+    onSettled: () => {
+      queryApi.invalidateQueries("get", "/api/local_shows");
+    },
+  }));
+
+  let removeLiked = queryApi.useMutation("delete", "/api/lists/saved/remove/{metadata_id}", () => ({
+    onSettled: invalidateListQueries,
+  }));
+
+  let removeWatchlist = queryApi.useMutation(
+    "delete",
+    "/api/lists/watchlist/remove/{metadata_id}",
+    () => ({
+      onSettled: invalidateListQueries,
+    }),
+  );
+
+  let notificator = useMediaNotifications();
+  let notify = (message: string) => notificator(extendShow(props.show), message);
+
+  let likedList = () => props.show.local?.lists.find((l) => l.kind === "saved");
+  let watchList = () => props.show.local?.lists.find((l) => l.kind === "watchlist");
+
   return (
     <>
       <Show when={fixModal()}>
@@ -57,19 +78,18 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
           onClose={() => toggleFixModal(false)}
         />
       </Show>
-      <div class="w-full space-y-2">
-        <Link
-          class="aspect-poster relative block w-full overflow-hidden rounded-xl"
-          {...showLinkOptions()}
-        >
-          <FallbackImage
-            fluid
-            alt="Show poster"
-            srcList={[imageUrl, props.show.poster ?? undefined]}
-            class="rounded-xl"
-            width={312}
-            height={415}
-          />
+      <div class="group w-full space-y-2">
+        <div class="aspect-poster relative block w-full overflow-hidden rounded-xl">
+          <Link {...showLinkOptions()}>
+            <FallbackImage
+              fluid
+              alt="Show poster"
+              srcList={[imageUrl, props.show.poster ?? undefined]}
+              class="rounded-xl"
+              width={312}
+              height={415}
+            />
+          </Link>
           <Show when={props.show.episodes_amount}>
             <div
               title={`${props.show.episodes_amount} ${props.show.episodes_amount == 1 ? "episode" : "episodes"}`}
@@ -78,16 +98,37 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
               <span class="text-sm font-semibold text-black">{props.show.episodes_amount}</span>
             </div>
           </Show>
-          <Show when={props.show.local?.id && props.show.provider !== "local"}>
-            <InLibraryIcon
-              link={linkOptions({
-                to: "/shows/$id",
-                search: { provider: "local" },
-                params: { id: props.show.local!.id.toString() },
-              })}
-            />
-          </Show>
-        </Link>
+          <ContentPosterIconSet
+            liked={likedList()}
+            onRemoveLike={() => {
+              if (props.show.local?.metadata_id) {
+                removeLiked.mutate({
+                  params: { path: { metadata_id: props.show.local?.metadata_id } },
+                });
+              }
+            }}
+            onRemoveWatched={() => {
+              if (props.show.local?.metadata_id) {
+                removeWatchlist.mutate({
+                  params: { path: { metadata_id: props.show.local.metadata_id } },
+                });
+              }
+            }}
+            watch={watchList()}
+            localLink={
+              props.show.local?.id && props.show.provider !== "local"
+                ? {
+                    ...linkOptions({
+                      to: "/shows/$id",
+                      search: { provider: "local" },
+                      params: { id: props.show.local!.id.toString() },
+                    }),
+                  }
+                : undefined
+            }
+          />
+        </div>
+
         <div class="flex items-center justify-between">
           <Link class="text-md truncate" {...showLinkOptions()}>
             <span class="truncate" title={props.show.title}>
@@ -100,17 +141,32 @@ export function ShowCard(props: { show: Schemas["Show"] }) {
               </div>
             </Show>
           </Link>
-          <Show when={props.show.provider === "local"}>
-            <MoreButton>
+          <MoreButton>
+            <AddToListMenu
+              items={() => showListItems(props.show)}
+              memberships={() => props.show.local?.lists}
+              metadataId={() => props.show.local?.metadata_id}
+              onAdded={(name) => notify(`Added to ${name}`)}
+              onRemoved={(name) => notify(`Removed from ${name}`)}
+            />
+            <Show when={props.show.provider === "local"}>
               <MenuRow onClick={handleFix}>Fix metadata</MenuRow>
               <MenuRow
                 variant="destructive"
-                onClick={() => deleteShow(+props.show.provider_id, props.show.title)}
+                onClick={() =>
+                  promptConfirm(`Are you sure you want to delete ${props.show.title}?`).then(
+                    (confirmed) =>
+                      confirmed &&
+                      deleteShow.mutate({
+                        params: { path: { id: +props.show.provider_id } },
+                      }),
+                  )
+                }
               >
                 Delete show
               </MenuRow>
-            </MoreButton>
-          </Show>
+            </Show>
+          </MoreButton>
         </div>
       </div>
     </>

@@ -8,6 +8,7 @@ import {
 import {
   type Crumb,
   EpisodeTitleCrumb,
+  ListTitleCrumb,
   MovieTitleCrumb,
   ShowTitleCrumb,
 } from "./components/Breadcrumbs";
@@ -20,6 +21,8 @@ import Shows from "./pages/Shows";
 import ShowPage from "./pages/Show";
 import Episode from "./pages/Episode";
 import Torrent from "./pages/Torrent";
+import Lists from "./pages/Lists";
+import ListDetails from "./pages/ListDetails";
 import GeneralSettingsPage from "./pages/Settings";
 import TestPage from "./pages/TestPage";
 import SearchPage from "./pages/Search";
@@ -180,6 +183,18 @@ const byContentOpts = (content_type: "movie" | "show", id: number) =>
   }));
 
 const capabilitiesOpts = () => queryApi.queryOptions("get", "/api/configuration/capabilities");
+
+const allListsOpts = () => queryApi.queryOptions("get", "/api/lists");
+
+const listOpts = (id: number) =>
+  queryApi.queryOptions("get", "/api/lists/{id}", () => ({
+    params: { path: { id } },
+  }));
+
+const listItemsOpts = (id: number) =>
+  queryApi.queryOptions("get", "/api/lists/{id}/items", () => ({
+    params: { path: { id } },
+  }));
 
 const searchContentOpts = (search: string) =>
   queryApi.queryOptions("get", "/api/search/content", () => ({
@@ -384,6 +399,44 @@ const episodeRoute = createRoute({
     ),
 });
 
+const listsRoute = createRoute({
+  getParentRoute: () => pageRoute,
+  path: "lists",
+  component: Lists,
+  beforeLoad: () => ({
+    crumbs: [{ label: "Lists", link: linkOptions({ to: "/lists" }) }],
+  }),
+  loader: () => {
+    queryClient.prefetchQuery(allListsOpts()());
+  },
+  head: () => metaHead("Lists", "Your watchlist, saved items, and custom lists."),
+});
+
+const listRoute = createRoute({
+  getParentRoute: () => pageRoute,
+  path: "lists/$id",
+  component: ListDetails,
+  beforeLoad: ({ params }) => ({
+    crumbs: [
+      { label: "Lists", link: linkOptions({ to: "/lists" }) },
+      {
+        label: () => <ListTitleCrumb id={+params.id} />,
+        link: linkOptions({ to: "/lists/$id", params }),
+      },
+    ],
+  }),
+  loader: async ({ params }) => {
+    // Blocking: head needs the list name
+    const list = await queryClient.ensureQueryData(listOpts(+params.id)());
+    queryClient.prefetchQuery(listItemsOpts(+params.id)());
+    // Needed to tell system lists apart from custom ones
+    queryClient.prefetchQuery(allListsOpts()());
+    return { title: list.name, description: list.description ?? "" };
+  },
+  head: ({ loaderData }) =>
+    metaHead(loaderData ? loaderData.title : "List", loaderData?.description || "List contents."),
+});
+
 const torrentRoute = createRoute({
   getParentRoute: () => pageRoute,
   path: "torrent",
@@ -534,6 +587,7 @@ export const routeTree = rootRoute.addChildren([
     homeRoute,
     moviesRoute.addChildren([movieRoute]),
     showsRoute.addChildren([showRoute.addChildren([episodeRoute])]),
+    listsRoute.addChildren([listRoute]),
 
     torrentRoute,
     searchRoute,

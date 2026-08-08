@@ -1,7 +1,7 @@
 import { Schemas } from "../../utils/serverApi";
 
 type Props = {
-  runtime: number;
+  runtime?: number;
   history: Schemas["History"];
 };
 
@@ -15,7 +15,7 @@ export function WatchProgressBar(props: Props) {
       <div
         class="bg-primary z-50 h-1"
         style={{
-          width: `${progressBarPercent(props.history, props.runtime)}%`,
+          width: `${progressBarPercent(props.history, props.runtime ?? 0)}%`,
         }}
       />
     </div>

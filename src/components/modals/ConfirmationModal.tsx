@@ -33,7 +33,7 @@ export default function promptConfirm(prompt = "Are you sure?"): Promise<boolean
 
   render(
     () => (
-      <AlertDialog open={showModal()} onOpenChange={(opened) => !opened && onClose()}>
+      <AlertDialog preventScroll={false} open={showModal()} onOpenChange={(opened) => !opened && onClose()}>
         <AlertDialogContent>
           <AlertDialogHeader class="text-2xl">Confirm action</AlertDialogHeader>
           <AlertDialogDescription>{prompt}</AlertDialogDescription>

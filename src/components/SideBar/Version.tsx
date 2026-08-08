@@ -4,7 +4,7 @@ import { ErrorBoundary, onCleanup, Show, Suspense } from "solid-js";
 
 export default function Version() {
   let [{ serverStatus }] = useServerStatus();
-  let wake = () => queryApi.invalidateQueries(queryClient, "get", "/api/version");
+  let wake = () => queryApi.invalidateQueries("get", "/api/version");
   onCleanup(() => serverStatus.removeWaker(wake));
   let version = queryApi.useQuery("get", "/api/version", () => ({
     parseAs: "text",

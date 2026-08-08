@@ -3,8 +3,9 @@ import { MovieCard } from "../../components/Cards/MovieCard";
 import { ShowCard, ShowCardSkeleton } from "@/components/Cards/ShowCard";
 import { ElementsGrid } from "@/components/ElementsGrid";
 import { ApplicationErrorBoundary, ErrorComponent } from "@/components/Error";
-import { queryApi } from "@/utils/queryApi";
+import { queryApi, queryClient } from "@/utils/queryApi";
 import { ContinueWatchingSection } from "./ContinueWatching";
+import { extendMovie } from "@/utils/library";
 
 function TrendingShows() {
   let trendingShows = queryApi.useQuery("get", "/api/search/trending_shows");
@@ -42,7 +43,14 @@ function TrendingShows() {
 }
 
 function TrendingMovies() {
-  let trendingMovies = queryApi.useQuery("get", "/api/search/trending_movies");
+  let trendingMovies = queryApi.useQuery(
+    "get",
+    "/api/search/trending_movies",
+    () => ({}),
+    () => ({
+      select: (v) => v.map(extendMovie),
+    }),
+  );
 
   return (
     <>
@@ -69,7 +77,11 @@ function TrendingMovies() {
           }
         >
           <ElementsGrid elementSize={200}>
-            <For each={trendingMovies.data}>{(movie) => <MovieCard movie={movie} />}</For>
+            <For each={trendingMovies.data}>
+              {(movie) => (
+                <MovieCard movie={movie} onMarkWatched={() => trendingMovies.refetch()} />
+              )}
+            </For>
           </ElementsGrid>
         </Suspense>
       </ErrorBoundary>

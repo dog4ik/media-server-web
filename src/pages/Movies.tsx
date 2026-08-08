@@ -1,12 +1,12 @@
 import { createSignal, ErrorBoundary, For, Show, Suspense } from "solid-js";
-import PageTitle from "@/components/PageTitle";
 import { ElementsGrid } from "@/components/ElementsGrid";
 import { MovieCard, MovieCardSkeleton } from "@/components/Cards/MovieCard";
 import AddFoldersHelp from "@/components/AddFoldersHelp";
-import { queryApi } from "@/utils/queryApi";
+import { queryApi, queryClient } from "@/utils/queryApi";
 import { errorBoundaryFallback } from "@/components/Error";
 import { ContentFilterBar, DEFAULT_FILTER_STATE } from "@/components/ContentFilterBar";
 import clsx from "clsx";
+import { extendMovie } from "@/utils/library";
 
 export default function Movies() {
   let [filterState, setFilterState] = createSignal(DEFAULT_FILTER_STATE);
@@ -26,7 +26,6 @@ export default function Movies() {
 
   return (
     <>
-      <PageTitle>Movies</PageTitle>
       <ContentFilterBar state={filterState()} onChange={setFilterState} />
       <ErrorBoundary fallback={errorBoundaryFallback("Failed to fetch movies")}>
         <Show when={movies.latest() !== undefined && movies.latest()?.data.length === 0}>
@@ -41,7 +40,12 @@ export default function Movies() {
             <For each={movies.data?.data}>
               {(movie) => (
                 <div class={clsx(movies.isFetching && movies.isPlaceholderData && "opacity-50")}>
-                  <MovieCard movie={movie} />
+                  <MovieCard
+                    movie={extendMovie(movie)}
+                    onMarkWatched={() =>
+                      queryApi.invalidateQueries("get", "/api/local_movies")
+                    }
+                  />
                 </div>
               )}
             </For>

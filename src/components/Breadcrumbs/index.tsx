@@ -78,7 +78,7 @@ export function MovieTitleCrumb(props: { id: string; provider: Provider }) {
     () => ({
       params: { query: { provider: props.provider }, path: { id: props.id } },
     }),
-    () => ({ select: extendMovie }),
+    () => ({ throwOnError: false , select: extendMovie }),
   );
   return <>{movie.data?.title ?? "Movie"}</>;
 }
@@ -90,9 +90,19 @@ export function ShowTitleCrumb(props: { id: string; provider: Provider }) {
     () => ({
       params: { query: { provider: props.provider }, path: { id: props.id } },
     }),
-    () => ({ select: extendShow }),
+    () => ({ throwOnError: false, select: extendShow }),
   );
   return <>{show.data?.title ?? "Show"}</>;
+}
+
+export function ListTitleCrumb(props: { id: number }) {
+  let list = queryApi.useQuery(
+    "get",
+    "/api/lists/{id}",
+    () => ({ params: { path: { id: props.id } } }),
+    () => ({ throwOnError: false }),
+  );
+  return <>{list.data?.name ?? "List"}</>;
 }
 
 export function EpisodeTitleCrumb(props: {
@@ -110,7 +120,7 @@ export function EpisodeTitleCrumb(props: {
         query: { provider: props.provider },
       },
     }),
-    () => ({ select: (episode) => extendEpisode(episode, props.id) }),
+    () => ({ throwOnError: false, select: (episode) => extendEpisode(episode, props.id) }),
   );
   return <>{episode.data?.title ?? `Episode ${props.episode}`}</>;
 }

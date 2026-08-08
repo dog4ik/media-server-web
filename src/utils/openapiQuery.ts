@@ -24,6 +24,7 @@ import type {
   MaybeOptionalInit,
 } from "openapi-fetch";
 import type { Accessor } from "solid-js";
+import { queryClient } from "./queryApi";
 
 // `openapi-typescript-helpers` is a transitive dependency of `openapi-fetch` and is
 // not reliably resolvable from the project root (it is not hoisted under the Deno
@@ -197,15 +198,11 @@ export type UseMutationMethod<
   queryClient?: Accessor<QueryClient>,
 ) => UseMutationResult<Response["data"], Response["error"], Init, TOnMutateResult>;
 
-export type InvalidateQueriesMethod<
-  Paths extends Record<string, Record<HttpMethod, {}>>,
-  Media extends MediaType,
-> = <
+export type InvalidateQueriesMethod<Paths extends Record<string, Record<HttpMethod, {}>>> = <
   Method extends HttpMethod,
   Path extends PathsWithMethod<Paths, Method>,
   Init extends MaybeOptionalInit<Paths[Path], Method>,
 >(
-  queryClient: QueryClient,
   method: Method,
   path: Path,
   // `init` is always optional here: omitting it partial-matches every cached query for the
@@ -221,7 +218,7 @@ export interface OpenapiQueryClient<Paths extends {}, Media extends MediaType = 
   useQuery: UseQueryMethod<Paths, Media>;
   useInfiniteQuery: UseInfiniteQueryMethod<Paths, Media>;
   useMutation: UseMutationMethod<Paths, Media>;
-  invalidateQueries: InvalidateQueriesMethod<Paths, Media>;
+  invalidateQueries: InvalidateQueriesMethod<Paths>;
 }
 
 export type MethodResponse<
@@ -360,7 +357,7 @@ export default function createClient<Paths extends {}, Media extends MediaType =
         }),
         queryClient,
       ),
-    invalidateQueries: (queryClient, method, path, init, filters, options) =>
+    invalidateQueries: (method, path, init, filters, options) =>
       queryClient.invalidateQueries(
         {
           ...filters,

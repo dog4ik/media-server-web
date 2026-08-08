@@ -92,9 +92,12 @@ export default function SearchBar() {
   let containerRef!: HTMLDivElement;
   let inputRef!: HTMLInputElement;
 
-  let searchResult = queryApi.useQuery("get", "/api/search/content", () => ({
-    params: { query: { search: deferredInput() } },
-  }));
+  let searchResult = queryApi.useQuery(
+    "get",
+    "/api/search/content",
+    () => ({ params: { query: { search: deferredInput() } } }),
+    () => ({ throwOnError: false }),
+  );
 
   function handleFocusOut(e: FocusEvent) {
     if (!containerRef.contains(e.relatedTarget as Element)) {

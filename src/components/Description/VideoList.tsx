@@ -179,7 +179,7 @@ function SubtitlesList(props: SubtitleListProps) {
       await server
         .DELETE("/api/subtitles/{id}", { params: { path: { id } } })
         .then(notifyResponseErrors(addNotification, "delete subtitles"));
-      await queryApi.invalidateQueries(queryClient, "get", "/api/video/by_content");
+      await queryApi.invalidateQueries("get", "/api/video/by_content");
     }
   }
 
@@ -300,7 +300,7 @@ function VariantList(props: VariantListProps) {
           params: { path: { id: props.videoId, variant_id: id } },
         })
         .then(notifyResponseErrors(addNotification, "delete variant"));
-      await queryApi.invalidateQueries(queryClient, "get", "/api/video/by_content");
+      await queryApi.invalidateQueries("get", "/api/video/by_content");
     }
   }
 

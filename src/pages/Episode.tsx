@@ -12,6 +12,8 @@ import * as torrentQuery from "@/lib/torrentQuery";
 import { ListItemSkeleton, VideoList, VideoSelection } from "@/components/Description/VideoList";
 import { getRouteApi, linkOptions } from "@tanstack/solid-router";
 import { queryApi } from "@/utils/queryApi";
+import { ListActions } from "@/components/Description/ListActions";
+import { episodeListItems } from "@/lib/lists";
 import { errorBoundaryFallback } from "@/components/Error";
 import { ActorSection } from "@/components/Cast/ActorSection";
 
@@ -215,6 +217,11 @@ export default function Episode() {
                       </VideoActions>
                     )}
                   </Show>
+                  <ListActions
+                    items={() => episodeListItems(episode(), params().id)}
+                    memberships={episode().local?.lists}
+                    metadataId={episode().local?.metadata_id}
+                  />
                   <div class="w-full sm:w-96">
                     <Show when={episode().local?.intro && video()}>
                       {(video) => (

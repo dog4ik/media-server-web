@@ -59,7 +59,7 @@ type Props = {
   initialSearch?: string;
   open: boolean;
   targetId: string;
-  contentType: Schemas["ContentType"];
+  contentType: Schemas["ParentMediaType"];
   onClose: () => void;
 };
 
