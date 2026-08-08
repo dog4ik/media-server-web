@@ -1,6 +1,6 @@
 import { createSignal, ErrorBoundary, For, Show, Suspense } from "solid-js";
 import { getRouteApi } from "@tanstack/solid-router";
-import { queryApi, queryClient } from "@/utils/queryApi";
+import { queryApi } from "@/utils/queryApi";
 import { errorBoundaryFallback } from "@/components/Error";
 import promptConfirm from "@/components/modals/ConfirmationModal";
 import { ListFormDialog } from "@/components/Lists/ListFormDialog";
@@ -38,7 +38,7 @@ export default function ListDetails() {
     "get",
     "/api/lists/{id}/items",
     () => ({ params: { path: { id: id() } } }),
-    () => ({ select: (items) => items.map(extendListContent) }),
+    () => ({ select: (items) => items.map((item) => extendListContent(item, id())) }),
   );
   let allLists = queryApi.useQuery("get", "/api/lists");
 
@@ -115,7 +115,7 @@ export default function ListDetails() {
           <Show
             when={mode() === "grid"}
             fallback={
-              <div class="max-w-6xl p-2 sm:p-4">
+              <div class="w-full p-2 sm:p-4">
                 <ListContentTable items={items.data ?? []} onRemove={handleRemove} />
               </div>
             }
@@ -137,7 +137,7 @@ function ItemsSkeleton(props: { mode: ViewMode }) {
     <Show
       when={props.mode === "grid"}
       fallback={
-        <div class="flex max-w-6xl flex-col gap-2 p-2 sm:p-4">
+        <div class="flex w-full flex-col gap-2 p-2 sm:p-4">
           {[...Array(6)].map(() => (
             <Skeleton class="h-16 rounded-md" />
           ))}

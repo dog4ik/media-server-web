@@ -7,34 +7,40 @@ import { useNotifications } from "@/context/NotificationContext";
 
 export type ListContent = Schemas["ListContent"];
 
-/** Static ids of the system lists, mirror `ListKind::SAVED_ID` / `ListKind::WATCH_ID` on the server */
 export const SAVED_LIST_ID = 1;
 export const WATCH_LIST_ID = 2;
+
+/** Extra context line shown under an episode's title */
+export type EpisodeSubtitle = {
+  showTitle: string;
+  showUrl: LinkOptions;
+  /** `S01E02` */
+  numbering: string;
+};
 
 /** Normalized view over the movie/show/episode union stored in lists */
 export type ExtendedListContent = {
   content: ListContent;
   title: string;
-  /** Extra context line, only present for episodes */
-  subtitle?: string;
+  episode?: EpisodeSubtitle;
   typeLabel: "Movie" | "Show" | "Episode";
-  /** Episodes have 16:9 stills, movies/shows have 2:3 posters */
   aspect: "poster" | "video";
   url: LinkOptions;
   posters: string[];
   /** Local metadata id, used by the remove endpoints */
   metadataId?: number;
-  /** ISO date, present on all content types when known */
   releaseDate?: string;
-  /** Milliseconds, only for movies and episodes */
+  addedAt?: string;
   runtime?: number;
-  /** Only for shows */
   seasonsCount?: number;
-  /** Only for shows */
   episodesCount?: number;
 };
 
-export function extendListContent(item: ListContent): ExtendedListContent {
+function addedAt(item: ListContent, listId: number): string | undefined {
+  return item.local?.lists.find((list) => list.id === listId)?.added_at;
+}
+
+export function extendListContent(item: ListContent, listId: number): ExtendedListContent {
   switch (item.content_type) {
     case "movie": {
       let movie = extendMovie(item);
@@ -47,6 +53,7 @@ export function extendListContent(item: ListContent): ExtendedListContent {
         posters: posterList(movie),
         metadataId: item.local?.metadata_id,
         releaseDate: item.release_date ?? undefined,
+        addedAt: addedAt(item, listId),
         runtime: item.runtime ?? undefined,
       };
     }
@@ -61,6 +68,7 @@ export function extendListContent(item: ListContent): ExtendedListContent {
         posters: posterList(show),
         metadataId: item.local?.metadata_id,
         releaseDate: item.release_date ?? undefined,
+        addedAt: addedAt(item, listId),
         seasonsCount: item.seasons?.length,
         episodesCount: item.episodes_amount ?? undefined,
       };
@@ -70,24 +78,24 @@ export function extendListContent(item: ListContent): ExtendedListContent {
       return {
         content: item,
         title: item.title,
-        subtitle: `${item.show_title} · S${formatSE(item.season_number)}E${formatSE(item.number)}`,
+        episode: {
+          showTitle: item.show_title,
+          showUrl: episode.showUrl(),
+          numbering: `S${formatSE(item.season_number)}E${formatSE(item.number)}`,
+        },
         typeLabel: "Episode",
         aspect: "video",
         url: episode.url(),
         posters: posterList(episode),
         metadataId: item.local?.metadata_id,
         releaseDate: item.release_date ?? undefined,
+        addedAt: addedAt(item, listId),
         runtime: item.runtime ?? undefined,
       };
     }
   }
 }
 
-/**
- * Invalidate everything that reflects list membership. Content queries embed
- * `local.lists`, so list mutations stale them too. Only actively mounted queries
- * refetch right away — the rest refetch on next mount.
- */
 export function invalidateListQueries() {
   queryApi.invalidateQueries("get", "/api/lists");
   queryApi.invalidateQueries("get", "/api/lists/{id}");
@@ -107,9 +115,7 @@ export function invalidateListQueries() {
 
 type ListActionsOptions = {
   items: () => Schemas["ListItems"];
-  /** Lists the item is already in, from its `local.lists` metadata */
   memberships?: () => Schemas["CompactList"][] | undefined | null;
-  /** Local metadata id, required to remove the item from a list */
   metadataId?: () => number | undefined;
   onAdded?: (listName: string) => void;
   onRemoved?: (listName: string) => void;

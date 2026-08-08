@@ -1834,11 +1834,19 @@ export type components = {
         CodecType: "audio" | "video" | "subtitle" | "data" | "attachment";
         /** @description Compact representation of a list. */
         CompactList: {
+            /**
+             * Format: date-time
+             * @description When this particular item was added to the list.
+             */
+            added_at: string;
             /** Format: int64 */
             id: number;
             kind: components["schemas"]["ListKind"];
             name: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description When the list itself last changed
+             */
             updated_at: string;
         };
         CompactTorrentProgress: {

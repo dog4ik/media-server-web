@@ -13,17 +13,12 @@ type Props = {
   onRemove: () => void;
 };
 
-// All tiles in a row share the same height so 2:3 posters and 16:9 episode
-// stills mix cleanly: posters come out narrow, stills come out wide.
-const tileHeight = "h-52 sm:h-72";
-
 export function ListContentTile(props: Props) {
   return (
     <div class="flex w-fit flex-col gap-2">
       <Link
         class={cn(
-          "relative block overflow-hidden rounded-xl",
-          tileHeight,
+          "relative block overflow-hidden rounded-xl h-52 sm:h-72",
           props.item.aspect === "video" ? "aspect-video" : "aspect-poster",
         )}
         {...props.item.url}
@@ -39,8 +34,15 @@ export function ListContentTile(props: Props) {
           <Link title={props.item.title} class="text-md truncate" {...props.item.url}>
             {props.item.title}
           </Link>
-          <Show when={props.item.subtitle}>
-            <span class="text-muted-foreground truncate text-sm">{props.item.subtitle}</span>
+          <Show when={props.item.episode}>
+            {(episode) => (
+              <span class="text-muted-foreground truncate text-sm">
+                <Link class="hover:underline" title={episode().showTitle} {...episode().showUrl}>
+                  {episode().showTitle}
+                </Link>
+                {` · ${episode().numbering}`}
+              </span>
+            )}
           </Show>
         </div>
         <MoreButton>
@@ -57,8 +59,7 @@ export function ListContentTileSkeleton(props: { aspect?: "poster" | "video" }) 
   return (
     <Skeleton
       class={cn(
-        "rounded-xl",
-        tileHeight,
+        "rounded-xl h-52 sm:h-72",
         props.aspect === "video" ? "aspect-video" : "aspect-poster",
       )}
     />

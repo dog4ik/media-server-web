@@ -1,8 +1,16 @@
-import { ParentProps, createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import {
+  ErrorBoundary,
+  ParentProps,
+  createEffect,
+  createSignal,
+  onCleanup,
+  onMount,
+} from "solid-js";
 import { useRouter } from "@tanstack/solid-router";
 import { useBackdropContext } from "../context/BackdropContext";
 import SideBar from "../components/SideBar";
 import NavBar from "../components/NavBar";
+import { ErrorComponent } from "../components/Error";
 
 const NAVBAR_SCROLL_RANGE = 300;
 
@@ -31,10 +39,23 @@ export default function PageLayout(props: ParentProps) {
         <NavBar scrollProgress={scrollProgress()} />
       </div>
       <div class="md:pl-32">
-        <main class="mx-4 my-3 flex flex-col sm:mx-5">{props.children}</main>
+        <main class="mx-4 my-3 flex flex-col sm:mx-5">
+          <ErrorBoundary fallback={(err, reset) => <PageError err={err} reset={reset} />}>
+            {props.children}
+          </ErrorBoundary>
+        </main>
       </div>
     </div>
   );
+}
+
+function PageError(props: { err: any; reset: () => void }) {
+  let router = useRouter();
+  // Solid's ErrorBoundary never resets itself. Mirror what TanStack's own
+  // CatchBoundary does and clear the error once a navigation resolves, otherwise
+  // the boundary would keep showing this page's error on every later route.
+  onMount(() => onCleanup(router.subscribe("onResolved", props.reset)));
+  return <ErrorComponent err={props.err} reset={props.reset} />;
 }
 
 function BackdropFilling() {
