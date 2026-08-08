@@ -25,6 +25,7 @@ import {
 } from "@tanstack/solid-table";
 import { TORRENT_TABLE_COLUMNS } from "@/components/Torrent/TorrentTable";
 import { PersistentTableState } from "@/utils/persistent_table_state";
+import { BitField } from "@/lib/bitfield";
 
 type TorrentContextType = ReturnType<typeof createTorrentContext>;
 
@@ -153,8 +154,16 @@ export function TorrentProvider(props: ContextProps) {
   );
 }
 
+export type ExtendedTorrentState = Omit<Schemas["TorrentState"], "downloaded_pieces"> & {
+  downloaded_pieces: BitField;
+};
+
+function extendTorrentState(torrent: Schemas["TorrentState"]): ExtendedTorrentState {
+  return { ...torrent, downloaded_pieces: BitField.fromBase64(torrent.downloaded_pieces) };
+}
+
 type ManagerStateType = Omit<Schemas["SessionState"], "torrents"> & {
-  torrents: Record<string, Schemas["TorrentState"]>;
+  torrents: Record<string, ExtendedTorrentState>;
 };
 
 export class TorrentStateManager {
@@ -176,8 +185,8 @@ export class TorrentStateManager {
     return {
       session_stats,
       torrents: torrents.reduce(
-        (acc, n) => ((acc[n.info_hash] = n), acc),
-        {} as Record<string, Schemas["TorrentState"]>,
+        (acc, n) => ((acc[n.info_hash] = extendTorrentState(n)), acc),
+        {} as Record<string, ExtendedTorrentState>,
       ),
     };
   }
@@ -196,46 +205,36 @@ export class TorrentStateManager {
     }
     this.setSession(
       "torrents",
-      produce((map) => TorrentStateManager.applyTorrentEvents(map, progress.changed_torrents)),
+      produce((map) => {
+        TorrentStateManager.applySessionEvents(map, progress.session_events);
+        TorrentStateManager.applyTorrentEvents(map, progress.changed_torrents);
+      })
     );
   }
 
+  private static applySessionEvents(torrentMap: Record<string, ExtendedTorrentState>, events: Schemas["SessionEvent"][]) {
+    for (let event of events) {
+      if (event.kind === "torrentadd") {
+        torrentMap[event.state.info_hash] = extendTorrentState(event.state);
+      } else if (event.kind === "torrentremove") {
+        delete torrentMap[event.info_hash];
+      }
+    }
+  }
+
   private static applyTorrentEvents(
-    torrentMap: Record<string, Schemas["TorrentState"]>,
+    torrentMap: Record<string, ExtendedTorrentState>,
     changedTorrents: Schemas["TorrentUpdate"][],
   ) {
     for (let torrentUpdate of changedTorrents) {
       let hexInfoHash = hexHash(torrentUpdate.info_hash);
       let torrent = torrentMap[hexInfoHash];
-      if (!torrent) {
-        let [addEvent] = torrentUpdate.events.splice(0, 1);
-        if (addEvent.event_kind === "session" && addEvent.kind === "torrentadd") {
-          torrent = addEvent.state;
-          torrentMap[hexInfoHash] = torrent;
-        } else {
-          tracing.error(
-            { info_hash: hexInfoHash },
-            `Expected 'torrentadd' event, got ${addEvent.event_kind}`,
-          );
-          continue;
-        }
-      }
-
       let torrentHandler = new TorrentProgressHandler(torrent);
       torrent.upload_speed = torrentUpdate.upload_speed;
       torrent.download_speed = torrentUpdate.download_speed;
       torrent.state = torrentUpdate.state;
       torrent.percent = (torrentUpdate.total_downloaded / torrent.total_size) * 100;
       for (let event of torrentUpdate.events) {
-        if (event.event_kind === "session") {
-          if (event.kind === "torrentremove") {
-            delete torrentMap[hexInfoHash];
-            // NOTE: Having torrent added and removed in the same tick is not possible.
-            // Consider switching to tick/subtick progress model so I don't even have to think about it.
-            break;
-          }
-        }
-
         if (event.event_kind == "tracker") {
           torrentHandler.applyTrackerUpdate(event);
           continue;
@@ -264,7 +263,7 @@ export class TorrentStateManager {
 }
 
 class TorrentProgressHandler {
-  constructor(private torrent: ManagerStateType["torrents"][string]) {}
+  constructor(private torrent: ExtendedTorrentState) {}
 
   applyTrackerUpdate({ tracker_event, url }: Schemas["TrackerEvent"]) {
     let trackerIdx = this.torrent.trackers.findIndex((t) => t.url == url);
@@ -311,7 +310,9 @@ class TorrentProgressHandler {
   }
 
   applyPieceUpdate({ piece, piece_event }: Schemas["StoragePieceEvent"]) {
-    tracing.warn("Storage piece events are not yet implemented");
+    if (piece_event.kind === "finished") {
+      this.torrent.downloaded_pieces.set(piece);
+    }
   }
 
   applyFileUpdate({ idx, file_event }: Schemas["StorageFileEvent"]) {

@@ -30,7 +30,7 @@ import Trash from "lucide-solid/icons/trash";
 import Ellipsis from "lucide-solid/icons/ellipsis";
 import { TableColumnHeader } from "./ColumnHeader";
 import { PaginationFooter } from "./TableFooter";
-import { useTorrentContext } from "@/context/TorrentContext";
+import { ExtendedTorrentState, useTorrentContext } from "@/context/TorrentContext";
 import { AddTorrentModal } from "../AddTorrentModal";
 
 export const ICON_SIZE = 15;
@@ -44,7 +44,7 @@ function filteredStatusList() {
   }));
 }
 
-export const TORRENT_TABLE_COLUMNS: ColumnDef<Schemas["TorrentState"]>[] = [
+export const TORRENT_TABLE_COLUMNS: ColumnDef<ExtendedTorrentState>[] = [
   {
     accessorKey: "name",
     header: (props) => <TableColumnHeader column={props.column} title="Title" />,

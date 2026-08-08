@@ -21,12 +21,13 @@ import { formatSize } from "@/utils/formats";
 import { Progress } from "@/ui/progress";
 import { Checkbox, CheckboxControl } from "@/ui/checkbox";
 import { Button } from "@/ui/button";
+import { BitField } from "@/lib/bitfield";
 
 const PRIORITY_OPTIONS: Schemas["Priority"][] = ["disabled", "low", "medium", "high"];
 
 type Props = {
   infoHash: string;
-  downloadedPieces: boolean[];
+  downloadedPieces: BitField;
   files: Schemas["StateFile"][];
 };
 
@@ -129,7 +130,7 @@ export function FileList(props: Props) {
     {
       accessorKey: "size",
       cell: (props) => (
-        <div class="flex w-[100px] items-center">
+        <div class="flex w-25 items-center">
           <span class="text-center">{formatSize(props.row.original.size)}</span>
         </div>
       ),
@@ -139,7 +140,7 @@ export function FileList(props: Props) {
     {
       accessorKey: "priority",
       cell: (props) => (
-        <div class="flex w-[100px] items-center">
+        <div class="flex w-25 items-center">
           <Select
             class="w-full"
             options={PRIORITY_OPTIONS}
@@ -171,7 +172,7 @@ export function FileList(props: Props) {
       accessorFn: (entry) => `${entry.start_piece}..${entry.end_piece}`,
       id: "range",
       cell: (props) => (
-        <div class="flex w-[100px] items-center">
+        <div class="flex w-25 items-center">
           <span class="text-center capitalize">
             {props.row.original.start_piece}..={props.row.original.end_piece}
           </span>
@@ -185,16 +186,14 @@ export function FileList(props: Props) {
       accessorFn: (entry) => {
         if (entry.kind === "file") {
           let totalPieces = entry.end_piece - entry.start_piece;
-          let downloadedPieces = 0;
-          for (let i = entry.start_piece; i < entry.end_piece; ++i) {
-            if (props.downloadedPieces[i]) {
-              downloadedPieces += 1;
-            }
-          }
+          let downloadedPieces = props.downloadedPieces.rangeCount(
+            entry.start_piece,
+            entry.end_piece,
+          );
           if (downloadedPieces === 0) {
             return 0;
           } else {
-            return (totalPieces / downloadedPieces) * 100;
+            return (downloadedPieces / totalPieces) * 100;
           }
         } else {
           return 100;
@@ -203,7 +202,7 @@ export function FileList(props: Props) {
       id: "progress",
       header: (props) => <TableColumnHeader column={props.column} title="Progress" />,
       cell: (props) => (
-        <div class="flex w-[100px] items-center">
+        <div class="flex w-25 items-center">
           <Progress value={props.getValue() as number}>
             <code class="text-center">{props.getValue() as number}%</code>
           </Progress>

@@ -2410,6 +2410,7 @@ export type components = {
         };
         Progress: {
             changed_torrents: components["schemas"]["TorrentUpdate"][];
+            session_events: components["schemas"]["SessionEvent"][];
             session_update?: null | components["schemas"]["SessionUpdate"];
             tick_num: number;
         };
@@ -2447,13 +2448,6 @@ export type components = {
         }) | (components["schemas"]["StorageFileEvent"] & {
             /** @enum {string} */
             event_kind: "storagefile";
-        }) | {
-            /** @enum {string} */
-            event_kind: "validationcomplete";
-            valid_bitfield: number[];
-        } | (components["schemas"]["SessionEvent"] & {
-            /** @enum {string} */
-            event_kind: "session";
         });
         ProgressStatus_IntroJob: {
             /** @enum {string} */
@@ -2994,8 +2988,11 @@ export type components = {
         TorrentState: {
             /** Format: double */
             download_speed: number;
-            /** @description This is a little too much for a state */
-            downloaded_pieces: boolean[];
+            /**
+             * Format: byte
+             * @description Base64 encoded bitfield
+             */
+            downloaded_pieces: string;
             files: components["schemas"]["StateFile"][];
             info_hash: string;
             name: string;

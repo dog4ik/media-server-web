@@ -1,12 +1,12 @@
 import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "@/ui/tabs";
-import { Schemas } from "@/utils/serverApi";
 import { PeerList } from "./TorrentTable/PeerList";
 import { TrackerList } from "./TrackerList";
 import { FileList } from "./TorrentTable/FileList";
 import { TorrentInfo } from "./TorrentInfo";
+import { ExtendedTorrentState } from "@/context/TorrentContext";
 
 type Props = {
-  torrent: Schemas["TorrentState"];
+  torrent: ExtendedTorrentState;
 };
 
 export function TorrentSide(props: Props) {

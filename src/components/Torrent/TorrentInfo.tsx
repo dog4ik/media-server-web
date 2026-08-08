@@ -1,13 +1,13 @@
-import { Schemas } from "@/utils/serverApi";
 import { formatSize } from "@/utils/formats";
 import { createMemo, createSignal, JSX, Show } from "solid-js";
 import Copy from "lucide-solid/icons/copy";
 import Check from "lucide-solid/icons/check";
 import { Button } from "@/ui/button";
 import tracing from "@/utils/tracing";
+import { ExtendedTorrentState } from "@/context/TorrentContext";
 
 type Props = {
-  torrent: Schemas["TorrentState"];
+  torrent: ExtendedTorrentState;
 };
 
 type CellProps = {
@@ -68,7 +68,7 @@ function CopyButton(props: CopyButtonProps) {
 }
 
 export function TorrentInfo(props: Props) {
-  let downloadedPieces = createMemo(() => props.torrent.downloaded_pieces.filter(Boolean).length);
+  let downloadedPieces = createMemo(() => props.torrent.downloaded_pieces.totalCount());
   let downloadedSize = createMemo(() => {
     let { total_pieces, total_size } = props.torrent;
     if (total_pieces === 0) return 0;
