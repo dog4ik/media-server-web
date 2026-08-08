@@ -39,7 +39,7 @@ export const CUSTOM_THEMES_STORAGE_KEY = "mediaserver-custom-themes";
 
 export function applyTheme(vars: ThemeVars) {
   let root = document.documentElement;
-  for (let [key, value] of Object.entries(vars)) {
+  for (const [key, value] of Object.entries(vars)) {
     root.style.setProperty(key, value);
   }
 }

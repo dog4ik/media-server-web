@@ -1,3 +1,10 @@
+import type { DropdownMenuTriggerProps } from "@kobalte/core/dropdown-menu";
+import type { Column } from "@tanstack/solid-table";
+import ArrowDown from "lucide-solid/icons/arrow-down";
+import ArrowUp from "lucide-solid/icons/arrow-up";
+import ArrowUpDown from "lucide-solid/icons/arrow-up-down";
+import EyeOff from "lucide-solid/icons/eye-off";
+import { Match, Show, Switch, splitProps, type VoidProps } from "solid-js";
 import { Button } from "@/ui/button";
 import {
   DropdownMenu,
@@ -6,15 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/ui/dropdown-menu";
-import { DropdownMenuTriggerProps } from "@kobalte/core/dropdown-menu";
-import type { Column } from "@tanstack/solid-table";
-import { Match, Show, splitProps, Switch, VoidProps } from "solid-js";
 import { ICON_SIZE } from ".";
-
-import ArrowUpDown from "lucide-solid/icons/arrow-up-down";
-import ArrowUp from "lucide-solid/icons/arrow-up";
-import ArrowDown from "lucide-solid/icons/arrow-down";
-import EyeOff from "lucide-solid/icons/eye-off";
 
 export function TableColumnHeader<TData, TValue>(
   props: VoidProps<{ column: Column<TData, TValue>; title: string }>,

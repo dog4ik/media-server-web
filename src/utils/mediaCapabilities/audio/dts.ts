@@ -1,4 +1,4 @@
-const MP4_TABLE = {
+const _MP4_TABLE = {
   20: "mp4a.A9",
   30: "mp4a.A9",
   40: "mp4a.A9",

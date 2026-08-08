@@ -1,18 +1,23 @@
-import type { VoidProps } from "solid-js";
-import { splitProps, type ComponentProps, type ValidComponent } from "solid-js";
 import { RadioGroup as RadioGroupPrimitive } from "@kobalte/core/radio-group";
-
 import { cx } from "cva";
+import type { VoidProps } from "solid-js";
+import { type ComponentProps, splitProps, type ValidComponent } from "solid-js";
 
 export type RadioGroupProps<T extends ValidComponent = "div"> = ComponentProps<
   typeof RadioGroupPrimitive<T>
 >;
 
-export const RadioGroup = <T extends ValidComponent = "div">(props: RadioGroupProps<T>) => {
+export const RadioGroup = <T extends ValidComponent = "div">(
+  props: RadioGroupProps<T>,
+) => {
   const [, rest] = splitProps(props as RadioGroupProps, ["class"]);
 
   return (
-    <RadioGroupPrimitive data-slot="radio-group" class={cx("grid gap-3", props.class)} {...rest} />
+    <RadioGroupPrimitive
+      data-slot="radio-group"
+      class={cx("grid gap-3", props.class)}
+      {...rest}
+    />
   );
 };
 
@@ -31,9 +36,8 @@ export const RadioGroupItems = (props: RadioGroupItemsProps) => {
   );
 };
 
-export type RadioGroupItemInputProps<T extends ValidComponent = "input"> = ComponentProps<
-  typeof RadioGroupPrimitive.ItemInput<T>
->;
+export type RadioGroupItemInputProps<T extends ValidComponent = "input"> =
+  ComponentProps<typeof RadioGroupPrimitive.ItemInput<T>>;
 
 export const RadioGroupItemInput = <T extends ValidComponent = "input">(
   props: RadioGroupItemInputProps<T>,
@@ -49,12 +53,16 @@ export const RadioGroupItemInput = <T extends ValidComponent = "input">(
   );
 };
 
-export type RadioGroupItemProps<T extends ValidComponent = "div"> = ComponentProps<
-  typeof RadioGroupPrimitive.Item<T>
->;
+export type RadioGroupItemProps<T extends ValidComponent = "div"> =
+  ComponentProps<typeof RadioGroupPrimitive.Item<T>>;
 
-export const RadioGroupItem = <T extends ValidComponent = "div">(props: RadioGroupItemProps<T>) => {
-  const [, rest] = splitProps(props as RadioGroupItemProps, ["class", "children"]);
+export const RadioGroupItem = <T extends ValidComponent = "div">(
+  props: RadioGroupItemProps<T>,
+) => {
+  const [, rest] = splitProps(props as RadioGroupItemProps, [
+    "class",
+    "children",
+  ]);
 
   return (
     <RadioGroupPrimitive.Item
@@ -67,9 +75,8 @@ export const RadioGroupItem = <T extends ValidComponent = "div">(props: RadioGro
   );
 };
 
-export type RadioGroupItemControlProps<T extends ValidComponent = "div"> = ComponentProps<
-  typeof RadioGroupPrimitive.ItemControl<T>
->;
+export type RadioGroupItemControlProps<T extends ValidComponent = "div"> =
+  ComponentProps<typeof RadioGroupPrimitive.ItemControl<T>>;
 
 export const RadioGroupItemControl = <T extends ValidComponent = "div">(
   props: RadioGroupItemControlProps<T>,
@@ -90,9 +97,8 @@ export const RadioGroupItemControl = <T extends ValidComponent = "div">(
   );
 };
 
-export type RadioGroupItemIndicatorProps<T extends ValidComponent = "div"> = VoidProps<
-  ComponentProps<typeof RadioGroupPrimitive.ItemIndicator<T>>
->;
+export type RadioGroupItemIndicatorProps<T extends ValidComponent = "div"> =
+  VoidProps<ComponentProps<typeof RadioGroupPrimitive.ItemIndicator<T>>>;
 
 export const RadioGroupItemIndicator = <T extends ValidComponent = "div">(
   props: RadioGroupItemIndicatorProps<T>,
@@ -109,9 +115,8 @@ export const RadioGroupItemIndicator = <T extends ValidComponent = "div">(
   );
 };
 
-export type RadioGroupLabelProps<T extends ValidComponent = "span"> = ComponentProps<
-  typeof RadioGroupPrimitive.Label<T>
->;
+export type RadioGroupLabelProps<T extends ValidComponent = "span"> =
+  ComponentProps<typeof RadioGroupPrimitive.Label<T>>;
 
 export const RadioGroupLabel = <T extends ValidComponent = "span">(
   props: RadioGroupLabelProps<T>,
@@ -128,9 +133,8 @@ export const RadioGroupLabel = <T extends ValidComponent = "span">(
   );
 };
 
-export type RadioGroupItemLabelProps<T extends ValidComponent = "span"> = ComponentProps<
-  typeof RadioGroupPrimitive.ItemLabel<T>
->;
+export type RadioGroupItemLabelProps<T extends ValidComponent = "span"> =
+  ComponentProps<typeof RadioGroupPrimitive.ItemLabel<T>>;
 
 export const RadioGroupItemLabel = <T extends ValidComponent = "span">(
   props: RadioGroupItemLabelProps<T>,
@@ -141,15 +145,17 @@ export const RadioGroupItemLabel = <T extends ValidComponent = "span">(
     <RadioGroupPrimitive.ItemLabel
       forceMount
       data-slot="radio-group-item-label"
-      class={cx("data-invalid:text-destructive text-sm font-medium select-none", props.class)}
+      class={cx(
+        "data-invalid:text-destructive text-sm font-medium select-none",
+        props.class,
+      )}
       {...rest}
     />
   );
 };
 
-export type RadioGroupDescriptionProps<T extends ValidComponent = "span"> = ComponentProps<
-  typeof RadioGroupPrimitive.Label<T>
->;
+export type RadioGroupDescriptionProps<T extends ValidComponent = "span"> =
+  ComponentProps<typeof RadioGroupPrimitive.Label<T>>;
 
 export const RadioGroupDescription = <T extends ValidComponent = "span">(
   props: RadioGroupDescriptionProps<T>,
@@ -166,9 +172,8 @@ export const RadioGroupDescription = <T extends ValidComponent = "span">(
   );
 };
 
-export type RadioGroupErrorMessageProps<T extends ValidComponent = "span"> = ComponentProps<
-  typeof RadioGroupPrimitive.ErrorMessage<T>
->;
+export type RadioGroupErrorMessageProps<T extends ValidComponent = "span"> =
+  ComponentProps<typeof RadioGroupPrimitive.ErrorMessage<T>>;
 
 export const RadioGroupErrorMessage = <T extends ValidComponent = "span">(
   props: RadioGroupErrorMessageProps<T>,

@@ -1,5 +1,5 @@
 import { FiDelete, FiPause, FiPlay, FiPlus } from "solid-icons/fi";
-import { ParentProps, Show } from "solid-js";
+import { type ParentProps, Show } from "solid-js";
 
 type IconProps = {
   title?: string;
@@ -8,7 +8,11 @@ type IconProps = {
 
 function Icon(props: IconProps) {
   return (
-    <button onClick={props.onClick} class="flex flex-col items-center justify-center">
+    <button
+      type="button"
+      onClick={props.onClick}
+      class="flex flex-col items-center justify-center"
+    >
       {props.children}
       <Show when={props.title}>
         <span>{props.title}</span>

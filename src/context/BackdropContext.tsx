@@ -1,35 +1,39 @@
-import tracing from "@/utils/tracing";
 import { useQuery } from "@tanstack/solid-query";
 import { useRouterState } from "@tanstack/solid-router";
 import {
-  ParentProps,
-  Show,
   createContext,
   createEffect,
   createSignal,
   onCleanup,
-  useContext,
+  type ParentProps,
+  Show,
 } from "solid-js";
+import { useRequiredContext } from "@/lib/context";
+import tracing from "@/utils/tracing";
 
 type BackdropContextType = ReturnType<typeof createBackdropContext>;
 
 export const BackdropContext = createContext<BackdropContextType>();
 
-export const useBackdropContext = () => useContext(BackdropContext)!;
+export const useBackdropContext = () =>
+  useRequiredContext(BackdropContext, "BackdropContext");
 
 export function setBackdrop(url: (string | undefined)[]) {
-  let [{}, { changeBackdrop }] = useBackdropContext();
+  const [, { changeBackdrop }] = useBackdropContext();
   changeBackdrop(url);
 }
 
 function createBackdropContext() {
   let routerState = useRouterState();
 
-  let [backdropSrcList, setBackdropSrcList] = createSignal<(string | undefined)[]>([]);
+  let [backdropSrcList, setBackdropSrcList] = createSignal<
+    (string | undefined)[]
+  >([]);
   let [hover, setHover] = createSignal(false);
 
   function loadImage(url: string) {
-    let { resolve, reject, promise } = Promise.withResolvers<HTMLImageElement>();
+    let { resolve, reject, promise } =
+      Promise.withResolvers<HTMLImageElement>();
     const img = new Image();
     img.src = url;
     img.onload = () => {
@@ -46,8 +50,8 @@ function createBackdropContext() {
   }
 
   async function loadImages(sources: (string | undefined)[]) {
-    for (let source of sources.filter((source) => source !== undefined)) {
-      let img = await loadImage(source).catch(() => undefined);
+    for (const source of sources.filter((source) => source !== undefined)) {
+      const img = await loadImage(source).catch(() => undefined);
       if (img) {
         return img;
       }
@@ -65,7 +69,9 @@ function createBackdropContext() {
   }
 
   createEffect(() => {
-    let onBackdropRoute = routerState().matches.some((match) => match.staticData.backdrop);
+    let onBackdropRoute = routerState().matches.some(
+      (match) => match.staticData.backdrop,
+    );
     if (!onBackdropRoute) {
       removeBackdrop();
     }
@@ -121,6 +127,8 @@ export function HoverArea() {
   onCleanup(() => setHover(false));
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: purely decorative backdrop preview, hover only toggles a visual effect
+    // biome-ignore lint/a11y/useKeyWithMouseEvents: purely decorative backdrop preview, hover only toggles a visual effect
     <div
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
@@ -132,7 +140,7 @@ export function HoverArea() {
             return (
               <img
                 class="fixed top-0 left-0 size-full object-cover"
-                alt="Backdrop hole image"
+                alt=""
                 height={window.innerHeight}
                 width={window.innerWidth}
                 src={backdrop().src}

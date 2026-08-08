@@ -8,7 +8,9 @@ export class BitField {
   constructor(public bytes: Uint8Array) {}
 
   static empty(size: number) {
-    return new BitField(Uint8Array.from([...Array(Math.ceil(size / 8))].map(() => 0)));
+    return new BitField(
+      Uint8Array.from([...Array(Math.ceil(size / 8))].map(() => 0)),
+    );
   }
 
   static fromBase64(data: string) {
@@ -35,7 +37,7 @@ export class BitField {
 
   static countOnes(num: number) {
     let count = 0;
-    while (num != 0) {
+    while (num !== 0) {
       count += 1;
       num = num & (num - 1);
     }

@@ -1,6 +1,6 @@
-import type { ComponentProps, ValidComponent } from "solid-js";
-import { Show, mergeProps, splitProps } from "solid-js";
 import { Dialog as DialogPrimitive } from "@kobalte/core/dialog";
+import type { ComponentProps, ValidComponent } from "solid-js";
+import { mergeProps, Show, splitProps } from "solid-js";
 
 import { cn } from "@/lib/cn";
 
@@ -12,9 +12,8 @@ export const Dialog = (props: DialogProps) => {
   return <DialogPrimitive data-slot="dialog" {...props} />;
 };
 
-export type DialogTriggerProps<T extends ValidComponent = "button"> = ComponentProps<
-  typeof DialogPrimitive.Trigger<T>
->;
+export type DialogTriggerProps<T extends ValidComponent = "button"> =
+  ComponentProps<typeof DialogPrimitive.Trigger<T>>;
 
 export const DialogTrigger = <T extends ValidComponent = "button">(
   props: DialogTriggerProps<T>,
@@ -22,9 +21,8 @@ export const DialogTrigger = <T extends ValidComponent = "button">(
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
 };
 
-export type DialogCloseButtonProps<T extends ValidComponent = "button"> = ComponentProps<
-  typeof DialogPrimitive.CloseButton<T>
->;
+export type DialogCloseButtonProps<T extends ValidComponent = "button"> =
+  ComponentProps<typeof DialogPrimitive.CloseButton<T>>;
 
 export const DialogCloseButton = <T extends ValidComponent = "button">(
   props: DialogCloseButtonProps<T>,
@@ -32,20 +30,25 @@ export const DialogCloseButton = <T extends ValidComponent = "button">(
   return <DialogPrimitive.CloseButton data-slot="dialog-close" {...props} />;
 };
 
-export type DialogContentProps<T extends ValidComponent = "div"> = ComponentProps<
-  typeof DialogPrimitive.Content<T>
-> & {
-  showCloseButton?: boolean;
-};
+export type DialogContentProps<T extends ValidComponent = "div"> =
+  ComponentProps<typeof DialogPrimitive.Content<T>> & {
+    showCloseButton?: boolean;
+  };
 
-export const DialogContent = <T extends ValidComponent = "div">(props: DialogContentProps<T>) => {
+export const DialogContent = <T extends ValidComponent = "div">(
+  props: DialogContentProps<T>,
+) => {
   const merge = mergeProps(
     {
       showCloseButton: true,
     } as DialogContentProps,
     props,
   );
-  const [local, rest] = splitProps(merge, ["class", "children", "showCloseButton"]);
+  const [local, rest] = splitProps(merge, [
+    "class",
+    "children",
+    "showCloseButton",
+  ]);
 
   return (
     <>
@@ -75,6 +78,7 @@ export const DialogContent = <T extends ValidComponent = "div">(props: DialogCon
             class="bg-background/70 focus-visible:ring-ring fixed top-3 right-3 z-10 flex size-9 items-center justify-center rounded-md opacity-90 backdrop-blur transition-[opacity,background-color,box-shadow] duration-200 hover:opacity-100 focus-visible:ring-2 focus-visible:outline-hidden sm:absolute sm:top-4 sm:right-4 sm:size-8 sm:bg-transparent sm:backdrop-blur-none [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0 sm:[&_svg]:size-4"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <title>Close</title>
               <path
                 fill="none"
                 stroke="currentColor"
@@ -113,7 +117,10 @@ export const DialogFooter = (props: DialogFooterProps) => {
   return (
     <div
       data-slot="dialog-footer"
-      class={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", props.class)}
+      class={cn(
+        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+        props.class,
+      )}
       {...rest}
     />
   );
@@ -123,7 +130,9 @@ export type DialogTitleProps<T extends ValidComponent = "h2"> = ComponentProps<
   typeof DialogPrimitive.Title<T>
 >;
 
-export const DialogTitle = <T extends ValidComponent = "h2">(props: DialogTitleProps<T>) => {
+export const DialogTitle = <T extends ValidComponent = "h2">(
+  props: DialogTitleProps<T>,
+) => {
   const [, rest] = splitProps(props as DialogTitleProps, ["class"]);
 
   return (
@@ -135,9 +144,8 @@ export const DialogTitle = <T extends ValidComponent = "h2">(props: DialogTitleP
   );
 };
 
-export type DialogDescriptionProps<T extends ValidComponent = "p"> = ComponentProps<
-  typeof DialogPrimitive.Description<T>
->;
+export type DialogDescriptionProps<T extends ValidComponent = "p"> =
+  ComponentProps<typeof DialogPrimitive.Description<T>>;
 
 export const DialogDescription = <T extends ValidComponent = "p">(
   props: DialogDescriptionProps<T>,

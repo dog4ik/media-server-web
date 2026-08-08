@@ -1,16 +1,16 @@
+import { useRouter } from "@tanstack/solid-router";
 import {
-  ErrorBoundary,
-  ParentProps,
   createEffect,
   createSignal,
+  ErrorBoundary,
   onCleanup,
   onMount,
+  type ParentProps,
 } from "solid-js";
-import { useRouter } from "@tanstack/solid-router";
-import { useBackdropContext } from "../context/BackdropContext";
-import SideBar from "../components/SideBar";
-import NavBar from "../components/NavBar";
 import { ErrorComponent } from "../components/Error";
+import NavBar from "../components/NavBar";
+import SideBar from "../components/SideBar";
+import { useBackdropContext } from "../context/BackdropContext";
 
 const NAVBAR_SCROLL_RANGE = 300;
 
@@ -18,7 +18,8 @@ export default function PageLayout(props: ParentProps) {
   let [scrollProgress, setScrollProgress] = createSignal(0);
   let router = useRouter();
 
-  let updateProgress = () => setScrollProgress(Math.min(window.scrollY / NAVBAR_SCROLL_RANGE, 1));
+  let updateProgress = () =>
+    setScrollProgress(Math.min(window.scrollY / NAVBAR_SCROLL_RANGE, 1));
 
   onMount(() => {
     window.addEventListener("scroll", updateProgress, { passive: true });
@@ -40,7 +41,9 @@ export default function PageLayout(props: ParentProps) {
       </div>
       <div class="md:pl-32">
         <main class="mx-4 my-3 flex flex-col sm:mx-5">
-          <ErrorBoundary fallback={(err, reset) => <PageError err={err} reset={reset} />}>
+          <ErrorBoundary
+            fallback={(err, reset) => <PageError err={err} reset={reset} />}
+          >
             {props.children}
           </ErrorBoundary>
         </main>
@@ -80,6 +83,7 @@ function BackdropFilling() {
     <div class="fixed inset-0 -z-10 size-full">
       <img
         src={shownSrc()}
+        alt=""
         class="h-full w-full object-cover transition-opacity duration-300"
         classList={{ "opacity-100": visible(), "opacity-0": !visible() }}
       />

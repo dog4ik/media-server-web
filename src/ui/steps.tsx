@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { For, ParentProps } from "solid-js";
+import { For, type ParentProps } from "solid-js";
 
 type StepsProps = {
   current: number;
@@ -28,14 +28,16 @@ function Step(props: StepProps) {
 
 function Steps(props: StepsProps & ParentProps) {
   let percent = () => {
-    if (props.current == 0) return 0;
-    if (props.current == 1) return 50;
-    if (props.current == 2) return 100;
+    if (props.current === 0) return 0;
+    if (props.current === 1) return 50;
+    if (props.current === 2) return 100;
   };
   return (
     <div class="relative flex items-center gap-40">
       <For each={props.steps}>
-        {(title, i) => <Step index={i()} active={props.current >= i()} title={title} />}
+        {(title, i) => (
+          <Step index={i()} active={props.current >= i()} title={title} />
+        )}
       </For>
       <div class="bg-secondary absolute top-1/2 h-2 w-full -translate-y-1/2 rounded-full">
         <div
@@ -48,4 +50,5 @@ function Steps(props: StepsProps & ParentProps) {
     </div>
   );
 }
+
 export { Steps };

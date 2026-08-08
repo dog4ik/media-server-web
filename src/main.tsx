@@ -1,11 +1,14 @@
 /* @refresh reload */
-import { render } from "solid-js/web";
 
 import { createRouter, RouterProvider } from "@tanstack/solid-router";
-import { routeTree } from "./routes";
+import { render } from "solid-js/web";
 import { ErrorComponent } from "./components/Error";
+import { routeTree } from "./routes";
 
 const root = document.getElementById("root");
+if (!root) {
+  throw new Error("Failed to mount the app: #root element is missing");
+}
 
 const router = createRouter({
   routeTree,
@@ -21,7 +24,9 @@ const router = createRouter({
   // Errors thrown by a page render via this component inside its parent layout's
   // <Outlet/> (so the sidebar/navbar stay visible), and TanStack's CatchBoundary
   // resets it automatically on navigation — keeping links usable after an error.
-  defaultErrorComponent: ({ error, reset }) => <ErrorComponent err={error} reset={reset} />,
+  defaultErrorComponent: ({ error, reset }) => (
+    <ErrorComponent err={error} reset={reset} />
+  ),
 });
 
 // Register the router instance for type safety
@@ -31,4 +36,4 @@ declare module "@tanstack/solid-router" {
   }
 }
 
-render(() => <RouterProvider router={router} />, root!);
+render(() => <RouterProvider router={router} />, root);

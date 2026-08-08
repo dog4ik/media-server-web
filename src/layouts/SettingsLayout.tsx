@@ -1,9 +1,14 @@
-import { createEffect, createSignal, For, ParentProps } from "solid-js";
-import { Link, linkOptions, LinkOptions, useRouterState } from "@tanstack/solid-router";
-import Settings2 from "lucide-solid/icons/settings-2";
-import Palette from "lucide-solid/icons/palette";
+import {
+  Link,
+  type LinkOptions,
+  linkOptions,
+  useRouterState,
+} from "@tanstack/solid-router";
 import Activity from "lucide-solid/icons/activity";
+import Palette from "lucide-solid/icons/palette";
+import Settings2 from "lucide-solid/icons/settings-2";
 import type { Component } from "solid-js";
+import { createEffect, createSignal, For, type ParentProps } from "solid-js";
 
 type TabConfig = {
   options: LinkOptions;
@@ -38,7 +43,9 @@ export function SettingsLayout(props: ParentProps) {
 
   let activeIndex = () => {
     let pathname = routerState().location.pathname;
-    return TABS.findIndex(({ options }) => pathname === (options as { to: string }).to);
+    return TABS.findIndex(
+      ({ options }) => pathname === (options as { to: string }).to,
+    );
   };
 
   createEffect(() => {
@@ -53,7 +60,12 @@ export function SettingsLayout(props: ParentProps) {
   return (
     <>
       <div class="border-border flex w-full justify-start overflow-x-auto border-b sm:justify-center">
-        <nav ref={navRef!} class="relative flex shrink-0 items-center">
+        <nav
+          ref={(el) => {
+            navRef = el;
+          }}
+          class="relative flex shrink-0 items-center"
+        >
           <For each={TABS}>
             {(tab, i) => (
               <Link

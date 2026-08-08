@@ -1,14 +1,20 @@
-import { Button } from "@/ui/button";
-import { Schemas } from "@/utils/serverApi";
+import ChevronDown from "lucide-solid/icons/chevron-down";
+import ChevronUp from "lucide-solid/icons/chevron-up";
+import FileIcon from "lucide-solid/icons/file";
+import DirIcon from "lucide-solid/icons/folder";
 import { For, Show } from "solid-js";
 import { createStore, produce } from "solid-js/store";
-import ChevronUp from "lucide-solid/icons/chevron-up";
-import ChevronDown from "lucide-solid/icons/chevron-down";
-import DirIcon from "lucide-solid/icons/folder";
-import FileIcon from "lucide-solid/icons/file";
-import { capitalize, formatSize } from "@/utils/formats";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
+import { Button } from "@/ui/button";
 import { Progress } from "@/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/ui/select";
+import { capitalize, formatSize } from "@/utils/formats";
+import type { Schemas } from "@/utils/serverApi";
 
 type Child = {
   path: string;
@@ -28,10 +34,10 @@ export type Entry = Child | Directory;
 
 function createTree(files: Schemas["StateFile"][]) {
   let root: Entry[] = [];
-  for (let file of files) {
+  for (const file of files) {
     let current = root;
     for (let i = 0; i < file.path.length; ++i) {
-      let isLast = i == file.path.length - 1;
+      let isLast = i === file.path.length - 1;
       if (isLast) {
         current.push({
           path: file.path[i],
@@ -39,7 +45,7 @@ function createTree(files: Schemas["StateFile"][]) {
           size: file.size,
         });
       } else {
-        let existingFolder = current.find((c) => c.path == file.path[i]);
+        let existingFolder = current.find((c) => c.path === file.path[i]);
         if (existingFolder && "children" in existingFolder) {
           existingFolder.size += file.size;
           current = existingFolder.children;
@@ -82,7 +88,9 @@ function Child(props: ChildProps) {
       <div class="flex-1 space-y-1">
         <div class="flex">
           <span class="flex-1">{props.path}</span>
-          <div class="text-muted-foreground text-xs">{formatSize(props.size)}</div>
+          <div class="text-muted-foreground text-xs">
+            {formatSize(props.size)}
+          </div>
         </div>
         <Progress value={props.fileProgress(props.file)} class="h-1" />
       </div>
@@ -90,8 +98,12 @@ function Child(props: ChildProps) {
         options={["disabled", "low", "medium", "high"]}
         defaultValue={priority()}
         value={priority()}
-        onChange={(p) => props.onPriorityUpdate(props.idx, p ?? priority() ?? "disabled")}
-        itemComponent={(p) => <SelectItem item={p.item}>{capitalize(p.item.rawValue)}</SelectItem>}
+        onChange={(p) =>
+          props.onPriorityUpdate(props.idx, p ?? priority() ?? "disabled")
+        }
+        itemComponent={(p) => (
+          <SelectItem item={p.item}>{capitalize(p.item.rawValue)}</SelectItem>
+        )}
       >
         <SelectTrigger class="w-[100px]">
           <SelectValue class="text-white">{capitalize(priority())}</SelectValue>
@@ -118,14 +130,19 @@ function Directory(props: DirectoryProps) {
   return (
     <div>
       <div class="flex items-center gap-2">
-        <Button class="p-1" onClick={() => props.onCollapseToggle(props.fullPath)}>
+        <Button
+          class="p-1"
+          onClick={() => props.onCollapseToggle(props.fullPath)}
+        >
           <Show when={props.isCollapsed} fallback={<ChevronUp />}>
             <ChevronDown />
           </Show>
         </Button>
         <DirIcon class="inline" />
         <span class="flex-1">{props.path}</span>
-        <div class="text-muted-foreground text-xs">{formatSize(props.size)}</div>
+        <div class="text-muted-foreground text-xs">
+          {formatSize(props.size)}
+        </div>
       </div>
       <Show when={!props.isCollapsed}>
         <div class="ml-2 flex flex-col gap-5">
@@ -150,7 +167,7 @@ function Directory(props: DirectoryProps) {
                   path={item.path}
                   onPriorityUpdate={props.onPriorityUpdate}
                   size={item.size}
-                  file={props.files.find((f) => f.index == item.idx)!}
+                  file={props.files.find((f) => f.index === item.idx)!}
                 />
               )
             }
@@ -172,12 +189,12 @@ export function FileTree(props: Props) {
   function onCollapseToggle(fullPath: string[]) {
     setTree(
       produce((tree) => {
-        let current: Entry | undefined = undefined;
-        for (let path of fullPath) {
+        let current: Entry | undefined;
+        for (const path of fullPath) {
           if (current === undefined) {
-            current = tree.find((el) => el.path == path);
+            current = tree.find((el) => el.path === path);
           } else if ("children" in current) {
-            current = current.children.find((el) => el.path == path);
+            current = current.children.find((el) => el.path === path);
           }
         }
         if (current && "children" in current) {
@@ -210,7 +227,7 @@ export function FileTree(props: Props) {
                 path={entry.path}
                 onPriorityUpdate={props.onPriorityChange}
                 fileProgress={props.fileProgress}
-                file={props.files.find((f) => f.index == entry.idx)!}
+                file={props.files.find((f) => f.index === entry.idx)!}
                 idx={entry.idx}
                 size={entry.size}
               />

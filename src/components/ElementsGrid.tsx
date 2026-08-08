@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { ParentProps } from "solid-js";
+import type { ParentProps } from "solid-js";
 
 type Props = {
   elementSize: number;

@@ -1,11 +1,17 @@
 import { For, Match, Switch } from "solid-js";
-import { Schemas } from "../../utils/serverApi";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/ui/dialog";
+import { Skeleton } from "@/ui/skeleton";
+import { TextField, TextFieldInput } from "@/ui/textfield";
+import { queryApi } from "@/utils/queryApi";
+import type { Schemas } from "../../utils/serverApi";
 import useDebounce from "../../utils/useDebounce";
 import ProviderLogo from "../ProviderLogo";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/ui/dialog";
-import { TextField, TextFieldInput } from "@/ui/textfield";
-import { Skeleton } from "@/ui/skeleton";
-import { queryApi } from "@/utils/queryApi";
 
 type SearchResultProps = {
   metadata: Schemas["MetadataSearchResult"];
@@ -15,6 +21,7 @@ type SearchResultProps = {
 function SearchResult(props: SearchResultProps) {
   return (
     <button
+      type="button"
       onClick={props.onClick}
       class="bg-card hover:bg-card/80 w-full overflow-hidden rounded-lg transition-colors"
     >
@@ -28,9 +35,13 @@ function SearchResult(props: SearchResultProps) {
         />
         <div class="grid gap-2">
           <div class="flex items-center gap-2">
-            <h3 class="line-clamp-1 text-lg font-medium">{props.metadata.title}</h3>
+            <h3 class="line-clamp-1 text-lg font-medium">
+              {props.metadata.title}
+            </h3>
           </div>
-          <p class="text-muted-foreground line-clamp-2 text-left text-sm">{props.metadata.plot}</p>
+          <p class="text-muted-foreground line-clamp-2 text-left text-sm">
+            {props.metadata.plot}
+          </p>
           <div class="h-10 w-10">
             <ProviderLogo provider={props.metadata.metadata_provider} />
           </div>
@@ -64,7 +75,10 @@ type Props = {
 };
 
 export default function FixMetadata(props: Props) {
-  let [search, deferredSearch, setSearch] = useDebounce(500, props.initialSearch ?? "");
+  let [search, deferredSearch, setSearch] = useDebounce(
+    500,
+    props.initialSearch ?? "",
+  );
 
   let searchResult = queryApi.useQuery(
     "get",
@@ -77,15 +91,21 @@ export default function FixMetadata(props: Props) {
 
   let filteredResults = () =>
     searchResult.data?.filter(
-      (s) => s.metadata_provider !== "local" && s.content_type == props.contentType,
+      (s) =>
+        s.metadata_provider !== "local" && s.content_type === props.contentType,
     ) ?? [];
 
   return (
-    <Dialog onOpenChange={(isClosed) => isClosed || props.onClose()} open={props.open}>
+    <Dialog
+      onOpenChange={(isClosed) => isClosed || props.onClose()}
+      open={props.open}
+    >
       <DialogContent class="grid-rows-[auto_auto_1fr] sm:h-3/4 sm:w-2/3">
         <DialogHeader>
           <DialogTitle>Edit metadata</DialogTitle>
-          <DialogDescription>Select correct metadata from the list below</DialogDescription>
+          <DialogDescription>
+            Select correct metadata from the list below
+          </DialogDescription>
         </DialogHeader>
 
         <TextField>
@@ -106,16 +126,22 @@ export default function FixMetadata(props: Props) {
           >
             <Match when={searchResult.isError}>
               <div class="grid size-full place-items-center">
-                <span class="text-muted-foreground text-2xl">Search failed</span>
+                <span class="text-muted-foreground text-2xl">
+                  Search failed
+                </span>
               </div>
             </Match>
             <Match
               when={
-                searchResult.isSuccess && !searchResult.isFetching && filteredResults().length === 0
+                searchResult.isSuccess &&
+                !searchResult.isFetching &&
+                filteredResults().length === 0
               }
             >
               <div class="grid size-full place-items-center">
-                <span class="text-muted-foreground text-2xl">Nothing found</span>
+                <span class="text-muted-foreground text-2xl">
+                  Nothing found
+                </span>
               </div>
             </Match>
             <Match when={searchResult.isSuccess}>

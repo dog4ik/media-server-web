@@ -1,7 +1,18 @@
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/ui/dialog";
-import { TextField, TextFieldInput, TextFieldLabel, TextFieldTextArea } from "@/ui/textfield";
 import { Button } from "@/ui/button";
-import { queryApi, queryClient } from "@/utils/queryApi";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/ui/dialog";
+import {
+  TextField,
+  TextFieldInput,
+  TextFieldLabel,
+  TextFieldTextArea,
+} from "@/ui/textfield";
+import { queryApi } from "@/utils/queryApi";
 import type { Schemas } from "@/utils/serverApi";
 
 type Props = {
@@ -35,7 +46,8 @@ export function ListFormDialog(props: Props) {
     let form = new FormData(e.currentTarget as HTMLFormElement);
     let name = (form.get("name")?.toString() ?? "").trim();
     if (!name || isPending()) return;
-    let description = (form.get("description")?.toString() ?? "").trim() || null;
+    let description =
+      (form.get("description")?.toString() ?? "").trim() || null;
     let body = { name, description };
     if (props.list) {
       updateList.mutate({ params: { path: { id: props.list.id } }, body });
@@ -55,7 +67,10 @@ export function ListFormDialog(props: Props) {
             <TextFieldLabel>Name</TextFieldLabel>
             <TextFieldInput required placeholder="My list" />
           </TextField>
-          <TextField name="description" defaultValue={props.list?.description ?? ""}>
+          <TextField
+            name="description"
+            defaultValue={props.list?.description ?? ""}
+          >
             <TextFieldLabel>Description</TextFieldLabel>
             <TextFieldTextArea placeholder="Optional description" />
           </TextField>

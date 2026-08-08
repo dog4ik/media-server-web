@@ -1,9 +1,14 @@
 import type { LinkOptions } from "@tanstack/solid-router";
-import type { Schemas } from "@/utils/serverApi";
-import { extendEpisode, extendMovie, extendShow, posterList } from "@/utils/library";
-import { formatSE } from "@/utils/formats";
-import { queryApi } from "@/utils/queryApi";
 import { useNotifications } from "@/context/NotificationContext";
+import { formatSE } from "@/utils/formats";
+import {
+  extendEpisode,
+  extendMovie,
+  extendShow,
+  posterList,
+} from "@/utils/library";
+import { queryApi } from "@/utils/queryApi";
+import type { Schemas } from "@/utils/serverApi";
 
 export type ListContent = Schemas["ListContent"];
 
@@ -40,7 +45,10 @@ function addedAt(item: ListContent, listId: number): string | undefined {
   return item.local?.lists.find((list) => list.id === listId)?.added_at;
 }
 
-export function extendListContent(item: ListContent, listId: number): ExtendedListContent {
+export function extendListContent(
+  item: ListContent,
+  listId: number,
+): ExtendedListContent {
   switch (item.content_type) {
     case "movie": {
       let movie = extendMovie(item);
@@ -127,7 +135,8 @@ export function useListActions(opts: ListActionsOptions) {
   let notify = useNotifications();
 
   let memberships = () => opts.memberships?.() ?? [];
-  let inWatchlist = () => memberships().some((list) => list.kind === "watchlist");
+  let inWatchlist = () =>
+    memberships().some((list) => list.kind === "watchlist");
   let inSaved = () => memberships().some((list) => list.kind === "saved");
   let inList = (id: number) => memberships().some((list) => list.id === id);
 
@@ -144,9 +153,21 @@ export function useListActions(opts: ListActionsOptions) {
 
   let mutationOptions = () => ({ onError, onSettled: invalidateListQueries });
 
-  let addToWatchlist = queryApi.useMutation("post", "/api/lists/watchlist/add", mutationOptions);
-  let addToSaved = queryApi.useMutation("post", "/api/lists/saved/add", mutationOptions);
-  let addToList = queryApi.useMutation("post", "/api/lists/{id}/add", mutationOptions);
+  let addToWatchlist = queryApi.useMutation(
+    "post",
+    "/api/lists/watchlist/add",
+    mutationOptions,
+  );
+  let addToSaved = queryApi.useMutation(
+    "post",
+    "/api/lists/saved/add",
+    mutationOptions,
+  );
+  let addToList = queryApi.useMutation(
+    "post",
+    "/api/lists/{id}/add",
+    mutationOptions,
+  );
   let removeFromWatchlist = queryApi.useMutation(
     "delete",
     "/api/lists/watchlist/remove/{metadata_id}",
@@ -186,7 +207,10 @@ export function useListActions(opts: ListActionsOptions) {
         { onSuccess: () => opts.onRemoved?.(savedName()) },
       );
     } else {
-      addToSaved.mutate({ body: opts.items() }, { onSuccess: () => opts.onAdded?.(savedName()) });
+      addToSaved.mutate(
+        { body: opts.items() },
+        { onSuccess: () => opts.onAdded?.(savedName()) },
+      );
     }
   }
 

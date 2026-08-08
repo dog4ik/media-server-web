@@ -1,7 +1,7 @@
-import { Link, LinkOptions } from "@tanstack/solid-router";
+import { Link, type LinkOptions } from "@tanstack/solid-router";
 import clsx from "clsx";
 import { FiX } from "solid-icons/fi";
-import { createSignal, onMount, ParentProps, Show } from "solid-js";
+import { createSignal, onMount, type ParentProps, Show } from "solid-js";
 import { buttonVariants } from "@/ui/button";
 
 function useClose(cb: () => void, time: number) {
@@ -15,9 +15,14 @@ function useClose(cb: () => void, time: number) {
   return [shouldAnimateOut, setClose] as const;
 }
 
-function HrefWrapper(props: ParentProps & { url?: LinkOptions; class?: string }) {
+function HrefWrapper(
+  props: ParentProps & { url?: LinkOptions; class?: string },
+) {
   return (
-    <Show fallback={<span class={props.class}>{props.children}</span>} when={props.url}>
+    <Show
+      fallback={<span class={props.class}>{props.children}</span>}
+      when={props.url}
+    >
       {(url) => (
         <Link class={clsx(props.class, "hover:underline")} {...url()}>
           {props.children}
@@ -40,7 +45,9 @@ const TIMELINE_KEYFRAMES: Keyframe[] = [{ width: "100%" }, { width: "0%" }];
 
 const ANIMATION_DURATION = 5_000;
 
-export default function Notification(props: NotificationProps & { onClose: () => void }) {
+export default function Notification(
+  props: NotificationProps & { onClose: () => void },
+) {
   let [shouldAnimateOut, close] = useClose(props.onClose, 200);
   function handleHover() {
     animation.pause();
@@ -51,7 +58,10 @@ export default function Notification(props: NotificationProps & { onClose: () =>
   let timeLine: HTMLDivElement = {} as any;
   let animation: Animation;
   onMount(() => {
-    animation = timeLine.animate(TIMELINE_KEYFRAMES, props.duration ?? ANIMATION_DURATION);
+    animation = timeLine.animate(
+      TIMELINE_KEYFRAMES,
+      props.duration ?? ANIMATION_DURATION,
+    );
     animation.addEventListener("finish", close);
   });
 
@@ -66,7 +76,10 @@ export default function Notification(props: NotificationProps & { onClose: () =>
         shouldAnimateOut() ? "translate-x-full opacity-0" : "animate-fade-in",
       )}
     >
-      <div class="bg-primary absolute right-0 bottom-0 left-0 z-10 h-0.5 w-0" ref={timeLine!}></div>
+      <div
+        class="bg-primary absolute right-0 bottom-0 left-0 z-10 h-0.5 w-0"
+        ref={timeLine}
+      ></div>
       <Show when={props.poster}>
         <img
           src={props.poster}
@@ -82,7 +95,10 @@ export default function Notification(props: NotificationProps & { onClose: () =>
             {props.message}
           </p>
           <Show when={props.subTitle}>
-            <HrefWrapper class="text-muted-foreground truncate text-sm" url={props.contentUrl}>
+            <HrefWrapper
+              class="text-muted-foreground truncate text-sm"
+              url={props.contentUrl}
+            >
               {props.subTitle}
             </HrefWrapper>
           </Show>
@@ -90,11 +106,15 @@ export default function Notification(props: NotificationProps & { onClose: () =>
         <Show when={props.onUndo}>
           {(cb) => (
             <button
+              type="button"
               onClick={() => {
                 cb()();
                 close();
               }}
-              class={clsx(buttonVariants({ variant: "outline", size: "sm" }), "shrink-0")}
+              class={clsx(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "shrink-0",
+              )}
             >
               Undo
             </button>
@@ -102,6 +122,7 @@ export default function Notification(props: NotificationProps & { onClose: () =>
         </Show>
       </div>
       <button
+        type="button"
         aria-label="Dismiss notification"
         onClick={() => close()}
         class={clsx(

@@ -1,19 +1,19 @@
-import MoreButton from "../ContextMenu/MoreButton";
-import { createMemo, Show } from "solid-js";
-import { Schemas, fullUrl } from "../../utils/serverApi";
-import FallbackImage from "../FallbackImage";
-import useToggle from "../../utils/useToggle";
-import FixMetadata from "../FixMetadata";
-import { MenuRow } from "../ContextMenu/Menu";
-import promptConfirm from "../modals/ConfirmationModal";
 import { Link, linkOptions } from "@tanstack/solid-router";
-import { Skeleton } from "@/ui/skeleton";
-import { ContentPosterIconSet } from "./ContentPosterIconSet";
-import { queryApi, queryClient } from "@/utils/queryApi";
+import { createMemo, Show } from "solid-js";
 import { AddToListMenu } from "@/components/Lists/AddToListMenu";
-import { invalidateListQueries, showListItems } from "@/lib/lists";
-import { extendShow } from "@/utils/library";
 import { useMediaNotifications } from "@/context/NotificationContext";
+import { invalidateListQueries, showListItems } from "@/lib/lists";
+import { Skeleton } from "@/ui/skeleton";
+import { extendShow } from "@/utils/library";
+import { queryApi } from "@/utils/queryApi";
+import { fullUrl, type Schemas } from "../../utils/serverApi";
+import useToggle from "../../utils/useToggle";
+import { MenuRow } from "../ContextMenu/Menu";
+import MoreButton from "../ContextMenu/MoreButton";
+import FallbackImage from "../FallbackImage";
+import FixMetadata from "../FixMetadata";
+import promptConfirm from "../modals/ConfirmationModal";
+import { ContentPosterIconSet } from "./ContentPosterIconSet";
 
 type Props = {
   show: Schemas["Show"];
@@ -26,7 +26,7 @@ export function ShowCard(props: Props) {
   }
 
   let imageUrl =
-    props.show.provider == "local"
+    props.show.provider === "local"
       ? fullUrl("/api/show/{id}/poster", {
           path: { id: +props.show.provider_id },
         })
@@ -43,15 +43,23 @@ export function ShowCard(props: Props) {
     }),
   );
 
-  let deleteShow = queryApi.useMutation("delete", "/api/local_show/{id}", () => ({
-    onSettled: () => {
-      queryApi.invalidateQueries("get", "/api/local_shows");
-    },
-  }));
+  let deleteShow = queryApi.useMutation(
+    "delete",
+    "/api/local_show/{id}",
+    () => ({
+      onSettled: () => {
+        queryApi.invalidateQueries("get", "/api/local_shows");
+      },
+    }),
+  );
 
-  let removeLiked = queryApi.useMutation("delete", "/api/lists/saved/remove/{metadata_id}", () => ({
-    onSettled: invalidateListQueries,
-  }));
+  let removeLiked = queryApi.useMutation(
+    "delete",
+    "/api/lists/saved/remove/{metadata_id}",
+    () => ({
+      onSettled: invalidateListQueries,
+    }),
+  );
 
   let removeWatchlist = queryApi.useMutation(
     "delete",
@@ -62,10 +70,12 @@ export function ShowCard(props: Props) {
   );
 
   let notificator = useMediaNotifications();
-  let notify = (message: string) => notificator(extendShow(props.show), message);
+  let notify = (message: string) =>
+    notificator(extendShow(props.show), message);
 
   let likedList = () => props.show.local?.lists.find((l) => l.kind === "saved");
-  let watchList = () => props.show.local?.lists.find((l) => l.kind === "watchlist");
+  let watchList = () =>
+    props.show.local?.lists.find((l) => l.kind === "watchlist");
 
   return (
     <>
@@ -92,10 +102,12 @@ export function ShowCard(props: Props) {
           </Link>
           <Show when={props.show.episodes_amount}>
             <div
-              title={`${props.show.episodes_amount} ${props.show.episodes_amount == 1 ? "episode" : "episodes"}`}
+              title={`${props.show.episodes_amount} ${props.show.episodes_amount === 1 ? "episode" : "episodes"}`}
               class="absolute top-0 flex h-8 w-8 items-center justify-center rounded-xl bg-white"
             >
-              <span class="text-sm font-semibold text-black">{props.show.episodes_amount}</span>
+              <span class="text-sm font-semibold text-black">
+                {props.show.episodes_amount}
+              </span>
             </div>
           </Show>
           <ContentPosterIconSet
@@ -103,14 +115,18 @@ export function ShowCard(props: Props) {
             onRemoveLike={() => {
               if (props.show.local?.metadata_id) {
                 removeLiked.mutate({
-                  params: { path: { metadata_id: props.show.local?.metadata_id } },
+                  params: {
+                    path: { metadata_id: props.show.local?.metadata_id },
+                  },
                 });
               }
             }}
             onRemoveWatched={() => {
               if (props.show.local?.metadata_id) {
                 removeWatchlist.mutate({
-                  params: { path: { metadata_id: props.show.local.metadata_id } },
+                  params: {
+                    path: { metadata_id: props.show.local.metadata_id },
+                  },
                 });
               }
             }}
@@ -121,7 +137,7 @@ export function ShowCard(props: Props) {
                     ...linkOptions({
                       to: "/shows/$id",
                       search: { provider: "local" },
-                      params: { id: props.show.local!.id.toString() },
+                      params: { id: props.show.local?.id.toString() },
                     }),
                   }
                 : undefined
@@ -136,8 +152,8 @@ export function ShowCard(props: Props) {
             </span>
             <Show when={props.show.seasons}>
               <div class="text-sm font-bold text-white">
-                {props.show.seasons!.length}{" "}
-                {props.show.seasons!.length == 1 ? "season" : "seasons"}
+                {props.show.seasons?.length}{" "}
+                {props.show.seasons?.length === 1 ? "season" : "seasons"}
               </div>
             </Show>
           </Link>
@@ -154,7 +170,9 @@ export function ShowCard(props: Props) {
               <MenuRow
                 variant="destructive"
                 onClick={() =>
-                  promptConfirm(`Are you sure you want to delete ${props.show.title}?`).then(
+                  promptConfirm(
+                    `Are you sure you want to delete ${props.show.title}?`,
+                  ).then(
                     (confirmed) =>
                       confirmed &&
                       deleteShow.mutate({

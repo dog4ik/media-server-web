@@ -1,7 +1,14 @@
-import { For, Show, createMemo, createSignal, onCleanup, onMount } from "solid-js";
-import Preview from "./Preview";
-import { fullUrl, Schemas } from "@/utils/serverApi";
+import {
+  createMemo,
+  createSignal,
+  For,
+  onCleanup,
+  onMount,
+  Show,
+} from "solid-js";
 import { formatDuration } from "@/utils/formats";
+import { fullUrl, type Schemas } from "@/utils/serverApi";
+import Preview from "./Preview";
 
 type Props = {
   /**
@@ -94,7 +101,10 @@ export default function Timeline(props: Props) {
       path: {
         id: props.previews.videoId,
         number: Math.max(
-          Math.round((position / timelineRef.offsetWidth) * props.previews.previewsAmount),
+          Math.round(
+            (position / timelineRef.offsetWidth) *
+              props.previews.previewsAmount,
+          ),
           1,
         ),
       },
@@ -140,11 +150,18 @@ export default function Timeline(props: Props) {
     document.removeEventListener("mouseup", handleDocumentMouseUp);
   });
 
-  let playheadPercent = () => Math.min((props.time / (props.duration || 1)) * 100, 100);
+  let playheadPercent = () =>
+    Math.min((props.time / (props.duration || 1)) * 100, 100);
 
   return (
     <div
-      ref={timelineRef!}
+      ref={timelineRef}
+      role="slider"
+      tabIndex={0}
+      aria-label="Seek"
+      aria-valuemin={0}
+      aria-valuemax={props.duration}
+      aria-valuenow={props.time}
       class="group relative top-0 flex cursor-pointer items-center"
       onMouseDown={handleMouseDown}
       onMouseMove={(e) => {
@@ -161,7 +178,7 @@ export default function Timeline(props: Props) {
           src={previewSrc()}
           chapter={hoveredChapter()}
           X={hoverPosition()!}
-          timelineWidth={timelineRef!.offsetWidth}
+          timelineWidth={timelineRef?.offsetWidth}
           time={formatDuration((hoverTime() ?? 0) * 1000)}
         />
       </Show>
@@ -175,7 +192,10 @@ export default function Timeline(props: Props) {
                 width: `calc(${segment.width}% - 3px)`,
               }}
             >
-              <div class="bg-accent h-full" style={{ width: `${segment.fill}%` }} />
+              <div
+                class="bg-accent h-full"
+                style={{ width: `${segment.fill}%` }}
+              />
             </div>
           )}
         </For>

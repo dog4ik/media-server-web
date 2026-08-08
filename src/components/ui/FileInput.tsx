@@ -1,8 +1,14 @@
-import { createSignal, Show, Suspense } from "solid-js";
-import { FilePicker } from "../FilePicker";
 import { FiEdit2 } from "solid-icons/fi";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/ui/dialog";
+import { createSignal, Show } from "solid-js";
 import { Button } from "@/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/ui/dialog";
+import { FilePicker } from "../FilePicker";
 
 type FileInputProps = {
   value?: string;
@@ -20,7 +26,9 @@ export default function FileInput(props: FileInputProps) {
           <DialogHeader>
             <DialogTitle>{props.title}</DialogTitle>
             <Show when={props.description}>
-              {(description) => <DialogDescription>{description()}</DialogDescription>}
+              {(description) => (
+                <DialogDescription>{description()}</DialogDescription>
+              )}
             </Show>
           </DialogHeader>
           <FilePicker

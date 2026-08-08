@@ -1,21 +1,29 @@
-import { createEffect, createMemo, createSignal, Match, Show, Suspense, Switch } from "solid-js";
-import { Description, DescriptionSkeleton } from "@/components/Description";
-import { SeasonTabs } from "@/components/SeasonTabs";
-import { fullUrl, server } from "@/utils/serverApi";
-import { HoverArea, setBackdrop } from "@/context/BackdropContext";
-import DownloadTorrentModal from "@/components/modals/TorrentDownload";
-import { extendShow, posterList } from "@/utils/library";
-import Icon from "@/components/ui/Icon";
-import { FiDownload, FiSearch } from "solid-icons/fi";
-import Season from "./Season";
-import { queryApi } from "@/utils/queryApi";
 import { getRouteApi } from "@tanstack/solid-router";
-import { SuspenseLoader } from "@/components/Loader";
-import { ExternalLocalIdButtons } from "@/components/ExternalLocalIdButtons";
-import * as torrentQuery from "@/lib/torrentQuery";
+import { FiDownload, FiSearch } from "solid-icons/fi";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  Match,
+  Show,
+  Suspense,
+  Switch,
+} from "solid-js";
 import { ActorSection } from "@/components/Cast/ActorSection";
+import { Description, DescriptionSkeleton } from "@/components/Description";
 import { ListActions } from "@/components/Description/ListActions";
+import { ExternalLocalIdButtons } from "@/components/ExternalLocalIdButtons";
+import { SuspenseLoader } from "@/components/Loader";
+import DownloadTorrentModal from "@/components/modals/TorrentDownload";
+import { SeasonTabs } from "@/components/SeasonTabs";
+import Icon from "@/components/ui/Icon";
+import { HoverArea, setBackdrop } from "@/context/BackdropContext";
 import { showListItems } from "@/lib/lists";
+import * as torrentQuery from "@/lib/torrentQuery";
+import { extendShow, posterList } from "@/utils/library";
+import { queryApi } from "@/utils/queryApi";
+import { fullUrl, server } from "@/utils/serverApi";
+import Season from "./Season";
 
 export default function ShowPage() {
   let route = getRouteApi("/page/shows/$id");
@@ -37,16 +45,21 @@ export default function ShowPage() {
 
   let [downloadModal, setDownloadModal] = createSignal(false);
 
-  let seasonNumber = createMemo(() => search().season ?? show.latest()?.seasons?.at(0));
+  let seasonNumber = createMemo(
+    () => search().season ?? show.latest()?.seasons?.at(0),
+  );
 
-  let capabilities = queryApi.useQuery("get", "/api/configuration/capabilities");
+  let capabilities = queryApi.useQuery(
+    "get",
+    "/api/configuration/capabilities",
+  );
 
   createEffect(() => {
     if (show.data) {
       let localImage =
-        show.data.provider == "local"
+        show.data.provider === "local"
           ? fullUrl("/api/show/{id}/backdrop", {
-              path: { id: +show.data.provider_id! },
+              path: { id: +show.data.provider_id },
             })
           : undefined;
       setBackdrop([localImage, show.data.backdrop ?? undefined]);
@@ -54,10 +67,11 @@ export default function ShowPage() {
   });
 
   async function detectIntros() {
-    if (show.data?.provider === "local" && seasonNumber() !== undefined) {
+    const season = seasonNumber();
+    if (show.data?.provider === "local" && season !== undefined) {
       await server.POST("/api/show/{show_id}/{season}/detect_intros", {
         params: {
-          path: { season: seasonNumber()!, show_id: +show.data.provider_id },
+          path: { season, show_id: +show.data.provider_id },
         },
       });
     }
@@ -97,10 +111,13 @@ export default function ShowPage() {
                     genres={show().genres ?? undefined}
                   >
                     <div class="flex items-center gap-2">
-                      <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
+                      <Icon
+                        tooltip="Download"
+                        onClick={() => setDownloadModal(true)}
+                      >
                         <FiDownload />
                       </Icon>
-                      <Show when={show().provider == "local"}>
+                      <Show when={show().provider === "local"}>
                         <Suspense>
                           <Icon
                             tooltip={
@@ -141,7 +158,10 @@ export default function ShowPage() {
       <div class="hover-hide">
         <Show when={show.latest()?.seasons}>
           {(seasons) => (
-            <SeasonTabs tabs={seasons()} onChange={(season) => setSelectedSeason(season)} />
+            <SeasonTabs
+              tabs={seasons()}
+              onChange={(season) => setSelectedSeason(season)}
+            />
           )}
         </Show>
         <SuspenseLoader name={`"Season ${seasonNumber()}`}>
@@ -160,7 +180,9 @@ export default function ShowPage() {
           </Show>
         </SuspenseLoader>
         <Suspense>
-          <Show when={show.data?.cast?.length}>{<ActorSection actors={show.data!.cast!} />}</Show>
+          <Show when={show.data?.cast?.length ? show.data?.cast : undefined}>
+            {(cast) => <ActorSection actors={cast()} />}
+          </Show>
         </Suspense>
       </div>
     </Suspense>

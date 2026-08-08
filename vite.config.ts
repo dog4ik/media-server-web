@@ -1,10 +1,9 @@
 /// <reference types="vitest/config" />
 
+import * as path from "node:path";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
-import tailwindcss from "@tailwindcss/vite";
-
-import * as path from "node:path";
 
 import pkg from "./package.json" with { type: "json" };
 

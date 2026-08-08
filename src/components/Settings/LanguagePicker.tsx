@@ -1,6 +1,12 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/ui/select";
 import { capitalize } from "@/utils/formats";
-import { Schemas } from "@/utils/serverApi";
+import type { Schemas } from "@/utils/serverApi";
 
 type Props = {
   onChange: (language: Schemas["Language"] | undefined) => void;
@@ -8,7 +14,15 @@ type Props = {
   placeholder?: string;
 };
 
-export const LANGUAGE_LIST: Schemas["Language"][] = ["en", "es", "de", "fr", "ru", "ja", "sr"];
+export const LANGUAGE_LIST: Schemas["Language"][] = [
+  "en",
+  "es",
+  "de",
+  "fr",
+  "ru",
+  "ja",
+  "sr",
+];
 
 export function LanguagePicker(props: Props) {
   return (
@@ -17,11 +31,13 @@ export function LanguagePicker(props: Props) {
       value={props.value ?? null}
       placeholder={props.placeholder}
       onChange={(l) => props.onChange(l ?? undefined)}
-      itemComponent={(p) => <SelectItem item={p.item}>{capitalize(p.item.rawValue)}</SelectItem>}
+      itemComponent={(p) => (
+        <SelectItem item={p.item}>{capitalize(p.item.rawValue)}</SelectItem>
+      )}
     >
       <SelectTrigger class="max-w-sm">
         <SelectValue class="text-white">
-          {props.value ? capitalize(props.value!) : undefined}
+          {props.value ? capitalize(props.value) : undefined}
         </SelectValue>
       </SelectTrigger>
       <SelectContent />

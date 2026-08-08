@@ -1,9 +1,8 @@
-import type { ComponentProps, ValidComponent } from "solid-js";
-import { splitProps } from "solid-js";
 import { Alert as AlertPrimitive } from "@kobalte/core/alert";
 import type { VariantProps } from "cva";
-
 import { cva, cx } from "cva";
+import type { ComponentProps, ValidComponent } from "solid-js";
+import { splitProps } from "solid-js";
 
 export const alertVariants = cva({
   base: "relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
@@ -24,7 +23,9 @@ export type AlertProps<T extends ValidComponent = "button"> = ComponentProps<
 > &
   VariantProps<typeof alertVariants>;
 
-export const Alert = <T extends ValidComponent = "button">(props: AlertProps<T>) => {
+export const Alert = <T extends ValidComponent = "button">(
+  props: AlertProps<T>,
+) => {
   const [, rest] = splitProps(props as AlertProps, ["class", "variant"]);
 
   return (
@@ -47,7 +48,10 @@ export const AlertTitle = (props: AlertTitleProps) => {
   return (
     <div
       data-slot="alert-title"
-      class={cx("col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight", props.class)}
+      class={cx(
+        "col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight",
+        props.class,
+      )}
       {...rest}
     />
   );

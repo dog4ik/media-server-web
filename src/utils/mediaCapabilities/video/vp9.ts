@@ -1,3 +1,3 @@
-function getVp9Codec() {
+export function getVp9Codec() {
   return "vp09";
 }

@@ -1,8 +1,8 @@
 import { onCleanup } from "solid-js";
-import { fullUrl, Schemas } from "./serverApi";
-import tracing from "./tracing";
 import { useServerStatus } from "@/context/ServerStatusContext";
 import { UnavailableError } from "./errors";
+import { fullUrl, type Schemas } from "./serverApi";
+import tracing from "./tracing";
 
 type EventType = Schemas["Notification"];
 
@@ -16,7 +16,8 @@ const MAX_RECONNECT_DELAY = 30_000;
 export class ServerConnection {
   private socket: WebSocket | undefined;
   private reconnectAttempts = 0;
-  private reconnectTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
+  private reconnectTimeout: ReturnType<typeof setTimeout> | undefined =
+    undefined;
 
   private handlers: {
     [T in keyof TaskProgressMap]?: ((progress: TaskProgressMap[T]) => void)[];
@@ -24,8 +25,12 @@ export class ServerConnection {
   private torrentHandler:
     | ((v: Schemas["TorrentProgress"] | Schemas["SessionState"]) => void)
     | undefined;
-  private connectedHandler: ((state: Schemas["TasksSnapshot"]) => void) | undefined;
-  private allTorrentsPromise: ((torrents: Schemas["SessionState"]) => void) | undefined;
+  private connectedHandler:
+    | ((state: Schemas["TasksSnapshot"]) => void)
+    | undefined;
+  private allTorrentsPromise:
+    | ((torrents: Schemas["SessionState"]) => void)
+    | undefined;
   private ready: Promise<void>;
   private readyRes: () => void;
   private wakeSubscribers: Set<() => void>;
@@ -66,11 +71,14 @@ export class ServerConnection {
     if (this.reconnectTimeout) return;
 
     const delay = Math.min(
-      BASE_RECONNECT_DELAY * Math.pow(2, this.reconnectAttempts),
+      BASE_RECONNECT_DELAY * 2 ** this.reconnectAttempts,
       MAX_RECONNECT_DELAY,
     );
 
-    tracing.debug({ attempts: this.reconnectAttempts }, `Scheduled ws reconnect in ${delay} ms`);
+    tracing.debug(
+      { attempts: this.reconnectAttempts },
+      `Scheduled ws reconnect in ${delay} ms`,
+    );
 
     this.reconnectTimeout = setTimeout(() => {
       this.reconnectTimeout = undefined;
@@ -86,30 +94,30 @@ export class ServerConnection {
       this.send({ type: "torrentsubscribe" });
     }
     this.readyRes();
-    for (let waker of this.wakeSubscribers) {
+    for (const waker of this.wakeSubscribers) {
       waker();
       tracing.trace("Executed waker callback");
     }
   }
   private onMessage(msg: MessageEvent<any>) {
     let event: Schemas["WsMessage"] = JSON.parse(msg.data);
-    if (event.type == "progress") {
+    if (event.type === "progress") {
       const { task_type } = event.progress;
       let handlers = this.handlers[task_type];
       if (handlers) {
-        for (let handler of handlers) {
+        for (const handler of handlers) {
           (handler as (progress: EventType) => void)(event.progress);
         }
       }
       return;
     }
-    if (event.type == "torrentprogress") {
+    if (event.type === "torrentprogress") {
       if (this.torrentHandler) {
         this.torrentHandler(event.progress);
       }
       return;
     }
-    if (event.type == "torrentsessionstate") {
+    if (event.type === "torrentsessionstate") {
       tracing.trace("Got full session state");
       if (this.allTorrentsPromise) {
         try {
@@ -121,7 +129,7 @@ export class ServerConnection {
         this.torrentHandler(event.session);
       }
     }
-    if (event.type == "connected") {
+    if (event.type === "connected") {
       tracing.info("Successfully received connect event from the server");
       if (this.connectedHandler) {
         this.connectedHandler(event.state);
@@ -151,7 +159,7 @@ export class ServerConnection {
   }
 
   private send(message: Schemas["WsRequest"]) {
-    if (this.socket && this.socket.readyState == this.socket.OPEN) {
+    if (this.socket && this.socket.readyState === this.socket.OPEN) {
       try {
         tracing.trace("Sent socket message");
         this.socket.send(JSON.stringify(message));
@@ -180,7 +188,7 @@ export class ServerConnection {
     if (!this.handlers[eventType]) {
       this.handlers[eventType] = [];
     }
-    this.handlers[eventType]!.push(handler);
+    this.handlers[eventType]?.push(handler);
     onCleanup(() => this.removeProgressHandler(eventType, handler));
   }
 
@@ -203,7 +211,9 @@ export class ServerConnection {
   }
 
   setTorrentHandler(
-    handler: (progress: Schemas["TorrentProgress"] | Schemas["SessionState"]) => void,
+    handler: (
+      progress: Schemas["TorrentProgress"] | Schemas["SessionState"],
+    ) => void,
   ) {
     this.torrentHandler = handler;
   }

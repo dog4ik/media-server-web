@@ -1,15 +1,28 @@
+import {
+  FiAlertOctagon,
+  FiAlertTriangle,
+  FiRefreshCw,
+  FiSearch,
+  FiWifiOff,
+} from "solid-icons/fi";
+import {
+  type ComponentProps,
+  ErrorBoundary,
+  type JSX,
+  onCleanup,
+  type ParentProps,
+  Show,
+} from "solid-js";
+import { useServerStatus } from "@/context/ServerStatusContext";
 import { Button } from "@/ui/button";
 import {
-  NotFoundError,
-  InternalServerError,
-  UnavailableError,
-  BaseError,
   BadRequestError,
+  BaseError,
+  InternalServerError,
+  NotFoundError,
+  UnavailableError,
 } from "@/utils/errors";
 import { MEDIA_SERVER_URL } from "@/utils/serverApi";
-import { useServerStatus } from "@/context/ServerStatusContext";
-import { FiAlertOctagon, FiAlertTriangle, FiRefreshCw, FiSearch, FiWifiOff } from "solid-icons/fi";
-import { ComponentProps, ErrorBoundary, JSX, onCleanup, ParentProps, Show } from "solid-js";
 
 /**
  * Centers the error panel inside whatever content area it is rendered in.
@@ -19,7 +32,9 @@ import { ComponentProps, ErrorBoundary, JSX, onCleanup, ParentProps, Show } from
  */
 function ErrorLayout(props: ParentProps) {
   return (
-    <div class="flex min-h-[60vh] w-full items-center justify-center p-4">{props.children}</div>
+    <div class="flex min-h-[60vh] w-full items-center justify-center p-4">
+      {props.children}
+    </div>
   );
 }
 
@@ -101,7 +116,9 @@ type Props = {
   context?: string;
 };
 
-export function ApplicationErrorBoundary(props: ComponentProps<typeof ErrorBoundary>) {
+export function ApplicationErrorBoundary(
+  props: ComponentProps<typeof ErrorBoundary>,
+) {
   return (
     <ErrorBoundary
       fallback={(err, reset) => {
@@ -145,7 +162,11 @@ export function ErrorComponent(props: Props) {
           accent="muted"
           icon={<FiSearch size={32} />}
           title="Not found"
-          message={props.err.message || props.context || "The requested resource doesn't exist."}
+          message={
+            props.err.message ||
+            props.context ||
+            "The requested resource doesn't exist."
+          }
         />
       </ErrorLayout>
     );
@@ -157,7 +178,11 @@ export function ErrorComponent(props: Props) {
         <ErrorPanel
           icon={<FiAlertOctagon size={32} />}
           title="Request failed"
-          message={props.context ? `${props.context} (${props.err.message})` : props.err.message}
+          message={
+            props.context
+              ? `${props.context} (${props.err.message})`
+              : props.err.message
+          }
           retry={props.reset}
         />
       </ErrorLayout>
@@ -182,7 +207,9 @@ export function ErrorComponent(props: Props) {
       <ErrorPanel
         icon={<FiAlertTriangle size={32} />}
         title="Something went wrong"
-        message={props.context ?? props.err.message ?? "An unexpected error occurred."}
+        message={
+          props.context ?? props.err.message ?? "An unexpected error occurred."
+        }
         retry={props.reset}
       />
     </ErrorLayout>

@@ -1,18 +1,31 @@
-import { FiLoader, FiMaximize, FiPause, FiPlay, FiSettings } from "solid-icons/fi";
-import { JSX, ParentProps, Show, createSignal, onCleanup, onMount } from "solid-js";
-import VolumeIcon from "./VolumeIcon";
-import Timeline from "./Timeline";
-import { FaSolidClosedCaptioning } from "solid-icons/fa";
-import ActionIcon from "./ActionIcon";
-import Subtitles from "./Subtitles";
-import PlayerMenu from "./PlayerMenu";
-import { Schemas } from "../../utils/serverApi";
+import { Link, type LinkOptions } from "@tanstack/solid-router";
 import clsx from "clsx";
-import { Button } from "@/ui/button";
+import { FaSolidClosedCaptioning } from "solid-icons/fa";
+import {
+  FiLoader,
+  FiMaximize,
+  FiPause,
+  FiPlay,
+  FiSettings,
+} from "solid-icons/fi";
+import {
+  createSignal,
+  type JSX,
+  onCleanup,
+  onMount,
+  type ParentProps,
+  Show,
+} from "solid-js";
+import type { MediaSessionState } from "@/lib/mediaSession";
 import { useTracksSelection } from "@/pages/Watch/TracksSelectionContext";
+import { Button } from "@/ui/button";
 import tracing from "@/utils/tracing";
-import { Link, LinkOptions } from "@tanstack/solid-router";
-import { MediaSessionState } from "@/lib/mediaSession";
+import type { Schemas } from "../../utils/serverApi";
+import ActionIcon from "./ActionIcon";
+import PlayerMenu from "./PlayerMenu";
+import Subtitles from "./Subtitles";
+import Timeline from "./Timeline";
+import VolumeIcon from "./VolumeIcon";
 
 function formatDuration(time: number) {
   let leadingZeroFormatter = new Intl.NumberFormat(undefined, {
@@ -108,9 +121,11 @@ export default function VideoPlayer(props: Props) {
   let [isEnded, setIsEnded] = createSignal(false);
   let [isScrubbing, setIsScrubbing] = createSignal(false);
   let lastSynced = 0;
-  let [isFullScreen, setIsFullScreen] = createSignal(false);
+  const [_isFullScreen, setIsFullScreen] = createSignal(false);
   let [showControls, setShowControls] = createSignal(true);
-  let [showCaptions, setShowCaptions] = createSignal(tracks.subtitles !== undefined);
+  let [showCaptions, setShowCaptions] = createSignal(
+    tracks.subtitles !== undefined,
+  );
   let [showMenu, setShowMenu] = createSignal(false);
   let [volume, setVolume] = createSignal(getInitialVolume());
   let [playbackSpeed, setPlaybackSpeed] = createSignal(1);
@@ -123,7 +138,8 @@ export default function VideoPlayer(props: Props) {
     !isError() &&
     videoRef;
 
-  let [dispatchedAction, setDispatchedAction] = createSignal<DispatchedAction>("unpause");
+  let [dispatchedAction, setDispatchedAction] =
+    createSignal<DispatchedAction>("unpause");
 
   function changeVolume(state: number) {
     if (state > 1) {
@@ -200,7 +216,11 @@ export default function VideoPlayer(props: Props) {
     }
   }
   function handleSync(curTime: number) {
-    if (!isMetadataLoading() && Math.abs(curTime - lastSynced) > 5 && !isScrubbing()) {
+    if (
+      !isMetadataLoading() &&
+      Math.abs(curTime - lastSynced) > 5 &&
+      !isScrubbing()
+    ) {
       let time = Math.floor(curTime);
       tracing.trace({ time }, "Updating video history");
       props.onHistoryUpdate(time);
@@ -293,47 +313,47 @@ export default function VideoPlayer(props: Props) {
   }
 
   function handleKeyboardPress(event: KeyboardEvent) {
-    if (event.code == "KeyF") {
+    if (event.code === "KeyF") {
       toggleFullScreenMode();
     }
-    if (event.code == "Space") {
+    if (event.code === "Space") {
       event.preventDefault();
       togglePlay();
     }
-    if (event.code == "KeyC") {
+    if (event.code === "KeyC") {
       toggleCaptions();
       resetOverlayTimeout();
     }
-    if (event.code == "KeyJ") {
+    if (event.code === "KeyJ") {
       seekRelative(-10);
       resetOverlayTimeout();
     }
-    if (event.code == "KeyK") {
+    if (event.code === "KeyK") {
       togglePlay();
     }
-    if (event.code == "KeyL") {
+    if (event.code === "KeyL") {
       seekRelative(10);
       resetOverlayTimeout();
     }
-    if (event.code == "ArrowLeft") {
+    if (event.code === "ArrowLeft") {
       seekRelative(-5);
       dispatchAction("seekleft");
       resetOverlayTimeout();
     }
-    if (event.code == "ArrowRight") {
+    if (event.code === "ArrowRight") {
       seekRelative(5);
       dispatchAction("seekright");
       resetOverlayTimeout();
     }
-    if (event.code == "ArrowUp") {
+    if (event.code === "ArrowUp") {
       changeVolume(videoRef.volume + 0.05);
       resetOverlayTimeout();
     }
-    if (event.code == "ArrowDown") {
+    if (event.code === "ArrowDown") {
       changeVolume(videoRef.volume - 0.05);
       resetOverlayTimeout();
     }
-    if (event.code == "KeyM") {
+    if (event.code === "KeyM") {
       toggleMute();
       resetOverlayTimeout();
     }
@@ -342,7 +362,10 @@ export default function VideoPlayer(props: Props) {
   function handleVolumeChange(event: VideoEventType) {
     let newVolume = event.currentTarget.volume;
     let delta = newVolume - volume();
-    tracing.trace({ newVolume, oldVolume: volume(), delta }, "Volume change event");
+    tracing.trace(
+      { newVolume, oldVolume: volume(), delta },
+      "Volume change event",
+    );
 
     if (delta > 0) dispatchAction("volumeup");
     else if (delta < 0) dispatchAction("volumedown");
@@ -358,7 +381,11 @@ export default function VideoPlayer(props: Props) {
     // handled in `handleClick` so the play toggle can be suppressed; the menu
     // button toggles the menu itself.
     let target = e.target as HTMLElement;
-    if (target !== videoRef && !menuRef?.contains(target) && !menuBtnRef?.contains(target)) {
+    if (
+      target !== videoRef &&
+      !menuRef?.contains(target) &&
+      !menuBtnRef?.contains(target)
+    ) {
       setShowMenu(false);
     }
   }
@@ -380,8 +407,9 @@ export default function VideoPlayer(props: Props) {
   });
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: layout container, the mouse handler only hides the overlay
     <div
-      ref={videoContainerRef!}
+      ref={videoContainerRef}
       onMouseLeave={() => setShowControls(false)}
       class={`relative flex h-dvh w-full items-center justify-center text-white ${showControls() ? "" : "cursor-none"}`}
     >
@@ -438,33 +466,35 @@ export default function VideoPlayer(props: Props) {
           tracing.trace("Video end event");
           props.onHistoryUpdate(e.currentTarget.currentTime);
         }}
-        ref={videoRef!}
-        class={clsx("h-full w-full", (isMetadataLoading() || isEnded()) && "hidden")}
+        ref={videoRef}
+        class={clsx(
+          "h-full w-full",
+          (isMetadataLoading() || isEnded()) && "hidden",
+        )}
         controls={false}
         autoplay
         draggable={false}
       >
         Browser does not support videos
       </video>
-      <ActionIcon ref={actionContainer!} action={dispatchedAction()} />
+      <ActionIcon ref={actionContainer} action={dispatchedAction()} />
       <Show when={tracks.subtitles !== undefined && showCaptions()}>
         <Subtitles time={Math.floor(time() * 1000)} />
       </Show>
       <div class="absolute right-20 bottom-20">
-        <Show
-          when={
-            !isMetadataLoading() &&
-            props.intro &&
-            time() < props.intro.end_sec &&
-            time() > props.intro.start_sec
-          }
-        >
-          <Button
-            class="bg-black/80 py-5 text-lg text-white hover:bg-black"
-            onClick={() => (videoRef.currentTime = props.intro!.end_sec)}
-          >
-            Skip intro
-          </Button>
+        <Show when={!isMetadataLoading() && props.intro}>
+          {(intro) => (
+            <Show when={time() < intro().end_sec && time() > intro().start_sec}>
+              <Button
+                class="bg-black/80 py-5 text-lg text-white hover:bg-black"
+                onClick={() => {
+                  videoRef.currentTime = intro().end_sec;
+                }}
+              >
+                Skip intro
+              </Button>
+            </Show>
+          )}
         </Show>
         <Show when={props.nextVideo}>
           {(next) => (
@@ -488,7 +518,7 @@ export default function VideoPlayer(props: Props) {
       {/* Rendered only while open so its internal navigation resets on close. */}
       <Show when={showMenu()}>
         <div
-          ref={menuRef!}
+          ref={menuRef}
           class="animate-fade-in absolute right-5 bottom-16 z-10 [animation-duration:150ms]"
         >
           <PlayerMenu
@@ -504,12 +534,13 @@ export default function VideoPlayer(props: Props) {
         } transition-opacity duration-200`}
       >
         <div class="size-full">{props.children}</div>
+        {/* biome-ignore lint/a11y/noStaticElementInteractions: controls wrapper, the mouse handler only keeps the overlay visible */}
         <div
           onMouseMove={() => {
             clearTimeout(showControlsTimeout);
             setShowControls(true);
           }}
-          class={`animate-fade-in absolute right-0 bottom-0 left-0 transition-opacity`}
+          class="animate-fade-in absolute right-0 bottom-0 left-0 transition-opacity"
         >
           <Timeline
             time={time()}
@@ -521,13 +552,23 @@ export default function VideoPlayer(props: Props) {
           />
           <div class="flex items-center justify-between bg-black/70">
             <div class="flex gap-4">
-              <div class="cursor-pointer p-2" onClick={() => togglePlay()}>
+              <button
+                type="button"
+                aria-label={isPaused() ? "Play" : "Pause"}
+                class="cursor-pointer p-2"
+                onClick={() => togglePlay()}
+              >
                 {isPaused() ? <FiPlay size={30} /> : <FiPause size={30} />}
-              </div>
+              </button>
               <div class="group flex items-center transition-all duration-300">
-                <div class="cursor-pointer p-2" onClick={() => toggleMute()}>
+                <button
+                  type="button"
+                  aria-label={isMuted() ? "Unmute" : "Mute"}
+                  class="cursor-pointer p-2"
+                  onClick={() => toggleMute()}
+                >
                   <VolumeIcon volume={volume()} isMuted={isMuted()} />
-                </div>
+                </button>
 
                 <input
                   class="h-1.5 w-0 origin-left scale-x-0 rounded-lg bg-neutral-800 accent-white transition-all duration-300 group-hover:w-20 group-hover:scale-x-100"
@@ -542,29 +583,43 @@ export default function VideoPlayer(props: Props) {
               </div>
 
               <div class="flex items-center justify-center">
-                <span>{formatDuration(time()) + " / " + formatDuration(duration())}</span>
+                <span>
+                  {`${formatDuration(time())} / ${formatDuration(duration())}`}
+                </span>
               </div>
             </div>
 
             <div class="flex items-center gap-5 select-none">
-              <button class={"cursor-pointer"} onClick={() => toggleCaptions()}>
+              <button
+                type="button"
+                aria-label="Toggle captions"
+                class="cursor-pointer"
+                onClick={() => toggleCaptions()}
+              >
                 <FaSolidClosedCaptioning
                   class={`${tracks.subtitles && showCaptions() ? "text-white" : "text-neutral-700"}`}
                   size={30}
                 />
               </button>
               <button
-                ref={menuBtnRef!}
-                class={`cursor-pointer ${showMenu() ? "" : ""}`}
+                type="button"
+                ref={menuBtnRef}
+                aria-label="Player settings"
+                class="cursor-pointer"
                 onClick={() => {
                   setShowMenu(!showMenu());
                 }}
               >
                 <FiSettings size={30} />
               </button>
-              <div class="cursor-pointer p-2" onClick={() => toggleFullScreenMode()}>
+              <button
+                type="button"
+                aria-label="Toggle fullscreen"
+                class="cursor-pointer p-2"
+                onClick={() => toggleFullScreenMode()}
+              >
                 <FiMaximize size={30} />
-              </div>
+              </button>
             </div>
           </div>
         </div>

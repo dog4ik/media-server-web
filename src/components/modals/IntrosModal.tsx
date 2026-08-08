@@ -1,12 +1,19 @@
-import { Schemas, server } from "@/utils/serverApi";
-import { createEffect, createMemo, createSignal, For, ParentProps, Show } from "solid-js";
+import { FiPlusCircle, FiSave, FiTrash2 } from "solid-icons/fi";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  type ParentProps,
+  Show,
+} from "solid-js";
 import { createStore, reconcile } from "solid-js/store";
-import { DynamicIntro, STRIP_FACTOR } from "../Description/IntroBar";
 import { Button } from "@/ui/button";
-import { ExtendedEpisode } from "@/utils/library";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
 import { formatDuration, parseDuration } from "@/utils/formats";
-import { FiPlusCircle, FiSave, FiTrash2 } from "solid-icons/fi";
+import type { ExtendedEpisode } from "@/utils/library";
+import { type Schemas, server } from "@/utils/serverApi";
+import { DynamicIntro, STRIP_FACTOR } from "../Description/IntroBar";
 
 type EpisodeData = {
   intro: Schemas["Intro"] | undefined;
@@ -21,7 +28,10 @@ function defaultIntro(duration: number) {
   return { start_sec: 0, end_sec: Math.max(Math.floor(duration / 8), 1) };
 }
 
-function cmpIntro(lhs: Schemas["Intro"] | undefined, rhs: Schemas["Intro"] | undefined) {
+function cmpIntro(
+  lhs: Schemas["Intro"] | undefined,
+  rhs: Schemas["Intro"] | undefined,
+) {
   if (lhs === undefined && rhs === undefined) return true;
   if (!lhs || !rhs) return false;
   return (
@@ -38,7 +48,9 @@ type SecondsInputProps = {
 } & ParentProps;
 
 function SecondsInput(props: SecondsInputProps) {
-  let [rawValue, setRawValue] = createSignal(formatDuration(props.value * 1000));
+  let [rawValue, setRawValue] = createSignal(
+    formatDuration(props.value * 1000),
+  );
 
   // Sync display when value changes externally (e.g. slider drag)
   createEffect(() => setRawValue(formatDuration(props.value * 1000)));
@@ -57,6 +69,7 @@ function SecondsInput(props: SecondsInputProps) {
       <span class="text-muted-foreground text-xs">{props.children}</span>
       <div class="flex items-center rounded-md border border-white/10 bg-white/4">
         <button
+          type="button"
           class="text-muted-foreground hover:text-foreground flex h-8 w-8 shrink-0 items-center justify-center transition-colors disabled:opacity-40"
           onClick={() => props.onChange(Math.max(props.value - 1, props.min))}
         >
@@ -68,6 +81,7 @@ function SecondsInput(props: SecondsInputProps) {
             stroke-width="2.5"
             stroke-linecap="round"
           >
+            <title>Decrease</title>
             <path d="M5 12h14" />
           </svg>
         </button>
@@ -78,6 +92,7 @@ function SecondsInput(props: SecondsInputProps) {
           onBlur={onBlur}
         />
         <button
+          type="button"
           class="text-muted-foreground hover:text-foreground flex h-8 w-8 shrink-0 items-center justify-center transition-colors disabled:opacity-40"
           onClick={() => props.onChange(Math.min(props.value + 1, props.max))}
         >
@@ -89,6 +104,7 @@ function SecondsInput(props: SecondsInputProps) {
             stroke-width="2.5"
             stroke-linecap="round"
           >
+            <title>Increase</title>
             <path d="M12 5v14M5 12h14" />
           </svg>
         </button>
@@ -115,7 +131,9 @@ function IntroRow(props: IntroRowProps) {
       <div class="flex items-center justify-between">
         <div class="flex flex-col">
           <span class="text-sm font-medium">E{props.episode.number}</span>
-          <span class="text-muted-foreground text-xs">{props.episode.title}</span>
+          <span class="text-muted-foreground text-xs">
+            {props.episode.title}
+          </span>
         </div>
         <div class="flex items-center gap-1.5">
           <Button
@@ -153,9 +171,10 @@ function IntroRow(props: IntroRowProps) {
         fallback={<div class="h-14 animate-pulse rounded-md bg-white/4" />}
       >
         <Show
-          when={props.data.intro !== undefined}
+          when={props.data.intro}
           fallback={
             <button
+              type="button"
               onClick={() => props.onChange(defaultIntro(props.data.duration))}
               disabled={props.data.videoId === undefined}
               class="text-muted-foreground hover:border-primary/60 hover:text-primary flex h-14 w-full items-center justify-center gap-2 rounded-md border border-dashed border-white/20 text-sm transition-colors disabled:pointer-events-none disabled:opacity-40"
@@ -165,45 +184,41 @@ function IntroRow(props: IntroRowProps) {
             </button>
           }
         >
-          <div class="rounded-md bg-white/3 px-4 py-1">
-            <DynamicIntro
-              totalDuration={props.data.duration}
-              start={props.data.intro!.start_sec}
-              end={props.data.intro!.end_sec}
-              onChange={props.onChange}
-            />
-            <div class="flex items-center gap-4 pb-2">
-              <SecondsInput
-                onChange={(v) =>
-                  props.onChange({
-                    start_sec: v,
-                    end_sec: props.data.intro!.end_sec,
-                  })
-                }
-                value={props.data.intro!.start_sec}
-                max={props.data.intro!.end_sec}
-                min={0}
-              >
-                Start
-              </SecondsInput>
-              <SecondsInput
-                onChange={(v) =>
-                  props.onChange({
-                    start_sec: props.data.intro!.start_sec,
-                    end_sec: v,
-                  })
-                }
-                value={props.data.intro!.end_sec}
-                max={props.data.duration}
-                min={props.data.intro!.start_sec}
-              >
-                End
-              </SecondsInput>
-              <span class="text-muted-foreground ml-auto text-xs">
-                {Math.floor(props.data.intro!.end_sec - props.data.intro!.start_sec)}s
-              </span>
+          {(intro) => (
+            <div class="rounded-md bg-white/3 px-4 py-1">
+              <DynamicIntro
+                totalDuration={props.data.duration}
+                start={intro().start_sec}
+                end={intro().end_sec}
+                onChange={props.onChange}
+              />
+              <div class="flex items-center gap-4 pb-2">
+                <SecondsInput
+                  onChange={(v) =>
+                    props.onChange({ start_sec: v, end_sec: intro().end_sec })
+                  }
+                  value={intro().start_sec}
+                  max={intro().end_sec}
+                  min={0}
+                >
+                  Start
+                </SecondsInput>
+                <SecondsInput
+                  onChange={(v) =>
+                    props.onChange({ start_sec: intro().start_sec, end_sec: v })
+                  }
+                  value={intro().end_sec}
+                  max={props.data.duration}
+                  min={intro().start_sec}
+                >
+                  End
+                </SecondsInput>
+                <span class="text-muted-foreground ml-auto text-xs">
+                  {Math.floor(intro().end_sec - intro().start_sec)}s
+                </span>
+              </div>
             </div>
-          </div>
+          )}
         </Show>
       </Show>
     </div>
@@ -220,11 +235,13 @@ type Props = {
 
 export function IntrosModal(props: Props) {
   let [data, setData] = createStore<EpisodeData[]>([]);
-  let [masterIntro, setMasterIntro] = createSignal<Schemas["Intro"] | undefined>(undefined);
+  let [masterIntro, setMasterIntro] = createSignal<
+    Schemas["Intro"] | undefined
+  >(undefined);
 
   let masterDuration = createMemo(() => {
     let max = 0;
-    for (let d of data) {
+    for (const d of data) {
       if (!d.loading && d.duration > max) max = d.duration;
     }
     return max;
@@ -306,10 +323,15 @@ export function IntrosModal(props: Props) {
     await Promise.all(data.map((_, i) => save(i)));
   }
 
-  let anyChanged = createMemo(() => data.some((d) => !cmpIntro(d.intro, d.originalIntro)));
+  let anyChanged = createMemo(() =>
+    data.some((d) => !cmpIntro(d.intro, d.originalIntro)),
+  );
 
   return (
-    <Dialog open={props.open} onOpenChange={(isOpen) => isOpen || props.onClose()}>
+    <Dialog
+      open={props.open}
+      onOpenChange={(isOpen) => isOpen || props.onClose()}
+    >
       <DialogContent class="flex flex-col gap-0 overflow-hidden p-0 sm:h-[80vh] sm:w-170 sm:max-w-[95vw]">
         <DialogHeader class="shrink-0 border-b border-white/8 px-6 py-4">
           <DialogTitle class="text-base font-semibold">
@@ -325,13 +347,18 @@ export function IntrosModal(props: Props) {
             <div class="flex-1">
               <Show
                 when={masterDuration() > 0}
-                fallback={<div class="h-8 animate-pulse rounded-md bg-white/4" />}
+                fallback={
+                  <div class="h-8 animate-pulse rounded-md bg-white/4" />
+                }
               >
                 <Show
                   when={masterIntro()}
                   fallback={
                     <button
-                      onClick={() => applyMaster(defaultIntro(masterDuration()))}
+                      type="button"
+                      onClick={() =>
+                        applyMaster(defaultIntro(masterDuration()))
+                      }
                       class="text-muted-foreground/60 hover:border-primary/40 hover:text-primary flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-white/15 text-xs transition-colors"
                     >
                       <FiPlusCircle size={12} />
@@ -372,7 +399,9 @@ export function IntrosModal(props: Props) {
                     episode={episode}
                     data={d()}
                     onChange={(intro) => setData(i(), "intro", intro)}
-                    onReset={() => setData(i(), "intro", data[i()].originalIntro)}
+                    onReset={() =>
+                      setData(i(), "intro", data[i()].originalIntro)
+                    }
                     onSave={() => save(i())}
                     onDelete={() => remove(i())}
                   />

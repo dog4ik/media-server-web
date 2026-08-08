@@ -1,8 +1,8 @@
-import { For } from "solid-js";
-import Version from "./Version";
 import { Link, useRouterState } from "@tanstack/solid-router";
 import { clsx } from "clsx";
-import { NAV_ROUTES, activeRouteIndex } from "./routes";
+import { For } from "solid-js";
+import { activeRouteIndex, NAV_ROUTES } from "./routes";
+import Version from "./Version";
 
 export default function SideBar() {
   let routerState = useRouterState();
@@ -22,7 +22,7 @@ export default function SideBar() {
         <For each={NAV_ROUTES}>
           {(link, idx) => {
             let isActive = () => {
-              return currentIndex() == idx();
+              return currentIndex() === idx();
             };
             return (
               <Link

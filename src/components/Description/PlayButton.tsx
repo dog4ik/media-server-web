@@ -1,4 +1,4 @@
-import { LinkOptions, Link } from "@tanstack/solid-router";
+import { Link, type LinkOptions } from "@tanstack/solid-router";
 import { FiPlay } from "solid-icons/fi";
 
 type Props = {

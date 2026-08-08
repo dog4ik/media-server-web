@@ -1,11 +1,9 @@
 import { createSignal, Show } from "solid-js";
-
-import { formatSize } from "@/utils/formats";
-
 import { useTorrentContext } from "@/context/TorrentContext";
-import { TorrentTable } from "./TorrentTable";
-import { TorrentSide } from "./TorrentSide";
 import { Skeleton } from "@/ui/skeleton";
+import { formatSize } from "@/utils/formats";
+import { TorrentSide } from "./TorrentSide";
+import { TorrentTable } from "./TorrentTable";
 
 export function BottomBar() {
   let { sessionStats } = useTorrentContext();
@@ -22,16 +20,18 @@ export function BottomBar() {
 export function BitTorrentClient() {
   let { expandedTorrent } = useTorrentContext();
   let [sideHeight, setSideHeight] = createSignal(250);
-  let dividerRef: HTMLDivElement | undefined = undefined;
+  let dividerRef!: HTMLDivElement;
 
   function onPointerDown(e: PointerEvent) {
     e.preventDefault();
-    dividerRef!.setPointerCapture(e.pointerId);
+    dividerRef?.setPointerCapture(e.pointerId);
   }
 
   function onPointerMove(e: PointerEvent) {
     if (!dividerRef?.hasPointerCapture(e.pointerId)) return;
-    setSideHeight((h) => Math.max(80, Math.min(window.innerHeight * 0.8, h - e.movementY)));
+    setSideHeight((h) =>
+      Math.max(80, Math.min(window.innerHeight * 0.8, h - e.movementY)),
+    );
   }
 
   function onPointerUp(e: PointerEvent) {
@@ -47,13 +47,16 @@ export function BitTorrentClient() {
         {(torrent) => (
           <>
             <div
-              ref={dividerRef!}
+              ref={dividerRef}
               class="bg-border hover:bg-primary active:bg-primary h-1.5 shrink-0 cursor-row-resize transition-colors"
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
               onPointerUp={onPointerUp}
             />
-            <div class="shrink-0 overflow-hidden" style={{ height: `${sideHeight()}px` }}>
+            <div
+              class="shrink-0 overflow-hidden"
+              style={{ height: `${sideHeight()}px` }}
+            >
               <TorrentSide torrent={torrent()} />
             </div>
           </>

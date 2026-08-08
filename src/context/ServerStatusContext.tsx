@@ -1,18 +1,31 @@
-import { ParentProps, createContext, createSignal, onCleanup, useContext } from "solid-js";
-import { Schemas } from "../utils/serverApi";
-import { useRawNotifications } from "./NotificationContext";
-import { server } from "../utils/serverApi";
-import { NotificationProps } from "../components/Notification";
-import { extendEpisode, extendMovie, extendShow, fetchSeason, Media, Video } from "@/utils/library";
-import { ServerConnection } from "@/utils/serverStatus";
+import {
+  createContext,
+  createSignal,
+  onCleanup,
+  type ParentProps,
+} from "solid-js";
 import { createStore, produce } from "solid-js/store";
-import { queryApi, queryClient } from "@/utils/queryApi";
+import { useRequiredContext } from "@/lib/context";
+import {
+  extendEpisode,
+  extendMovie,
+  extendShow,
+  fetchSeason,
+  type Media,
+  Video,
+} from "@/utils/library";
+import { queryApi } from "@/utils/queryApi";
+import { ServerConnection } from "@/utils/serverStatus";
+import type { NotificationProps } from "../components/Notification";
+import { type Schemas, server } from "../utils/serverApi";
+import { useRawNotifications } from "./NotificationContext";
 
 type ServerStatusType = ReturnType<typeof createServerStatusContext>;
 
 export const ServerStatusContext = createContext<ServerStatusType>();
 
-export const useServerStatus = () => useContext(ServerStatusContext)!;
+export const useServerStatus = () =>
+  useRequiredContext(ServerStatusContext, "ServerStatusContext");
 
 export type TaskMetadata =
   | {
@@ -30,16 +43,16 @@ export type TaskMetadata =
     };
 
 export function displayTask(metadata: TaskMetadata): Media {
-  if (metadata.content_type == "show") {
+  if (metadata.content_type === "show") {
     return extendShow(metadata.metadata);
   }
-  if (metadata.content_type == "episode") {
+  if (metadata.content_type === "episode") {
     let episode = extendEpisode(metadata.metadata, metadata.show.provider_id);
     let show = extendShow(metadata.show);
     episode.poster = show.poster;
     return episode;
   }
-  if (metadata.content_type == "movie") {
+  if (metadata.content_type === "movie") {
     return extendMovie(metadata.metadata);
   }
   throw Error("Unhandled content type");
@@ -54,37 +67,37 @@ function notificationProps(
   undoId?: string,
 ): NotificationProps {
   let status = () => {
-    if (taskStatus == "start") {
+    if (taskStatus === "start") {
       return "Started";
     }
-    if (taskStatus == "finish") {
+    if (taskStatus === "finish") {
       return "Finished";
     }
-    if (taskStatus == "error") {
+    if (taskStatus === "error") {
       return "Errored";
     }
-    if (taskStatus == "cancel") {
+    if (taskStatus === "cancel") {
       return "Canceled";
     }
-    if (taskStatus == "pending") {
+    if (taskStatus === "pending") {
       return "Pending";
     }
   };
 
   let taskType = () => {
-    if (type == "libraryscan") {
+    if (type === "libraryscan") {
       return "library scan";
     }
-    if (type == "transcode" || type == "previews") {
+    if (type === "transcode" || type === "previews") {
       return "video task";
     }
-    if (type == "torrent") {
+    if (type === "torrent") {
       return "torrent task";
     }
-    if (type == "watchsession") {
+    if (type === "watchsession") {
       return "watching";
     }
-    if (type == "introdetection") {
+    if (type === "introdetection") {
       return "intro detection";
     }
   };
@@ -93,14 +106,14 @@ function notificationProps(
     if (!undoId) {
       return;
     }
-    if (taskStatus != "start") return;
-    if (type == "previews") {
+    if (taskStatus !== "start") return;
+    if (type === "previews") {
       return () =>
         server.DELETE("/api/tasks/previews/{id}", {
           params: { path: { id: undoId } },
         });
     }
-    if (type == "transcode") {
+    if (type === "transcode") {
       return () =>
         server.DELETE("/api/tasks/transcode/{id}", {
           params: { path: { id: undoId } },
@@ -120,10 +133,16 @@ function notificationProps(
 }
 
 function isTerminal(progress_type: string): boolean {
-  return progress_type === "finish" || progress_type === "cancel" || progress_type === "error";
+  return (
+    progress_type === "finish" ||
+    progress_type === "cancel" ||
+    progress_type === "error"
+  );
 }
 
-function createServerStatusContext(notificator: ReturnType<typeof useRawNotifications>) {
+function createServerStatusContext(
+  notificator: ReturnType<typeof useRawNotifications>,
+) {
   let [isConnecting, setIsConnecting] = createSignal(true);
   let [isErrored, setIsErrored] = createSignal(false);
 
@@ -136,8 +155,8 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
     watch_sessions: [],
   });
 
-  function onOpen() {
-    for (let cb of wakeSubscribers.values()) {
+  function _onOpen() {
+    for (const cb of wakeSubscribers.values()) {
       cb();
     }
     wakeSubscribers.clear();
@@ -145,7 +164,7 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
     setIsErrored(false);
   }
 
-  function onError() {
+  function _onError() {
     setIsErrored(true);
     setIsConnecting(false);
   }
@@ -186,15 +205,17 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
     activityId: string,
   ) {
     let video = await Video.fetch(videoId);
-    if (video == undefined) return;
+    if (video === undefined) return;
     let metadata = await video.fetchMetadata().then((d) => d.data);
-    if (metadata?.content_type == "movie") {
+    if (metadata?.content_type === "movie") {
       let movie = extendMovie(metadata.movie);
       notificator(notificationProps(movie, progressType, taskType, activityId));
     }
-    if (metadata?.content_type == "episode") {
+    if (metadata?.content_type === "episode") {
       let episode = extendEpisode(metadata.episode, metadata.show.provider_id);
-      notificator(notificationProps(episode, progressType, taskType, activityId));
+      notificator(
+        notificationProps(episode, progressType, taskType, activityId),
+      );
     }
   }
 
@@ -214,8 +235,11 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
       return;
     }
     if (progress.progress_type === "pending") {
-      let idx = tasks.transcode_tasks.findIndex((t) => t.id === progress.activity_id);
-      if (idx !== -1) setTasks("transcode_tasks", idx, "latest_progress", progress.progress);
+      let idx = tasks.transcode_tasks.findIndex(
+        (t) => t.id === progress.activity_id,
+      );
+      if (idx !== -1)
+        setTasks("transcode_tasks", idx, "latest_progress", progress.progress);
       return;
     }
     let task = tasks.transcode_tasks.find((t) => t.id === progress.activity_id);
@@ -228,7 +252,9 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
           progress.activity_id,
         );
       }
-      setTasks("transcode_tasks", (arr) => arr.filter((t) => t.id !== progress.activity_id));
+      setTasks("transcode_tasks", (arr) =>
+        arr.filter((t) => t.id !== progress.activity_id),
+      );
     }
   });
 
@@ -239,12 +265,20 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
           s.previews_tasks.push(progress.task);
         }),
       );
-      await notifyVideoTask(progress.task.kind.video_id, "start", "previews", progress.activity_id);
+      await notifyVideoTask(
+        progress.task.kind.video_id,
+        "start",
+        "previews",
+        progress.activity_id,
+      );
       return;
     }
     if (progress.progress_type === "pending") {
-      let idx = tasks.previews_tasks.findIndex((t) => t.id === progress.activity_id);
-      if (idx !== -1) setTasks("previews_tasks", idx, "latest_progress", progress.progress);
+      let idx = tasks.previews_tasks.findIndex(
+        (t) => t.id === progress.activity_id,
+      );
+      if (idx !== -1)
+        setTasks("previews_tasks", idx, "latest_progress", progress.progress);
       return;
     }
     let task = tasks.previews_tasks.find((t) => t.id === progress.activity_id);
@@ -257,7 +291,9 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
           progress.activity_id,
         );
       }
-      setTasks("previews_tasks", (arr) => arr.filter((t) => t.id !== progress.activity_id));
+      setTasks("previews_tasks", (arr) =>
+        arr.filter((t) => t.id !== progress.activity_id),
+      );
     }
   });
 
@@ -283,21 +319,32 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
     if (progress.progress_type === "pending") {
       setTasks("library_scan_tasks", 0, "latest_progress", progress.progress);
       let chunk = progress.progress;
-      if (chunk.type === "metadata_fetch" && chunk.event_result.type === "fail") {
+      if (
+        chunk.type === "metadata_fetch" &&
+        chunk.event_result.type === "fail"
+      ) {
         let failed = chunk.event_result;
-        setTasks("library_scan_tasks", 0, "kind", "failed_content", (content) => [
-          ...content,
-          {
-            content_type: failed.content_type,
-            title: failed.title,
-            videos: failed.videos,
-          },
-        ]);
+        setTasks(
+          "library_scan_tasks",
+          0,
+          "kind",
+          "failed_content",
+          (content) => [
+            ...content,
+            {
+              content_type: failed.content_type,
+              title: failed.title,
+              videos: failed.videos,
+            },
+          ],
+        );
       }
       return;
     }
     if (isTerminal(progress.progress_type)) {
-      setTasks("library_scan_tasks", (arr) => arr.filter((t) => t.id !== progress.activity_id));
+      setTasks("library_scan_tasks", (arr) =>
+        arr.filter((t) => t.id !== progress.activity_id),
+      );
     }
   });
 
@@ -314,19 +361,40 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
         "local",
       );
       if (season) {
-        notificator(notificationProps(season, "start", "introdetection", progress.activity_id));
+        notificator(
+          notificationProps(
+            season,
+            "start",
+            "introdetection",
+            progress.activity_id,
+          ),
+        );
       }
       return;
     }
     if (progress.progress_type === "pending") {
-      let idx = tasks.intro_detection_tasks.findIndex((t) => t.id === progress.activity_id);
-      if (idx !== -1) setTasks("intro_detection_tasks", idx, "latest_progress", progress.progress);
+      let idx = tasks.intro_detection_tasks.findIndex(
+        (t) => t.id === progress.activity_id,
+      );
+      if (idx !== -1)
+        setTasks(
+          "intro_detection_tasks",
+          idx,
+          "latest_progress",
+          progress.progress,
+        );
       return;
     }
-    let task = tasks.intro_detection_tasks.find((t) => t.id === progress.activity_id);
+    let task = tasks.intro_detection_tasks.find(
+      (t) => t.id === progress.activity_id,
+    );
     if (isTerminal(progress.progress_type)) {
       if (task) {
-        let season = await fetchSeason(task.kind.show_id.toString(), task.kind.season, "local");
+        let season = await fetchSeason(
+          task.kind.show_id.toString(),
+          task.kind.season,
+          "local",
+        );
         if (season) {
           notificator(
             notificationProps(
@@ -338,7 +406,9 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
           );
         }
       }
-      setTasks("intro_detection_tasks", (arr) => arr.filter((t) => t.id !== progress.activity_id));
+      setTasks("intro_detection_tasks", (arr) =>
+        arr.filter((t) => t.id !== progress.activity_id),
+      );
     }
   });
 
@@ -352,12 +422,17 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
       return;
     }
     if (progress.progress_type === "pending") {
-      let idx = tasks.watch_sessions.findIndex((t) => t.id === progress.activity_id);
-      if (idx !== -1) setTasks("watch_sessions", idx, "latest_progress", progress.progress);
+      let idx = tasks.watch_sessions.findIndex(
+        (t) => t.id === progress.activity_id,
+      );
+      if (idx !== -1)
+        setTasks("watch_sessions", idx, "latest_progress", progress.progress);
       return;
     }
     if (isTerminal(progress.progress_type)) {
-      setTasks("watch_sessions", (arr) => arr.filter((t) => t.id !== progress.activity_id));
+      setTasks("watch_sessions", (arr) =>
+        arr.filter((t) => t.id !== progress.activity_id),
+      );
     }
   });
 
@@ -371,12 +446,17 @@ function createServerStatusContext(notificator: ReturnType<typeof useRawNotifica
       return;
     }
     if (progress.progress_type === "pending") {
-      let idx = tasks.torrent_tasks.findIndex((t) => t.id === progress.activity_id);
-      if (idx !== -1) setTasks("torrent_tasks", idx, "latest_progress", progress.progress);
+      let idx = tasks.torrent_tasks.findIndex(
+        (t) => t.id === progress.activity_id,
+      );
+      if (idx !== -1)
+        setTasks("torrent_tasks", idx, "latest_progress", progress.progress);
       return;
     }
     if (isTerminal(progress.progress_type)) {
-      setTasks("torrent_tasks", (arr) => arr.filter((t) => t.id !== progress.activity_id));
+      setTasks("torrent_tasks", (arr) =>
+        arr.filter((t) => t.id !== progress.activity_id),
+      );
     }
   });
 
@@ -395,6 +475,8 @@ export default function TaskContextProvider(props: ParentProps) {
   let notificator = useRawNotifications();
   let context = createServerStatusContext(notificator);
   return (
-    <ServerStatusContext.Provider value={context}>{props.children}</ServerStatusContext.Provider>
+    <ServerStatusContext.Provider value={context}>
+      {props.children}
+    </ServerStatusContext.Provider>
   );
 }

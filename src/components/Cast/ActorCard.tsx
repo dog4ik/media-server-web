@@ -1,6 +1,6 @@
-import FallbackImage from "../FallbackImage";
 import { Show } from "solid-js";
-import { ExtendedActor } from "@/utils/library";
+import type { ExtendedActor } from "@/utils/library";
+import FallbackImage from "../FallbackImage";
 
 type Props = {
   actor: ExtendedActor;
@@ -22,14 +22,20 @@ export function ActorCard(props: Props) {
       <div class="mt-3 flex justify-between">
         <div class="w-full min-w-0">
           <h3 class="text-primary-foreground text-md">
-            <span class="text-foreground block truncate" title={props.actor.name}>
+            <span
+              class="text-foreground block truncate"
+              title={props.actor.name}
+            >
               <span aria-hidden="true" class="absolute inset-0" />
               {props.actor.name}
             </span>
           </h3>
           <Show when={props.actor.character}>
             {(character) => (
-              <p title={character()} class="text-muted-foreground mt-1 truncate text-sm">
+              <p
+                title={character()}
+                class="text-muted-foreground mt-1 truncate text-sm"
+              >
                 Role: {character()}
               </p>
             )}

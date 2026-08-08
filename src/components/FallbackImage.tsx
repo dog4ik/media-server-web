@@ -1,7 +1,13 @@
+import clsx from "clsx";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+  Show,
+} from "solid-js";
 import { Skeleton } from "@/ui/skeleton";
 import tracing from "@/utils/tracing";
-import clsx from "clsx";
-import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
 
 type Props = {
   srcList: (string | undefined)[];
@@ -18,7 +24,9 @@ const GlobalImageCache: Set<string> = new Set();
 export default function FallbackImage(props: Props) {
   let firstImage = props.srcList.at(0);
   let isCached = GlobalImageCache.has(firstImage ?? "");
-  const [currentImage, setCurrentImage] = createSignal<string | undefined>(firstImage);
+  const [currentImage, setCurrentImage] = createSignal<string | undefined>(
+    firstImage,
+  );
   const [loading, setLoading] = createSignal(!isCached);
   let sources = createMemo(() => [...props.srcList, "/no-photo.png"]);
   let active = true;
@@ -70,7 +78,9 @@ export default function FallbackImage(props: Props) {
       when={!loading() && currentImage()}
       fallback={
         <Skeleton
-          class={clsx((props.fluid || sizeStyle() === undefined) && "h-full w-full")}
+          class={clsx(
+            (props.fluid || sizeStyle() === undefined) && "h-full w-full",
+          )}
           style={sizeStyle()}
         />
       }

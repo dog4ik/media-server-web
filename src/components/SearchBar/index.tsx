@@ -1,14 +1,14 @@
+import { Link, useNavigate } from "@tanstack/solid-router";
 import { FiX } from "solid-icons/fi";
-import { For, Match, Show, Switch, createSignal } from "solid-js";
-import { Schemas } from "../../utils/serverApi";
-import ProviderLogo from "../ProviderLogo";
-import useDebounce from "../../utils/useDebounce";
-import { TextField, TextFieldInput } from "@/ui/textfield";
+import { createSignal, For, Match, Show, Switch } from "solid-js";
 import { Button } from "@/ui/button";
 import { Skeleton } from "@/ui/skeleton";
+import { TextField, TextFieldInput } from "@/ui/textfield";
 import { capitalize } from "@/utils/formats";
-import { Link, useNavigate } from "@tanstack/solid-router";
 import { queryApi } from "@/utils/queryApi";
+import type { Schemas } from "../../utils/serverApi";
+import useDebounce from "../../utils/useDebounce";
+import ProviderLogo from "../ProviderLogo";
 
 function SearchResultItem(props: {
   result: Schemas["MetadataSearchResult"];
@@ -55,9 +55,13 @@ function ResultContent(props: { result: Schemas["MetadataSearchResult"] }) {
       />
       <div class="min-w-0 flex-1">
         <p class="truncate text-sm font-medium">{props.result.title}</p>
-        <p class="text-muted-foreground text-xs">{capitalize(props.result.content_type)}</p>
+        <p class="text-muted-foreground text-xs">
+          {capitalize(props.result.content_type)}
+        </p>
         <Show when={props.result.plot}>
-          {(plot) => <p class="text-muted-foreground line-clamp-2 text-xs">{plot()}</p>}
+          {(plot) => (
+            <p class="text-muted-foreground line-clamp-2 text-xs">{plot()}</p>
+          )}
         </Show>
       </div>
       <div class="h-5 w-8 flex-none">
@@ -158,18 +162,28 @@ export default function SearchBar() {
 
       <Show when={open() && input().length > 0}>
         <div class="bg-popover text-popover-foreground absolute top-full z-50 mt-1 w-full overflow-hidden rounded-md border shadow-md">
-          <Show when={searchResult?.latest()} fallback={<SearchResultsSkeleton />}>
+          <Show
+            when={searchResult?.latest()}
+            fallback={<SearchResultsSkeleton />}
+          >
             {(data) => (
               <Switch>
                 <Match when={data().length > 0}>
                   <div class="max-h-96 divide-y overflow-y-auto p-1">
                     <For each={data()}>
-                      {(item) => <SearchResultItem result={item} onSelect={handleSelect} />}
+                      {(item) => (
+                        <SearchResultItem
+                          result={item}
+                          onSelect={handleSelect}
+                        />
+                      )}
                     </For>
                   </div>
                 </Match>
                 <Match when={data().length === 0}>
-                  <p class="text-muted-foreground p-6 text-center text-sm">No results found</p>
+                  <p class="text-muted-foreground p-6 text-center text-sm">
+                    No results found
+                  </p>
                 </Match>
               </Switch>
             )}

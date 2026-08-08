@@ -1,4 +1,4 @@
-import { Schemas } from "@/utils/serverApi";
+import type { Schemas } from "@/utils/serverApi";
 
 export const GenreMap: Record<Schemas["Genre"], string> = {
   action: "Action",

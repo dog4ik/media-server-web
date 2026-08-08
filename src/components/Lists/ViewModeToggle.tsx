@@ -13,11 +13,14 @@ export function ViewModeToggle(props: Props) {
   let buttonClass = (active: boolean) =>
     cn(
       "flex cursor-pointer items-center justify-center rounded-sm p-1.5 transition-colors",
-      active ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground",
+      active
+        ? "bg-accent text-accent-foreground"
+        : "text-muted-foreground hover:text-foreground",
     );
   return (
     <div class="border-border inline-flex items-center gap-0.5 rounded-md border p-0.5">
       <button
+        type="button"
         title="Grid view"
         aria-pressed={props.mode === "grid"}
         class={buttonClass(props.mode === "grid")}
@@ -26,6 +29,7 @@ export function ViewModeToggle(props: Props) {
         <LayoutGrid class="size-4" />
       </button>
       <button
+        type="button"
         title="List view"
         aria-pressed={props.mode === "list"}
         class={buttonClass(props.mode === "list")}

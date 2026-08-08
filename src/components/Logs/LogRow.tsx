@@ -1,19 +1,19 @@
-import { Schemas } from "../../utils/serverApi";
+import type { Schemas } from "../../utils/serverApi";
 
 type Props = {
   message: Schemas["JsonTracingEvent"];
 };
 function backgroundColor(level: string) {
-  if (level == "TRACE") {
+  if (level === "TRACE") {
     return "bg-purple-900";
   }
-  if (level == "DEBUG") {
+  if (level === "DEBUG") {
     return "bg-yellow-700";
   }
-  if (level == "ERROR") {
+  if (level === "ERROR") {
     return "bg-red-500";
   }
-  if (level == "INFO") {
+  if (level === "INFO") {
     return "bg-green-700";
   }
   return "bg-neutral-800";
@@ -23,7 +23,8 @@ export default function LogRow(props: Props) {
   return (
     <p class={`${bg} w-full p-2 hover:bg-neutral-950`}>
       {props.message.timestamp} {props.message.target} ({props.message.level}):{" "}
-      {(props.message.fields.message as string) ?? JSON.stringify(props.message.fields)}
+      {(props.message.fields.message as string) ??
+        JSON.stringify(props.message.fields)}
     </p>
   );
 }

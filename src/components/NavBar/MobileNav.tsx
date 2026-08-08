@@ -1,10 +1,10 @@
-import { For, createSignal } from "solid-js";
 import { Link, useRouterState } from "@tanstack/solid-router";
-import Menu from "lucide-solid/icons/menu";
 import { clsx } from "clsx";
-import { Sheet, SheetContent, SheetTrigger } from "@/ui/sheet";
+import Menu from "lucide-solid/icons/menu";
+import { createSignal, For } from "solid-js";
 import { Button } from "@/ui/button";
-import { NAV_ROUTES, activeRouteIndex } from "../SideBar/routes";
+import { Sheet, SheetContent, SheetTrigger } from "@/ui/sheet";
+import { activeRouteIndex, NAV_ROUTES } from "../SideBar/routes";
 import Version from "../SideBar/Version";
 
 export default function MobileNav() {

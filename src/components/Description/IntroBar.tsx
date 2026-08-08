@@ -1,6 +1,6 @@
+import { createSignal, onCleanup } from "solid-js";
 import { formatDuration } from "@/utils/formats";
-import { Schemas } from "@/utils/serverApi";
-import { createSignal, onCleanup, ParentProps } from "solid-js";
+import type { Schemas } from "@/utils/serverApi";
 
 export const STRIP_FACTOR = 4;
 
@@ -91,9 +91,22 @@ function IntroPointer(props: PointerProps) {
 
   return (
     <div
+      role="slider"
+      tabIndex={0}
+      aria-label={props.label}
+      aria-valuemin={0}
+      aria-valuemax={1}
+      aria-valuenow={props.positionOffset}
       class="absolute top-0 z-20 flex h-full -translate-x-1/2 cursor-grab flex-col items-center select-none active:cursor-grabbing"
       style={{ left: `${props.positionOffset * 100}%` }}
       onMouseDown={() => setIsDragging(true)}
+      onKeyDown={(e) => {
+        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+        e.preventDefault();
+        const step = e.shiftKey ? 0.05 : 0.01;
+        const delta = e.key === "ArrowLeft" ? -step : step;
+        props.onChange(Math.min(Math.max(props.positionOffset + delta, 0), 1));
+      }}
     >
       <div class="bg-primary h-full w-0.5" />
       <div class="bg-primary absolute top-1/2 h-5 w-2.5 -translate-y-1/2 rounded-sm shadow-md" />
@@ -109,7 +122,7 @@ function IntroPointer(props: PointerProps) {
 }
 
 export function DynamicIntro(props: DynamicIntroProps) {
-  let timelineRef: HTMLDivElement | undefined = undefined;
+  let timelineRef!: HTMLDivElement;
   let strippedDuration = props.totalDuration / STRIP_FACTOR;
   let startPercent = () => props.start / strippedDuration;
   let endPercent = () => props.end / strippedDuration;
@@ -142,7 +155,10 @@ export function DynamicIntro(props: DynamicIntroProps) {
           </span>
         </>
       )}
-      <div ref={timelineRef!} class="relative h-8 cursor-default rounded-md bg-white/[0.06]">
+      <div
+        ref={timelineRef}
+        class="relative h-8 cursor-default rounded-md bg-white/6"
+      >
         <div
           class="bg-primary/25 absolute top-0 h-full rounded-md"
           style={{
@@ -151,14 +167,14 @@ export function DynamicIntro(props: DynamicIntroProps) {
           }}
         />
         <IntroPointer
-          timelineRef={() => timelineRef!}
+          timelineRef={() => timelineRef}
           positionOffset={startPercent()}
           onChange={changeStartPosition}
           label={props.compact ? "" : formatDuration(props.start * 1000)}
           labelPosition="top"
         />
         <IntroPointer
-          timelineRef={() => timelineRef!}
+          timelineRef={() => timelineRef}
           positionOffset={endPercent()}
           onChange={changeEndPosition}
           label={props.compact ? "" : formatDuration(props.end * 1000)}

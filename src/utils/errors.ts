@@ -1,5 +1,5 @@
-import { useNotificationsContext } from "@/context/NotificationContext";
-import { Media } from "./library";
+import type { useNotificationsContext } from "@/context/NotificationContext";
+import type { Media } from "./library";
 
 export type ErrorType =
   | "database"
@@ -59,19 +59,21 @@ type FetchResponse<T> =
       response: Response;
     };
 
-export function throwResponseErrors<T>(response: FetchResponse<T>): NonNullable<T> | never {
-  if (response.data !== undefined && response.error == undefined) {
+export function throwResponseErrors<T>(
+  response: FetchResponse<T>,
+): NonNullable<T> | never {
+  if (response.data !== undefined && response.error === undefined) {
     return response.data!;
   }
   let kind = response.response.status;
-  let msg = response.error!.message;
-  if (kind == 404) {
+  let msg = response.error?.message;
+  if (kind === 404) {
     throw new NotFoundError(msg);
   }
-  if (kind == 400) {
+  if (kind === 400) {
     throw new InternalServerError(msg);
   }
-  if (kind == 500) {
+  if (kind === 500) {
     throw new InternalServerError(msg);
   }
   throw new InternalServerError("unknown error");
@@ -83,7 +85,9 @@ export function throwResponseErrors<T>(response: FetchResponse<T>): NonNullable<
  * or message
  */
 export function notifyResponseErrors<T>(
-  addNotification: ReturnType<typeof useNotificationsContext>[1]["addNotification"],
+  addNotification: ReturnType<
+    typeof useNotificationsContext
+  >[1]["addNotification"],
   /**
    * Format should look like `fetched shows`
    * so it will get resolved to Failed to message
@@ -92,7 +96,7 @@ export function notifyResponseErrors<T>(
   content?: Media,
 ): (r: FetchResponse<T>) => FetchResponse<T> {
   return (response) => {
-    if (response.error != undefined) {
+    if (response.error !== undefined) {
       let props = {
         message: `Failed to ${message} (${response.error.message})`,
         contentUrl: content?.url(),

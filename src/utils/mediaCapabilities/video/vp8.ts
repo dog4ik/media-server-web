@@ -1,3 +1,3 @@
-function getVp8Codec() {
+export function getVp8Codec() {
   return "vp08";
 }

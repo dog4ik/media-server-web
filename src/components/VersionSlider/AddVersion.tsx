@@ -1,10 +1,23 @@
-import { createSignal, ParentProps, Show } from "solid-js";
-import { Schemas } from "../../utils/serverApi";
 import { FiCheck, FiFeather, FiZapOff } from "solid-icons/fi";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
-import { Video } from "@/utils/library";
+import { createSignal, type ParentProps, Show } from "solid-js";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
+import type { Video } from "@/utils/library";
+import type { Schemas } from "../../utils/serverApi";
 
 type Resolution = Schemas["Resolution"];
 type ResolutionString = `${number}x${number}`;
@@ -37,8 +50,19 @@ const resolutionOptions: Resolution[] = [
   { width: 1280, height: 720 },
   { width: 640, height: 480 },
 ];
-const videoCodecOptions: ExcludeOther<VideoCodec>[] = ["hevc", "h264", "av1", "vp8", "vp9"];
-const audioCodecOptions: ExcludeOther<AudioCodec>[] = ["aac", "ac3", "dts", "eac3"];
+const videoCodecOptions: ExcludeOther<VideoCodec>[] = [
+  "hevc",
+  "h264",
+  "av1",
+  "vp8",
+  "vp9",
+];
+const audioCodecOptions: ExcludeOther<AudioCodec>[] = [
+  "aac",
+  "ac3",
+  "dts",
+  "eac3",
+];
 
 type SelectionProps<T> = {
   onChange: (value: T) => void;
@@ -53,9 +77,15 @@ function ResolutionSelection(
   props: SelectionProps<Schemas["Resolution"]> & ResolutionSelectionProps,
 ) {
   let maxResolutionString = serializeResolution(props.maxResolution);
-  let [resolution, setResolution] = createSignal(serializeResolution(props.maxResolution));
+  let [resolution, setResolution] = createSignal(
+    serializeResolution(props.maxResolution),
+  );
   let opts = resolutionOptions
-    .filter((o) => o.width <= props.maxResolution.width && o.height <= props.maxResolution.height)
+    .filter(
+      (o) =>
+        o.width <= props.maxResolution.width &&
+        o.height <= props.maxResolution.height,
+    )
     .map(serializeResolution);
   function onChange(res: ResolutionString | null) {
     let resolution = res || maxResolutionString;
@@ -69,7 +99,9 @@ function ResolutionSelection(
         value={resolution()}
         defaultValue={maxResolutionString}
         onChange={onChange}
-        itemComponent={(props) => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
+        )}
       >
         <SelectTrigger>
           <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
@@ -85,10 +117,12 @@ type AudioSelectionProps = {
   currentValue: AudioCodec;
 };
 
-function AudioSelection(props: SelectionProps<AudioCodec> & AudioSelectionProps) {
+function AudioSelection(
+  props: SelectionProps<AudioCodec> & AudioSelectionProps,
+) {
   let defaultAudioCodec = () => {
     let defaultAudio: string;
-    if (typeof props.defaultAudio == "object") {
+    if (typeof props.defaultAudio === "object") {
       defaultAudio = props.defaultAudio.other;
     } else {
       defaultAudio = props.defaultAudio;
@@ -106,16 +140,22 @@ function AudioSelection(props: SelectionProps<AudioCodec> & AudioSelectionProps)
   }
 
   let currentValue = () =>
-    typeof props.currentValue === "object" ? props.currentValue.other : props.currentValue;
+    typeof props.currentValue === "object"
+      ? props.currentValue.other
+      : props.currentValue;
 
   return (
     <div>
       <Select
-        options={Array.from(new Set([defaultAudioCodec(), ...audioCodecOptions]))}
+        options={Array.from(
+          new Set([defaultAudioCodec(), ...audioCodecOptions]),
+        )}
         value={currentValue()}
         defaultValue={defaultAudioCodec()}
         onChange={onChange}
-        itemComponent={(props) => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
+        )}
       >
         <SelectTrigger>
           <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
@@ -131,10 +171,12 @@ type VideoSelectionProps = {
   currentValue: VideoCodec;
 };
 
-function VideoSelection(props: SelectionProps<VideoCodec> & VideoSelectionProps) {
+function VideoSelection(
+  props: SelectionProps<VideoCodec> & VideoSelectionProps,
+) {
   let defaultVideoCodec = () => {
     let defaultVideo: string;
-    if (typeof props.defaultVideo == "object") {
+    if (typeof props.defaultVideo === "object") {
       defaultVideo = props.defaultVideo.other;
     } else {
       defaultVideo = props.defaultVideo;
@@ -152,15 +194,21 @@ function VideoSelection(props: SelectionProps<VideoCodec> & VideoSelectionProps)
   }
 
   let currentValue = () =>
-    typeof props.currentValue == "object" ? props.currentValue.other : props.currentValue;
+    typeof props.currentValue === "object"
+      ? props.currentValue.other
+      : props.currentValue;
 
   return (
     <div>
       <Select
-        options={Array.from(new Set([defaultVideoCodec(), ...videoCodecOptions]))}
+        options={Array.from(
+          new Set([defaultVideoCodec(), ...videoCodecOptions]),
+        )}
         value={currentValue()}
         onChange={onChange}
-        itemComponent={(props) => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
+        )}
       >
         <SelectTrigger>
           <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
@@ -272,12 +320,16 @@ export default function AddVersion(props: Props) {
               <ResolutionSelection
                 onChange={(s) => props.onResolutionChange(s)}
                 maxResolution={video().resolution}
-                currentValue={props.selectedPayload.resolution ?? video().resolution}
+                currentValue={
+                  props.selectedPayload.resolution ?? video().resolution
+                }
               />
               <VideoSelection
                 onChange={(s) => props.onVideoChange(s)}
                 defaultVideo={video().codec}
-                currentValue={props.selectedPayload.video_codec ?? video().codec}
+                currentValue={
+                  props.selectedPayload.video_codec ?? video().codec
+                }
               />
             </>
           )}

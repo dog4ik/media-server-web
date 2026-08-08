@@ -1,11 +1,11 @@
+import type { LinkOptions } from "@tanstack/solid-router";
 import { FiImage } from "solid-icons/fi";
-import Icon from "../ui/Icon";
-import { ParentProps, Show } from "solid-js";
-import PlayButton from "./PlayButton";
+import { type ParentProps, Show } from "solid-js";
+import type { Video } from "@/utils/library";
+import { queryApi } from "@/utils/queryApi";
 import { useNotifications } from "../../context/NotificationContext";
-import { Video } from "@/utils/library";
-import { LinkOptions } from "@tanstack/solid-router";
-import { queryApi, queryClient } from "@/utils/queryApi";
+import Icon from "../ui/Icon";
+import PlayButton from "./PlayButton";
 
 type Props = {
   video: Video;
@@ -43,7 +43,9 @@ export default function VideoActions(props: Props) {
         {(url) => (
           <PlayButton
             link={url()}
-            canPlay={videoCompatibility.isSuccess ? videoCompatibility.data : undefined}
+            canPlay={
+              videoCompatibility.isSuccess ? videoCompatibility.data : undefined
+            }
           />
         )}
       </Show>

@@ -1,11 +1,15 @@
-import { createEffect, createMemo, createSignal, For, on, Show } from "solid-js";
-import { Button } from "@/ui/button";
-import { Badge } from "@/ui/badge";
-import { Skeleton } from "@/ui/skeleton";
 import { cx } from "cva";
 import Palette from "lucide-solid/icons/palette";
-import X from "lucide-solid/icons/x";
 import Search from "lucide-solid/icons/search";
+import X from "lucide-solid/icons/x";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  on,
+  Show,
+} from "solid-js";
 import {
   applyTheme,
   loadCustomThemes,
@@ -16,6 +20,9 @@ import {
   type Theme,
   type ThemeVars,
 } from "@/lib/themes";
+import { Badge } from "@/ui/badge";
+import { Button } from "@/ui/button";
+import { Skeleton } from "@/ui/skeleton";
 
 const CUSTOM_VAR_GROUPS: { label: string; vars: (keyof ThemeVars)[] }[] = [
   {
@@ -101,11 +108,14 @@ type ThemeCardProps = {
 function ThemeCard(props: ThemeCardProps) {
   return (
     <button
+      type="button"
       onClick={props.onSelect}
       class="group relative rounded border-2 text-left transition-all focus:outline-none"
       style={{
         background: props.theme.vars["--background"],
-        "border-color": props.active ? props.theme.vars["--primary"] : props.theme.vars["--border"],
+        "border-color": props.active
+          ? props.theme.vars["--primary"]
+          : props.theme.vars["--border"],
       }}
     >
       <div class="space-y-1.5 p-3">
@@ -121,7 +131,10 @@ function ThemeCard(props: ThemeCardProps) {
               class="size-3 rounded-full"
               style={{ background: props.theme.vars["--primary"] }}
             />
-            <div class="size-3 rounded-full" style={{ background: props.theme.vars["--accent"] }} />
+            <div
+              class="size-3 rounded-full"
+              style={{ background: props.theme.vars["--accent"] }}
+            />
             <div
               class="size-3 rounded-full"
               style={{ background: props.theme.vars["--destructive"] }}
@@ -143,6 +156,7 @@ function ThemeCard(props: ThemeCardProps) {
       </div>
       <Show when={props.onDelete}>
         <button
+          type="button"
           class="absolute top-1 right-1 flex size-5 items-center justify-center rounded opacity-0 transition-opacity group-hover:opacity-100"
           style={{
             background: props.theme.vars["--destructive"],
@@ -175,7 +189,9 @@ function UIPreview() {
           <div class="flex items-start justify-between">
             <div>
               <h3 class="text-card-foreground font-semibold">Media Server</h3>
-              <p class="text-muted-foreground mt-0.5 text-sm">Manage your media library</p>
+              <p class="text-muted-foreground mt-0.5 text-sm">
+                Manage your media library
+              </p>
             </div>
             <Badge>active</Badge>
           </div>
@@ -224,7 +240,9 @@ function UIPreview() {
                     <span class="text-foreground text-sm">{item.title}</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <span class="text-muted-foreground text-xs">{item.year}</span>
+                    <span class="text-muted-foreground text-xs">
+                      {item.year}
+                    </span>
                     <Badge variant="outline">{item.type}</Badge>
                   </div>
                 </div>
@@ -235,20 +253,33 @@ function UIPreview() {
 
         <div class="bg-card border-border space-y-3 rounded-lg border p-4 sm:col-span-2">
           <div class="flex items-center justify-between">
-            <h3 class="text-card-foreground font-semibold">Typography & colors</h3>
+            <h3 class="text-card-foreground font-semibold">
+              Typography & colors
+            </h3>
             <Badge variant="secondary">preview</Badge>
           </div>
           <div class="flex flex-wrap gap-2">
             <span class="text-foreground text-sm font-medium">foreground</span>
             <span class="text-muted-foreground text-sm">muted foreground</span>
             <span class="text-primary text-sm font-medium">primary</span>
-            <span class="text-destructive text-sm font-medium">destructive</span>
+            <span class="text-destructive text-sm font-medium">
+              destructive
+            </span>
           </div>
           <div class="flex flex-wrap gap-2">
-            <div class="bg-background border-border size-6 rounded border" title="background" />
-            <div class="bg-card border-border size-6 rounded border" title="card" />
+            <div
+              class="bg-background border-border size-6 rounded border"
+              title="background"
+            />
+            <div
+              class="bg-card border-border size-6 rounded border"
+              title="card"
+            />
             <div class="bg-primary size-6 rounded" title="primary" />
-            <div class="bg-secondary border-border size-6 rounded border" title="secondary" />
+            <div
+              class="bg-secondary border-border size-6 rounded border"
+              title="secondary"
+            />
             <div class="bg-accent size-6 rounded" title="accent" />
             <div class="bg-muted size-6 rounded" title="muted" />
             <div class="bg-destructive size-6 rounded" title="destructive" />
@@ -274,8 +305,12 @@ export function ColorSettingsPage() {
   const savedTheme = loadSavedTheme();
 
   const [tab, setTab] = createSignal<"preset" | "custom">("preset");
-  const [activeTheme, setActiveTheme] = createSignal<Theme>(savedTheme ?? PRESET_THEMES[0]);
-  const [customThemes, setCustomThemes] = createSignal<Theme[]>(loadCustomThemes());
+  const [activeTheme, setActiveTheme] = createSignal<Theme>(
+    savedTheme ?? PRESET_THEMES[0],
+  );
+  const [customThemes, setCustomThemes] = createSignal<Theme[]>(
+    loadCustomThemes(),
+  );
   const [editVars, setEditVars] = createSignal<ThemeVars>(
     savedTheme?.vars ?? PRESET_THEMES[0].vars,
   );
@@ -323,7 +358,10 @@ export function ColorSettingsPage() {
 
   function loadPresetIntoEditor(theme: Theme) {
     setEditVars({ ...theme.vars });
-    document.documentElement.style.setProperty("--radius", theme.vars["--radius"]);
+    document.documentElement.style.setProperty(
+      "--radius",
+      theme.vars["--radius"],
+    );
     for (const [k, v] of Object.entries(theme.vars)) {
       document.documentElement.style.setProperty(k, v);
     }
@@ -336,10 +374,13 @@ export function ColorSettingsPage() {
       <div class="space-y-1">
         <div class="text-muted-foreground flex items-center gap-2">
           <Palette class="size-4" />
-          <span class="text-xs font-medium tracking-widest uppercase">theme</span>
+          <span class="text-xs font-medium tracking-widest uppercase">
+            theme
+          </span>
         </div>
         <div class="flex items-center gap-0">
           <button
+            type="button"
             onClick={() => setTab("preset")}
             class={cx(
               "border px-4 py-1.5 text-sm transition-all",
@@ -351,6 +392,7 @@ export function ColorSettingsPage() {
             preset
           </button>
           <button
+            type="button"
             onClick={() => setTab("custom")}
             class={cx(
               "border px-4 py-1.5 text-sm transition-all",
@@ -390,6 +432,7 @@ export function ColorSettingsPage() {
             <For each={PRESET_THEMES}>
               {(theme) => (
                 <button
+                  type="button"
                   onClick={() => loadPresetIntoEditor(theme)}
                   class="border-border hover:border-primary text-muted-foreground hover:text-foreground border px-3 py-1 text-xs transition-all"
                 >
@@ -413,7 +456,12 @@ export function ColorSettingsPage() {
                           <input
                             type="color"
                             value={editVars()[varKey]}
-                            onInput={(e) => handleCustomVarChange(varKey, e.currentTarget.value)}
+                            onInput={(e) =>
+                              handleCustomVarChange(
+                                varKey,
+                                e.currentTarget.value,
+                              )
+                            }
                             class="size-7 shrink-0 cursor-pointer rounded border-0 bg-transparent p-0"
                           />
                           <div class="min-w-0">

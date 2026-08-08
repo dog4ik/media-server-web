@@ -1,3 +1,7 @@
+import { getRouteApi, linkOptions } from "@tanstack/solid-router";
+import clsx from "clsx";
+import { FiDownload, FiSearch, FiSkipForward, FiTrash } from "solid-icons/fi";
+import { For, Show, Suspense } from "solid-js";
 import { EpisodeCard } from "@/components/Cards/EpisodeCard";
 import { ElementsGrid } from "@/components/ElementsGrid";
 import FallbackImage from "@/components/FallbackImage";
@@ -6,14 +10,15 @@ import { IntrosModal } from "@/components/modals/IntrosModal";
 import DownloadTorrentModal from "@/components/modals/TorrentDownload";
 import Icon from "@/components/ui/Icon";
 import { Skeleton } from "@/ui/skeleton";
-import { extendEpisode, extendSeason, Media, posterList } from "@/utils/library";
-import { queryApi, queryClient } from "@/utils/queryApi";
-import { Schemas, server } from "@/utils/serverApi";
+import {
+  extendEpisode,
+  extendSeason,
+  type Media,
+  posterList,
+} from "@/utils/library";
+import { queryApi } from "@/utils/queryApi";
+import { type Schemas, server } from "@/utils/serverApi";
 import useToggle from "@/utils/useToggle";
-import { getRouteApi, linkOptions } from "@tanstack/solid-router";
-import clsx from "clsx";
-import { FiDownload, FiSearch, FiSkipForward, FiTrash } from "solid-icons/fi";
-import { For, Show, Suspense } from "solid-js";
 
 const POSTER_WIDTH = 57;
 const POSTER_HEIGHT = 86;
@@ -25,7 +30,11 @@ async function detectIntros(show_id: number, season: number) {
 }
 
 async function deleteContent<T extends Media>(content: T) {
-  if (await promptConfirm(`Are you sure you want to delete ${content.friendlyTitle()}?`)) {
+  if (
+    await promptConfirm(
+      `Are you sure you want to delete ${content.friendlyTitle()}?`,
+    )
+  ) {
     let err = await content.delete();
     if (err !== undefined) {
       throw Error(err.message);
@@ -45,7 +54,9 @@ function SkeletonSeasonBar() {
   return (
     <>
       <div>
-        <Skeleton style={{ width: `${POSTER_WIDTH}px`, height: `${POSTER_HEIGHT}px` }} />
+        <Skeleton
+          style={{ width: `${POSTER_WIDTH}px`, height: `${POSTER_HEIGHT}px` }}
+        />
       </div>
       <div class="flex flex-1 flex-col gap-3">
         <div class="space-y-3">
@@ -105,12 +116,14 @@ export default function Season(props: Props) {
                 content_type="show"
               />
             </Suspense>
-            <Show when={season().provider == "local"}>
+            <Show when={season().provider === "local"}>
               <IntrosModal
                 open={introsModal()}
                 onClose={setIntrosModal}
                 show_id={+props.showId}
-                episodes={season().episodes.map((e) => extendEpisode(e, props.showId))}
+                episodes={season().episodes.map((e) =>
+                  extendEpisode(e, props.showId),
+                )}
                 season={season().number}
               />
             </Show>
@@ -120,7 +133,9 @@ export default function Season(props: Props) {
       <div
         class={clsx(
           "bg-card top-navbar sticky z-10 flex flex-wrap items-start gap-3 rounded-xl p-3 transition-opacity sm:h-48 sm:flex-nowrap sm:items-stretch sm:gap-4 sm:p-4",
-          seasonQuery.isFetching && seasonQuery.isPlaceholderData && "opacity-50",
+          seasonQuery.isFetching &&
+            seasonQuery.isPlaceholderData &&
+            "opacity-50",
         )}
       >
         <Show when={seasonQuery.latest()} fallback={<SkeletonSeasonBar />}>
@@ -137,20 +152,27 @@ export default function Season(props: Props) {
               <div class="flex min-w-0 flex-1 basis-48 flex-col gap-3">
                 <div>
                   <h3 class="text-xl sm:text-2xl">Season {season().number}</h3>
-                  <span class="text-muted-foreground text-xs">{season().release_date}</span>
+                  <span class="text-muted-foreground text-xs">
+                    {season().release_date}
+                  </span>
                 </div>
                 <Show when={season().plot}>
-                  <p class="line-clamp-2 text-sm sm:line-clamp-3">{season().plot}</p>
+                  <p class="line-clamp-2 text-sm sm:line-clamp-3">
+                    {season().plot}
+                  </p>
                 </Show>
               </div>
               <div class="flex shrink-0 flex-wrap items-center gap-2">
                 <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
                   <FiDownload />
                 </Icon>
-                <Icon tooltip="Manage intros" onClick={() => setIntrosModal(true)}>
+                <Icon
+                  tooltip="Manage intros"
+                  onClick={() => setIntrosModal(true)}
+                >
                   <FiSkipForward />
                 </Icon>
-                <Show when={season().provider == "local"}>
+                <Show when={season().provider === "local"}>
                   <Icon
                     tooltip={
                       props.canDetectIntros
@@ -167,7 +189,10 @@ export default function Season(props: Props) {
                     tooltip={`Delete season ${season().number}`}
                     onClick={() =>
                       deleteContent(season()).then(() =>
-                        queryApi.invalidateQueries("get", "/api/show/{id}/{season}"),
+                        queryApi.invalidateQueries(
+                          "get",
+                          "/api/show/{id}/{season}",
+                        ),
                       )
                     }
                   >
@@ -182,7 +207,9 @@ export default function Season(props: Props) {
       <ElementsGrid
         class={clsx(
           "transition-opacity",
-          seasonQuery.isFetching && seasonQuery.isPlaceholderData && "opacity-50",
+          seasonQuery.isFetching &&
+            seasonQuery.isPlaceholderData &&
+            "opacity-50",
         )}
         elementSize={320}
         mobileCols={1}
@@ -192,7 +219,9 @@ export default function Season(props: Props) {
             <div
               class={clsx(
                 "transition-opacity",
-                seasonQuery.isFetching && seasonQuery.isPlaceholderData && "opacity-50",
+                seasonQuery.isFetching &&
+                  seasonQuery.isPlaceholderData &&
+                  "opacity-50",
               )}
             >
               <EpisodeCard

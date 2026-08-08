@@ -1,5 +1,10 @@
-import { Schemas, server } from "../../utils/serverApi";
-import { FiFileText, FiFolder, FiHardDrive, FiHome, FiVideo } from "solid-icons/fi";
+import {
+  FiFileText,
+  FiFolder,
+  FiHardDrive,
+  FiHome,
+  FiVideo,
+} from "solid-icons/fi";
 import {
   createEffect,
   createMemo,
@@ -10,10 +15,11 @@ import {
   Suspense,
   Switch,
 } from "solid-js";
-import { TextFieldInput, TextField } from "@/ui/textfield";
 import { Button } from "@/ui/button";
-import Loader from "../Loader";
+import { TextField, TextFieldInput } from "@/ui/textfield";
 import { queryApi } from "@/utils/queryApi";
+import { type Schemas, server } from "../../utils/serverApi";
+import Loader from "../Loader";
 
 type FileType = "file" | "directory" | "disk" | "home" | "videos";
 
@@ -21,19 +27,19 @@ function FileIcon(props: { fileType: FileType }) {
   const size = 20;
   return (
     <Switch>
-      <Match when={props.fileType == "file"}>
+      <Match when={props.fileType === "file"}>
         <FiFileText size={size} />
       </Match>
-      <Match when={props.fileType == "disk"}>
+      <Match when={props.fileType === "disk"}>
         <FiHardDrive size={size} />
       </Match>
-      <Match when={props.fileType == "directory"}>
+      <Match when={props.fileType === "directory"}>
         <FiFolder size={size} />
       </Match>
-      <Match when={props.fileType == "home"}>
+      <Match when={props.fileType === "home"}>
         <FiHome size={size} />
       </Match>
-      <Match when={props.fileType == "videos"}>
+      <Match when={props.fileType === "videos"}>
         <FiVideo size={size} />
       </Match>
     </Switch>
@@ -83,11 +89,14 @@ type Props = {
 
 export function FilePicker(props: Props) {
   let initialPath = props.initialDir ? makeFile(props.initialDir) : undefined;
-  let [selectedDir, setSelectedDir] = createSignal<Schemas["BrowseFile"] | undefined>(initialPath);
-  let [lastWorkingPath, setLastWorkingPath] = createSignal<Schemas["BrowseDirectory"]>();
-  let [selectedOutput, setSelectedOutput] = createSignal<Schemas["BrowseFile"] | undefined>(
-    initialPath,
-  );
+  let [selectedDir, setSelectedDir] = createSignal<
+    Schemas["BrowseFile"] | undefined
+  >(initialPath);
+  let [lastWorkingPath, setLastWorkingPath] =
+    createSignal<Schemas["BrowseDirectory"]>();
+  let [selectedOutput, setSelectedOutput] = createSignal<
+    Schemas["BrowseFile"] | undefined
+  >(initialPath);
 
   let currentDirectory = queryApi.useQuery(
     "get",
@@ -118,7 +127,8 @@ export function FilePicker(props: Props) {
   }
 
   createEffect(() => {
-    if (selectedOutput()) props.onChange?.(selectedOutput()!.path);
+    const output = selectedOutput();
+    if (output) props.onChange?.(output.path);
   });
 
   async function handleBack(currentKey: string) {
@@ -150,7 +160,10 @@ export function FilePicker(props: Props) {
           </TextField>
           <Show when={props.onSubmit}>
             <Button
-              onClick={() => props.onSubmit?.(selectedOutput()!.path)}
+              onClick={() => {
+                const output = selectedOutput();
+                if (output) props.onSubmit?.(output.path);
+              }}
               disabled={!selectedOutput()?.path}
             >
               Submit
@@ -211,7 +224,8 @@ export function FilePicker(props: Props) {
                 <Suspense fallback={<Loader showDelay={200} />}>
                   <Show when={currentDirectory.isError}>
                     <div class="flex size-full items-center justify-center">
-                      Directory is unavailable: {currentDirectory.error?.message}
+                      Directory is unavailable:{" "}
+                      {currentDirectory.error?.message}
                     </div>
                   </Show>
                   <Show when={directory()}>

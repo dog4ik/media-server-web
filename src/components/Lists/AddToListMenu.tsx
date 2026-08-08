@@ -1,11 +1,11 @@
-import { Component, For, Show } from "solid-js";
-import { Dynamic } from "solid-js/web";
 import Check from "lucide-solid/icons/check";
 import Clock from "lucide-solid/icons/clock";
 import Heart from "lucide-solid/icons/heart";
 import ListVideo from "lucide-solid/icons/list-video";
-import { RecursiveRow } from "@/components/ContextMenu/MoreButton";
+import { type Component, For, Show } from "solid-js";
+import { Dynamic } from "solid-js/web";
 import { MenuRow } from "@/components/ContextMenu/Menu";
+import { RecursiveRow } from "@/components/ContextMenu/MoreButton";
 import { useListActions } from "@/lib/lists";
 import type { Schemas } from "@/utils/serverApi";
 
@@ -29,7 +29,10 @@ type ListRowProps = {
 function ListRow(props: ListRowProps) {
   return (
     <MenuRow onClick={props.onClick}>
-      <Dynamic component={props.icon} class="text-muted-foreground size-4 shrink-0" />
+      <Dynamic
+        component={props.icon}
+        class="text-muted-foreground size-4 shrink-0"
+      />
       <span class="flex-1 truncate text-left">{props.name}</span>
       <Show when={props.inList}>
         <Check class="size-4 shrink-0" />

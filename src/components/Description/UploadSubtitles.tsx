@@ -1,15 +1,15 @@
-import { Button } from "@/ui/button";
-import { TextField, TextFieldLabel, TextFieldInput } from "@/ui/textfield";
-import { Schemas, server } from "@/utils/serverApi";
-import tracing from "@/utils/tracing";
-import { createSignal, JSX, ParentProps, Show } from "solid-js";
-import { FilePicker } from "../FilePicker";
-import { formatSize } from "@/utils/formats";
 import { FiTrash } from "solid-icons/fi";
+import { createSignal, type JSX, type ParentProps, Show } from "solid-js";
 import { useNotificationsContext } from "@/context/NotificationContext";
+import { Button } from "@/ui/button";
+import { TextField, TextFieldInput, TextFieldLabel } from "@/ui/textfield";
 import { notifyResponseErrors } from "@/utils/errors";
-import { LanguagePicker } from "../Settings/LanguagePicker";
+import { formatSize } from "@/utils/formats";
 import { queryApi } from "@/utils/queryApi";
+import { type Schemas, server } from "@/utils/serverApi";
+import tracing from "@/utils/tracing";
+import { FilePicker } from "../FilePicker";
+import { LanguagePicker } from "../Settings/LanguagePicker";
 
 type Props = {
   videoId: number;
@@ -35,16 +35,22 @@ export function UploadSubtitles(props: Props) {
     }
   }
 
-  let handleFileSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (e) => {
+  let handleFileSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (
+    e,
+  ) => {
     e.preventDefault();
     setIsPending(true);
     try {
       let subs = subtitlesFile();
       if (subs) {
-        tracing.debug({ name: subs.name, language: language() }, "Uploading subtitles file");
+        tracing.debug(
+          { name: subs.name, language: language() },
+          "Uploading subtitles file",
+        );
         let formData = new FormData();
-        if (language()) {
-          formData.append("language", language()!);
+        const lang = language();
+        if (lang) {
+          formData.append("language", lang);
         }
         formData.append("subtitles", subs);
 
@@ -129,6 +135,7 @@ export function UploadSubtitles(props: Props) {
   };
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: drop zone, the file input below is the keyboard-accessible equivalent
     <div
       class="size-full"
       onDrop={dropHandler}
@@ -138,7 +145,9 @@ export function UploadSubtitles(props: Props) {
       onDragLeave={dragLeaveHandler}
     >
       <Show
-        fallback={<div class="pointer-events-none size-full border-2 border-dashed p-2"></div>}
+        fallback={
+          <div class="pointer-events-none size-full border-2 border-dashed p-2"></div>
+        }
         when={!isDraggedOver()}
       >
         <form onSubmit={handleFileSubmit} class="flex flex-col gap-4">
@@ -183,14 +192,19 @@ export function UploadSubtitles(props: Props) {
                   <span>{file().name}</span>
                   <span>{formatSize(file().size)}</span>
                 </div>
-                <Button onClick={() => setSubtitlesFile(undefined)} variant="destructive">
+                <Button
+                  onClick={() => setSubtitlesFile(undefined)}
+                  variant="destructive"
+                >
                   <FiTrash size={20} />
                 </Button>
               </div>
             )}
           </Show>
           <Button
-            disabled={(!subtitlesServerPath() && !subtitlesFile()) || isPending()}
+            disabled={
+              (!subtitlesServerPath() && !subtitlesFile()) || isPending()
+            }
             type="submit"
             class="mt-4"
           >

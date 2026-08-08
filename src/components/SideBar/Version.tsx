@@ -1,6 +1,6 @@
-import { useServerStatus } from "@/context/ServerStatusContext";
-import { queryApi, queryClient } from "@/utils/queryApi";
 import { ErrorBoundary, onCleanup, Show, Suspense } from "solid-js";
+import { useServerStatus } from "@/context/ServerStatusContext";
+import { queryApi } from "@/utils/queryApi";
 
 export default function Version() {
   let [{ serverStatus }] = useServerStatus();

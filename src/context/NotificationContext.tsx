@@ -1,6 +1,9 @@
-import { For, ParentProps, createContext, createSignal, useContext } from "solid-js";
-import { Media, posterList } from "@/utils/library";
-import Notification, { NotificationProps } from "../components/Notification";
+import { createContext, createSignal, For, type ParentProps } from "solid-js";
+import { useRequiredContext } from "@/lib/context";
+import { type Media, posterList } from "@/utils/library";
+import Notification, {
+  type NotificationProps,
+} from "../components/Notification";
 
 type NotificationsContextType = ReturnType<typeof createNotificationsContext>;
 
@@ -8,7 +11,8 @@ type NotificationType = NotificationProps & { id: string };
 
 export const NotificationsContext = createContext<NotificationsContextType>();
 
-export const useNotificationsContext = () => useContext(NotificationsContext)!;
+export const useNotificationsContext = () =>
+  useRequiredContext(NotificationsContext, "NotificationsContext");
 
 export function useNotifications() {
   let [_, { addSimpleNotification }] = useNotificationsContext();

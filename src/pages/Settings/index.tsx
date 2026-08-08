@@ -1,19 +1,22 @@
-import SectionTitle from "../../components/Settings/SectionTitle";
-import { server } from "../../utils/serverApi";
-import { queryApi, queryClient } from "@/utils/queryApi";
-import { Setting, SmartSetting } from "../../components/Settings/Setting";
 import { ErrorBoundary, Show } from "solid-js";
-import { useNotifications } from "../../context/NotificationContext";
-import SettingsProvider, { useSettingsContext } from "@/context/SettingsContext";
-import promptConfirm from "@/components/modals/ConfirmationModal";
-import { Button } from "@/ui/button";
-import { SETTINGS } from "@/utils/settingsDescriptors";
-import { LanguagePicker } from "@/components/Settings/LanguagePicker";
 import { errorBoundaryFallback } from "@/components/Error";
+import promptConfirm from "@/components/modals/ConfirmationModal";
+import { LanguagePicker } from "@/components/Settings/LanguagePicker";
+import SettingsProvider, {
+  useSettingsContext,
+} from "@/context/SettingsContext";
+import { Button } from "@/ui/button";
+import { queryApi } from "@/utils/queryApi";
+import { SETTINGS } from "@/utils/settingsDescriptors";
+import SectionTitle from "../../components/Settings/SectionTitle";
+import { Setting, SmartSetting } from "../../components/Settings/Setting";
+import { useNotifications } from "../../context/NotificationContext";
+import { server } from "../../utils/serverApi";
 
 function GeneralSettings() {
   let notificator = useNotifications();
-  let { saveStatus, remoteSettings, change, changedSettings } = useSettingsContext();
+  let { saveStatus, remoteSettings, change, changedSettings } =
+    useSettingsContext();
 
   async function restoreConfiguration() {
     let confirmed = await promptConfirm("Do you want to reset configuration?");
@@ -44,20 +47,26 @@ function GeneralSettings() {
           <div class="divide-y divide-neutral-500">
             <SmartSetting setting="show_folders" />
             <SmartSetting setting="movie_folders" />
-            <Setting
-              data={SETTINGS["metadata_language"]}
-              remote={remoteSettings.data!["metadata_language"]}
-            >
-              <LanguagePicker
-                onChange={(language) => (language ? change("metadata_language", language) : null)}
-                value={
-                  changedSettings["metadata_language"] ??
-                  remoteSettings.data!["metadata_language"].config_value ??
-                  remoteSettings.data!["metadata_language"].default_value
-                }
-                placeholder="Select metadata language"
-              />
-            </Setting>
+            <Show when={remoteSettings.data?.metadata_language}>
+              {(metadataLanguage) => (
+                <Setting
+                  data={SETTINGS.metadata_language}
+                  remote={metadataLanguage()}
+                >
+                  <LanguagePicker
+                    onChange={(language) =>
+                      language ? change("metadata_language", language) : null
+                    }
+                    value={
+                      changedSettings.metadata_language ??
+                      metadataLanguage().config_value ??
+                      metadataLanguage().default_value
+                    }
+                    placeholder="Select metadata language"
+                  />
+                </Setting>
+              )}
+            </Show>
             <SmartSetting setting="upnp_enabled" />
             <SmartSetting setting="hw_accel" />
             <SmartSetting setting="intro_min_duration" />

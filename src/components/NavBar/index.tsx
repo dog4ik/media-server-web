@@ -1,7 +1,7 @@
-import SearchBar from "../SearchBar";
 import { AppBreadcrumbs } from "../Breadcrumbs";
-import ScanButton from "./ScanButton";
+import SearchBar from "../SearchBar";
 import MobileNav from "./MobileNav";
+import ScanButton from "./ScanButton";
 
 // Background opacity at the top of the page and once fully scrolled.
 const MIN_BG_OPACITY = 0.3;
@@ -9,7 +9,8 @@ const MAX_BG_OPACITY = 0.95;
 
 export default function NavBar(props: { scrollProgress?: number }) {
   let bgOpacity = () =>
-    MIN_BG_OPACITY + (props.scrollProgress ?? 0) * (MAX_BG_OPACITY - MIN_BG_OPACITY);
+    MIN_BG_OPACITY +
+    (props.scrollProgress ?? 0) * (MAX_BG_OPACITY - MIN_BG_OPACITY);
   return (
     <header
       class="hover-hide h-navbar flex w-full items-center gap-2 px-3 text-white sm:gap-3 sm:px-4"

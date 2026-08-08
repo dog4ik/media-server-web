@@ -1,7 +1,7 @@
-import { ParentProps } from "solid-js";
+import type { ParentProps } from "solid-js";
+import BackdropProvider from "./context/BackdropContext";
 import NotificationsProvider from "./context/NotificationContext";
 import ServerStatusProvider from "./context/ServerStatusContext";
-import BackdropProvider from "./context/BackdropContext";
 import { applyTheme, loadSavedTheme } from "./lib/themes";
 
 let saved = loadSavedTheme();

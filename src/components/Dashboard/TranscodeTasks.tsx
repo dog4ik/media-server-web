@@ -1,13 +1,26 @@
+import { Link } from "@tanstack/solid-router";
+import { For, Show } from "solid-js";
 import { Button } from "@/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/ui/card";
 import { Progress } from "@/ui/progress";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/ui/table";
 import { formatCodec, formatResolution } from "@/utils/formats";
 import { extendEpisode, extendMovie, extendShow } from "@/utils/library";
 import { queryApi } from "@/utils/queryApi";
-import { Schemas, server } from "@/utils/serverApi";
-import { Link } from "@tanstack/solid-router";
-import { For, Show } from "solid-js";
+import { type Schemas, server } from "@/utils/serverApi";
 
 type RowProps = {
   task: Schemas["Task_TranscodeJob"];
@@ -19,7 +32,8 @@ function TaskRow(props: RowProps) {
       params: { path: { id: props.task.id } },
     });
   };
-  let progress = () => props.task.latest_progress ?? { percent: 0, relative_speed: 0 };
+  let progress = () =>
+    props.task.latest_progress ?? { percent: 0, relative_speed: 0 };
 
   let media = queryApi.useQuery(
     "get",
@@ -29,11 +43,11 @@ function TaskRow(props: RowProps) {
     }),
     () => ({
       select: (metadata) => {
-        if (metadata?.content_type == "movie") {
+        if (metadata?.content_type === "movie") {
           let movie = extendMovie(metadata.movie);
           return { title: movie.friendlyTitle(), url: movie.url() };
         }
-        if (metadata?.content_type == "episode") {
+        if (metadata?.content_type === "episode") {
           let show = extendShow(metadata.show);
           let episode = extendEpisode(metadata.episode, show.provider_id);
           return {
@@ -47,11 +61,19 @@ function TaskRow(props: RowProps) {
   return (
     <TableRow>
       <TableCell class="font-medium">
-        <Show when={media.data}>{(m) => <Link {...m().url}>{m().title}</Link>}</Show>
+        <Show when={media.data}>
+          {(m) => <Link {...m().url}>{m().title}</Link>}
+        </Show>
       </TableCell>
-      <TableCell>{formatCodec(props.task.kind.configuration.audio_codec)}</TableCell>
-      <TableCell>{formatCodec(props.task.kind.configuration.video_codec)}</TableCell>
-      <TableCell>{formatResolution(props.task.kind.configuration.resolution)}</TableCell>
+      <TableCell>
+        {formatCodec(props.task.kind.configuration.audio_codec)}
+      </TableCell>
+      <TableCell>
+        {formatCodec(props.task.kind.configuration.video_codec)}
+      </TableCell>
+      <TableCell>
+        {formatResolution(props.task.kind.configuration.resolution)}
+      </TableCell>
       <TableCell>
         <span class="font-mono">{progress().relative_speed.toFixed(2)}x</span>
       </TableCell>
@@ -81,7 +103,9 @@ export function TranscodeTasks(props: Props) {
       <Card>
         <CardHeader>
           <CardTitle>Pending Transcode Jobs</CardTitle>
-          <CardDescription>Videos that are currently being processed</CardDescription>
+          <CardDescription>
+            Videos that are currently being processed
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Show when={props.tasks.length} fallback={<NoItems />}>
@@ -98,7 +122,9 @@ export function TranscodeTasks(props: Props) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <For each={props.tasks}>{(task) => <TaskRow task={task} />}</For>
+                <For each={props.tasks}>
+                  {(task) => <TaskRow task={task} />}
+                </For>
               </TableBody>
             </Table>
           </Show>

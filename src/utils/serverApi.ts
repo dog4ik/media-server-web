@@ -1,10 +1,19 @@
-import createFetchClient, { ParamsOption, Middleware } from "openapi-fetch";
+import createFetchClient, {
+  type Middleware,
+  type ParamsOption,
+} from "openapi-fetch";
 import type { components, paths } from "server-types";
-import tracing from "./tracing";
-import { BadRequestError, InternalServerError, NotFoundError, UnavailableError } from "./errors";
+import {
+  BadRequestError,
+  InternalServerError,
+  NotFoundError,
+  UnavailableError,
+} from "./errors";
 
-export function formatCodec<T extends string | { other: string }>(codec: T): string {
-  return typeof codec == "object" ? codec.other : codec;
+export function formatCodec<T extends string | { other: string }>(
+  codec: T,
+): string {
+  return typeof codec === "object" ? codec.other : codec;
 }
 
 export const MEDIA_SERVER_URL: string = import.meta.env.PROD
@@ -20,7 +29,7 @@ const serverErrorMiddleware: Middleware = {
     async function errorMessage() {
       try {
         let json = await response.clone().json();
-        let message = json["message"];
+        let message = json.message;
         if (typeof message !== "string") {
           throw Error("Message is empty");
         }
@@ -66,19 +75,19 @@ export function fullUrl<T extends GetPaths>(
 ) {
   let parts = path.split("/").filter(Boolean);
   let url = new URL(MEDIA_SERVER_URL);
-  for (let part of parts) {
+  for (const part of parts) {
     if (!url.pathname.endsWith("/")) {
       url.pathname += "/";
     }
     if (args && "path" in args && part.startsWith("{") && part.endsWith("}")) {
       let param = part.substring(1, part.length - 1) as keyof typeof args.path;
-      url.pathname += args.path![param];
+      url.pathname += args.path?.[param];
     } else {
       url.pathname += part;
     }
   }
   if (args && "query" in args && args.query) {
-    for (let [key, val] of Object.entries(args.query)) {
+    for (const [key, val] of Object.entries(args.query)) {
       url.searchParams.append(key, val as string);
     }
   }

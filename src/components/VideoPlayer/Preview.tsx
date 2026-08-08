@@ -13,7 +13,8 @@ export default function Preview(props: PreviewProps) {
   const IMG_HEIGHT = 98;
   let position = () => {
     if (props.X < IMG_WIDTH / 2) return IMG_WIDTH / 2;
-    if (props.timelineWidth - props.X < IMG_WIDTH / 2) return props.timelineWidth - IMG_WIDTH / 2;
+    if (props.timelineWidth - props.X < IMG_WIDTH / 2)
+      return props.timelineWidth - IMG_WIDTH / 2;
     return props.X;
   };
   return (
@@ -25,7 +26,12 @@ export default function Preview(props: PreviewProps) {
     >
       <Show when={props.src}>
         <div class="overflow-hidden rounded-md p-0.5">
-          <img width={IMG_WIDTH} height={IMG_HEIGHT} src={props.src} alt="Preview" />
+          <img
+            width={IMG_WIDTH}
+            height={IMG_HEIGHT}
+            src={props.src}
+            alt="Preview"
+          />
         </div>
       </Show>
       <div class="space-x-2 rounded-md bg-black/60 px-2 py-1 text-sm">

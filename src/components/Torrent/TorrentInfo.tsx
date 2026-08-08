@@ -1,10 +1,10 @@
-import { formatSize } from "@/utils/formats";
-import { createMemo, createSignal, JSX, Show } from "solid-js";
-import Copy from "lucide-solid/icons/copy";
 import Check from "lucide-solid/icons/check";
+import Copy from "lucide-solid/icons/copy";
+import { createMemo, createSignal, type JSX, Show } from "solid-js";
+import type { ExtendedTorrentState } from "@/context/TorrentContext";
 import { Button } from "@/ui/button";
+import { formatSize } from "@/utils/formats";
 import tracing from "@/utils/tracing";
-import { ExtendedTorrentState } from "@/context/TorrentContext";
 
 type Props = {
   torrent: ExtendedTorrentState;
@@ -22,7 +22,9 @@ function InfoCell(props: CellProps) {
       class="flex flex-col justify-center gap-0.5 px-2 py-1"
       classList={{ [props.class ?? ""]: !!props.class }}
     >
-      <span class="text-muted-foreground text-[10px] tracking-wide uppercase">{props.label}</span>
+      <span class="text-muted-foreground text-[10px] tracking-wide uppercase">
+        {props.label}
+      </span>
       <div class="min-w-0 text-sm font-medium">{props.children}</div>
     </div>
   );
@@ -60,7 +62,10 @@ function CopyButton(props: CopyButtonProps) {
       onClick={copy}
       class="hover:bg-secondary shrink-0"
     >
-      <Show when={copied()} fallback={<Copy class="text-secondary-foreground size-3.5" />}>
+      <Show
+        when={copied()}
+        fallback={<Copy class="text-secondary-foreground size-3.5" />}
+      >
         <Check class="text-primary size-3.5" />
       </Show>
     </Button>
@@ -68,7 +73,9 @@ function CopyButton(props: CopyButtonProps) {
 }
 
 export function TorrentInfo(props: Props) {
-  let downloadedPieces = createMemo(() => props.torrent.downloaded_pieces.totalCount());
+  let downloadedPieces = createMemo(() =>
+    props.torrent.downloaded_pieces.totalCount(),
+  );
   let downloadedSize = createMemo(() => {
     let { total_pieces, total_size } = props.torrent;
     if (total_pieces === 0) return 0;
@@ -82,14 +89,18 @@ export function TorrentInfo(props: Props) {
       </InfoCell>
       <InfoCell label="Info hash (hex)" class="col-span-2 lg:col-span-3">
         <div class="flex items-center gap-1.5">
-          <code class="min-w-0 text-sm break-all">{props.torrent.info_hash}</code>
+          <code class="min-w-0 text-sm break-all">
+            {props.torrent.info_hash}
+          </code>
           <CopyButton value={props.torrent.info_hash} label="Copy info hash" />
         </div>
       </InfoCell>
       <InfoCell label="State">
         <span class="capitalize">
           {props.torrent.state.type}
-          <Show when={props.torrent.state.type === "error" && props.torrent.state}>
+          <Show
+            when={props.torrent.state.type === "error" && props.torrent.state}
+          >
             {(state) => ` (${JSON.stringify(state().error)})`}
           </Show>
         </span>
@@ -101,9 +112,15 @@ export function TorrentInfo(props: Props) {
       <InfoCell label="Pieces">
         {downloadedPieces()} / {props.torrent.total_pieces}
       </InfoCell>
-      <InfoCell label="Pending pieces">{props.torrent.pending_pieces.length}</InfoCell>
-      <InfoCell label="Download speed">{formatSize(props.torrent.download_speed)}/s</InfoCell>
-      <InfoCell label="Upload speed">{formatSize(props.torrent.upload_speed)}/s</InfoCell>
+      <InfoCell label="Pending pieces">
+        {props.torrent.pending_pieces.length}
+      </InfoCell>
+      <InfoCell label="Download speed">
+        {formatSize(props.torrent.download_speed)}/s
+      </InfoCell>
+      <InfoCell label="Upload speed">
+        {formatSize(props.torrent.upload_speed)}/s
+      </InfoCell>
       <InfoCell label="Peers">{props.torrent.peers.length}</InfoCell>
       <InfoCell label="Trackers">{props.torrent.trackers.length}</InfoCell>
     </div>

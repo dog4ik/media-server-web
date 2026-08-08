@@ -1,11 +1,11 @@
 import { ErrorBoundary, For, Suspense } from "solid-js";
-import { MovieCard } from "../../components/Cards/MovieCard";
 import { ShowCard, ShowCardSkeleton } from "@/components/Cards/ShowCard";
 import { ElementsGrid } from "@/components/ElementsGrid";
 import { ApplicationErrorBoundary, ErrorComponent } from "@/components/Error";
-import { queryApi, queryClient } from "@/utils/queryApi";
-import { ContinueWatchingSection } from "./ContinueWatching";
 import { extendMovie } from "@/utils/library";
+import { queryApi } from "@/utils/queryApi";
+import { MovieCard } from "../../components/Cards/MovieCard";
+import { ContinueWatchingSection } from "./ContinueWatching";
 
 function TrendingShows() {
   let trendingShows = queryApi.useQuery("get", "/api/search/trending_shows");
@@ -34,7 +34,9 @@ function TrendingShows() {
           }
         >
           <ElementsGrid elementSize={200}>
-            <For each={trendingShows.data}>{(show) => <ShowCard show={show} />}</For>
+            <For each={trendingShows.data}>
+              {(show) => <ShowCard show={show} />}
+            </For>
           </ElementsGrid>
         </Suspense>
       </ApplicationErrorBoundary>
@@ -79,7 +81,10 @@ function TrendingMovies() {
           <ElementsGrid elementSize={200}>
             <For each={trendingMovies.data}>
               {(movie) => (
-                <MovieCard movie={movie} onMarkWatched={() => trendingMovies.refetch()} />
+                <MovieCard
+                  movie={movie}
+                  onMarkWatched={() => trendingMovies.refetch()}
+                />
               )}
             </For>
           </ElementsGrid>
@@ -91,14 +96,14 @@ function TrendingMovies() {
 
 export default function Home() {
   return (
-    <>
-      <ErrorBoundary fallback={(err, reset) => <ErrorComponent err={err} reset={reset} />}>
-        <div class="p-2">
-          <ContinueWatchingSection />
-          <TrendingShows />
-          <TrendingMovies />
-        </div>
-      </ErrorBoundary>
-    </>
+    <ErrorBoundary
+      fallback={(err, reset) => <ErrorComponent err={err} reset={reset} />}
+    >
+      <div class="p-2">
+        <ContinueWatchingSection />
+        <TrendingShows />
+        <TrendingMovies />
+      </div>
+    </ErrorBoundary>
   );
 }

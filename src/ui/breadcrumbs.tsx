@@ -1,18 +1,25 @@
-import type { VoidProps } from "solid-js";
-import { splitProps, type ComponentProps, type ValidComponent } from "solid-js";
 import { Breadcrumbs as BreadcrumbsPrimitive } from "@kobalte/core/breadcrumbs";
 import { cx } from "cva";
+import type { VoidProps } from "solid-js";
+import { type ComponentProps, splitProps, type ValidComponent } from "solid-js";
 
 export type BreadcrumbsProps<T extends ValidComponent = "nav"> = ComponentProps<
   typeof BreadcrumbsPrimitive<T>
 >;
 
-export const Breadcrumbs = <T extends ValidComponent = "nav">(props: BreadcrumbsProps<T>) => {
+export const Breadcrumbs = <T extends ValidComponent = "nav">(
+  props: BreadcrumbsProps<T>,
+) => {
   return (
     <BreadcrumbsPrimitive
       data-slot="breadcrumbs"
       separator={
-        <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="size-4"
+          viewBox="0 0 24 24"
+        >
+          <title>Separator</title>
           <path
             fill="none"
             stroke="currentColor"
@@ -59,11 +66,12 @@ export const BreadcrumbsItem = (props: BreadcrumbsItemProps) => {
   );
 };
 
-export type BreadcrumbsLinkProps<T extends ValidComponent = "a"> = ComponentProps<
-  typeof BreadcrumbsPrimitive.Link<T>
->;
+export type BreadcrumbsLinkProps<T extends ValidComponent = "a"> =
+  ComponentProps<typeof BreadcrumbsPrimitive.Link<T>>;
 
-export const BreadcrumbsLink = <T extends ValidComponent = "a">(props: BreadcrumbsLinkProps<T>) => {
+export const BreadcrumbsLink = <T extends ValidComponent = "a">(
+  props: BreadcrumbsLinkProps<T>,
+) => {
   const [, rest] = splitProps(props as BreadcrumbsLinkProps, ["class"]);
 
   return (
@@ -78,9 +86,8 @@ export const BreadcrumbsLink = <T extends ValidComponent = "a">(props: Breadcrum
   );
 };
 
-export type BreadcrumbsSeparatorProps<T extends ValidComponent = "span"> = ComponentProps<
-  typeof BreadcrumbsPrimitive.Separator<T>
->;
+export type BreadcrumbsSeparatorProps<T extends ValidComponent = "span"> =
+  ComponentProps<typeof BreadcrumbsPrimitive.Separator<T>>;
 
 export const BreadcrumbsSeparator = <T extends ValidComponent = "span">(
   props: BreadcrumbsSeparatorProps<T>,
@@ -109,7 +116,12 @@ export const BreadcrumbsEllipsis = (props: BreadcrumbsEllipsisProps) => {
       class={cx("flex size-9 items-center justify-center", props.class)}
       {...rest}
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="size-4"
+        viewBox="0 0 24 24"
+      >
+        <title>Ellipsis</title>
         <g
           fill="none"
           stroke="currentColor"

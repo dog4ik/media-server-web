@@ -1,5 +1,4 @@
-import { Match, Ref, Switch } from "solid-js";
-import { DispatchedAction } from ".";
+import { FaSolidClosedCaptioning } from "solid-icons/fa";
 import {
   FiChevronsLeft,
   FiChevronsRight,
@@ -8,7 +7,8 @@ import {
   FiVolume1,
   FiVolume2,
 } from "solid-icons/fi";
-import { FaSolidClosedCaptioning } from "solid-icons/fa";
+import { Match, type Ref, Switch } from "solid-js";
+import type { DispatchedAction } from ".";
 
 type ActionIconProps = {
   ref: Ref<HTMLDivElement>;
@@ -23,25 +23,25 @@ export default function ActionIcon(props: ActionIconProps) {
       class="pointer-events-none absolute z-10 flex h-20 w-20 items-center justify-center rounded-full bg-black opacity-0"
     >
       <Switch>
-        <Match when={props.action == "unpause"}>
+        <Match when={props.action === "unpause"}>
           <FiPause stroke="white" size={size} />
         </Match>
-        <Match when={props.action == "pause"}>
+        <Match when={props.action === "pause"}>
           <FiPlay stroke="white" size={size} />
         </Match>
-        <Match when={props.action == "volumedown"}>
+        <Match when={props.action === "volumedown"}>
           <FiVolume1 stroke="white" size={size} />
         </Match>
-        <Match when={props.action == "volumeup"}>
+        <Match when={props.action === "volumeup"}>
           <FiVolume2 stroke="white" size={size} />
         </Match>
-        <Match when={props.action == "seekleft"}>
+        <Match when={props.action === "seekleft"}>
           <FiChevronsLeft stroke="white" size={size} />
         </Match>
-        <Match when={props.action == "seekright"}>
+        <Match when={props.action === "seekright"}>
           <FiChevronsRight stroke="white" size={size} />
         </Match>
-        <Match when={props.action == "togglesubs"}>
+        <Match when={props.action === "togglesubs"}>
           <FaSolidClosedCaptioning stroke="white" size={size} />
         </Match>
       </Switch>

@@ -1,14 +1,26 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger, TabsIndicator } from "@/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/ui/dialog";
 import CircleAlert from "lucide-solid/icons/circle-alert";
-import { Alert, AlertDescription } from "@/ui/alert";
-import { createSignal, Show } from "solid-js";
-import { Button } from "@/ui/button";
-import { TextFieldLabel, TextFieldInput, TextField } from "@/ui/textfield";
-import { JSX } from "solid-js/h/jsx-runtime";
-import { MEDIA_SERVER_URL, server } from "@/utils/serverApi";
-import { FilePicker } from "@/components/FilePicker";
 import Plus from "lucide-solid/icons/plus";
+import { createSignal, Show } from "solid-js";
+import type { JSX } from "solid-js/h/jsx-runtime";
+import { FilePicker } from "@/components/FilePicker";
+import { Alert, AlertDescription } from "@/ui/alert";
+import { Button } from "@/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/ui/dialog";
+import {
+  Tabs,
+  TabsContent,
+  TabsIndicator,
+  TabsList,
+  TabsTrigger,
+} from "@/ui/tabs";
+import { TextField, TextFieldInput, TextFieldLabel } from "@/ui/textfield";
+import { MEDIA_SERVER_URL, server } from "@/utils/serverApi";
 import tracing from "@/utils/tracing";
 
 const ICON_SIZE = 15;
@@ -32,7 +44,10 @@ export function AddTorrentModal() {
     setOpen(val);
   }
 
-  let handleMagnetSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (e) => {
+  let handleMagnetSubmit: JSX.EventHandler<
+    HTMLFormElement,
+    SubmitEvent
+  > = async (e) => {
     e.preventDefault();
     let link = magnetLink().trim();
     if (!link) {
@@ -61,7 +76,9 @@ export function AddTorrentModal() {
     }
   };
 
-  let handleFileSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (e) => {
+  let handleFileSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (
+    e,
+  ) => {
     e.preventDefault();
     let file = torrentFile();
     if (!file) {
@@ -76,10 +93,13 @@ export function AddTorrentModal() {
       if (saveLocation()) {
         formData.append("save_location", saveLocation());
       }
-      let response = await fetch(`${MEDIA_SERVER_URL}/api/torrent/open_torrent_file`, {
-        method: "POST",
-        body: formData,
-      });
+      let response = await fetch(
+        `${MEDIA_SERVER_URL}/api/torrent/open_torrent_file`,
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
       if (!response.ok) {
         let json = await response.json().catch(() => ({}));
         throw new Error(json.message || "Failed to upload torrent file");
@@ -88,7 +108,9 @@ export function AddTorrentModal() {
     } catch (err) {
       tracing.error({ err }, "Failed to upload torrent file");
       setError(
-        err instanceof Error ? err.message : "Failed to upload torrent file. Please try again.",
+        err instanceof Error
+          ? err.message
+          : "Failed to upload torrent file. Please try again.",
       );
     } finally {
       setIsLoading(false);
@@ -97,7 +119,7 @@ export function AddTorrentModal() {
 
   let handleFileChange: JSX.EventHandler<HTMLInputElement, Event> = (e) => {
     let file = e.currentTarget.files?.[0];
-    if (file && file.name.endsWith(".torrent")) {
+    if (file?.name.endsWith(".torrent")) {
       setTorrentFile(file);
       setError(undefined);
     } else {
@@ -156,7 +178,11 @@ export function AddTorrentModal() {
                     accept=".torrent"
                   />
                 </TextField>
-                <Button type="submit" class="w-full" disabled={isLoading() || !torrentFile()}>
+                <Button
+                  type="submit"
+                  class="w-full"
+                  disabled={isLoading() || !torrentFile()}
+                >
                   {isLoading() ? "Uploading..." : "Upload Torrent"}
                 </Button>
               </form>

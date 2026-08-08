@@ -40,5 +40,5 @@ export function getAACAudio(profile_idc: number) {
 
 export function commonAACProfile() {
   // We are assuming LC profile
-  return AAC_AUDIO_CODECS["lc"];
+  return AAC_AUDIO_CODECS.lc;
 }

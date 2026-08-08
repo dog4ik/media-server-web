@@ -1,7 +1,6 @@
+import { cx } from "cva";
 import type { ComponentProps } from "solid-js";
 import { splitProps } from "solid-js";
-
-import { cx } from "cva";
 
 export type TableProps = ComponentProps<"table"> & { parentClass?: string };
 
@@ -13,7 +12,11 @@ export const Table = (props: TableProps) => {
       data-slot="table-container"
       class={cx("relative w-full overflow-x-auto", props.parentClass)}
     >
-      <table data-slot="table" class={cx("w-full caption-bottom text-sm", props.class)} {...rest} />
+      <table
+        data-slot="table"
+        class={cx("w-full caption-bottom text-sm", props.class)}
+        {...rest}
+      />
     </div>
   );
 };
@@ -23,7 +26,13 @@ export type TableHeaderProps = ComponentProps<"thead">;
 export const TableHeader = (props: TableHeaderProps) => {
   const [, rest] = splitProps(props, ["class"]);
 
-  return <thead data-slot="table-header" class={cx("[&_tr]:border-b", props.class)} {...rest} />;
+  return (
+    <thead
+      data-slot="table-header"
+      class={cx("[&_tr]:border-b", props.class)}
+      {...rest}
+    />
+  );
 };
 
 export type TableBodyProps = ComponentProps<"tbody">;
@@ -32,7 +41,11 @@ export const TableBody = (props: TableBodyProps) => {
   const [, rest] = splitProps(props, ["class"]);
 
   return (
-    <tbody data-slot="table-body" class={cx("[&_tr:last-child]:border-0", props.class)} {...rest} />
+    <tbody
+      data-slot="table-body"
+      class={cx("[&_tr:last-child]:border-0", props.class)}
+      {...rest}
+    />
   );
 };
 
@@ -44,7 +57,10 @@ export const TableFooter = (props: TableFooterProps) => {
   return (
     <tfoot
       data-slot="table-footer"
-      class={cx("bg-muted/50 border-t font-medium last:[&>tr]:border-b-0", props.class)}
+      class={cx(
+        "bg-muted/50 border-t font-medium last:[&>tr]:border-b-0",
+        props.class,
+      )}
       {...rest}
     />
   );

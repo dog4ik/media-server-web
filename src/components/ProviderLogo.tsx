@@ -1,6 +1,6 @@
-import { Match, Switch } from "solid-js";
-import { Schemas } from "../utils/serverApi";
 import { FiHardDrive } from "solid-icons/fi";
+import { Match, Switch } from "solid-js";
+import type { Schemas } from "../utils/serverApi";
 
 type Props = {
   provider: Schemas["MetadataProvider"];
@@ -8,7 +8,7 @@ type Props = {
 
 export default function ProviderLogo(props: Props) {
   return (
-    <Switch fallback={<img src="/empty_image.svg" />}>
+    <Switch fallback={<img src="/empty_image.svg" alt="" />}>
       <Match when={props.provider === "tmdb"}>
         <img src="/tmdb.svg" alt="tmdb logo" title="TMDB" />
       </Match>

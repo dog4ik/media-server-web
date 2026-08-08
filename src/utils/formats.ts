@@ -1,4 +1,4 @@
-import { Schemas } from "./serverApi";
+import type { Schemas } from "./serverApi";
 
 export function formatDuration(durationMs: number) {
   let str = "";
@@ -8,10 +8,10 @@ export function formatDuration(durationMs: number) {
   let remainingSeconds = Math.floor(durationInSeconds % 60);
 
   if (hours > 0) {
-    str += hours + ":";
-    str += String(minutes).padStart(2, "0") + ":";
+    str += `${hours}:`;
+    str += `${String(minutes).padStart(2, "0")}:`;
   } else {
-    str += String(minutes) + ":";
+    str += `${String(minutes)}:`;
   }
   str += String(remainingSeconds).padStart(2, "0");
 
@@ -21,23 +21,25 @@ export function formatDuration(durationMs: number) {
 export function parseDuration(duration: string) {
   let inBounds = (n: number) => n >= 0 && n < 60;
   let split = duration.split(":");
-  let first = split.at(0) ? parseInt(split[0]) : undefined;
-  let second = split.at(1) ? parseInt(split[1]) : undefined;
-  let third = split.at(2) ? parseInt(split[2]) : undefined;
+  let first = split.at(0) ? parseInt(split[0], 10) : undefined;
+  let second = split.at(1) ? parseInt(split[1], 10) : undefined;
+  let third = split.at(2) ? parseInt(split[2], 10) : undefined;
 
-  if (split.length == 3) {
-    if (first === undefined || isNaN(first) || !inBounds(first)) return;
-    if (second === undefined || isNaN(second) || !inBounds(second)) return;
-    if (third === undefined || isNaN(second) || !inBounds(third)) return;
+  if (split.length === 3) {
+    if (first === undefined || Number.isNaN(first) || !inBounds(first)) return;
+    if (second === undefined || Number.isNaN(second) || !inBounds(second))
+      return;
+    if (third === undefined || Number.isNaN(second) || !inBounds(third)) return;
     return first * 60 * 60 + second * 60 + third;
   }
-  if (split.length == 2) {
-    if (first === undefined || isNaN(first) || !inBounds(first)) return;
-    if (second === undefined || isNaN(second) || !inBounds(second)) return;
+  if (split.length === 2) {
+    if (first === undefined || Number.isNaN(first) || !inBounds(first)) return;
+    if (second === undefined || Number.isNaN(second) || !inBounds(second))
+      return;
     return first * 60 + second;
   }
-  if (split.length == 1) {
-    if (first === undefined || isNaN(first) || inBounds(first)) return;
+  if (split.length === 1) {
+    if (first === undefined || Number.isNaN(first) || inBounds(first)) return;
     return first;
   }
 }
@@ -96,8 +98,10 @@ export function formatResolution(resolution: Schemas["Resolution"]) {
   return `${resolution.width}x${resolution.height}`;
 }
 
-export function formatCodec<T extends string | { other: string }>(codec: T): string {
-  if (typeof codec == "object") {
+export function formatCodec<T extends string | { other: string }>(
+  codec: T,
+): string {
+  if (typeof codec === "object") {
     return codec.other;
   } else {
     return codec;
@@ -105,14 +109,16 @@ export function formatCodec<T extends string | { other: string }>(codec: T): str
 }
 
 export function hexHash(hash: number[]) {
-  return hash.reduce((acc, n) => acc + n.toString(16).padStart(2, "0"), "").padEnd(40, "0");
+  return hash
+    .reduce((acc, n) => acc + n.toString(16).padStart(2, "0"), "")
+    .padEnd(40, "0");
 }
 
 export function formatTorrentIndex(index: Schemas["TorrentIndexIdentifier"]) {
-  if (index == "tpb") {
+  if (index === "tpb") {
     return "The Pirate Bay";
   }
-  if (index == "rutracker") {
+  if (index === "rutracker") {
     return "RuTracker";
   }
   throw Error(`${index} torrent index is not supported`);
@@ -144,7 +150,7 @@ export function timeAgo(date: Date, locale = "en-US"): string {
 
   let rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
 
-  for (let [unit, secondsInUnit] of units) {
+  for (const [unit, secondsInUnit] of units) {
     if (Math.abs(diffSec) >= secondsInUnit || unit === "second") {
       let value = Math.round(diffSec / secondsInUnit);
       return rtf.format(-value, unit);

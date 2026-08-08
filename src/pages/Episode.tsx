@@ -1,21 +1,33 @@
-import { ErrorBoundary, Match, Show, Suspense, Switch, createEffect, createSignal } from "solid-js";
-import { Description, DescriptionSkeleton } from "@/components/Description";
-import { fullUrl } from "@/utils/serverApi";
-import DownloadTorrentModal from "@/components/modals/TorrentDownload";
-import { setBackdrop } from "@/context/BackdropContext";
-import Icon from "@/components/ui/Icon";
-import { FiDownload } from "solid-icons/fi";
-import VideoActions from "@/components/Description/VideoActions";
-import { extendEpisode, extendShow, posterList, Video } from "@/utils/library";
-import { IntroBar } from "@/components/Description/IntroBar";
-import * as torrentQuery from "@/lib/torrentQuery";
-import { ListItemSkeleton, VideoList, VideoSelection } from "@/components/Description/VideoList";
 import { getRouteApi, linkOptions } from "@tanstack/solid-router";
-import { queryApi } from "@/utils/queryApi";
-import { ListActions } from "@/components/Description/ListActions";
-import { episodeListItems } from "@/lib/lists";
-import { errorBoundaryFallback } from "@/components/Error";
+import { FiDownload } from "solid-icons/fi";
+import {
+  createEffect,
+  createSignal,
+  ErrorBoundary,
+  Match,
+  Show,
+  Suspense,
+  Switch,
+} from "solid-js";
 import { ActorSection } from "@/components/Cast/ActorSection";
+import { Description, DescriptionSkeleton } from "@/components/Description";
+import { IntroBar } from "@/components/Description/IntroBar";
+import { ListActions } from "@/components/Description/ListActions";
+import VideoActions from "@/components/Description/VideoActions";
+import {
+  ListItemSkeleton,
+  VideoList,
+  type VideoSelection,
+} from "@/components/Description/VideoList";
+import { errorBoundaryFallback } from "@/components/Error";
+import DownloadTorrentModal from "@/components/modals/TorrentDownload";
+import Icon from "@/components/ui/Icon";
+import { setBackdrop } from "@/context/BackdropContext";
+import { episodeListItems } from "@/lib/lists";
+import * as torrentQuery from "@/lib/torrentQuery";
+import { extendEpisode, extendShow, posterList, Video } from "@/utils/library";
+import { queryApi } from "@/utils/queryApi";
+import { fullUrl } from "@/utils/serverApi";
 
 export type SelectedSubtitles =
   | {
@@ -81,7 +93,7 @@ export default function Episode() {
   createEffect(() => {
     if (show.data) {
       let localImage =
-        show.data.provider == "local"
+        show.data.provider === "local"
           ? fullUrl("/api/show/{id}/backdrop", {
               path: { id: +show.data.provider_id },
             })
@@ -100,7 +112,7 @@ export default function Episode() {
     }),
     () => ({
       select: (videos) => videos.map((v) => new Video(v)),
-      enabled: episode.latest()?.provider == "local",
+      enabled: episode.latest()?.provider === "local",
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
     }),
@@ -140,16 +152,22 @@ export default function Episode() {
 
   return (
     <ErrorBoundary fallback={errorBoundaryFallback("Failed to load episode")}>
-      <Show when={show.latest() && episode.latest()}>
-        {(_) => (
-          <DownloadTorrentModal
-            open={torrentModal()}
-            metadata_id={show.latest()!.provider_id}
-            onClose={() => setTorrentModal(false)}
-            metadata_provider={search().provider}
-            query={(p) => torrentQuery.EPISODE_FORMATTER[p](show.latest()!, episode.latest()!)}
-            content_type="show"
-          />
+      <Show when={show.latest()}>
+        {(showData) => (
+          <Show when={episode.latest()}>
+            {(episodeData) => (
+              <DownloadTorrentModal
+                open={torrentModal()}
+                metadata_id={showData().provider_id}
+                onClose={() => setTorrentModal(false)}
+                metadata_provider={search().provider}
+                query={(p) =>
+                  torrentQuery.EPISODE_FORMATTER[p](showData(), episodeData())
+                }
+                content_type="show"
+              />
+            )}
+          </Show>
         )}
       </Show>
       <Switch>
@@ -158,18 +176,17 @@ export default function Episode() {
         </Match>
         <Match when={episode.latest()}>
           {(episode) => {
+            const progress = () => {
+              const history = episode().local?.history;
+              const runtime = video()?.details?.duration;
+              if (!history || runtime === undefined) return undefined;
+              return { history, runtime };
+            };
             return (
               <Description
                 title={episode().title}
                 posterList={posterList(episode())}
-                progress={
-                  episode().local?.history && video()?.details?.duration
-                    ? {
-                        history: episode().local!.history!,
-                        runtime: video()!.details!.duration,
-                      }
-                    : undefined
-                }
+                progress={progress()}
                 plot={episode().plot}
                 imageDirection="horizontal"
                 additionalInfo={[
@@ -204,14 +221,20 @@ export default function Episode() {
                   <Show
                     when={video()}
                     fallback={
-                      <Icon tooltip="Download" onClick={() => setTorrentModal(true)}>
+                      <Icon
+                        tooltip="Download"
+                        onClick={() => setTorrentModal(true)}
+                      >
                         <FiDownload />
                       </Icon>
                     }
                   >
                     {(video) => (
                       <VideoActions video={video()} watchUrl={watchUrl()}>
-                        <Icon tooltip="Download" onClick={() => setTorrentModal(true)}>
+                        <Icon
+                          tooltip="Download"
+                          onClick={() => setTorrentModal(true)}
+                        >
                           <FiDownload />
                         </Icon>
                       </VideoActions>
@@ -227,7 +250,7 @@ export default function Episode() {
                       {(video) => (
                         <IntroBar
                           totalDuration={video().details.duration}
-                          intro={episode().local!.intro!}
+                          intro={episode().local?.intro!}
                         />
                       )}
                     </Show>
@@ -239,7 +262,9 @@ export default function Episode() {
         </Match>
       </Switch>
       <Switch>
-        <Match when={videos.isLoading || (!videos.isEnabled && episode.isLoading)}>
+        <Match
+          when={videos.isLoading || (!videos.isEnabled && episode.isLoading)}
+        >
           <ListItemSkeleton />
         </Match>
         <Match when={videos.latest()}>
@@ -248,7 +273,8 @@ export default function Episode() {
               <Show
                 when={
                   selectedVideo() &&
-                  (videos().length > 0 || videos().some((v) => v.details.variants.length > 0))
+                  (videos().length > 0 ||
+                    videos().some((v) => v.details.variants.length > 0))
                 }
               >
                 <VideoList
@@ -262,8 +288,10 @@ export default function Episode() {
         </Match>
       </Switch>
       <Suspense>
-        <Show when={episode.data?.cast?.length}>
-          {<ActorSection actors={episode.data!.cast!} />}
+        <Show
+          when={episode.data?.cast?.length ? episode.data?.cast : undefined}
+        >
+          {(cast) => <ActorSection actors={cast()} />}
         </Show>
       </Suspense>
     </ErrorBoundary>

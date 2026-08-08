@@ -1,4 +1,4 @@
-import { Accessor, JSX, Show, Suspense } from "solid-js";
+import { type Accessor, type JSX, Show, Suspense } from "solid-js";
 
 type Props<T> = {
   when: T | undefined | null | false;

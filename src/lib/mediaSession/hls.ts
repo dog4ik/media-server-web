@@ -1,6 +1,6 @@
 import Hls from "hls.js";
-import { PlaybackMethod } from ".";
 import tracing from "@/utils/tracing";
+import type { PlaybackMethod } from ".";
 
 const BACKWARD_SEEK_FLUSH_THRESHOLD = 0.5;
 
@@ -38,7 +38,9 @@ export class HlsSession implements PlaybackMethod {
       backBufferLength: Infinity,
     });
     this.hls.on(Hls.Events.MANIFEST_PARSED, (_event, data) => {
-      tracing.debug("Manifest loaded, found " + data.levels.length + " quality level");
+      tracing.debug(
+        `Manifest loaded, found ${data.levels.length} quality level`,
+      );
     });
     this.hls.on(Hls.Events.BACK_BUFFER_REACHED, (_event, _data) => {
       console.log("back buffer reached");

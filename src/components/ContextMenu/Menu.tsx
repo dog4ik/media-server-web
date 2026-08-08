@@ -1,5 +1,5 @@
 import { FiChevronRight } from "solid-icons/fi";
-import { ParentProps } from "solid-js";
+import type { ParentProps } from "solid-js";
 import { cn } from "@/utils/cn";
 
 type RowProps = {
@@ -13,6 +13,7 @@ const rowClass =
 export function MenuRow(props: RowProps & ParentProps) {
   return (
     <button
+      type="button"
       class={cn(
         rowClass,
         props.variant === "destructive"
@@ -21,7 +22,9 @@ export function MenuRow(props: RowProps & ParentProps) {
       )}
       onClick={props.onClick}
     >
-      <span class="pointer-events-none flex w-full items-center gap-2">{props.children}</span>
+      <span class="pointer-events-none flex w-full items-center gap-2">
+        {props.children}
+      </span>
     </button>
   );
 }
@@ -34,9 +37,10 @@ type ExpandRowProps = {
 export function ExpandRow(props: ExpandRowProps & ParentProps) {
   return (
     <button
+      type="button"
       onClick={(e) => {
         e.stopPropagation();
-        props.onClick && props.onClick();
+        props.onClick?.();
       }}
       popovertarget={props.popoverTarget}
       style={`
@@ -48,7 +52,10 @@ anchor-name: --${props.popoverTarget};
       )}
     >
       <span class="pointer-events-none">{props.children}</span>
-      <FiChevronRight size={16} class="text-muted-foreground pointer-events-none" />
+      <FiChevronRight
+        size={16}
+        class="text-muted-foreground pointer-events-none"
+      />
     </button>
   );
 }

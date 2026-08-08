@@ -1,19 +1,19 @@
-import { Schemas } from "../../utils/serverApi";
-import MoreButton from "../ContextMenu/MoreButton";
+import { Link, type LinkOptions, linkOptions } from "@tanstack/solid-router";
 import { Show } from "solid-js";
-import { formatDuration, formatTimeBeforeRelease } from "../../utils/formats";
-import { WatchProgressBar } from "./ProgressBar";
-import FallbackImage from "../FallbackImage";
-import { MenuRow } from "../ContextMenu/Menu";
-import { ExtendedEpisode, posterList } from "@/utils/library";
-import { useMediaNotifications } from "@/context/NotificationContext";
-import promptConfirm from "../modals/ConfirmationModal";
-import { Link, linkOptions, LinkOptions } from "@tanstack/solid-router";
-import { Skeleton } from "@/ui/skeleton";
-import { ContentPosterIconSet } from "./ContentPosterIconSet";
-import { queryApi } from "@/utils/queryApi";
 import { AddToListMenu } from "@/components/Lists/AddToListMenu";
+import { useMediaNotifications } from "@/context/NotificationContext";
 import { episodeListItems, invalidateListQueries } from "@/lib/lists";
+import { Skeleton } from "@/ui/skeleton";
+import { type ExtendedEpisode, posterList } from "@/utils/library";
+import { queryApi } from "@/utils/queryApi";
+import { formatDuration, formatTimeBeforeRelease } from "../../utils/formats";
+import type { Schemas } from "../../utils/serverApi";
+import { MenuRow } from "../ContextMenu/Menu";
+import MoreButton from "../ContextMenu/MoreButton";
+import FallbackImage from "../FallbackImage";
+import promptConfirm from "../modals/ConfirmationModal";
+import { ContentPosterIconSet } from "./ContentPosterIconSet";
+import { WatchProgressBar } from "./ProgressBar";
 
 type Props = {
   episode: ExtendedEpisode;
@@ -47,26 +47,42 @@ export function EpisodeCard(props: Props) {
     }),
   );
 
-  let markMetadataWatched = queryApi.useMutation("put", "/api/metadata/{id}/history", () => ({
-    onSuccess: () => onWatchStatusChange("Marked as watched"),
-    onSettled: () => revalidateHistory(),
-  }));
+  let markMetadataWatched = queryApi.useMutation(
+    "put",
+    "/api/metadata/{id}/history",
+    () => ({
+      onSuccess: () => onWatchStatusChange("Marked as watched"),
+      onSettled: () => revalidateHistory(),
+    }),
+  );
 
   let markAsWatched = queryApi.useMutation("put", "/api/history/{id}", () => ({
     onSuccess: () => onWatchStatusChange("Marked as watched"),
     onSettled: () => revalidateHistory(),
   }));
 
-  let markAsUnwatched = queryApi.useMutation("delete", "/api/history/{id}", () => ({
-    onSuccess: () => onWatchStatusChange("Marked as unwatched"),
-    onSettled: () => revalidateHistory(),
-  }));
+  let markAsUnwatched = queryApi.useMutation(
+    "delete",
+    "/api/history/{id}",
+    () => ({
+      onSuccess: () => onWatchStatusChange("Marked as unwatched"),
+      onSettled: () => revalidateHistory(),
+    }),
+  );
 
-  let deleteEpisode = queryApi.useMutation("delete", "/api/local_episode/{id}", () => ({}));
+  let deleteEpisode = queryApi.useMutation(
+    "delete",
+    "/api/local_episode/{id}",
+    () => ({}),
+  );
 
-  let removeLiked = queryApi.useMutation("delete", "/api/lists/saved/remove/{metadata_id}", () => ({
-    onSettled: invalidateListQueries,
-  }));
+  let removeLiked = queryApi.useMutation(
+    "delete",
+    "/api/lists/saved/remove/{metadata_id}",
+    () => ({
+      onSettled: invalidateListQueries,
+    }),
+  );
 
   let removeWatchlist = queryApi.useMutation(
     "delete",
@@ -76,8 +92,10 @@ export function EpisodeCard(props: Props) {
     }),
   );
 
-  let likedList = () => props.episode.local?.lists.find((l) => l.kind === "saved");
-  let watchList = () => props.episode.local?.lists.find((l) => l.kind === "watchlist");
+  let likedList = () =>
+    props.episode.local?.lists.find((l) => l.kind === "saved");
+  let watchList = () =>
+    props.episode.local?.lists.find((l) => l.kind === "watchlist");
 
   let onWatchStatusChange = (message: string) => {
     notify(message);
@@ -105,12 +123,14 @@ export function EpisodeCard(props: Props) {
           </Show>
           <Show when={props.episode.runtime}>
             <div class="absolute right-2 bottom-2 flex items-center justify-center bg-black/90 p-1">
-              <span class="text-xs font-semibold">{formatDuration(props.episode.runtime!)}</span>
+              <span class="text-xs font-semibold">
+                {formatDuration(props.episode.runtime!)}
+              </span>
             </div>
           </Show>
           <Show when={props.episode.runtime && props.episode.local?.history}>
             <WatchProgressBar
-              history={props.episode.local!.history!}
+              history={props.episode.local?.history!}
               runtime={props.episode.runtime!}
             />
           </Show>
@@ -120,7 +140,9 @@ export function EpisodeCard(props: Props) {
           onRemoveLike={() => {
             if (props.episode.local?.metadata_id) {
               removeLiked.mutate({
-                params: { path: { metadata_id: props.episode.local.metadata_id } },
+                params: {
+                  path: { metadata_id: props.episode.local.metadata_id },
+                },
               });
             }
           }}
@@ -128,17 +150,21 @@ export function EpisodeCard(props: Props) {
           onRemoveWatched={() => {
             if (props.episode.local?.metadata_id) {
               removeWatchlist.mutate({
-                params: { path: { metadata_id: props.episode.local.metadata_id } },
+                params: {
+                  path: { metadata_id: props.episode.local.metadata_id },
+                },
               });
             }
           }}
           localLink={
-            props.episode.local?.id && props.localShowId && props.episode.provider !== "local"
+            props.episode.local?.id &&
+            props.localShowId &&
+            props.episode.provider !== "local"
               ? linkOptions({
                   to: "/shows/$id/$season/$episode",
                   search: { provider: "local" },
                   params: {
-                    id: props.localShowId!.toString(),
+                    id: props.localShowId?.toString(),
                     season: props.episode.season_number.toString(),
                     episode: props.episode.number.toString(),
                   },
@@ -202,47 +228,52 @@ export function EpisodeCard(props: Props) {
               </Show>
             }
           >
-            <Show when={!props.episode.local?.history?.is_finished}>
+            {(history) => (
+              <>
+                <Show when={!history().is_finished}>
+                  <MenuRow
+                    onClick={() =>
+                      markAsWatched.mutate({
+                        params: { path: { id: history().id } },
+                        body: { is_finished: true, time: history().time },
+                      })
+                    }
+                  >
+                    Mark as watched
+                  </MenuRow>
+                </Show>
+                <MenuRow
+                  onClick={() =>
+                    markAsUnwatched.mutate({
+                      params: { path: { id: history().id } },
+                    })
+                  }
+                >
+                  Mark as unwatched
+                </MenuRow>
+              </>
+            )}
+          </Show>
+          <Show
+            when={props.episode.provider === "local" && props.episode.local}
+          >
+            {(local) => (
               <MenuRow
+                variant="destructive"
                 onClick={() =>
-                  markAsWatched.mutate({
-                    params: { path: { id: props.episode.local!.history!.id } },
-                    body: {
-                      is_finished: true,
-                      time: props.episode.local?.history?.time ?? 0,
-                    },
+                  promptConfirm(
+                    `Are you sure you want to delete ${props.episode.friendlyTitle()}?`,
+                  ).then((confirmed) => {
+                    if (confirmed)
+                      deleteEpisode.mutate({
+                        params: { path: { id: local().id } },
+                      });
                   })
                 }
               >
-                Mark as watched
+                Delete episode
               </MenuRow>
-            </Show>
-            <MenuRow
-              onClick={() =>
-                markAsUnwatched.mutate({
-                  params: { path: { id: props.episode.local!.history!.id } },
-                })
-              }
-            >
-              Mark as unwatched
-            </MenuRow>
-          </Show>
-          <Show when={props.episode.provider == "local"}>
-            <MenuRow
-              variant="destructive"
-              onClick={() =>
-                promptConfirm(
-                  `Are you sure you want to delete ${props.episode.friendlyTitle()}?`,
-                ).then((confirmed) => {
-                  if (confirmed)
-                    deleteEpisode.mutate({
-                      params: { path: { id: props.episode.local!.id } },
-                    });
-                })
-              }
-            >
-              Delete episode
-            </MenuRow>
+            )}
           </Show>
         </MoreButton>
       </div>

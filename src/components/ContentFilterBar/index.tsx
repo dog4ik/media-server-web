@@ -1,5 +1,5 @@
-import { TextField, TextFieldInput } from "@/ui/textfield";
 import { onCleanup } from "solid-js";
+import { TextField, TextFieldInput } from "@/ui/textfield";
 import { ActorsCombobox } from "./ActorsCombobox";
 
 type WatchStatus = "watched" | "inprogress" | "unwatched" | "any";
@@ -25,23 +25,34 @@ export const DEFAULT_FILTER_STATE: FilterState = {
 export function ContentFilterBar(props: Props) {
   let timeout: ReturnType<typeof setTimeout>;
 
-  function updateState<T extends keyof FilterState>(key: T, value: FilterState[T]) {
+  function updateState<T extends keyof FilterState>(
+    key: T,
+    value: FilterState[T],
+  ) {
     props.onChange({ ...props.state, [key]: value });
   }
 
   function onInput(text: string) {
     clearTimeout(timeout);
-    timeout = setTimeout(() => updateState("titleFilter", text), DEBOUNCE_DURATION);
+    timeout = setTimeout(
+      () => updateState("titleFilter", text),
+      DEBOUNCE_DURATION,
+    );
   }
   onCleanup(() => clearTimeout(timeout));
 
   return (
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end sm:gap-4">
       <TextField class="bg-secondary text-secondary-foreground w-full sm:max-w-3xs">
-        <TextFieldInput onInput={(e) => onInput(e.currentTarget.value)} placeholder="Filter" />
+        <TextFieldInput
+          onInput={(e) => onInput(e.currentTarget.value)}
+          placeholder="Filter"
+        />
       </TextField>
 
-      <ActorsCombobox onFilter={(actors) => updateState("actorFilter", actors)} />
+      <ActorsCombobox
+        onFilter={(actors) => updateState("actorFilter", actors)}
+      />
     </div>
   );
 }

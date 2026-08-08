@@ -1,20 +1,20 @@
+import { Link, linkOptions } from "@tanstack/solid-router";
+import { createMemo, Show } from "solid-js";
+import { AddToListMenu } from "@/components/Lists/AddToListMenu";
+import { useMediaNotifications } from "@/context/NotificationContext";
+import { invalidateListQueries, movieListItems } from "@/lib/lists";
+import { Skeleton } from "@/ui/skeleton";
+import type { ExtendedMovie } from "@/utils/library";
+import { queryApi } from "@/utils/queryApi";
+import { fullUrl } from "../../utils/serverApi";
+import useToggle from "../../utils/useToggle";
+import { MenuRow } from "../ContextMenu/Menu";
 import MoreButton from "../ContextMenu/MoreButton";
 import FallbackImage from "../FallbackImage";
-import { fullUrl } from "../../utils/serverApi";
-import { MenuRow } from "../ContextMenu/Menu";
-import useToggle from "../../utils/useToggle";
-import { createMemo, Show } from "solid-js";
 import FixMetadata from "../FixMetadata";
 import promptConfirm from "../modals/ConfirmationModal";
-import { Link, linkOptions } from "@tanstack/solid-router";
-import { Skeleton } from "@/ui/skeleton";
 import { ContentPosterIconSet } from "./ContentPosterIconSet";
-import { queryApi, queryClient } from "@/utils/queryApi";
-import { useMediaNotifications } from "@/context/NotificationContext";
-import { ExtendedMovie } from "@/utils/library";
 import { WatchProgressBar } from "./ProgressBar";
-import { AddToListMenu } from "@/components/Lists/AddToListMenu";
-import { invalidateListQueries, movieListItems } from "@/lib/lists";
 
 type Props = {
   movie: ExtendedMovie;
@@ -28,7 +28,7 @@ export function MovieCard(props: Props) {
   }
 
   let localUrl =
-    props.movie.provider == "local"
+    props.movie.provider === "local"
       ? fullUrl("/api/movie/{id}/poster", {
           path: { id: +props.movie.provider_id },
         })
@@ -42,9 +42,13 @@ export function MovieCard(props: Props) {
     }),
   );
 
-  let deleteMovie = queryApi.useMutation("delete", "/api/local_movie/{id}", () => ({
-    onSettled: () => queryApi.invalidateQueries("get", "/api/local_movies"),
-  }));
+  let deleteMovie = queryApi.useMutation(
+    "delete",
+    "/api/local_movie/{id}",
+    () => ({
+      onSettled: () => queryApi.invalidateQueries("get", "/api/local_movies"),
+    }),
+  );
 
   let markExternalWatched = queryApi.useMutation(
     "post",
@@ -54,17 +58,29 @@ export function MovieCard(props: Props) {
     }),
   );
 
-  let markAsWatched = queryApi.useMutation("put", "/api/metadata/{id}/history", () => ({
-    onSuccess: () => onWatchStatusChange("Marked as watched"),
-  }));
+  let markAsWatched = queryApi.useMutation(
+    "put",
+    "/api/metadata/{id}/history",
+    () => ({
+      onSuccess: () => onWatchStatusChange("Marked as watched"),
+    }),
+  );
 
-  let markAsUnwatched = queryApi.useMutation("delete", "/api/history/{id}", () => ({
-    onSuccess: () => onWatchStatusChange("Marked as watched"),
-  }));
+  let markAsUnwatched = queryApi.useMutation(
+    "delete",
+    "/api/history/{id}",
+    () => ({
+      onSuccess: () => onWatchStatusChange("Marked as watched"),
+    }),
+  );
 
-  let removeLiked = queryApi.useMutation("delete", "/api/lists/saved/remove/{metadata_id}", () => ({
-    onSettled: invalidateListQueries,
-  }));
+  let removeLiked = queryApi.useMutation(
+    "delete",
+    "/api/lists/saved/remove/{metadata_id}",
+    () => ({
+      onSettled: invalidateListQueries,
+    }),
+  );
 
   let removeWatchlist = queryApi.useMutation(
     "delete",
@@ -74,8 +90,10 @@ export function MovieCard(props: Props) {
     }),
   );
 
-  let likedList = () => props.movie.local?.lists.find((l) => l.kind === "saved");
-  let watchList = () => props.movie.local?.lists.find((l) => l.kind === "watchlist");
+  let likedList = () =>
+    props.movie.local?.lists.find((l) => l.kind === "saved");
+  let watchList = () =>
+    props.movie.local?.lists.find((l) => l.kind === "watchlist");
 
   let notificator = useMediaNotifications();
 
@@ -114,7 +132,9 @@ export function MovieCard(props: Props) {
             onRemoveLike={() => {
               if (props.movie.local?.metadata_id) {
                 removeLiked.mutate({
-                  params: { path: { metadata_id: props.movie.local.metadata_id } },
+                  params: {
+                    path: { metadata_id: props.movie.local.metadata_id },
+                  },
                 });
               }
             }}
@@ -122,7 +142,9 @@ export function MovieCard(props: Props) {
             onRemoveWatched={() => {
               if (props.movie.local?.metadata_id) {
                 removeWatchlist.mutate({
-                  params: { path: { metadata_id: props.movie.local.metadata_id } },
+                  params: {
+                    path: { metadata_id: props.movie.local.metadata_id },
+                  },
                 });
               }
             }}
@@ -131,7 +153,7 @@ export function MovieCard(props: Props) {
                 ? linkOptions({
                     to: "/movies/$id",
                     search: { provider: "local" },
-                    params: { id: props.movie.local!.id.toString() },
+                    params: { id: props.movie.local?.id.toString() },
                   })
                 : undefined
             }
@@ -143,13 +165,19 @@ export function MovieCard(props: Props) {
             }
           >
             <WatchProgressBar
-              history={props.movie.local!.history!}
-              runtime={props.movie.local?.local_duration ?? props.movie.runtime!}
+              history={props.movie.local?.history!}
+              runtime={
+                props.movie.local?.local_duration ?? props.movie.runtime!
+              }
             />
           </Show>
         </div>
         <div class="flex items-center justify-between">
-          <Link title={props.movie.title} class="text-md truncate" {...movieLinkOptions()}>
+          <Link
+            title={props.movie.title}
+            class="text-md truncate"
+            {...movieLinkOptions()}
+          >
             {props.movie.title}
           </Link>
           <MoreButton>
@@ -165,7 +193,9 @@ export function MovieCard(props: Props) {
               <MenuRow
                 variant="destructive"
                 onClick={() =>
-                  promptConfirm(`Are you sure you want to delete ${props.movie.title}?`).then(
+                  promptConfirm(
+                    `Are you sure you want to delete ${props.movie.title}?`,
+                  ).then(
                     (confirmed) =>
                       confirmed &&
                       deleteMovie.mutate({
@@ -209,7 +239,12 @@ export function MovieCard(props: Props) {
               )}
             </Show>
 
-            <Show when={!props.movie.local?.history?.is_finished && props.movie.local?.metadata_id}>
+            <Show
+              when={
+                !props.movie.local?.history?.is_finished &&
+                props.movie.local?.metadata_id
+              }
+            >
               {(metadata_id) => (
                 <MenuRow
                   onClick={() =>

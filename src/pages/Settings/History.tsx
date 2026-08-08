@@ -1,4 +1,6 @@
-import { Schemas, server } from "../../utils/serverApi";
+import { useInfiniteQuery } from "@tanstack/solid-query";
+import { Link } from "@tanstack/solid-router";
+import { FiX } from "solid-icons/fi";
 import {
   createMemo,
   ErrorBoundary,
@@ -9,18 +11,16 @@ import {
   Show,
   Switch,
 } from "solid-js";
-import { WatchProgressBar } from "../../components/Cards/ProgressBar";
-import { FiX } from "solid-icons/fi";
-import FallbackImage from "../../components/FallbackImage";
-import { extendMovie, extendEpisode, posterList } from "@/utils/library";
-import { Card } from "@/ui/card";
-import { Button } from "@/ui/button";
-import { Link } from "@tanstack/solid-router";
-import { queryClient } from "@/utils/queryApi";
 import { errorBoundaryFallback } from "@/components/Error";
-import { useInfiniteQuery } from "@tanstack/solid-query";
+import { Button } from "@/ui/button";
+import { Card } from "@/ui/card";
 import { throwResponseErrors } from "@/utils/errors";
 import { timeAgo } from "@/utils/formats";
+import { extendEpisode, extendMovie, posterList } from "@/utils/library";
+import { queryClient } from "@/utils/queryApi";
+import { WatchProgressBar } from "../../components/Cards/ProgressBar";
+import FallbackImage from "../../components/FallbackImage";
+import { type Schemas, server } from "../../utils/serverApi";
 
 type DisplayEpisodeProps = {
   entry: Schemas["HistoryEntry"] & { type: "episode" };
@@ -258,7 +258,7 @@ export default function History() {
           <span class="text-3xl">You are all caught up</span>
         </div>
       </Show>
-      <div class="min-h-1" ref={observable!} />
+      <div class="min-h-1" ref={observable} />
     </ErrorBoundary>
   );
 }

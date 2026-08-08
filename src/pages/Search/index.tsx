@@ -1,11 +1,11 @@
-import ProviderLogo from "@/components/ProviderLogo";
+import { getRouteApi, Link, linkOptions } from "@tanstack/solid-router";
+import { For, Match, Show, Suspense, Switch } from "solid-js";
 import PageTitle from "@/components/PageTitle";
+import ProviderLogo from "@/components/ProviderLogo";
 import { BaseError } from "@/utils/errors";
 import { capitalize } from "@/utils/formats";
 import { queryApi } from "@/utils/queryApi";
-import { Schemas } from "@/utils/serverApi";
-import { getRouteApi, Link, linkOptions } from "@tanstack/solid-router";
-import { For, Match, Show, Suspense, Switch } from "solid-js";
+import type { Schemas } from "@/utils/serverApi";
 
 type SearchResultProps = {
   item: Schemas["MetadataSearchResult"];
@@ -13,14 +13,14 @@ type SearchResultProps = {
 
 function SearchResultRow(props: SearchResultProps) {
   let url = () => {
-    if (props.item.content_type == "movie") {
+    if (props.item.content_type === "movie") {
       return linkOptions({
         to: "/movies/$id",
         params: { id: props.item.metadata_id },
         search: { provider: props.item.metadata_provider },
       });
     }
-    if (props.item.content_type == "show") {
+    if (props.item.content_type === "show") {
       return linkOptions({
         to: "/shows/$id",
         params: { id: props.item.metadata_id },
@@ -37,11 +37,14 @@ function SearchResultRow(props: SearchResultProps) {
       <img
         class="aspect-poster h-28 shrink-0 rounded-md object-cover sm:h-40"
         src={props.item.poster || "/no-photo.png"}
+        alt=""
       />
       <div class="flex min-w-0 flex-1 flex-col gap-1">
         <span class="font-bold">{props.item.title}</span>
         <span class="text-xs">{capitalize(props.item.content_type)}</span>
-        <Show when={props.item.plot}>{(p) => <p class="line-clamp-3 text-sm">{p()}</p>}</Show>
+        <Show when={props.item.plot}>
+          {(p) => <p class="line-clamp-3 text-sm">{p()}</p>}
+        </Show>
       </div>
       <div class="h-8 w-8 shrink-0 sm:h-10 sm:w-10">
         <ProviderLogo provider={props.item.metadata_provider} />
@@ -66,12 +69,14 @@ function SearchNoResults() {
   );
 }
 
-function SearchError(props: { e: any }) {
+function _SearchError(props: { e: any }) {
   return (
     <div class="flex size-full items-center justify-center">
       <Switch fallback={<span class="text-2xl">Search request failed</span>}>
         <Match when={props.e instanceof BaseError}>
-          <span class="text-2xl">Search request failed: {(props.e as BaseError).message}</span>
+          <span class="text-2xl">
+            Search request failed: {(props.e as BaseError).message}
+          </span>
         </Match>
       </Switch>
     </div>

@@ -1,9 +1,9 @@
-import { For, ParentProps, Show, createMemo } from "solid-js";
-import { Schemas } from "../../utils/serverApi";
-import { ElementsGrid } from "../ElementsGrid";
-import { formatSize } from "../../utils/formats";
+import { createMemo, For, type ParentProps, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Checkbox, CheckboxControl } from "@/ui/checkbox";
+import { formatSize } from "../../utils/formats";
+import type { Schemas } from "../../utils/serverApi";
+import { ElementsGrid } from "../ElementsGrid";
 
 type Props = {
   content: Schemas["TorrentInfo"];
@@ -11,7 +11,7 @@ type Props = {
 };
 
 type FileProps = {
-  path: string;
+  path?: string;
   size: number;
   title: string;
   subtitle?: string;
@@ -43,12 +43,14 @@ function SelectionSector(props: SelectionSectorProps & ParentProps) {
 function File(props: FileProps) {
   return (
     <button
+      type="button"
       title={props.path}
       onClick={() => props.onSelect(!props.isSelected)}
       class="relative flex h-44 w-80 flex-col overflow-hidden rounded-xl select-none"
     >
       <img
         draggable={false}
+        alt=""
         class={`absolute max-h-full max-w-full object-cover transition-all ${props.isSelected ? "brightness-95" : "brightness-50"}`}
         width={320}
         height={180}
@@ -64,7 +66,7 @@ function File(props: FileProps) {
           <span>{props.subtitle}</span>
         </div>
       </Show>
-      <div title={props.title} class="absolute bottom-3 left-3 w-3/4 max-w-52 truncate text-start">
+      <div class="absolute bottom-3 left-3 w-3/4 max-w-52 truncate text-start">
         <span class="text-lg">{props.title}</span>
       </div>
       <div class="absolute right-3 bottom-3 w-1/3 truncate text-end">
@@ -88,7 +90,7 @@ export default function Step2(props: Props) {
 
   function selectMany(idxes: number[], force: boolean) {
     let values = [...selectedFiles];
-    for (let idx of idxes) {
+    for (const idx of idxes) {
       values[idx] = force;
     }
     setSelectedFiles(values);
@@ -98,16 +100,21 @@ export default function Step2(props: Props) {
   let file = (idx: number) => props.content.contents.files[idx];
 
   let otherFiles = createMemo(() => {
-    if (props.content.contents.content && "show" in props.content.contents.content) {
-      let allShows = Object.values(props.content.contents.content.show.seasons).flatMap((d) =>
-        d?.map((f) => f.file_idx),
-      );
+    if (
+      props.content.contents.content &&
+      "show" in props.content.contents.content
+    ) {
+      let allShows = Object.values(
+        props.content.contents.content.show.seasons,
+      ).flatMap((d) => d?.map((f) => f.file_idx));
       return props.content.contents.files
         .map((f, i) => ({ ...f, idx: i }))
         .filter((_, idx) => !allShows.includes(idx));
     }
     if (props.content.contents.content?.movie) {
-      let allMovies = Object.values(props.content.contents.content.movie).map((d) => d.file_idx);
+      let allMovies = Object.values(props.content.contents.content.movie).map(
+        (d) => d.file_idx,
+      );
       return props.content.contents.files
         .map((f, i) => ({ ...f, idx: i }))
         .filter((_, idx) => !allMovies.includes(idx));
@@ -116,13 +123,19 @@ export default function Step2(props: Props) {
   });
 
   let show = () => {
-    if (props.content.contents.content && "show" in props.content.contents.content) {
+    if (
+      props.content.contents.content &&
+      "show" in props.content.contents.content
+    ) {
       return props.content.contents.content.show;
     }
   };
 
   let movie = () => {
-    if (props.content.contents.content && "movie" in props.content.contents.content) {
+    if (
+      props.content.contents.content &&
+      "movie" in props.content.contents.content
+    ) {
       return props.content.contents.content.movie;
     }
   };
@@ -134,11 +147,11 @@ export default function Step2(props: Props) {
           <For each={Object.entries(show().seasons)}>
             {([seasonNumber, season]) => (
               <SelectionSector
-                isSelected={season!.every((ep) => selectedFiles[ep.file_idx])}
+                isSelected={season?.every((ep) => selectedFiles[ep.file_idx])}
                 title={`Season: ${seasonNumber}`}
                 onSelect={(force) =>
                   selectMany(
-                    season!.map((ep) => ep.file_idx),
+                    season?.map((ep) => ep.file_idx),
                     force,
                   )
                 }
@@ -148,7 +161,7 @@ export default function Step2(props: Props) {
                     <File
                       title={episode.metadata.title}
                       subtitle={`Episode ${episode.metadata.number.toString().padStart(2, "0")}`}
-                      path={file(episode.file_idx).path.at(-1)!}
+                      path={file(episode.file_idx).path.at(-1)}
                       poster={episode.metadata.poster ?? undefined}
                       isSelected={selectedFiles[episode.file_idx]}
                       size={file(episode.file_idx).size}
@@ -177,9 +190,9 @@ export default function Step2(props: Props) {
               {(movie) => (
                 <File
                   isSelected={selectedFiles[movie.file_idx]}
-                  title={file(movie.file_idx).path.at(-1)!}
+                  title={file(movie.file_idx).path.at(-1) ?? ""}
                   onSelect={(force) => select(movie.file_idx, force)}
-                  path={file(movie.file_idx).path.at(-1)!}
+                  path={file(movie.file_idx).path.at(-1)}
                   size={file(movie.file_idx).size}
                 />
               )}
@@ -202,9 +215,9 @@ export default function Step2(props: Props) {
             {(file) => (
               <File
                 isSelected={selectedFiles[file.idx]}
-                title={file.path.at(-1)!}
+                title={file.path.at(-1) ?? ""}
                 onSelect={(force) => select(file.idx, force)}
-                path={file.path.at(-1)!}
+                path={file.path.at(-1)}
                 size={file.size}
               />
             )}

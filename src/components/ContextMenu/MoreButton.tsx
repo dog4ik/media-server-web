@@ -1,7 +1,11 @@
-import { ParentProps, createUniqueId, onCleanup } from "solid-js";
 import { FiMoreVertical } from "solid-icons/fi";
+import {
+  createUniqueId,
+  type JSX,
+  onCleanup,
+  type ParentProps,
+} from "solid-js";
 import { ExpandRow } from "./Menu";
-import { JSX } from "solid-js";
 
 export type Row =
   | {
@@ -81,9 +85,12 @@ export default function MoreButton(props: ParentProps) {
   return (
     <div>
       <button
+        type="button"
         ref={triggerRef}
         onClick={() =>
-          menuRef.matches(":popover-open") ? closeWithTransition(menuRef) : menuRef.showPopover()
+          menuRef.matches(":popover-open")
+            ? closeWithTransition(menuRef)
+            : menuRef.showPopover()
         }
         style={`
 anchor-name: --${menuId};
@@ -92,6 +99,7 @@ anchor-name: --${menuId};
       >
         <FiMoreVertical size={20} />
       </button>
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: the click handler only dismisses the popover; keyboard dismissal is handled by the document keydown listener registered in onMount */}
       <ul
         id={menuId}
         ref={menuRef}

@@ -1,9 +1,9 @@
+import { linkOptions } from "@tanstack/solid-router";
+import { For, Show, Suspense } from "solid-js";
 import { EpisodeCard } from "@/components/Cards/EpisodeCard";
 import { MovieCard } from "@/components/Cards/MovieCard";
 import { extendEpisode, extendMovie } from "@/utils/library";
-import { queryApi, queryClient } from "@/utils/queryApi";
-import { linkOptions } from "@tanstack/solid-router";
-import { For, Show, Suspense } from "solid-js";
+import { queryApi } from "@/utils/queryApi";
 
 export function ContinueWatchingSection() {
   let showHistory = queryApi.useQuery("get", "/api/history/suggest/shows");
@@ -11,7 +11,9 @@ export function ContinueWatchingSection() {
 
   return (
     <>
-      <Show when={showHistory.latest()?.length || movieHistory.latest()?.length}>
+      <Show
+        when={showHistory.latest()?.length || movieHistory.latest()?.length}
+      >
         <p class="my-8 text-3xl">Continue watching</p>
       </Show>
       <div class="space-y-4">
@@ -19,7 +21,10 @@ export function ContinueWatchingSection() {
           <Suspense>
             <For each={showHistory.data}>
               {(show) => {
-                let episode = extendEpisode(show.episode, show.show_id.toString());
+                let episode = extendEpisode(
+                  show.episode,
+                  show.show_id.toString(),
+                );
                 return (
                   <div class="w-64 shrink-0 sm:w-80">
                     <EpisodeCard
@@ -51,7 +56,10 @@ export function ContinueWatchingSection() {
                   <div class="w-32 shrink-0 sm:w-40">
                     <MovieCard
                       onMarkWatched={() =>
-                        queryApi.invalidateQueries("get", "/api/history/suggest/movies")
+                        queryApi.invalidateQueries(
+                          "get",
+                          "/api/history/suggest/movies",
+                        )
                       }
                       movie={extendMovie({
                         ...movie.movie,

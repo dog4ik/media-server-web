@@ -1,3 +1,6 @@
+import X from "lucide-solid/icons/x";
+import { For, Show, Suspense } from "solid-js";
+import { Badge } from "@/ui/badge";
 import {
   Combobox,
   ComboboxContent,
@@ -8,13 +11,10 @@ import {
   ComboboxPortal,
   ComboboxTrigger,
 } from "@/ui/combobox";
-import { queryApi } from "@/utils/queryApi";
-import { For, Show, Suspense } from "solid-js";
-import FallbackImage from "../FallbackImage";
 import { extendActor } from "@/utils/library";
-import { Badge } from "@/ui/badge";
-import X from "lucide-solid/icons/x";
-import { Schemas } from "@/utils/serverApi";
+import { queryApi } from "@/utils/queryApi";
+import type { Schemas } from "@/utils/serverApi";
+import FallbackImage from "../FallbackImage";
 
 type Props = {
   onFilter: (actors: number[] | undefined) => void;
@@ -38,8 +38,8 @@ export function ActorsCombobox(props: Props) {
           <Combobox
             options={res().data}
             multiple
-            onChange={(v) => props.onFilter(v.map((v) => v.local!.id!))}
-            optionValue={(v) => v.local!.id!}
+            onChange={(v) => props.onFilter(v.map((v) => v.local?.id!))}
+            optionValue={(v) => v.local?.id!}
             optionTextValue="name"
             triggerMode="focus"
             placeholder="Actors filter"
@@ -52,11 +52,15 @@ export function ActorsCombobox(props: Props) {
                   height={50}
                   class="overflow-hidden rounded-full object-cover"
                 />
-                <ComboboxItemLabel>{props.item.rawValue.name}</ComboboxItemLabel>
+                <ComboboxItemLabel>
+                  {props.item.rawValue.name}
+                </ComboboxItemLabel>
               </ComboboxItem>
             )}
           >
-            <ComboboxControl<Schemas["Actor"]> class="h-full min-h-9 w-full max-w-sm">
+            <ComboboxControl<
+              Schemas["Actor"]
+            > class="h-full min-h-9 w-full max-w-sm">
               {(state) => (
                 <>
                   <div class="flex flex-wrap items-center gap-1">

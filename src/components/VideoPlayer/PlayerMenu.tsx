@@ -1,7 +1,3 @@
-import { SelectedSubtitleTrack, useTracksSelection } from "@/pages/Watch/TracksSelectionContext";
-import { cn } from "@/lib/cn";
-import { formatCodec, formatResolution } from "@/utils/formats";
-import { Schemas } from "@/utils/serverApi";
 import {
   FiArrowLeft,
   FiCheck,
@@ -12,8 +8,15 @@ import {
   FiVideo,
 } from "solid-icons/fi";
 import { createSignal, For, Match, Show, Switch } from "solid-js";
-import { Dynamic } from "solid-js/web";
 import { unwrap } from "solid-js/store";
+import { Dynamic } from "solid-js/web";
+import { cn } from "@/lib/cn";
+import {
+  type SelectedSubtitleTrack,
+  useTracksSelection,
+} from "@/pages/Watch/TracksSelectionContext";
+import { formatCodec, formatResolution } from "@/utils/formats";
+import type { Schemas } from "@/utils/serverApi";
 
 type SubMenuKey = "subtitles" | "audio" | "video" | "playback";
 type MenuKey = "main" | SubMenuKey;
@@ -62,13 +65,13 @@ const SUB_MENU_TITLES: Record<SubMenuKey, string> = {
 };
 
 function formatSubtitlesTrack(selection?: SelectedSubtitleTrack) {
-  if (selection?.origin == "container") {
+  if (selection?.origin === "container") {
     return `${selection?.track.language ?? "unknown"}`;
   }
-  if (selection?.origin == "external") {
+  if (selection?.origin === "external") {
     return `${selection?.id}`;
   }
-  if (selection?.origin == "imported") {
+  if (selection?.origin === "imported") {
     return "Imported";
   }
   return "None";
@@ -101,6 +104,7 @@ function formatPlaybackSpeed(speed: number) {
 function PanelHeader(props: { title: string; onBack: () => void }) {
   return (
     <button
+      type="button"
       onClick={props.onBack}
       class="border-border text-popover-foreground hover:bg-accent hover:text-accent-foreground flex h-12 w-full shrink-0 items-center gap-2 border-b px-2 text-sm font-medium transition-colors"
       style={{ height: `${ROW_HEIGHT}px` }}
@@ -111,9 +115,13 @@ function PanelHeader(props: { title: string; onBack: () => void }) {
   );
 }
 
-function NavMenuRow(props: { row: NavRow; onNavigate: (target: SubMenuKey) => void }) {
+function NavMenuRow(props: {
+  row: NavRow;
+  onNavigate: (target: SubMenuKey) => void;
+}) {
   return (
     <button
+      type="button"
       onClick={() => props.onNavigate(props.row.target)}
       class="group text-popover-foreground hover:bg-accent hover:text-accent-foreground flex h-12 w-full shrink-0 items-center gap-3 px-3 text-sm transition-colors"
       style={{ height: `${ROW_HEIGHT}px` }}
@@ -134,6 +142,7 @@ function NavMenuRow(props: { row: NavRow; onNavigate: (target: SubMenuKey) => vo
 function SelectMenuRow(props: { row: SelectRow; onSelected: () => void }) {
   return (
     <button
+      type="button"
       disabled={props.row.disabled}
       onClick={() => {
         props.row.onSelect();
@@ -161,8 +170,14 @@ function SeparatorMenuRow(props: { row: SeparatorRow }) {
 }
 
 export default function PlayerMenu(props: MenuProps) {
-  let [
-    { tracks, videoTracks, audioTracks, containerSubtitlesTracks, externalSubtitlesTracks },
+  const [
+    {
+      tracks,
+      videoTracks,
+      audioTracks,
+      containerSubtitlesTracks,
+      externalSubtitlesTracks,
+    },
     {
       unsetSubtitlesTrack,
       selectVideoTrack,
@@ -173,7 +188,9 @@ export default function PlayerMenu(props: MenuProps) {
   ] = useTracksSelection();
 
   let [menu, setMenu] = createSignal<MenuKey>("main");
-  let [direction, setDirection] = createSignal<"forward" | "backward">("forward");
+  let [direction, setDirection] = createSignal<"forward" | "backward">(
+    "forward",
+  );
   let [hasNavigated, setHasNavigated] = createSignal(false);
 
   function navigate(target: SubMenuKey) {
@@ -306,7 +323,10 @@ export default function PlayerMenu(props: MenuProps) {
               )}
             >
               <Show when={key !== "main"}>
-                <PanelHeader title={SUB_MENU_TITLES[key as SubMenuKey]} onBack={goToMain} />
+                <PanelHeader
+                  title={SUB_MENU_TITLES[key as SubMenuKey]}
+                  onBack={goToMain}
+                />
               </Show>
               <For each={menus[key]()}>
                 {(row) => (
@@ -315,10 +335,14 @@ export default function PlayerMenu(props: MenuProps) {
                       {(sep) => <SeparatorMenuRow row={sep()} />}
                     </Match>
                     <Match when={row.kind === "nav" && row}>
-                      {(nav) => <NavMenuRow row={nav()} onNavigate={navigate} />}
+                      {(nav) => (
+                        <NavMenuRow row={nav()} onNavigate={navigate} />
+                      )}
                     </Match>
                     <Match when={row.kind === "select" && row}>
-                      {(sel) => <SelectMenuRow row={sel()} onSelected={goToMain} />}
+                      {(sel) => (
+                        <SelectMenuRow row={sel()} onSelected={goToMain} />
+                      )}
                     </Match>
                   </Switch>
                 )}

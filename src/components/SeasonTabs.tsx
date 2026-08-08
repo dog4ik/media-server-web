@@ -1,5 +1,5 @@
 import { getRouteApi } from "@tanstack/solid-router";
-import { createEffect, createMemo, For, on, ParentProps } from "solid-js";
+import { createEffect, createMemo, For, on, type ParentProps } from "solid-js";
 
 type Props = {
   tabs: number[];
@@ -31,13 +31,18 @@ export function SeasonTabs(props: Props) {
   let route = getRouteApi("/page/shows/$id");
   let search = route.useSearch();
   let season = createMemo(() => search().season || props.tabs.at(0) || 1);
-  let indicatorLeft = createMemo(() => (props.tabs.indexOf(season()) / props.tabs.length) * 100);
+  let indicatorLeft = createMemo(
+    () => (props.tabs.indexOf(season()) / props.tabs.length) * 100,
+  );
 
   let indicator: HTMLDivElement | undefined;
   createEffect(
     on(indicatorLeft, (to, from) => {
       if (from === undefined || from === to || !indicator) return;
-      indicator.animate({ left: [`${from}%`, `${to}%`] }, { duration: 200, easing: "ease" });
+      indicator.animate(
+        { left: [`${from}%`, `${to}%`] },
+        { duration: 200, easing: "ease" },
+      );
     }),
   );
 
@@ -53,7 +58,7 @@ export function SeasonTabs(props: Props) {
       />
       <For each={props.tabs}>
         {(number) => {
-          return <Item number={number} isSelected={number == season()} />;
+          return <Item number={number} isSelected={number === season()} />;
         }}
       </For>
     </div>

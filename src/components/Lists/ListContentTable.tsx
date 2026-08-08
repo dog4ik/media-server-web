@@ -1,24 +1,31 @@
-import { createSignal, For, Match, Show, Switch } from "solid-js";
 import { Link } from "@tanstack/solid-router";
 import {
   type Column,
   type ColumnDef,
-  type SortingState,
   createSolidTable,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
+  type SortingState,
 } from "@tanstack/solid-table";
-import ArrowUpDown from "lucide-solid/icons/arrow-up-down";
-import ArrowUp from "lucide-solid/icons/arrow-up";
 import ArrowDown from "lucide-solid/icons/arrow-down";
+import ArrowUp from "lucide-solid/icons/arrow-up";
+import ArrowUpDown from "lucide-solid/icons/arrow-up-down";
 import { FiX } from "solid-icons/fi";
+import { createSignal, For, Match, Show, Switch } from "solid-js";
 import FallbackImage from "@/components/FallbackImage";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui/table";
-import { Badge } from "@/ui/badge";
-import { Button } from "@/ui/button";
 import { cn } from "@/lib/cn";
 import type { ExtendedListContent } from "@/lib/lists";
+import { Badge } from "@/ui/badge";
+import { Button } from "@/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/ui/table";
 import { formatDuration } from "@/utils/formats";
 
 type Props = {
@@ -26,7 +33,10 @@ type Props = {
   onRemove: (item: ExtendedListContent) => void;
 };
 
-function SortableHeader(props: { column: Column<ExtendedListContent, unknown>; title: string }) {
+function SortableHeader(props: {
+  column: Column<ExtendedListContent, unknown>;
+  title: string;
+}) {
   return (
     <Button
       variant="ghost"
@@ -54,10 +64,14 @@ function detailsText(item: ExtendedListContent): string | undefined {
   if (item.seasonsCount !== undefined || item.episodesCount !== undefined) {
     let parts = [];
     if (item.seasonsCount !== undefined) {
-      parts.push(`${item.seasonsCount} ${item.seasonsCount === 1 ? "season" : "seasons"}`);
+      parts.push(
+        `${item.seasonsCount} ${item.seasonsCount === 1 ? "season" : "seasons"}`,
+      );
     }
     if (item.episodesCount !== undefined) {
-      parts.push(`${item.episodesCount} ${item.episodesCount === 1 ? "episode" : "episodes"}`);
+      parts.push(
+        `${item.episodesCount} ${item.episodesCount === 1 ? "episode" : "episodes"}`,
+      );
     }
     return parts.join(" · ");
   }
@@ -86,18 +100,26 @@ export function ListContentTable(props: Props) {
         <Link
           class={cn(
             "relative block h-14 overflow-hidden rounded-md",
-            cell.row.original.aspect === "video" ? "aspect-video" : "aspect-poster",
+            cell.row.original.aspect === "video"
+              ? "aspect-video"
+              : "aspect-poster",
           )}
           {...cell.row.original.url}
         >
-          <FallbackImage fluid alt={cell.row.original.title} srcList={cell.row.original.posters} />
+          <FallbackImage
+            fluid
+            alt={cell.row.original.title}
+            srcList={cell.row.original.posters}
+          />
         </Link>
       ),
     },
     {
       id: "title",
       accessorKey: "title",
-      header: (header) => <SortableHeader column={header.column} title="Title" />,
+      header: (header) => (
+        <SortableHeader column={header.column} title="Title" />
+      ),
       cell: (cell) => (
         <div class="flex min-w-0 flex-col">
           <Link
@@ -123,15 +145,23 @@ export function ListContentTable(props: Props) {
     {
       id: "type",
       accessorKey: "typeLabel",
-      header: (header) => <SortableHeader column={header.column} title="Type" />,
-      cell: (cell) => <Badge variant="secondary">{cell.row.original.typeLabel}</Badge>,
+      header: (header) => (
+        <SortableHeader column={header.column} title="Type" />
+      ),
+      cell: (cell) => (
+        <Badge variant="secondary">{cell.row.original.typeLabel}</Badge>
+      ),
     },
     {
       id: "released",
       accessorFn: (item) => item.releaseDate ?? "",
-      header: (header) => <SortableHeader column={header.column} title="Released" />,
+      header: (header) => (
+        <SortableHeader column={header.column} title="Released" />
+      ),
       cell: (cell) => (
-        <span class="text-muted-foreground">{formatDate(cell.row.original.releaseDate)}</span>
+        <span class="text-muted-foreground">
+          {formatDate(cell.row.original.releaseDate)}
+        </span>
       ),
     },
     {
@@ -140,7 +170,9 @@ export function ListContentTable(props: Props) {
       // The server already hands items back oldest-first.
       // Newest-first is more useful direction.
       sortDescFirst: true,
-      header: (header) => <SortableHeader column={header.column} title="Added at" />,
+      header: (header) => (
+        <SortableHeader column={header.column} title="Added at" />
+      ),
       cell: (cell) => (
         <span
           class="text-muted-foreground"
@@ -159,7 +191,9 @@ export function ListContentTable(props: Props) {
       enableSorting: false,
       header: () => <span class="text-sm font-medium">Details</span>,
       cell: (cell) => (
-        <span class="text-muted-foreground">{detailsText(cell.row.original) ?? "—"}</span>
+        <span class="text-muted-foreground">
+          {detailsText(cell.row.original) ?? "—"}
+        </span>
       ),
     },
     {
@@ -205,7 +239,12 @@ export function ListContentTable(props: Props) {
                 {(header) => (
                   <TableHead class={COLUMN_CLASSES[header.column.id]}>
                     <Show when={!header.isPlaceholder}>
-                      {(_) => flexRender(header.column.columnDef.header, header.getContext())}
+                      {(_) =>
+                        flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )
+                      }
                     </Show>
                   </TableHead>
                 )}

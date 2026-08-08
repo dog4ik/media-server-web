@@ -29,6 +29,7 @@
     "tailwindcss-animate": "1.0.7"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.7",
     "@tailwindcss/vite": "4.2.4",
     "@tanstack/router-plugin": "1.167.32",
     "@types/dom-navigation": "1.0.7",
@@ -36,9 +37,6 @@
     "@vitest/ui": "4.1.10",
     "jsdom": "^30.0.1",
     "openapi-typescript": "7.13.0",
-    "oxfmt": "^0.47.0",
-    "prettier": "3.8.3",
-    "prettier-plugin-tailwindcss": "0.8.0",
     "typescript": "6.0.3",
     "vite": "^8.1.0",
     "vite-plugin-solid": "2.11.12",

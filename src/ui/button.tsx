@@ -1,7 +1,7 @@
-import type { ComponentProps, ValidComponent } from "solid-js";
-import { splitProps } from "solid-js";
 import { Root as ButtonPrimitive } from "@kobalte/core/button";
 import type { VariantProps } from "cva";
+import type { ComponentProps, ValidComponent } from "solid-js";
+import { splitProps } from "solid-js";
 
 import { cva } from "@/lib/cva";
 
@@ -22,7 +22,8 @@ export const buttonVariants = cva({
       outline:
         "border bg-background shadow-2xs hover:bg-accent hover:text-accent-foreground dark:hover:bg-input/50 dark:bg-input/30 dark:border-input",
       secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-      ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+      ghost:
+        "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
       link: "text-primary underline-offset-4 hover:underline",
     },
     size: {
@@ -45,8 +46,14 @@ export type ButtonProps<T extends ValidComponent = "button"> = ComponentProps<
 > &
   VariantProps<typeof buttonVariants>;
 
-export const Button = <T extends ValidComponent = "button">(props: ButtonProps<T>) => {
-  const [, rest] = splitProps(props as ButtonProps, ["class", "variant", "size"]);
+export const Button = <T extends ValidComponent = "button">(
+  props: ButtonProps<T>,
+) => {
+  const [, rest] = splitProps(props as ButtonProps, [
+    "class",
+    "variant",
+    "size",
+  ]);
 
   return (
     <ButtonPrimitive

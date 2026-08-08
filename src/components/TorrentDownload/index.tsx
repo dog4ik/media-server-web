@@ -1,12 +1,12 @@
-import { Match, Show, Switch, createMemo, createSignal } from "solid-js";
+import { createMemo, createSignal, Match, Show, Switch } from "solid-js";
+import { useNotifications } from "@/context/NotificationContext";
+import { Button } from "@/ui/button";
+import { queryApi } from "@/utils/queryApi";
+import { formatSize } from "../../utils/formats";
+import { type Schemas, server } from "../../utils/serverApi";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
-import { Schemas, server } from "../../utils/serverApi";
-import { formatSize } from "../../utils/formats";
-import { Button } from "@/ui/button";
-import { useNotifications } from "@/context/NotificationContext";
-import { queryApi } from "@/utils/queryApi";
 
 type StepLoadingProps = {
   currentStep: number;
@@ -17,8 +17,12 @@ function StepLoading(props: StepLoadingProps) {
     <div class="flex h-full w-full flex-col items-center justify-center gap-4">
       <span class="text-2xl">
         <Switch>
-          <Match when={props.currentStep == 0}>Searching available torrents</Match>
-          <Match when={props.currentStep == 1}>Resolving selected torrent</Match>
+          <Match when={props.currentStep === 0}>
+            Searching available torrents
+          </Match>
+          <Match when={props.currentStep === 1}>
+            Resolving selected torrent
+          </Match>
         </Switch>
       </span>
       <span class="loading loading-dots loading-lg"></span>
@@ -61,10 +65,10 @@ export function TorrentDownloadSteps(props: Props) {
 
   server.GET("/api/torrent/output_location", {}).then((res) => {
     let outputForContent = () => {
-      if (props.content_hint?.content_type == "show") {
+      if (props.content_hint?.content_type === "show") {
         return res.data?.show_location ?? undefined;
       }
-      if (props.content_hint?.content_type == "movie") {
+      if (props.content_hint?.content_type === "movie") {
         return res.data?.movie_location ?? undefined;
       }
       return undefined;
@@ -121,15 +125,19 @@ export function TorrentDownloadSteps(props: Props) {
             />
           </Match>
           <Match when={currentStep() === 1 && resolvedMagnetLink.latest()}>
-            <Step2 onFileSelect={setSelectedFiles} content={resolvedMagnetLink.latest()!} />
+            {(content) => (
+              <Step2 onFileSelect={setSelectedFiles} content={content()} />
+            )}
           </Match>
           <Match when={currentStep() === 2 && resolvedMagnetLink.latest()}>
-            <Step3
-              content={resolvedMagnetLink.latest()!}
-              output={outputLocation()}
-              onOutputSelect={setOutputLocation}
-              selectedFiles={enabledFiles()}
-            />
+            {(content) => (
+              <Step3
+                content={content()}
+                output={outputLocation()}
+                onOutputSelect={setOutputLocation}
+                selectedFiles={enabledFiles()}
+              />
+            )}
           </Match>
         </Switch>
       </div>
@@ -152,12 +160,13 @@ export function TorrentDownloadSteps(props: Props) {
             <Button onClick={() => changeStep(currentStep() + 1)}>
               Selected{" "}
               {formatSize(
-                enabledFiles().reduce(
-                  (acc, n) => acc + resolvedMagnetLink.latest()!.contents.files[n].size,
-                  0,
-                ),
+                enabledFiles().reduce((acc, n) => {
+                  const file = resolvedMagnetLink.latest()?.contents.files[n];
+                  return acc + (file?.size ?? 0);
+                }, 0),
               )}{" "}
-              ({enabledFiles().length} {enabledFiles().length == 1 ? "File" : "Files"})
+              ({enabledFiles().length}{" "}
+              {enabledFiles().length === 1 ? "File" : "Files"})
             </Button>
           </Show>
         </Show>

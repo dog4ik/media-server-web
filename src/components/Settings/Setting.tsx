@@ -1,14 +1,21 @@
-import { For, Match, ParentProps, Show, Switch, createMemo, createSignal } from "solid-js";
-import SectionSubTitle from "./SectionSubTitle";
-import { SETTINGS, Settings } from "../../utils/settingsDescriptors";
-import { Schemas } from "../../utils/serverApi";
-import { FiAlertTriangle, FiPlusCircle, FiX } from "solid-icons/fi";
-import { FilePicker } from "../FilePicker";
-import FileInput from "../ui/FileInput";
-import { SwitchControl, SwitchThumb, Switch as SwitchToggle } from "@/ui/switch";
-import { SettingsValuesObject, useSettingsContext } from "@/context/SettingsContext";
 import clsx from "clsx";
-import { TextField, TextFieldInput } from "@/ui/textfield";
+import { FiAlertTriangle, FiPlusCircle, FiX } from "solid-icons/fi";
+import {
+  createMemo,
+  createSignal,
+  For,
+  Match,
+  type ParentProps,
+  Show,
+  Switch,
+} from "solid-js";
+import {
+  type SettingsValuesObject,
+  useSettingsContext,
+} from "@/context/SettingsContext";
+import { Alert, AlertDescription, AlertTitle } from "@/ui/alert";
+import { Button } from "@/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
 import {
   NumberField,
   NumberFieldDecrementTrigger,
@@ -16,9 +23,17 @@ import {
   NumberFieldIncrementTrigger,
   NumberFieldInput,
 } from "@/ui/number-field";
-import { Alert, AlertDescription, AlertTitle } from "@/ui/alert";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
-import { Button } from "@/ui/button";
+import {
+  SwitchControl,
+  SwitchThumb,
+  Switch as SwitchToggle,
+} from "@/ui/switch";
+import { TextField, TextFieldInput } from "@/ui/textfield";
+import type { Schemas } from "../../utils/serverApi";
+import { SETTINGS, type Settings } from "../../utils/settingsDescriptors";
+import { FilePicker } from "../FilePicker";
+import FileInput from "../ui/FileInput";
+import SectionSubTitle from "./SectionSubTitle";
 
 type Props = {
   data: Settings[keyof Settings];
@@ -48,7 +63,7 @@ export function InferredInput<T extends InputPropType>(props: InputProps<T>) {
       </TextField>
     );
   }
-  if (typeof props.value == "number") {
+  if (typeof props.value === "number") {
     return (
       <NumberField
         onRawValueChange={(val) => props.onInput(val as T)}
@@ -64,9 +79,12 @@ export function InferredInput<T extends InputPropType>(props: InputProps<T>) {
       </NumberField>
     );
   }
-  if (typeof props.value == "boolean") {
+  if (typeof props.value === "boolean") {
     return (
-      <SwitchToggle onChange={(e) => props.onInput(e as T)} checked={props.value}>
+      <SwitchToggle
+        onChange={(e) => props.onInput(e as T)}
+        checked={props.value}
+      >
         <SwitchControl>
           <SwitchThumb />
         </SwitchControl>
@@ -102,13 +120,14 @@ export function InferredInput<T extends InputPropType>(props: InputProps<T>) {
                 onInput={(input) => onChange(idx(), input)}
                 placeholder={props.placeholder}
               />
-              <button class="btn" onClick={() => onRemove(idx())}>
+              <button type="button" class="btn" onClick={() => onRemove(idx())}>
                 Remove
               </button>
             </div>
           )}
         </For>
         <button
+          type="button"
           onClick={onAdd}
           class="flex h-12 w-full items-center justify-center rounded-xl bg-white/80"
         >
@@ -204,7 +223,9 @@ function FileInputs(props: FileInputsProps) {
 }
 
 export function Setting(props: Props & ParentProps) {
-  let isBool = () => typeof (props.remote.default_value ?? props.remote.config_value) === "boolean";
+  let isBool = () =>
+    typeof (props.remote.default_value ?? props.remote.config_value) ===
+    "boolean";
   return (
     <div class="flex max-w-xl flex-col gap-2 py-4">
       <SectionSubTitle name={props.data.long_name} />
@@ -222,7 +243,9 @@ export function Setting(props: Props & ParentProps) {
           <Alert>
             <FiAlertTriangle size={20} />
             <AlertTitle>Warning</AlertTitle>
-            <AlertDescription>Setting is being overwritten by CLI argument</AlertDescription>
+            <AlertDescription>
+              Setting is being overwritten by CLI argument
+            </AlertDescription>
           </Alert>
         </Match>
         <Match when={props.remote.env_value !== null}>
@@ -243,11 +266,16 @@ type SmartSettingProps<T extends keyof typeof SETTINGS> = {
   setting: T;
 };
 
-export function SmartSetting<T extends keyof typeof SETTINGS>(props: SmartSettingProps<T>) {
+export function SmartSetting<T extends keyof typeof SETTINGS>(
+  props: SmartSettingProps<T>,
+) {
   let setting = SETTINGS[props.setting];
   let { remoteSettings, changedSettings, change } = useSettingsContext();
   let remoteSetting = createMemo(() => remoteSettings.data?.[props.setting]);
-  if (setting.typeHint === undefined && remoteSetting()?.default_value === null) {
+  if (
+    setting.typeHint === undefined &&
+    remoteSetting()?.default_value === null
+  ) {
     throw Error("Nullable settings require a type hint");
   }
 
@@ -267,52 +295,55 @@ export function SmartSetting<T extends keyof typeof SETTINGS>(props: SmartSettin
                 onInput={handleUpdate}
                 value={
                   changedSettings[props.setting] ??
-                  remoteSettings.data![props.setting].config_value ??
-                  remoteSettings.data![props.setting].default_value!
+                  remoteSettings.data?.[props.setting].config_value ??
+                  remoteSettings.data?.[props.setting].default_value!
                 }
               />
             }
           >
-            <Match when={setting.typeHint == "string"}>
+            <Match when={setting.typeHint === "string"}>
               <TextField class="w-full max-w-xs">
                 <TextFieldInput
                   value={
                     (changedSettings[props.setting] as string) ??
-                    remoteSettings.data![props.setting].config_value ??
-                    remoteSettings.data![props.setting].default_value!
+                    remoteSettings.data?.[props.setting].config_value ??
+                    remoteSettings.data?.[props.setting].default_value!
                   }
                   onInput={(e) => handleUpdate(e.currentTarget.value as T)}
                 />
               </TextField>
             </Match>
-            <Match when={setting.typeHint == "path"}>
+            <Match when={setting.typeHint === "path"}>
               <FileInput
                 title="Select file"
                 onChange={handleUpdate}
                 value={
                   (changedSettings[props.setting] ??
-                    remoteSettings.data![props.setting].config_value ??
-                    remoteSettings.data![props.setting].default_value) as string
+                    remoteSettings.data?.[props.setting].config_value ??
+                    remoteSettings.data?.[props.setting]
+                      .default_value) as string
                 }
               />
             </Match>
-            <Match when={setting.typeHint == "pathArr"}>
+            <Match when={setting.typeHint === "pathArr"}>
               <FileInputs
                 onChange={handleUpdate}
                 values={
                   (changedSettings[props.setting] ??
-                    remoteSettings.data![props.setting].config_value ??
-                    remoteSettings.data![props.setting].default_value!) as string[]
+                    remoteSettings.data?.[props.setting].config_value ??
+                    remoteSettings.data?.[props.setting]
+                      .default_value!) as string[]
                 }
               />
             </Match>
-            <Match when={setting.typeHint == "secret"}>
+            <Match when={setting.typeHint === "secret"}>
               <SecretInput
                 onChange={handleUpdate}
                 value={
                   (changedSettings[props.setting] ??
-                    remoteSettings.data![props.setting].config_value ??
-                    remoteSettings.data![props.setting].default_value!) as string
+                    remoteSettings.data?.[props.setting].config_value ??
+                    remoteSettings.data?.[props.setting]
+                      .default_value!) as string
                 }
               />
             </Match>

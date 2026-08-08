@@ -1,12 +1,12 @@
-import { createSignal, Show } from "solid-js";
-import { Schemas } from "../../utils/serverApi";
-import AddVersion from "../VersionSlider/AddVersion";
-import { canPlayAfterTranscode } from "../../utils/mediaCapabilities";
-import { createStore } from "solid-js/store";
 import { FiAlertTriangle } from "solid-icons/fi";
-import { Video } from "@/utils/library";
-import { Button } from "@/ui/button";
+import { createSignal, Show } from "solid-js";
+import { createStore } from "solid-js/store";
 import { Alert, AlertDescription, AlertTitle } from "@/ui/alert";
+import { Button } from "@/ui/button";
+import type { Video } from "@/utils/library";
+import { canPlayAfterTranscode } from "../../utils/mediaCapabilities";
+import type { Schemas } from "../../utils/serverApi";
+import AddVersion from "../VersionSlider/AddVersion";
 
 type Props = {
   video: Video;
@@ -19,7 +19,7 @@ function defaultTrack<T extends { is_default: boolean }>(tracks: T[]) {
 }
 
 function stringCodec<T extends string | { other: string }>(codec?: T) {
-  if (typeof codec == "object") {
+  if (typeof codec === "object") {
     return codec.other;
   } else {
     return codec;
@@ -42,7 +42,8 @@ export function TranscodeModal(props: Props) {
     checkCompatibility().then((r) => setWillPlay(r));
   }
 
-  let [willPlay, setWillPlay] = createSignal<Awaited<ReturnType<typeof canPlayAfterTranscode>>>();
+  let [willPlay, setWillPlay] =
+    createSignal<Awaited<ReturnType<typeof canPlayAfterTranscode>>>();
 
   let checkCompatibility = async () => {
     let audioConfig = () => {
@@ -52,7 +53,11 @@ export function TranscodeModal(props: Props) {
     };
     let videoConfig = () => {
       let framerate = props.video.defaultVideo()?.framerate;
-      if (transcodePayload.resolution && framerate && transcodePayload.video_codec) {
+      if (
+        transcodePayload.resolution &&
+        framerate &&
+        transcodePayload.video_codec
+      ) {
         return {
           videoCodec: transcodePayload.video_codec,
           framerate,
@@ -65,13 +70,14 @@ export function TranscodeModal(props: Props) {
   checkCompatibility().then((r) => setWillPlay(r));
 
   let redundancy = () => {
-    for (let variant of props.video.details.variants) {
+    for (const variant of props.video.details.variants) {
       let video = defaultTrack(variant.video_tracks);
       let audio = defaultTrack(variant.audio_tracks);
       if (
-        stringCodec(video.codec) == stringCodec(transcodePayload?.video_codec) &&
-        video.resolution == transcodePayload.resolution &&
-        stringCodec(audio.codec) == stringCodec(transcodePayload.audio_codec)
+        stringCodec(video.codec) ===
+          stringCodec(transcodePayload?.video_codec) &&
+        video.resolution === transcodePayload.resolution &&
+        stringCodec(audio.codec) === stringCodec(transcodePayload.audio_codec)
       ) {
         return { conflictIn: "variant", variantId: variant.id } as const;
       }
@@ -80,7 +86,8 @@ export function TranscodeModal(props: Props) {
     if (
       stringCodec(props.video.defaultVideo()?.codec) ===
         stringCodec(transcodePayload.video_codec) &&
-      stringCodec(props.video.defaultAudio()?.codec) === stringCodec(transcodePayload.audio_codec)
+      stringCodec(props.video.defaultAudio()?.codec) ===
+        stringCodec(transcodePayload.audio_codec)
     ) {
       return { conflictIn: "source" } as const;
     }
@@ -89,24 +96,28 @@ export function TranscodeModal(props: Props) {
   function handleSubmit() {
     let filteredPayload: Schemas["TranscodePayload"] = {};
     if (
-      props.video.defaultVideo()?.resolution.width !== transcodePayload.resolution?.width ||
-      props.video.defaultVideo()?.resolution.height !== transcodePayload.resolution?.height
+      props.video.defaultVideo()?.resolution.width !==
+        transcodePayload.resolution?.width ||
+      props.video.defaultVideo()?.resolution.height !==
+        transcodePayload.resolution?.height
     ) {
       filteredPayload.resolution = transcodePayload.resolution;
     }
     if (
-      stringCodec(props.video.defaultVideo()?.codec) !== stringCodec(transcodePayload.video_codec)
+      stringCodec(props.video.defaultVideo()?.codec) !==
+      stringCodec(transcodePayload.video_codec)
     ) {
       filteredPayload.video_codec = transcodePayload.video_codec;
     }
 
     if (
-      stringCodec(props.video.defaultAudio()?.codec) !== stringCodec(transcodePayload.audio_codec)
+      stringCodec(props.video.defaultAudio()?.codec) !==
+      stringCodec(transcodePayload.audio_codec)
     ) {
       filteredPayload.audio_codec = transcodePayload.audio_codec;
     }
     props.video.transcode(filteredPayload);
-    props.onClose && props.onClose();
+    props.onClose?.();
   }
 
   return (
@@ -128,7 +139,7 @@ export function TranscodeModal(props: Props) {
               <AlertTitle>Warning: </AlertTitle>
               <AlertDescription>
                 Current configuration duplicates{" "}
-                {r().conflictIn == "source"
+                {r().conflictIn === "source"
                   ? "original video"
                   : `existing variant with id: ${r().variantId}`}
               </AlertDescription>

@@ -1,4 +1,4 @@
-import { VisibilityState } from "@tanstack/solid-table";
+import type { VisibilityState } from "@tanstack/solid-table";
 import tracing from "./tracing";
 
 export class PersistentTableState {
@@ -23,15 +23,21 @@ export class PersistentTableState {
       let json = JSON.parse(localStorage.getItem(this.storageKey()) ?? "");
       if (Array.isArray(json)) {
         let out: VisibilityState = {};
-        for (let value of json) {
-          if (typeof value == "string") {
+        for (const value of json) {
+          if (typeof value === "string") {
             out[value] = false;
           }
         }
-        tracing.debug({ key: this.storageKey(), out }, "Loaded persistent storage visibility");
+        tracing.debug(
+          { key: this.storageKey(), out },
+          "Loaded persistent storage visibility",
+        );
         return out;
       }
     } catch {}
-    tracing.debug({ key: this.storageKey() }, "Persintant storage vibility was not loaded");
+    tracing.debug(
+      { key: this.storageKey() },
+      "Persintant storage vibility was not loaded",
+    );
   }
 }

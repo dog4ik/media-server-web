@@ -1,4 +1,14 @@
+import Clock from "lucide-solid/icons/clock";
+import FileVideo from "lucide-solid/icons/file-video";
+import HardDrive from "lucide-solid/icons/hard-drive";
+import Info from "lucide-solid/icons/info";
+import Monitor from "lucide-solid/icons/monitor";
+import Play from "lucide-solid/icons/play";
+import Subtitles from "lucide-solid/icons/subtitles";
+import Volume2 from "lucide-solid/icons/volume-2";
+import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
 import {
   Sheet,
   SheetContent,
@@ -7,18 +17,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/ui/sheet";
-import { Video } from "@/utils/library";
-import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
-import FileVideo from "lucide-solid/icons/file-video";
-import Info from "lucide-solid/icons/info";
-import Monitor from "lucide-solid/icons/monitor";
-import { Badge } from "@/ui/badge";
-import { formatBitrate, formatCodec, formatDuration, formatSize } from "@/utils/formats";
-import Volume2 from "lucide-solid/icons/volume-2";
-import Play from "lucide-solid/icons/play";
-import Subtitles from "lucide-solid/icons/subtitles";
-import Clock from "lucide-solid/icons/clock";
-import HardDrive from "lucide-solid/icons/hard-drive";
+import {
+  formatBitrate,
+  formatCodec,
+  formatDuration,
+  formatSize,
+} from "@/utils/formats";
+import type { Video } from "@/utils/library";
 
 type Props = {
   video: Video;
@@ -65,7 +70,8 @@ export default function VideoInformationSlider(props: Props) {
                     </Badge>
                   </div>
                   <div>
-                    <span>Duration:</span> {formatDuration(props.video.details.duration)}
+                    <span>Duration:</span>{" "}
+                    {formatDuration(props.video.details.duration)}
                   </div>
                   <div>
                     <span>Size:</span> {formatSize(props.video.details.size)}
@@ -78,7 +84,9 @@ export default function VideoInformationSlider(props: Props) {
                   </div>
                   <div>
                     <span>Scan Date:</span>{" "}
-                    {new Date(props.video.details.scan_date).toLocaleDateString()}
+                    {new Date(
+                      props.video.details.scan_date,
+                    ).toLocaleDateString()}
                   </div>
                   <div>
                     <span>Previews:</span> {props.video.details.previews_count}
@@ -99,10 +107,14 @@ export default function VideoInformationSlider(props: Props) {
                   {props.video.details.video_tracks.map((track, index) => (
                     <div class="rounded-lg border p-3">
                       <div class="mb-2 flex items-center gap-2">
-                        <Badge variant={track.is_default ? "default" : "secondary"}>
+                        <Badge
+                          variant={track.is_default ? "default" : "secondary"}
+                        >
                           Track {index + 1}
                         </Badge>
-                        {track.is_default && <Badge variant="outline">Default</Badge>}
+                        {track.is_default && (
+                          <Badge variant="outline">Default</Badge>
+                        )}
                       </div>
                       <div class="grid grid-cols-2 gap-2 text-sm">
                         <div>
@@ -143,13 +155,21 @@ export default function VideoInformationSlider(props: Props) {
                   {props.video.details.audio_tracks.map((track, index) => (
                     <div class="rounded-lg border p-3">
                       <div class="mb-2 flex items-center gap-2">
-                        <Badge variant={track.is_default ? "default" : "secondary"}>
+                        <Badge
+                          variant={track.is_default ? "default" : "secondary"}
+                        >
                           Track {index + 1}
                         </Badge>
-                        {track.is_default && <Badge variant="outline">Default</Badge>}
+                        {track.is_default && (
+                          <Badge variant="outline">Default</Badge>
+                        )}
                         {track.is_dub && <Badge variant="outline">Dub</Badge>}
-                        {track.is_hearing_impaired && <Badge variant="outline">HI</Badge>}
-                        {track.is_visual_impaired && <Badge variant="outline">VI</Badge>}
+                        {track.is_hearing_impaired && (
+                          <Badge variant="outline">HI</Badge>
+                        )}
+                        {track.is_visual_impaired && (
+                          <Badge variant="outline">VI</Badge>
+                        )}
                       </div>
                       <div class="grid grid-cols-2 gap-2 text-sm">
                         <div>
@@ -183,13 +203,23 @@ export default function VideoInformationSlider(props: Props) {
                   {props.video.details.subtitle_tracks.map((track, index) => (
                     <div class="rounded-lg border p-3">
                       <div class="mb-2 flex items-center gap-2">
-                        <Badge variant={track.is_default ? "default" : "secondary"}>
+                        <Badge
+                          variant={track.is_default ? "default" : "secondary"}
+                        >
                           Track {index + 1}
                         </Badge>
-                        {track.is_default && <Badge variant="outline">Default</Badge>}
-                        {track.is_hearing_impaired && <Badge variant="outline">HI</Badge>}
-                        {track.is_visual_impaired && <Badge variant="outline">VI</Badge>}
-                        {track.is_text_format && <Badge variant="outline">Text</Badge>}
+                        {track.is_default && (
+                          <Badge variant="outline">Default</Badge>
+                        )}
+                        {track.is_hearing_impaired && (
+                          <Badge variant="outline">HI</Badge>
+                        )}
+                        {track.is_visual_impaired && (
+                          <Badge variant="outline">VI</Badge>
+                        )}
+                        {track.is_text_format && (
+                          <Badge variant="outline">Text</Badge>
+                        )}
                       </div>
                       <div class="grid grid-cols-2 gap-2 text-sm">
                         <div>
@@ -222,7 +252,8 @@ export default function VideoInformationSlider(props: Props) {
                           <span>{chapter.title || `Chapter ${index + 1}`}</span>
                         </div>
                         <div class="text-muted-foreground text-sm">
-                          {formatDuration(chapter.start)} - {formatDuration(chapter.end)}
+                          {formatDuration(chapter.start)} -{" "}
+                          {formatDuration(chapter.end)}
                         </div>
                       </div>
                     ))}
@@ -249,7 +280,8 @@ export default function VideoInformationSlider(props: Props) {
                         </div>
                         <div class="grid grid-cols-2 gap-2 text-sm">
                           <div>
-                            <span>Duration:</span> {formatDuration(variant.duration)}
+                            <span>Duration:</span>{" "}
+                            {formatDuration(variant.duration)}
                           </div>
                           <div>
                             <span>Size:</span> {formatSize(variant.size)}

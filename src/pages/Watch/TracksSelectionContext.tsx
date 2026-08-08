@@ -1,14 +1,20 @@
-import { MediaSessionState } from "@/lib/mediaSession";
-import { throwResponseErrors } from "@/utils/errors";
-import { Schemas, server } from "@/utils/serverApi";
-import tracing from "@/utils/tracing";
 import { useQuery } from "@tanstack/solid-query";
-import { ParentProps, createContext, createMemo, useContext } from "solid-js";
+import {
+  createContext,
+  createMemo,
+  type ParentProps,
+  useContext,
+} from "solid-js";
 import { createStore, unwrap } from "solid-js/store";
+import type { MediaSessionState } from "@/lib/mediaSession";
+import { throwResponseErrors } from "@/utils/errors";
+import { type Schemas, server } from "@/utils/serverApi";
+import tracing from "@/utils/tracing";
 
 type TracksSelectionContextType = ReturnType<typeof createSelectionContext>;
 
-export const TracksSelectionContext = createContext<TracksSelectionContextType>();
+export const TracksSelectionContext =
+  createContext<TracksSelectionContextType>();
 
 export const useTracksSelection = () => {
   let context = useContext(TracksSelectionContext);
@@ -63,18 +69,21 @@ function subtitleQueryKey(
   if (sub.origin === "imported") {
     return ["subtitles", "imported", sub.text.length, sub.text.slice(0, 200)];
   }
-  const rawTrack = unwrap(sub as Extract<SelectedSubtitleTrack, { origin: "container" }>).track;
-  const idx = subtitleTracks.findIndex((t) => t === rawTrack);
+  const rawTrack = unwrap(
+    sub as Extract<SelectedSubtitleTrack, { origin: "container" }>,
+  ).track;
+  const idx = subtitleTracks.indexOf(rawTrack);
   return ["subtitles", "container", idx];
 }
 
 function createSelectionContext(session: () => MediaSessionState) {
   let video = createMemo(() => session().video);
+  const defaultSubtitles = video().defaultSubtitles();
   let [store, setStore] = createStore<TracksSelection>({
     video: video().defaultVideo(),
     audio: video().defaultAudio(),
-    subtitles: video().defaultSubtitles()
-      ? { origin: "container", track: video().defaultSubtitles()! }
+    subtitles: defaultSubtitles
+      ? { origin: "container", track: defaultSubtitles }
       : undefined,
   });
 
@@ -88,7 +97,8 @@ function createSelectionContext(session: () => MediaSessionState) {
         const rawTrack = unwrap(
           sub as Extract<SelectedSubtitleTrack, { origin: "container" }>,
         ).track;
-        const selectedTrackIdx = video().details.subtitle_tracks.findIndex((t) => t === rawTrack);
+        const selectedTrackIdx =
+          video().details.subtitle_tracks.indexOf(rawTrack);
         if (selectedTrackIdx === -1) {
           tracing.warn(
             { videoSubtitlesTracksLen: video().details.subtitle_tracks.length },
@@ -111,11 +121,12 @@ function createSelectionContext(session: () => MediaSessionState) {
       if (sub.origin === "external") {
         const { id } = sub;
         tracing.debug({ id }, "Fetching external subtitles");
-        const res = await server.GET("/api/subtitles/{id}", {
-          params: { path: { id } },
-          parseAs: "text",
-        })
-        .then(throwResponseErrors);
+        const res = await server
+          .GET("/api/subtitles/{id}", {
+            params: { path: { id } },
+            parseAs: "text",
+          })
+          .then(throwResponseErrors);
         return res;
       }
 
@@ -125,7 +136,10 @@ function createSelectionContext(session: () => MediaSessionState) {
     },
     throwOnError: false,
     enabled: store.subtitles !== undefined,
-    queryKey: subtitleQueryKey(store.subtitles, video().details.subtitle_tracks),
+    queryKey: subtitleQueryKey(
+      store.subtitles,
+      video().details.subtitle_tracks,
+    ),
   }));
 
   function selectAudioTrack(index: number) {
@@ -136,7 +150,10 @@ function createSelectionContext(session: () => MediaSessionState) {
       return;
     }
     setStore("audio", video().details.audio_tracks[index]);
-    let videoTrackIndex = video().details.video_tracks.findIndex((t) => t === unwrap(store.video));
+    const selectedVideoTrack = unwrap(store.video);
+    let videoTrackIndex = selectedVideoTrack
+      ? video().details.video_tracks.indexOf(selectedVideoTrack)
+      : -1;
     session().changeConfiguration({
       audio_track: index,
       video_track: videoTrackIndex === -1 ? 0 : videoTrackIndex,
@@ -156,7 +173,7 @@ function createSelectionContext(session: () => MediaSessionState) {
     }
     if (element) {
       elementVideoTracks(element)?.forEach((t, i) => {
-        t.enabled = i == index;
+        t.enabled = i === index;
       });
     }
     setStore("video", video().details.video_tracks[index]);

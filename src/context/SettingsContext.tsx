@@ -1,8 +1,14 @@
-import { Schemas, server } from "@/utils/serverApi";
-import { ParentProps, createContext, createSignal, onCleanup, useContext } from "solid-js";
+import {
+  createContext,
+  createSignal,
+  onCleanup,
+  type ParentProps,
+} from "solid-js";
 import { createStore, produce } from "solid-js/store";
+import { useRequiredContext } from "@/lib/context";
+import { queryApi } from "@/utils/queryApi";
+import { type Schemas, server } from "@/utils/serverApi";
 import { useNotifications } from "./NotificationContext";
-import { queryApi, queryClient } from "@/utils/queryApi";
 
 export type SettingsObject = {
   [K in Schemas["ConfigSchema"][number]["key"]]: Extract<
@@ -19,7 +25,8 @@ type SettingsContextType = ReturnType<typeof createSettingsContext>;
 
 export const SettingsContext = createContext<SettingsContextType>();
 
-export const useSettingsContext = () => useContext(SettingsContext)!;
+export const useSettingsContext = () =>
+  useRequiredContext(SettingsContext, "SettingsContext");
 
 function cmp(lhs: any, rhs: any) {
   if (Array.isArray(lhs) && Array.isArray(rhs)) {
@@ -34,8 +41,12 @@ function cmp(lhs: any, rhs: any) {
 
 function createSettingsContext() {
   let notificator = useNotifications();
-  let [changedSettings, setChangedSettings] = createStore<Partial<SettingsValuesObject>>({});
-  let [saveStatus, setSaveStatus] = createSignal<"idle" | "pending" | "saved">("idle");
+  let [changedSettings, setChangedSettings] = createStore<
+    Partial<SettingsValuesObject>
+  >({});
+  let [saveStatus, setSaveStatus] = createSignal<"idle" | "pending" | "saved">(
+    "idle",
+  );
 
   let remoteSettings = queryApi.useQuery(
     "get",
@@ -59,7 +70,7 @@ function createSettingsContext() {
   function effectiveConfigValue(key: keyof SettingsObject) {
     return key in pendingCommit
       ? pendingCommit[key as keyof typeof pendingCommit]
-      : remoteSettings.data![key].config_value;
+      : remoteSettings.data?.[key].config_value;
   }
 
   let saveTimer: ReturnType<typeof setTimeout> | undefined;
@@ -86,7 +97,7 @@ function createSettingsContext() {
     await queryApi.invalidateQueries("get", "/api/configuration");
 
     // Fresh data is in — clear pending tracking for this batch.
-    for (let key of Object.keys(snapshot)) {
+    for (const key of Object.keys(snapshot)) {
       delete pendingCommit[key as keyof typeof pendingCommit];
     }
     // Only clear changedSettings entries that haven't been modified since the
@@ -95,7 +106,7 @@ function createSettingsContext() {
     // so the next debounced save picks it up.
     setChangedSettings(
       produce((s) => {
-        for (let [key, snapshotValue] of Object.entries(snapshot)) {
+        for (const [key, snapshotValue] of Object.entries(snapshot)) {
           let k = key as keyof typeof s;
           if (cmp(s[k], snapshotValue)) {
             delete s[k];
@@ -113,7 +124,7 @@ function createSettingsContext() {
     value: (typeof changedSettings)[T],
   ) {
     let configValue = effectiveConfigValue(key);
-    let defaultValue = remoteSettings.data![key].default_value;
+    let defaultValue = remoteSettings.data?.[key].default_value;
 
     if (value === null && configValue !== null) {
       setChangedSettings(key, null);
@@ -147,5 +158,9 @@ function createSettingsContext() {
 
 export default function SettingsProvider(props: ParentProps) {
   let context = createSettingsContext();
-  return <SettingsContext.Provider value={context}>{props.children}</SettingsContext.Provider>;
+  return (
+    <SettingsContext.Provider value={context}>
+      {props.children}
+    </SettingsContext.Provider>
+  );
 }

@@ -1,12 +1,11 @@
-import { createMemo, Match, Show, Switch } from "solid-js";
-
 import File from "lucide-solid/icons/file";
-import FileText from "lucide-solid/icons/file-text";
-import FilePlay from "lucide-solid/icons/file-play";
 import FileImage from "lucide-solid/icons/file-image";
+import FileMusic from "lucide-solid/icons/file-music";
+import FilePlay from "lucide-solid/icons/file-play";
+import FileText from "lucide-solid/icons/file-text";
 import FolderClosed from "lucide-solid/icons/folder-closed";
 import FolderOpen from "lucide-solid/icons/folder-open";
-import FileMusic from "lucide-solid/icons/file-music";
+import { createMemo, Match, Show, Switch } from "solid-js";
 
 type FileType = "video" | "text" | "image" | "audio" | "other";
 
@@ -33,19 +32,19 @@ export function FileIcon(props: { name: string }) {
   return (
     <div>
       <Switch fallback={<File size={ICON_SIZE} />}>
-        <Match when={fileType() == "text"}>
+        <Match when={fileType() === "text"}>
           <FileText size={ICON_SIZE} />
         </Match>
-        <Match when={fileType() == "video"}>
+        <Match when={fileType() === "video"}>
           <FilePlay size={ICON_SIZE} />
         </Match>
-        <Match when={fileType() == "image"}>
+        <Match when={fileType() === "image"}>
           <FileImage size={ICON_SIZE} />
         </Match>
-        <Match when={fileType() == "audio"}>
+        <Match when={fileType() === "audio"}>
           <FileMusic size={ICON_SIZE} />
         </Match>
-        <Match when={fileType() == "other"}>
+        <Match when={fileType() === "other"}>
           <File size={ICON_SIZE} />
         </Match>
       </Switch>

@@ -1,15 +1,18 @@
-import { Show, Suspense } from "solid-js";
 import Download from "lucide-solid/icons/download";
-import Upload from "lucide-solid/icons/upload";
 import LoaderCircle from "lucide-solid/icons/loader-circle";
-import MoreButton from "@/components/ContextMenu/MoreButton";
+import Upload from "lucide-solid/icons/upload";
+import { Show, Suspense } from "solid-js";
 import { MenuRow } from "@/components/ContextMenu/Menu";
-import { ViewModeToggle, type ViewMode } from "@/components/Lists/ViewModeToggle";
-import { invalidateListQueries } from "@/lib/lists";
+import MoreButton from "@/components/ContextMenu/MoreButton";
+import {
+  type ViewMode,
+  ViewModeToggle,
+} from "@/components/Lists/ViewModeToggle";
 import { useNotifications } from "@/context/NotificationContext";
-import { queryApi } from "@/utils/queryApi";
+import { invalidateListQueries } from "@/lib/lists";
 import { Button } from "@/ui/button";
 import { Skeleton } from "@/ui/skeleton";
+import { queryApi } from "@/utils/queryApi";
 import type { Schemas } from "@/utils/serverApi";
 
 type Props = {
@@ -24,7 +27,9 @@ type Props = {
 };
 
 function downloadJson(data: unknown, filename: string) {
-  let blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  let blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
   let url = URL.createObjectURL(blob);
   let a = document.createElement("a");
   a.href = url;
@@ -38,9 +43,13 @@ export function ListHeader(props: Props) {
   let fileInput!: HTMLInputElement;
 
   let exportList = queryApi.useMutation("get", "/api/lists/{id}/export");
-  let importList = queryApi.useMutation("post", "/api/lists/{id}/import", () => ({
-    onSettled: invalidateListQueries,
-  }));
+  let importList = queryApi.useMutation(
+    "post",
+    "/api/lists/{id}/import",
+    () => ({
+      onSettled: invalidateListQueries,
+    }),
+  );
 
   function handleExport() {
     exportList.mutate(
@@ -48,7 +57,10 @@ export function ListHeader(props: Props) {
       {
         onSuccess: (items) => {
           // Match the file name the server suggests in its Content-Disposition header
-          downloadJson(items, `exported_list_${props.list?.name ?? props.listId}.json`);
+          downloadJson(
+            items,
+            `exported_list_${props.list?.name ?? props.listId}.json`,
+          );
         },
         onError: () => notify("Failed to export the list"),
       },
@@ -66,7 +78,8 @@ export function ListHeader(props: Props) {
     importList.mutate(
       { params: { path: { id: props.listId } }, body: items },
       {
-        onSuccess: ({ count }) => notify(`Imported ${count} ${count === 1 ? "item" : "items"}`),
+        onSuccess: ({ count }) =>
+          notify(`Imported ${count} ${count === 1 ? "item" : "items"}`),
         onError: () => notify("Failed to import the list"),
       },
     );
@@ -79,7 +92,9 @@ export function ListHeader(props: Props) {
           <h1 class="truncate text-2xl text-white">{props.list?.name}</h1>
           <Show when={props.list?.description}>
             {(description) => (
-              <p class="text-muted-foreground mt-1 line-clamp-2 text-sm">{description()}</p>
+              <p class="text-muted-foreground mt-1 line-clamp-2 text-sm">
+                {description()}
+              </p>
             )}
           </Show>
           <p class="text-muted-foreground mt-1 text-sm">
@@ -99,13 +114,21 @@ export function ListHeader(props: Props) {
             if (file) handleImport(file);
           }}
         />
-        <Button variant="outline" onClick={handleExport} disabled={exportList.isPending}>
+        <Button
+          variant="outline"
+          onClick={handleExport}
+          disabled={exportList.isPending}
+        >
           <Show when={exportList.isPending} fallback={<Download />}>
             <LoaderCircle class="animate-spin" />
           </Show>
           <span class="hidden sm:inline">Export</span>
         </Button>
-        <Button variant="outline" onClick={() => fileInput.click()} disabled={importList.isPending}>
+        <Button
+          variant="outline"
+          onClick={() => fileInput.click()}
+          disabled={importList.isPending}
+        >
           <Show when={importList.isPending} fallback={<Upload />}>
             <LoaderCircle class="animate-spin" />
           </Show>

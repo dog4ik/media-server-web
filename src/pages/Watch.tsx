@@ -1,24 +1,30 @@
-import { NotFoundError, notifyResponseErrors } from "../utils/errors";
-import VideoPlayer, { NextVideo } from "../components/VideoPlayer";
-import { Schemas, fullUrl, server } from "../utils/serverApi";
-import { createEffect, createMemo, onCleanup, ParentProps, Show } from "solid-js";
-import { formatSE } from "../utils/formats";
+import { getRouteApi, Link, linkOptions } from "@tanstack/solid-router";
 import {
-  ExtendedEpisode,
-  ExtendedShow,
+  createEffect,
+  createMemo,
+  onCleanup,
+  type ParentProps,
+  Show,
+} from "solid-js";
+import { useNotificationsContext } from "@/context/NotificationContext";
+import { MediaSessionState } from "@/lib/mediaSession";
+import {
+  type ExtendedEpisode,
+  type ExtendedShow,
   extendEpisode,
   extendMovie,
   extendShow,
-  Media,
+  type Media,
   Video,
 } from "@/utils/library";
-import tracing from "@/utils/tracing";
-import TracksSelectionProvider from "./Watch/TracksSelectionContext";
-import { useNotificationsContext } from "@/context/NotificationContext";
-import { getRouteApi, Link, linkOptions } from "@tanstack/solid-router";
 import { queryApi } from "@/utils/queryApi";
+import tracing from "@/utils/tracing";
+import VideoPlayer, { type NextVideo } from "../components/VideoPlayer";
+import { NotFoundError, notifyResponseErrors } from "../utils/errors";
+import { formatSE } from "../utils/formats";
+import { fullUrl, type Schemas, server } from "../utils/serverApi";
+import TracksSelectionProvider from "./Watch/TracksSelectionContext";
 import WatchSessionProvider from "./Watch/WatchSessionContext";
-import { MediaSessionState } from "@/lib/mediaSession";
 
 export type SubtitlesOrigin = "container" | "api" | "local" | "imported";
 
@@ -85,36 +91,41 @@ export function WatchMovie() {
 
   createEffect(() => {
     if ("mediaSession" in navigator && movie.isSuccess) {
-      navigator.mediaSession.metadata = movieMediaSessionMetadata(movie.latest()!);
+      navigator.mediaSession.metadata = movieMediaSessionMetadata(
+        movie.latest()!,
+      );
     } else {
       tracing.warn("Media session api is not supported by the browser");
     }
   });
 
   return (
-    <>
-      <Show when={movie.isSuccess && videos.isSuccess}>
-        <Watch
-          history={movie.latest()?.local?.history ?? undefined}
-          media={movie.latest()!}
-          videos={videos.latest()!}
-        >
-          <div class="absolute top-5 left-5">
-            <Link
-              to={"/movies/$id"}
-              params={{ id: params().id }}
-              search={{ provider: movie.latest()!.provider }}
-            >
-              <span class="text-2xl hover:underline">{movie.latest()!.title}</span>
-            </Link>
-          </div>
-        </Watch>
-      </Show>
-    </>
+    <Show when={movie.isSuccess && videos.isSuccess}>
+      <Watch
+        history={movie.latest()?.local?.history ?? undefined}
+        media={movie.latest()!}
+        videos={videos.latest()!}
+      >
+        <div class="absolute top-5 left-5">
+          <Link
+            to={"/movies/$id"}
+            params={{ id: params().id }}
+            search={{ provider: movie.latest()!.provider }}
+          >
+            <span class="text-2xl hover:underline">
+              {movie.latest()?.title}
+            </span>
+          </Link>
+        </div>
+      </Watch>
+    </Show>
   );
 }
 
-function showMediaSessionMetadata(episode: ExtendedEpisode, show: ExtendedShow) {
+function showMediaSessionMetadata(
+  episode: ExtendedEpisode,
+  show: ExtendedShow,
+) {
   let posterUrl = fullUrl("/api/episode/{id}/poster", {
     path: { id: +episode.provider_id },
   });
@@ -221,53 +232,60 @@ export function WatchShow() {
 
   createEffect(() => {
     if ("mediaSession" in navigator && episode.isSuccess && show.isSuccess) {
-      navigator.mediaSession.metadata = showMediaSessionMetadata(episode.latest()!, show.latest()!);
+      navigator.mediaSession.metadata = showMediaSessionMetadata(
+        episode.latest()!,
+        show.latest()!,
+      );
     }
   });
 
   return (
-    <>
-      <Show when={episode.latest() && videos.latest()}>
-        <>
-          <Watch
-            history={episode.latest()?.local?.history ?? undefined}
-            intro={episode.latest()?.local?.intro ?? undefined}
-            media={episode.latest()}
-            next={nextEpisode.latest()}
-            videos={videos.latest()!}
-          >
-            <div class="absolute top-5 left-5 flex flex-col">
-              <span class="text-2xl">{episode.latest()!.title}</span>
-              <div class="flex gap-2">
-                <Link to={"/shows/$id"} params={{ id: params().id }} search={{ provider: "local" }}>
-                  <span class="text-sm hover:underline">{show.latest()!.title}</span>
-                </Link>
-                <Link
-                  to={"/shows/$id"}
-                  params={{ id: params().id }}
-                  search={{ provider: "local", season: +params().season }}
-                >
-                  <span class="text-sm hover:underline">
-                    Season {episode.latest()!.season_number}
-                  </span>
-                </Link>
-                <Link
-                  to={"/shows/$id/$season/$episode"}
-                  params={{
-                    id: params().id,
-                    season: params().season,
-                    episode: params().episode,
-                  }}
-                  search={{ provider: "local" }}
-                >
-                  <span class="text-sm hover:underline">Episode {episode.latest()!.number}</span>
-                </Link>
-              </div>
-            </div>
-          </Watch>
-        </>
-      </Show>
-    </>
+    <Show when={episode.latest() && videos.latest()}>
+      <Watch
+        history={episode.latest()?.local?.history ?? undefined}
+        intro={episode.latest()?.local?.intro ?? undefined}
+        media={episode.latest()}
+        next={nextEpisode.latest()}
+        videos={videos.latest()!}
+      >
+        <div class="absolute top-5 left-5 flex flex-col">
+          <span class="text-2xl">{episode.latest()?.title}</span>
+          <div class="flex gap-2">
+            <Link
+              to={"/shows/$id"}
+              params={{ id: params().id }}
+              search={{ provider: "local" }}
+            >
+              <span class="text-sm hover:underline">
+                {show.latest()?.title}
+              </span>
+            </Link>
+            <Link
+              to={"/shows/$id"}
+              params={{ id: params().id }}
+              search={{ provider: "local", season: +params().season }}
+            >
+              <span class="text-sm hover:underline">
+                Season {episode.latest()?.season_number}
+              </span>
+            </Link>
+            <Link
+              to={"/shows/$id/$season/$episode"}
+              params={{
+                id: params().id,
+                season: params().season,
+                episode: params().episode,
+              }}
+              search={{ provider: "local" }}
+            >
+              <span class="text-sm hover:underline">
+                Episode {episode.latest()?.number}
+              </span>
+            </Link>
+          </div>
+        </div>
+      </Watch>
+    </Show>
   );
 }
 
@@ -297,7 +315,9 @@ function Watch(props: WatchProps) {
       throw new NotFoundError("videos length is 0");
     }
     if (query) {
-      return props.videos.find((v) => v.details.id === query) ?? props.videos[0];
+      return (
+        props.videos.find((v) => v.details.id === query) ?? props.videos[0]
+      );
     }
     return props.videos[0];
   });
@@ -313,7 +333,13 @@ function Watch(props: WatchProps) {
           params: { path: { id } },
           keepalive: true,
         })
-        .then(notifyResponseErrors(addNotification, "clean up watch session", props.media));
+        .then(
+          notifyResponseErrors(
+            addNotification,
+            "clean up watch session",
+            props.media,
+          ),
+        );
     }
   }
 

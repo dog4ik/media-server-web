@@ -1,15 +1,26 @@
 import { FiCheck, FiRefreshCcw, FiX } from "solid-icons/fi";
-import { For, Show, createEffect, createMemo, createSignal, untrack } from "solid-js";
-import { Button } from "@/ui/button";
-import { Progress } from "@/ui/progress";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/ui/dropdown-menu";
-import { useServerStatus } from "@/context/ServerStatusContext";
-import { Schemas } from "@/utils/serverApi";
-import { queryApi } from "@/utils/queryApi";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  Show,
+  untrack,
+} from "solid-js";
 import { useNotifications } from "@/context/NotificationContext";
-import { cn } from "@/utils/cn";
-import tracing from "@/utils/tracing";
+import { useServerStatus } from "@/context/ServerStatusContext";
+import { Button } from "@/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/ui/dropdown-menu";
+import { Progress } from "@/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
+import { cn } from "@/utils/cn";
+import { queryApi } from "@/utils/queryApi";
+import type { Schemas } from "@/utils/serverApi";
+import tracing from "@/utils/tracing";
 
 const PHASES = [
   { type: "metadata_fetch", label: "Fetching metadata" },
@@ -37,7 +48,9 @@ type ScanView = {
   indeterminate: boolean;
 };
 
-function deriveScanView(progress: Schemas["ProgressChunk"] | undefined): ScanView {
+function deriveScanView(
+  progress: Schemas["ProgressChunk"] | undefined,
+): ScanView {
   if (!progress) {
     return {
       phaseIndex: METADATA_FETCH_PHASE_IDX,
@@ -91,10 +104,19 @@ function deriveScanView(progress: Schemas["ProgressChunk"] | undefined): ScanVie
 function ProgressRing(props: { progress: number; indeterminate?: boolean }) {
   const RADIUS = 15;
   const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-  let offset = () => CIRCUMFERENCE * (1 - Math.min(1, Math.max(0, props.progress)));
+  let offset = () =>
+    CIRCUMFERENCE * (1 - Math.min(1, Math.max(0, props.progress)));
   return (
     <svg viewBox="0 0 36 36" class="absolute inset-0 size-full -rotate-90">
-      <circle cx="18" cy="18" r={RADIUS} fill="none" stroke-width="3" class="stroke-white/15" />
+      <title>Scan progress</title>
+      <circle
+        cx="18"
+        cy="18"
+        r={RADIUS}
+        fill="none"
+        stroke-width="3"
+        class="stroke-white/15"
+      />
       <circle
         cx="18"
         cy="18"
@@ -119,7 +141,11 @@ function PhaseSteps(props: { current: number }) {
       <For each={PHASES}>
         {(phase, i) => {
           let state = () =>
-            i() < props.current ? "done" : i() === props.current ? "active" : "todo";
+            i() < props.current
+              ? "done"
+              : i() === props.current
+                ? "active"
+                : "todo";
           return (
             <>
               <Show when={i() > 0}>
@@ -134,7 +160,8 @@ function PhaseSteps(props: { current: number }) {
                 class={cn(
                   "flex size-5 items-center justify-center rounded-full text-[10px] font-semibold transition-colors",
                   state() === "done" && "bg-primary text-primary-foreground",
-                  state() === "active" && "bg-primary/20 text-primary ring-primary ring-2",
+                  state() === "active" &&
+                    "bg-primary/20 text-primary ring-primary ring-2",
                   state() === "todo" && "bg-white/10 text-muted-foreground",
                 )}
                 title={phase.label}
@@ -252,7 +279,9 @@ function ScanDetails(props: {
             </span>
           </Show>
           <Show when={view().failed > 0}>
-            <span class="text-destructive tabular-nums">{view().failed} failed</span>
+            <span class="text-destructive tabular-nums">
+              {view().failed} failed
+            </span>
           </Show>
         </div>
 
@@ -260,7 +289,7 @@ function ScanDetails(props: {
           {(config) => (
             <div class="text-muted-foreground flex items-center justify-between text-xs">
               <Show
-                when={view().phaseIndex == ASSETS_SAVE_PHASE_IDX}
+                when={view().phaseIndex === ASSETS_SAVE_PHASE_IDX}
                 fallback={
                   <>
                     <span>Language</span>
@@ -271,7 +300,9 @@ function ScanDetails(props: {
                 }
               >
                 <span>Asset concurrency</span>
-                <span class="text-foreground tabular-nums">{config().max_asset_concurrency}</span>
+                <span class="text-foreground tabular-nums">
+                  {config().max_asset_concurrency}
+                </span>
               </Show>
             </div>
           )}
@@ -307,11 +338,16 @@ export default function ScanButton() {
   };
 
   let [state, setState] = createSignal<ScanState>("idle");
-  let [scanTaskRef, setScanTaskRef] = createSignal<Schemas["Task_LibraryScanTask"]>();
+  let [scanTaskRef, setScanTaskRef] =
+    createSignal<Schemas["Task_LibraryScanTask"]>();
 
   createEffect(() => {
     let live = tasks.library_scan_tasks.at(0);
-    if (live && untrack(scanTaskRef) === undefined && untrack(state) === "idle") {
+    if (
+      live &&
+      untrack(scanTaskRef) === undefined &&
+      untrack(state) === "idle"
+    ) {
       setScanTaskRef(live);
       setState("running");
     }
@@ -323,7 +359,7 @@ export default function ScanButton() {
       setScanTaskRef(tasks.library_scan_tasks.at(0) ?? event.task);
     }
     // scan event is infallible
-    if (event.progress_type == "finish") {
+    if (event.progress_type === "finish") {
       setState("finished");
     }
   });
@@ -338,7 +374,9 @@ export default function ScanButton() {
   let overall = () => {
     let s = state();
     if (s === "finished") return 1;
-    if (s === "running") return deriveScanView(scanTaskRef()?.latest_progress ?? undefined).overall;
+    if (s === "running")
+      return deriveScanView(scanTaskRef()?.latest_progress ?? undefined)
+        .overall;
     return 0;
   };
 
@@ -347,7 +385,11 @@ export default function ScanButton() {
       when={scanTaskRef()}
       fallback={
         <Tooltip>
-          <TooltipTrigger as={Button} onClick={startScan} aria-label="Scan library">
+          <TooltipTrigger
+            as={Button}
+            onClick={startScan}
+            aria-label="Scan library"
+          >
             <FiRefreshCcw size={20} />
           </TooltipTrigger>
           <TooltipContent>Scan library</TooltipContent>
@@ -368,7 +410,9 @@ export default function ScanButton() {
             />
             <Show
               when={isFinished()}
-              fallback={<FiRefreshCcw size={18} class="animate-spin text-white" />}
+              fallback={
+                <FiRefreshCcw size={18} class="animate-spin text-white" />
+              }
             >
               <FiCheck size={18} class="text-primary" />
             </Show>

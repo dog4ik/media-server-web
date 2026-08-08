@@ -1,6 +1,6 @@
+import type { ParentProps } from "solid-js";
+import { type ButtonProps, buttonVariants } from "@/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
-import { buttonVariants, type ButtonProps } from "@/ui/button";
-import { ParentProps } from "solid-js";
 
 type IconProps = {
   tooltip?: string;

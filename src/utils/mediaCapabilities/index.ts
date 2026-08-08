@@ -1,15 +1,17 @@
-import { queryOptions, useQuery, UseQueryResult } from "@tanstack/solid-query";
-import { Schemas } from "../serverApi";
+import { type UseQueryResult, useQuery } from "@tanstack/solid-query";
+import type { Schemas } from "../serverApi";
 import tracing from "../tracing";
 import { commonAACProfile, getAACAudio } from "./audio/aac";
 import { getAC3Audio } from "./audio/ac3";
 import { getDTSAudio } from "./audio/dts";
 import { getEAC3Audio } from "./audio/eac3";
+import { getFlacAudio } from "./audio/flac";
+import { getOpusAudio } from "./audio/opus";
 import { getAv1Codec } from "./video/av1";
 import { getAVCCodec, getMaxAVCLevel } from "./video/avc";
 import { getHevcVideo, getMaxHEVCLevel } from "./video/hevc";
-import { getFlacAudio } from "./audio/flac";
-import { getOpusAudio } from "./audio/opus";
+import { getVp8Codec } from "./video/vp8";
+import { getVp9Codec } from "./video/vp9";
 
 export type Compatibility = {
   video: MediaCapabilitiesDecodingInfo;
@@ -42,38 +44,38 @@ export async function isCompatible<
   let videoCodecs: string | undefined;
   let audioCodecs: string | undefined;
 
-  if (video?.codec == "h264") {
+  if (video?.codec === "h264") {
     videoCodecs = getAVCCodec(video.profile_idc, video.level);
   }
-  if (video?.codec == "hevc") {
+  if (video?.codec === "hevc") {
     videoCodecs = getHevcVideo(video.profile_idc, video.level);
   }
-  if (video?.codec == "av1") {
+  if (video?.codec === "av1") {
     videoCodecs = getAv1Codec();
   }
-  if (video?.codec == "vp9") {
+  if (video?.codec === "vp9") {
     videoCodecs = getVp9Codec();
   }
-  if (video?.codec == "vp8") {
+  if (video?.codec === "vp8") {
     videoCodecs = getVp8Codec();
   }
 
-  if (audio?.codec == "aac") {
+  if (audio?.codec === "aac") {
     audioCodecs = getAACAudio(audio.profile_idc);
   }
-  if (audio?.codec == "ac3") {
+  if (audio?.codec === "ac3") {
     audioCodecs = getAC3Audio();
   }
-  if (audio?.codec == "dts") {
+  if (audio?.codec === "dts") {
     audioCodecs = getDTSAudio(audio.profile_idc);
   }
-  if (audio?.codec == "eac3") {
+  if (audio?.codec === "eac3") {
     audioCodecs = getEAC3Audio();
   }
-  if (audio?.codec == "flac") {
+  if (audio?.codec === "flac") {
     audioCodecs = getFlacAudio();
   }
-  if (audio?.codec == "opus") {
+  if (audio?.codec === "opus") {
     audioCodecs = getOpusAudio();
   }
 
@@ -133,7 +135,9 @@ async function checkCompatibility(configuration: {
     videoQuery,
     audioQuery,
     combinedQuery,
-  ]).then((r) => r.map((r) => (r.status == "fulfilled" ? r.value : undefined)));
+  ]).then((r) =>
+    r.map((r) => (r.status === "fulfilled" ? r.value : undefined)),
+  );
   tracing.debug(
     {
       videoSupported: video?.supported,
@@ -158,51 +162,51 @@ export async function canPlayAfterTranscode(
   if (!("mediaCapabilities" in navigator)) {
     throw Error("mediaCapabilities api is not supported");
   }
-  let videoSpec: string | undefined = undefined;
-  let audioSpec: string | undefined = undefined;
-  if (videoConfig?.videoCodec == "h264") {
+  let videoSpec: string | undefined;
+  let audioSpec: string | undefined;
+  if (videoConfig?.videoCodec === "h264") {
     let level = getMaxAVCLevel(videoConfig.resolution, videoConfig.framerate);
     // Assume profile is Main
     let profile = 77;
     if (level) videoSpec = getAVCCodec(profile, level);
   }
-  if (videoConfig?.videoCodec == "hevc") {
+  if (videoConfig?.videoCodec === "hevc") {
     let level = getMaxHEVCLevel(videoConfig.resolution, videoConfig.framerate);
     // Assume profile is Main 10
     let profile = 2;
     videoSpec = getHevcVideo(profile, level);
   }
-  if (videoConfig?.videoCodec == "av1") {
+  if (videoConfig?.videoCodec === "av1") {
     videoSpec = getAv1Codec();
   }
-  if (videoConfig?.videoCodec == "vp9") {
+  if (videoConfig?.videoCodec === "vp9") {
     videoSpec = getVp9Codec();
   }
-  if (videoConfig?.videoCodec == "vp8") {
+  if (videoConfig?.videoCodec === "vp8") {
     videoSpec = getVp8Codec();
   }
 
-  if (audioConfig?.audioCodec == "aac") {
+  if (audioConfig?.audioCodec === "aac") {
     audioSpec = commonAACProfile();
   }
-  if (audioConfig?.audioCodec == "ac3") {
+  if (audioConfig?.audioCodec === "ac3") {
     audioSpec = getAC3Audio();
   }
-  if (audioConfig?.audioCodec == "dts") {
+  if (audioConfig?.audioCodec === "dts") {
     audioSpec = getDTSAudio();
   }
-  if (audioConfig?.audioCodec == "eac3") {
+  if (audioConfig?.audioCodec === "eac3") {
     audioSpec = getEAC3Audio();
   }
-  if (audioConfig?.audioCodec == "flac") {
+  if (audioConfig?.audioCodec === "flac") {
     audioSpec = getFlacAudio();
   }
-  if (audioConfig?.audioCodec == "opus") {
+  if (audioConfig?.audioCodec === "opus") {
     audioSpec = getOpusAudio();
   }
 
-  let videoQueryConfig: VideoConfiguration | undefined = undefined;
-  let audioQueryConfig: AudioConfiguration | undefined = undefined;
+  let videoQueryConfig: VideoConfiguration | undefined;
+  let audioQueryConfig: AudioConfiguration | undefined;
 
   if (videoSpec && videoConfig) {
     let fullVideoMime = `video/mp4; codecs=${videoSpec}`;
@@ -235,13 +239,20 @@ export async function canPlayAfterTranscode(
     type: "media-source",
     audio: audioQueryConfig,
   });
-  let [video, audio, combined] = await Promise.all([videoQuery, audioQuery, combinedQuery]);
+  let [video, audio, combined] = await Promise.all([
+    videoQuery,
+    audioQuery,
+    combinedQuery,
+  ]);
   return { video, audio, combined };
 }
 
 type Browser = "chrome" | "firefox" | "safari" | "edge" | "electron";
 
-const CONTAINER_SUPPORT: Record<Schemas["VideoContainer"], Record<Browser, boolean>> = {
+const CONTAINER_SUPPORT: Record<
+  Schemas["VideoContainer"],
+  Record<Browser, boolean>
+> = {
   mp4: {
     chrome: true,
     electron: true,
@@ -286,16 +297,19 @@ const CONTAINER_SUPPORT: Record<Schemas["VideoContainer"], Record<Browser, boole
   },
 };
 
-export function containerSupport(container: Schemas["VideoContainer"]): boolean {
+export function containerSupport(
+  container: Schemas["VideoContainer"],
+): boolean {
   let ua = navigator.userAgent;
 
-  let isChrome = ua.includes("Chrome") && !ua.includes("Edg/") && !ua.includes("OPR/");
+  let isChrome =
+    ua.includes("Chrome") && !ua.includes("Edg/") && !ua.includes("OPR/");
   let isElectron = ua.includes("Electron");
   let isFirefox = ua.includes("Firefox");
   let isSafari = ua.includes("Safari") && !ua.includes("Chrome");
   let isEdge = ua.includes("Edg/");
 
-  let browser: Browser | undefined = undefined;
+  let browser: Browser | undefined;
 
   if (isChrome) browser = "chrome";
   else if (isElectron) browser = "electron";
@@ -304,7 +318,10 @@ export function containerSupport(container: Schemas["VideoContainer"]): boolean 
   else if (isEdge) browser = "edge";
 
   if (!browser) {
-    tracing.warn({ isChrome, isElectron, isFirefox, isSafari, isEdge }, "Could not detect browser");
+    tracing.warn(
+      { isChrome, isElectron, isFirefox, isSafari, isEdge },
+      "Could not detect browser",
+    );
     return false;
   } else {
     tracing.info({ browser }, "Detected browser");

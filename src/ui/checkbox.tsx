@@ -1,22 +1,24 @@
+import { Checkbox as CheckboxPrimitive } from "@kobalte/core/checkbox";
+import { cx } from "cva";
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
-import { Checkbox as CheckboxPrimitive } from "@kobalte/core/checkbox";
-
-import { cx } from "cva";
 
 export type CheckboxProps<T extends ValidComponent = "div"> = ComponentProps<
   typeof CheckboxPrimitive<T>
 >;
 
-export const Checkbox = <T extends ValidComponent = "div">(props: CheckboxProps<T>) => {
+export const Checkbox = <T extends ValidComponent = "div">(
+  props: CheckboxProps<T>,
+) => {
   return <CheckboxPrimitive data-slot="checkbox" {...props} />;
 };
 
-export type CheckboxLabelProps<T extends ValidComponent = "label"> = ComponentProps<
-  typeof CheckboxPrimitive.Label<T>
->;
+export type CheckboxLabelProps<T extends ValidComponent = "label"> =
+  ComponentProps<typeof CheckboxPrimitive.Label<T>>;
 
-export const CheckboxLabel = <T extends ValidComponent = "label">(props: CheckboxLabelProps<T>) => {
+export const CheckboxLabel = <T extends ValidComponent = "label">(
+  props: CheckboxLabelProps<T>,
+) => {
   const [, rest] = splitProps(props as CheckboxLabelProps, ["class"]);
 
   return (
@@ -32,9 +34,8 @@ export const CheckboxLabel = <T extends ValidComponent = "label">(props: Checkbo
   );
 };
 
-export type CheckboxDescriptionProps<T extends ValidComponent = "div"> = ComponentProps<
-  typeof CheckboxPrimitive.Description<T>
->;
+export type CheckboxDescriptionProps<T extends ValidComponent = "div"> =
+  ComponentProps<typeof CheckboxPrimitive.Description<T>>;
 
 export const CheckboxDescription = <T extends ValidComponent = "div">(
   props: CheckboxDescriptionProps<T>,
@@ -44,17 +45,21 @@ export const CheckboxDescription = <T extends ValidComponent = "div">(
   return (
     <CheckboxPrimitive.Description
       data-slot="checkbox-description"
-      class={cx("text-muted-foreground text-sm data-disabled:opacity-50", props.class)}
+      class={cx(
+        "text-muted-foreground text-sm data-disabled:opacity-50",
+        props.class,
+      )}
       {...rest}
     />
   );
 };
 
-export type CheckboxInputProps<T extends ValidComponent = "input"> = ComponentProps<
-  typeof CheckboxPrimitive.Input<T>
->;
+export type CheckboxInputProps<T extends ValidComponent = "input"> =
+  ComponentProps<typeof CheckboxPrimitive.Input<T>>;
 
-export const CheckboxInput = <T extends ValidComponent = "input">(props: CheckboxInputProps<T>) => {
+export const CheckboxInput = <T extends ValidComponent = "input">(
+  props: CheckboxInputProps<T>,
+) => {
   const [, rest] = splitProps(props as CheckboxInputProps, ["class"]);
 
   return (
@@ -69,9 +74,8 @@ export const CheckboxInput = <T extends ValidComponent = "input">(props: Checkbo
   );
 };
 
-export type CheckboxControlProps<T extends ValidComponent = "div"> = ComponentProps<
-  typeof CheckboxPrimitive.Control<T>
->;
+export type CheckboxControlProps<T extends ValidComponent = "div"> =
+  ComponentProps<typeof CheckboxPrimitive.Control<T>>;
 
 export const CheckboxControl = <T extends ValidComponent = "div">(
   props: CheckboxControlProps<T>,
@@ -91,7 +95,12 @@ export const CheckboxControl = <T extends ValidComponent = "div">(
         data-slot="checkbox-indicator"
         class="flex items-center justify-center text-current transition-none"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5" viewBox="0 0 24 24">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="size-3.5"
+          viewBox="0 0 24 24"
+        >
+          <title>Checked</title>
           <path
             fill="none"
             stroke="currentColor"

@@ -1,12 +1,12 @@
-import { Show } from "solid-js";
 import { Link } from "@tanstack/solid-router";
-import FallbackImage from "@/components/FallbackImage";
-import MoreButton from "@/components/ContextMenu/MoreButton";
+import { Show } from "solid-js";
 import { MenuRow } from "@/components/ContextMenu/Menu";
-import { Badge } from "@/ui/badge";
-import { Skeleton } from "@/ui/skeleton";
+import MoreButton from "@/components/ContextMenu/MoreButton";
+import FallbackImage from "@/components/FallbackImage";
 import { cn } from "@/lib/cn";
 import type { ExtendedListContent } from "@/lib/lists";
+import { Badge } from "@/ui/badge";
+import { Skeleton } from "@/ui/skeleton";
 
 type Props = {
   item: ExtendedListContent;
@@ -23,7 +23,11 @@ export function ListContentTile(props: Props) {
         )}
         {...props.item.url}
       >
-        <FallbackImage fluid alt={props.item.title} srcList={props.item.posters} />
+        <FallbackImage
+          fluid
+          alt={props.item.title}
+          srcList={props.item.posters}
+        />
         <Badge variant="secondary" class="absolute top-2 left-2 opacity-90">
           {props.item.typeLabel}
         </Badge>
@@ -31,13 +35,21 @@ export function ListContentTile(props: Props) {
       {/* w-0 + min-w-full keeps the caption from stretching the tile past the image */}
       <div class="flex w-0 min-w-full items-center justify-between gap-1">
         <div class="flex min-w-0 flex-col">
-          <Link title={props.item.title} class="text-md truncate" {...props.item.url}>
+          <Link
+            title={props.item.title}
+            class="text-md truncate"
+            {...props.item.url}
+          >
             {props.item.title}
           </Link>
           <Show when={props.item.episode}>
             {(episode) => (
               <span class="text-muted-foreground truncate text-sm">
-                <Link class="hover:underline" title={episode().showTitle} {...episode().showUrl}>
+                <Link
+                  class="hover:underline"
+                  title={episode().showTitle}
+                  {...episode().showUrl}
+                >
                   {episode().showTitle}
                 </Link>
                 {` · ${episode().numbering}`}
@@ -55,7 +67,9 @@ export function ListContentTile(props: Props) {
   );
 }
 
-export function ListContentTileSkeleton(props: { aspect?: "poster" | "video" }) {
+export function ListContentTileSkeleton(props: {
+  aspect?: "poster" | "video";
+}) {
   return (
     <Skeleton
       class={cn(

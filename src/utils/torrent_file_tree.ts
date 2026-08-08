@@ -1,4 +1,4 @@
-import { Schemas } from "./serverApi";
+import type { Schemas } from "./serverApi";
 
 export type Entry = File | Directory;
 
@@ -31,7 +31,8 @@ export function buildFileTree(files: Schemas["StateFile"][]): Entry[] {
 
         // Find or create directory
         let fileDirectory: Directory | undefined = currentChildren.find(
-          (c): c is Directory => "children" in c && c.path[c.path.length - 1] === part,
+          (c): c is Directory =>
+            "children" in c && c.path[c.path.length - 1] === part,
         );
 
         if (!fileDirectory) {
@@ -50,7 +51,7 @@ export function buildFileTree(files: Schemas["StateFile"][]): Entry[] {
         // Accumulate size
         fileDirectory.size += file.size;
         fileDirectory.end_piece = file.end_piece;
-        if (file.priority != fileDirectory.priority) {
+        if (file.priority !== fileDirectory.priority) {
           fileDirectory.priority = "mixed";
         }
 

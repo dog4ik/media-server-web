@@ -1,11 +1,14 @@
+import clsx from "clsx";
 import { createSignal, ErrorBoundary, For, Show, Suspense } from "solid-js";
+import AddFoldersHelp from "@/components/AddFoldersHelp";
+import {
+  ContentFilterBar,
+  DEFAULT_FILTER_STATE,
+} from "@/components/ContentFilterBar";
+import { errorBoundaryFallback } from "@/components/Error";
+import { queryApi } from "@/utils/queryApi";
 import { ShowCard, ShowCardSkeleton } from "../components/Cards/ShowCard";
 import { ElementsGrid } from "../components/ElementsGrid";
-import AddFoldersHelp from "@/components/AddFoldersHelp";
-import { queryApi } from "@/utils/queryApi";
-import { errorBoundaryFallback } from "@/components/Error";
-import { ContentFilterBar, DEFAULT_FILTER_STATE } from "@/components/ContentFilterBar";
-import clsx from "clsx";
 
 export default function Shows() {
   let [filterState, setFilterState] = createSignal(DEFAULT_FILTER_STATE);
@@ -32,14 +35,22 @@ export default function Shows() {
         }}
       />
       <ErrorBoundary fallback={errorBoundaryFallback("Failed to fetch shows")}>
-        <Show when={shows.latest() !== undefined && shows.latest()?.data.length === 0}>
+        <Show
+          when={
+            shows.latest() !== undefined && shows.latest()?.data.length === 0
+          }
+        >
           <AddFoldersHelp contentType="show" />
         </Show>
         <ElementsGrid elementSize={250}>
-          <Suspense fallback={<>{[...Array(7)].map(ShowCardSkeleton)}</>}>
+          <Suspense fallback={[...Array(7)].map(ShowCardSkeleton)}>
             <For each={shows.data?.data}>
               {(show) => (
-                <div class={clsx(shows.isFetching && shows.isPlaceholderData && "opacity-50")}>
+                <div
+                  class={clsx(
+                    shows.isFetching && shows.isPlaceholderData && "opacity-50",
+                  )}
+                >
                   <ShowCard show={show} />
                 </div>
               )}

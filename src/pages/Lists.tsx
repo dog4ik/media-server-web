@@ -1,21 +1,35 @@
-import { Component, createSignal, ErrorBoundary, For, Show, Suspense } from "solid-js";
-import { Dynamic } from "solid-js/web";
 import { Link } from "@tanstack/solid-router";
-import Plus from "lucide-solid/icons/plus";
-import Clock from "lucide-solid/icons/clock";
 import Bookmark from "lucide-solid/icons/bookmark";
+import Clock from "lucide-solid/icons/clock";
 import ListVideo from "lucide-solid/icons/list-video";
-import PageTitle from "@/components/PageTitle";
-import { queryApi, queryClient } from "@/utils/queryApi";
-import { errorBoundaryFallback } from "@/components/Error";
-import { Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle } from "@/ui/card";
-import { Button } from "@/ui/button";
-import { Skeleton } from "@/ui/skeleton";
-import MoreButton from "@/components/ContextMenu/MoreButton";
+import Plus from "lucide-solid/icons/plus";
+import {
+  type Component,
+  createSignal,
+  ErrorBoundary,
+  For,
+  Show,
+  Suspense,
+} from "solid-js";
+import { Dynamic } from "solid-js/web";
 import { MenuRow } from "@/components/ContextMenu/Menu";
-import promptConfirm from "@/components/modals/ConfirmationModal";
+import MoreButton from "@/components/ContextMenu/MoreButton";
+import { errorBoundaryFallback } from "@/components/Error";
 import { ListFormDialog } from "@/components/Lists/ListFormDialog";
+import promptConfirm from "@/components/modals/ConfirmationModal";
+import PageTitle from "@/components/PageTitle";
 import { invalidateListQueries } from "@/lib/lists";
+import { Button } from "@/ui/button";
+import {
+  Card,
+  CardAction,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/ui/card";
+import { Skeleton } from "@/ui/skeleton";
+import { queryApi } from "@/utils/queryApi";
 import type { Schemas } from "@/utils/serverApi";
 
 type ListCardProps = {
@@ -36,11 +50,16 @@ function ListCard(props: ListCardProps) {
             params={{ id: props.list.id.toString() }}
             class="flex items-center gap-2 after:absolute after:inset-0"
           >
-            <Dynamic component={props.icon} class="text-muted-foreground size-4 shrink-0" />
+            <Dynamic
+              component={props.icon}
+              class="text-muted-foreground size-4 shrink-0"
+            />
             <span class="truncate">{props.list.name}</span>
           </Link>
         </CardTitle>
-        <CardDescription class="line-clamp-2 min-h-5">{props.list.description}</CardDescription>
+        <CardDescription class="line-clamp-2 min-h-5">
+          {props.list.description}
+        </CardDescription>
         <Show when={props.onEdit}>
           <CardAction class="relative z-10">
             <MoreButton>
@@ -87,7 +106,9 @@ export default function Lists() {
   }));
 
   async function handleDelete(list: Schemas["List"]) {
-    if (await promptConfirm(`Are you sure you want to delete "${list.name}"?`)) {
+    if (
+      await promptConfirm(`Are you sure you want to delete "${list.name}"?`)
+    ) {
       deleteList.mutate({ params: { path: { id: list.id } } });
     }
   }
@@ -127,7 +148,8 @@ export default function Lists() {
                 when={lists.data?.custom.length}
                 fallback={
                   <p class="text-muted-foreground">
-                    You don't have any custom lists yet. Create one to organize your library.
+                    You don't have any custom lists yet. Create one to organize
+                    your library.
                   </p>
                 }
               >

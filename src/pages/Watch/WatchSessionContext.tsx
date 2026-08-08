@@ -1,9 +1,8 @@
-import { Video } from "@/utils/library";
-import { Schemas } from "@/utils/serverApi";
-import tracing from "@/utils/tracing";
-import Hls from "hls.js";
-import { ParentProps, createContext, useContext } from "solid-js";
+import type Hls from "hls.js";
+import { createContext, type ParentProps, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
+import type { Schemas } from "@/utils/serverApi";
+import tracing from "@/utils/tracing";
 
 type WatchSessionContextType = ReturnType<typeof createWatchSessionContext>;
 
@@ -25,15 +24,15 @@ type WatchSession = {
 };
 
 function createWatchSessionContext() {
-  let [store, setStore] = createStore<WatchSession>({
+  const [store, _setStore] = createStore<WatchSession>({
     hls: undefined,
     video: undefined,
   });
 
   async function createSession(
-    video: HTMLVideoElement,
-    audioTrack: Schemas["DetailedAudioTrack"],
-    videoTrack: Schemas["DetailedVideoTrack"],
+    _video: HTMLVideoElement,
+    _audioTrack: Schemas["DetailedAudioTrack"],
+    _videoTrack: Schemas["DetailedVideoTrack"],
   ) {}
 
   async function destroySession() {}
@@ -51,6 +50,8 @@ type Props = {} & ParentProps;
 export default function WatchSessionProvider(props: Props) {
   let context = () => createWatchSessionContext();
   return (
-    <WatchSessionContext.Provider value={context()}>{props.children}</WatchSessionContext.Provider>
+    <WatchSessionContext.Provider value={context()}>
+      {props.children}
+    </WatchSessionContext.Provider>
   );
 }

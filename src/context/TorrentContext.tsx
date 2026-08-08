@@ -1,41 +1,38 @@
 import {
-  ParentProps,
-  createContext,
-  createMemo,
-  createSignal,
-  onCleanup,
-  useContext,
-} from "solid-js";
-import { Schemas, server } from "@/utils/serverApi";
-import { createStore, produce, SetStoreFunction } from "solid-js/store";
-import { useServerStatus } from "./ServerStatusContext";
-import tracing from "@/utils/tracing";
-import { hexHash } from "@/utils/formats";
-import { ServerConnection } from "@/utils/serverStatus";
-import {
-  ColumnFiltersState,
+  type ColumnFiltersState,
   createSolidTable,
-  ExpandedState,
+  type ExpandedState,
   getCoreRowModel,
   getExpandedRowModel,
   getFilteredRowModel,
   getSortedRowModel,
-  SortingState,
-  VisibilityState,
+  type SortingState,
+  type VisibilityState,
 } from "@tanstack/solid-table";
+import {
+  createContext,
+  createMemo,
+  createSignal,
+  onCleanup,
+  type ParentProps,
+} from "solid-js";
+import { createStore, produce, type SetStoreFunction } from "solid-js/store";
 import { TORRENT_TABLE_COLUMNS } from "@/components/Torrent/TorrentTable";
-import { PersistentTableState } from "@/utils/persistent_table_state";
 import { BitField } from "@/lib/bitfield";
+import { useRequiredContext } from "@/lib/context";
+import { hexHash } from "@/utils/formats";
+import { PersistentTableState } from "@/utils/persistent_table_state";
+import { type Schemas, server } from "@/utils/serverApi";
+import type { ServerConnection } from "@/utils/serverStatus";
+import tracing from "@/utils/tracing";
+import { useServerStatus } from "./ServerStatusContext";
 
 type TorrentContextType = ReturnType<typeof createTorrentContext>;
 
 export const TorrentContext = createContext<TorrentContextType>();
 
-export const useTorrentContext = () => {
-  let ctx = useContext(TorrentContext)!;
-  if (!ctx) throw Error("torrent context is not available");
-  return ctx;
-};
+export const useTorrentContext = () =>
+  useRequiredContext(TorrentContext, "TorrentContext");
 
 export type FilterType = Schemas["DownloadState"]["type"] | "all";
 
@@ -72,7 +69,9 @@ function createTorrentContext(sessionState: TorrentStateManager) {
     persintentVisibily.loadVisibilityState() ?? {},
   );
 
-  const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>(
+    [],
+  );
   const [expanded, setExpanded] = createSignal<ExpandedState>({});
   const [sorting, setSorting] = createSignal<SortingState>([]);
   let table = createSolidTable({
@@ -107,8 +106,13 @@ function createTorrentContext(sessionState: TorrentStateManager) {
       persintentVisibily.saveVisibilyState(columnVisibility());
     },
     onExpandedChange: (newExpanded) => {
-      const nextExpanded = typeof newExpanded === "function" ? newExpanded({}) : newExpanded;
-      setExpanded(Object.keys(expanded())[0] === Object.keys(nextExpanded)[0] ? {} : nextExpanded);
+      const nextExpanded =
+        typeof newExpanded === "function" ? newExpanded({}) : newExpanded;
+      setExpanded(
+        Object.keys(expanded())[0] === Object.keys(nextExpanded)[0]
+          ? {}
+          : nextExpanded,
+      );
     },
     autoResetExpanded: true,
     getCoreRowModel: getCoreRowModel(),
@@ -150,16 +154,26 @@ export function TorrentProvider(props: ContextProps) {
   }
 
   return (
-    <TorrentContext.Provider value={_torrentContextValue}>{props.children}</TorrentContext.Provider>
+    <TorrentContext.Provider value={_torrentContextValue}>
+      {props.children}
+    </TorrentContext.Provider>
   );
 }
 
-export type ExtendedTorrentState = Omit<Schemas["TorrentState"], "downloaded_pieces"> & {
+export type ExtendedTorrentState = Omit<
+  Schemas["TorrentState"],
+  "downloaded_pieces"
+> & {
   downloaded_pieces: BitField;
 };
 
-function extendTorrentState(torrent: Schemas["TorrentState"]): ExtendedTorrentState {
-  return { ...torrent, downloaded_pieces: BitField.fromBase64(torrent.downloaded_pieces) };
+function extendTorrentState(
+  torrent: Schemas["TorrentState"],
+): ExtendedTorrentState {
+  return {
+    ...torrent,
+    downloaded_pieces: BitField.fromBase64(torrent.downloaded_pieces),
+  };
 }
 
 type ManagerStateType = Omit<Schemas["SessionState"], "torrents"> & {
@@ -181,11 +195,17 @@ export class TorrentStateManager {
     tracing.debug("State manager made session context");
   }
 
-  static intoManagerState({ session_stats, torrents }: Schemas["SessionState"]): ManagerStateType {
+  static intoManagerState({
+    session_stats,
+    torrents,
+  }: Schemas["SessionState"]): ManagerStateType {
     return {
       session_stats,
       torrents: torrents.reduce(
-        (acc, n) => ((acc[n.info_hash] = extendTorrentState(n)), acc),
+        (acc, n) => {
+          acc[n.info_hash] = extendTorrentState(n);
+          return acc;
+        },
         {} as Record<string, ExtendedTorrentState>,
       ),
     };
@@ -195,7 +215,9 @@ export class TorrentStateManager {
     serverConnection.setTorrentHandler(this.torrentProgressHandler.bind(this));
   }
 
-  private torrentProgressHandler(progress: Schemas["Progress"] | Schemas["SessionState"]) {
+  private torrentProgressHandler(
+    progress: Schemas["Progress"] | Schemas["SessionState"],
+  ) {
     if ("session_stats" in progress) {
       this.setSession(TorrentStateManager.intoManagerState(progress));
       return;
@@ -208,12 +230,15 @@ export class TorrentStateManager {
       produce((map) => {
         TorrentStateManager.applySessionEvents(map, progress.session_events);
         TorrentStateManager.applyTorrentEvents(map, progress.changed_torrents);
-      })
+      }),
     );
   }
 
-  private static applySessionEvents(torrentMap: Record<string, ExtendedTorrentState>, events: Schemas["SessionEvent"][]) {
-    for (let event of events) {
+  private static applySessionEvents(
+    torrentMap: Record<string, ExtendedTorrentState>,
+    events: Schemas["SessionEvent"][],
+  ) {
+    for (const event of events) {
       if (event.kind === "torrentadd") {
         torrentMap[event.state.info_hash] = extendTorrentState(event.state);
       } else if (event.kind === "torrentremove") {
@@ -226,30 +251,30 @@ export class TorrentStateManager {
     torrentMap: Record<string, ExtendedTorrentState>,
     changedTorrents: Schemas["TorrentUpdate"][],
   ) {
-    for (let torrentUpdate of changedTorrents) {
+    for (const torrentUpdate of changedTorrents) {
       let hexInfoHash = hexHash(torrentUpdate.info_hash);
       let torrent = torrentMap[hexInfoHash];
       let torrentHandler = new TorrentProgressHandler(torrent);
       torrent.upload_speed = torrentUpdate.upload_speed;
       torrent.download_speed = torrentUpdate.download_speed;
       torrent.state = torrentUpdate.state;
-      torrent.percent = (torrentUpdate.total_downloaded / torrent.total_size) * 100;
-      for (let event of torrentUpdate.events) {
-        if (event.event_kind == "tracker") {
+      torrent.percent =
+        (torrentUpdate.total_downloaded / torrent.total_size) * 100;
+      for (const event of torrentUpdate.events) {
+        if (event.event_kind === "tracker") {
           torrentHandler.applyTrackerUpdate(event);
           continue;
         }
-        if (event.event_kind == "peer") {
+        if (event.event_kind === "peer") {
           torrentHandler.applyPeerUpdate(event);
           continue;
         }
-        if (event.event_kind == "storagepiece") {
+        if (event.event_kind === "storagepiece") {
           torrentHandler.applyPieceUpdate(event);
           continue;
         }
-        if (event.event_kind == "storagefile") {
+        if (event.event_kind === "storagefile") {
           torrentHandler.applyFileUpdate(event);
-          continue;
         }
       }
     }
@@ -266,12 +291,12 @@ class TorrentProgressHandler {
   constructor(private torrent: ExtendedTorrentState) {}
 
   applyTrackerUpdate({ tracker_event, url }: Schemas["TrackerEvent"]) {
-    let trackerIdx = this.torrent.trackers.findIndex((t) => t.url == url);
-    if (trackerIdx == -1) {
+    let trackerIdx = this.torrent.trackers.findIndex((t) => t.url === url);
+    if (trackerIdx === -1) {
       return tracing.warn({ url }, `Event for unhandled tracker`);
     }
     let tracker = this.torrent.trackers[trackerIdx];
-    if (tracker_event.kind == "reannounce") {
+    if (tracker_event.kind === "reannounce") {
       tracing.trace(
         { url },
         `Received reannounce event with new interval: ${tracker_event.interval} ms`,
@@ -282,21 +307,21 @@ class TorrentProgressHandler {
   }
 
   applyPeerUpdate({ peer_event, ip }: Schemas["PeerEvent"]) {
-    if (peer_event.kind == "connect") {
+    if (peer_event.kind === "connect") {
       return this.torrent.peers.push(peer_event.state);
     }
 
-    let peerIdx = this.torrent.peers.findIndex((p) => p.addr == ip);
-    if (peerIdx == -1) {
+    let peerIdx = this.torrent.peers.findIndex((p) => p.addr === ip);
+    if (peerIdx === -1) {
       return tracing.error({ ip }, `Event for unhandled peer`);
     }
 
-    if (peer_event.kind == "disconnect") {
+    if (peer_event.kind === "disconnect") {
       this.torrent.peers.splice(peerIdx, 1);
     }
 
     let peer = this.torrent.peers[peerIdx];
-    if (peer_event.kind == "statupdate") {
+    if (peer_event.kind === "statupdate") {
       tracing.trace({ ip }, `Received stats update for peer`);
       peer.downloaded = peer_event.downloaded;
       peer.download_speed = peer_event.download_speed;
@@ -317,7 +342,10 @@ class TorrentProgressHandler {
 
   applyFileUpdate({ idx, file_event }: Schemas["StorageFileEvent"]) {
     if (file_event.kind === "prioritychange") {
-      tracing.trace({ priority: file_event.priority, file_idx: idx }, `Priority change event`);
+      tracing.trace(
+        { priority: file_event.priority, file_idx: idx },
+        `Priority change event`,
+      );
       this.torrent.files[idx].priority = file_event.priority;
     }
   }

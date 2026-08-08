@@ -1,10 +1,10 @@
-import PageTitle from "../PageTitle";
-import { TranscodeTasks } from "./TranscodeTasks";
-import { PreviewsTasks } from "./PreviewsTasks";
-import { useServerStatus } from "@/context/ServerStatusContext";
-import { WatchSessions } from "./WatchSessions";
 import { ErrorBoundary } from "solid-js";
+import { useServerStatus } from "@/context/ServerStatusContext";
 import { errorBoundaryFallback } from "../Error";
+import PageTitle from "../PageTitle";
+import { PreviewsTasks } from "./PreviewsTasks";
+import { TranscodeTasks } from "./TranscodeTasks";
+import { WatchSessions } from "./WatchSessions";
 
 export default function Activity() {
   let [{ tasks }] = useServerStatus();

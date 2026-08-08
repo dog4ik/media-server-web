@@ -1,4 +1,4 @@
-import { Schemas } from "../../serverApi";
+import type { Schemas } from "../../serverApi";
 
 const HEVC_PROFILES_DESC = {
   1: "Main",
@@ -18,7 +18,7 @@ export function getHevcVideo(idc: number, level: number) {
   let base = "hev1";
   let constraints = "b0";
   // idc 1 == Main
-  let weirdNumber = idc == 1 ? 6 : 4;
+  let weirdNumber = idc === 1 ? 6 : 4;
   return `${base}.${idc}.${weirdNumber}.L${level}.${constraints}`;
 }
 const HVEC_LEVEL_TO_LUMA = {
@@ -41,12 +41,15 @@ export function profileDescription(idc: number) {
   return HEVC_PROFILES_DESC[idc as keyof typeof HEVC_PROFILES_DESC];
 }
 
-export function getMaxHEVCLevel(resolution: Schemas["Resolution"], framerate: number) {
+export function getMaxHEVCLevel(
+  resolution: Schemas["Resolution"],
+  framerate: number,
+) {
   let { width, height } = resolution;
   let sum = width * height * framerate;
   let maxLumaSampleRate = sum + sum / 15;
   let level = HVEC_LEVEL_TO_LUMA[1];
-  for (let [key, value] of Object.entries(HVEC_LEVEL_TO_LUMA)) {
+  for (const [key, value] of Object.entries(HVEC_LEVEL_TO_LUMA)) {
     if (!level || maxLumaSampleRate < value) {
       level = +key;
     }

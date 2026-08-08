@@ -1,14 +1,14 @@
-import { fullUrl, Schemas, server } from "@/utils/serverApi";
-import { HlsSession } from "./hls";
-import { ProgressiveDownload } from "./progressive_download";
-import { throwResponseErrors } from "@/utils/errors";
-import { Compatibility } from "@/utils/mediaCapabilities";
-import { Video } from "@/utils/library";
-import tracing from "@/utils/tracing";
 import {
   isBrowserAudioTracksSupported,
   isBrowserVideoTracksSupported,
 } from "@/pages/Watch/TracksSelectionContext";
+import { throwResponseErrors } from "@/utils/errors";
+import type { Video } from "@/utils/library";
+import type { Compatibility } from "@/utils/mediaCapabilities";
+import { fullUrl, type Schemas, server } from "@/utils/serverApi";
+import tracing from "@/utils/tracing";
+import { HlsSession } from "./hls";
+import { ProgressiveDownload } from "./progressive_download";
 
 export interface PlaybackMethod {
   attach(video: HTMLVideoElement, contentUrl: string): Promise<void>;
@@ -58,15 +58,22 @@ export class MediaSessionState {
     let can_use_direct_stream =
       compatibility.combined?.supported &&
       this.video.isContainerSupported() &&
-      (this.configuration.video_track === 0 || isBrowserVideoTracksSupported()) &&
+      (this.configuration.video_track === 0 ||
+        isBrowserVideoTracksSupported()) &&
       (this.configuration.audio_track === 0 || isBrowserAudioTracksSupported());
 
     if (can_use_direct_stream) {
       session_id = await this.createDirectSession(video_element);
-      await this.session?.method.attach(video_element, directStreamUrl(this.video.details.id));
+      await this.session?.method.attach(
+        video_element,
+        directStreamUrl(this.video.details.id),
+      );
     } else {
       session_id = await this.createHlsSession(video_element, compatibility);
-      await this.session?.method.attach(video_element, hlsStreamUrl(session_id));
+      await this.session?.method.attach(
+        video_element,
+        hlsStreamUrl(session_id),
+      );
     }
     return session_id;
   }
@@ -97,15 +104,20 @@ export class MediaSessionState {
       return;
     }
     this.configuration = new_config;
-    return await this.start(this.session!.video_element);
+    let session = this.session;
+    if (!session) {
+      tracing.warn("Changed configuration before playback started");
+      return;
+    }
+    return await this.start(session.video_element);
   }
 
   private async createHlsSession(
     video_element: HTMLVideoElement,
     compatibility: Partial<Compatibility>,
   ) {
-    let audio_codec: Schemas["AudioCodec"] | undefined = undefined;
-    let video_codec: Schemas["VideoCodec"] | undefined = undefined;
+    let audio_codec: Schemas["AudioCodec"] | undefined;
+    let video_codec: Schemas["VideoCodec"] | undefined;
     if (!compatibility.audio?.supported) {
       audio_codec = "aac";
     }

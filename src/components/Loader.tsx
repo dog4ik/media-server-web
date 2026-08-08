@@ -1,5 +1,11 @@
+import {
+  createSignal,
+  onCleanup,
+  type ParentProps,
+  Show,
+  Suspense,
+} from "solid-js";
 import tracing from "@/utils/tracing";
-import { createSignal, onCleanup, ParentProps, Show, Suspense } from "solid-js";
 
 type Props = {
   showDelay?: number;
@@ -7,10 +13,10 @@ type Props = {
 };
 
 export default function Loader(props: Props) {
-  let [show, setShow] = createSignal(props.showDelay ? false : true);
+  let [show, setShow] = createSignal(!props.showDelay);
   tracing.debug(`Loading ${props.title}`);
 
-  let timeout: ReturnType<typeof setTimeout> | undefined = undefined;
+  let timeout: ReturnType<typeof setTimeout> | undefined;
   if (props.showDelay !== undefined) {
     timeout = setTimeout(() => setShow(true), props.showDelay);
   }
@@ -23,7 +29,13 @@ export default function Loader(props: Props) {
   return (
     <div class="flex size-full items-center justify-center">
       <Show when={show()}>
-        <img class="animate-ping" src="/monkaw.webp" height={60} width={60} />
+        <img
+          class="animate-ping"
+          src="/monkaw.webp"
+          alt=""
+          height={60}
+          width={60}
+        />
       </Show>
     </div>
   );
@@ -41,6 +53,8 @@ export function SuspenseLoader(props: SuspenseLoaderProps & ParentProps) {
     tracing.trace({ name: props.name, end }, "[Suspense] Mount end");
   });
   return (
-    <Suspense fallback={<Loader title={props.name} showDelay={100} />}>{props.children}</Suspense>
+    <Suspense fallback={<Loader title={props.name} showDelay={100} />}>
+      {props.children}
+    </Suspense>
   );
 }

@@ -1,4 +1,4 @@
-import { Schemas } from "../../serverApi";
+import type { Schemas } from "../../serverApi";
 
 const AVC_PROFILES_DESC = [
   { profile_idc: 66, profile: "Baseline", constraintFlag: 0 },
@@ -65,21 +65,24 @@ const LEVELS = {
 } as const;
 
 export function getAVCCodec(idc: number, level: number) {
-  let description = AVC_PROFILES_DESC.find((d) => d.profile_idc == idc);
+  let description = AVC_PROFILES_DESC.find((d) => d.profile_idc === idc);
   if (!description) return undefined;
   let encodedLevel = level.toString(16).padStart(2, "0");
   let encodedFlag = description.constraintFlag.toString(16).padStart(2, "0");
   let encodedProfile = description.profile_idc.toString(16).padStart(2, "0");
-  let codec = "avc1." + encodedProfile + encodedFlag + encodedLevel;
+  let codec = `avc1.${encodedProfile}${encodedFlag}${encodedLevel}`;
 
   return codec;
 }
 
-export function getMaxAVCLevel(resolution: Schemas["Resolution"], framerate: number) {
+export function getMaxAVCLevel(
+  resolution: Schemas["Resolution"],
+  framerate: number,
+) {
   let { width, height } = resolution;
   let macroblocks = Math.ceil(width / 16) * Math.ceil(height / 16) * framerate;
-  let level: keyof typeof LEVELS | undefined = undefined;
-  for (let [levelName, levelMacroblocks] of Object.entries(LEVELS)) {
+  let level: keyof typeof LEVELS | undefined;
+  for (const [levelName, levelMacroblocks] of Object.entries(LEVELS)) {
     if (levelMacroblocks > macroblocks) {
       if (!level || (level && levelMacroblocks < LEVELS[level])) {
         level = +levelName as keyof typeof LEVELS;

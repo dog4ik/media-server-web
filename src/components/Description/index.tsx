@@ -1,11 +1,11 @@
-import { For, ParentProps, Show } from "solid-js";
-import { Schemas } from "../../utils/serverApi";
-import FallbackImage from "../FallbackImage";
-import { WatchProgressBar } from "../Cards/ProgressBar";
-import { Link, LinkOptions } from "@tanstack/solid-router";
-import { Skeleton } from "@/ui/skeleton";
+import { Link, type LinkOptions } from "@tanstack/solid-router";
 import clsx from "clsx";
+import { For, type ParentProps, Show } from "solid-js";
 import { GenreMap } from "@/lib/genres";
+import { Skeleton } from "@/ui/skeleton";
+import type { Schemas } from "../../utils/serverApi";
+import { WatchProgressBar } from "../Cards/ProgressBar";
+import FallbackImage from "../FallbackImage";
 
 type AdditionalInfo = {
   info: string;
@@ -29,7 +29,7 @@ function Addition(props: { data: AdditionalInfo[] }) {
   return (
     <For each={props.data}>
       {(content, i) => {
-        let isLast = i() == props.data.length - 1;
+        let isLast = i() === props.data.length - 1;
         return (
           <Show
             when={content.link}
@@ -65,7 +65,7 @@ export function Description(props: Props & ParentProps) {
     <div class="flex w-full flex-col gap-6 md:flex-row md:gap-8">
       <div
         class={`${
-          imageDirection() == "horizontal"
+          imageDirection() === "horizontal"
             ? "aspect-video w-full max-w-sm sm:w-80"
             : "aspect-poster w-44 max-w-full sm:w-52"
         } relative shrink-0 overflow-hidden rounded-xl`}
@@ -73,14 +73,17 @@ export function Description(props: Props & ParentProps) {
         <FallbackImage
           fluid
           alt="Description image"
-          width={imageDirection() == "horizontal" ? 320 : 208}
+          width={imageDirection() === "horizontal" ? 320 : 208}
           class="rounded-xl"
-          height={imageDirection() == "horizontal" ? 180 : 312}
+          height={imageDirection() === "horizontal" ? 180 : 312}
           srcList={props.posterList}
         />
         <Show when={props.progress}>
           {(progress) => (
-            <WatchProgressBar history={progress().history} runtime={progress().runtime} />
+            <WatchProgressBar
+              history={progress().history}
+              runtime={progress().runtime}
+            />
           )}
         </Show>
       </div>
@@ -89,14 +92,20 @@ export function Description(props: Props & ParentProps) {
           <span>{props.title}</span>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <Show when={props.additionalInfo}>{(info) => <Addition data={info()} />}</Show>
-          <Show when={props.releaseDate}>{(date) => <span>{date()}</span>}</Show>
-          <For each={props.genres}>{(genre) => <span>{GenreMap[genre]}</span>}</For>
+          <Show when={props.additionalInfo}>
+            {(info) => <Addition data={info()} />}
+          </Show>
+          <Show when={props.releaseDate}>
+            {(date) => <span>{date()}</span>}
+          </Show>
+          <For each={props.genres}>
+            {(genre) => <span>{GenreMap[genre]}</span>}
+          </For>
         </div>
         <Show when={props.plot && props.plot.length > 0}>
           <p
             title={props.plot ?? undefined}
-            class={`${imageDirection() == "horizontal" ? "line-clamp-4" : "line-clamp-5"} max-w-5xl`}
+            class={`${imageDirection() === "horizontal" ? "line-clamp-4" : "line-clamp-5"} max-w-5xl`}
           >
             {props.plot}
           </p>
@@ -112,7 +121,7 @@ export function DescriptionSkeleton(props: { direction: ImageDirection }) {
     <div class="flex w-full flex-col gap-6 md:flex-row md:gap-8">
       <Skeleton
         class={clsx(
-          props.direction == "horizontal"
+          props.direction === "horizontal"
             ? "aspect-video w-full max-w-sm sm:w-80"
             : "aspect-poster w-44 sm:w-52",
           "h-auto shrink-0",

@@ -1,3 +1,5 @@
+import { QueryClientProvider } from "@tanstack/solid-query";
+import { SolidQueryDevtools } from "@tanstack/solid-query-devtools";
 import {
   createRootRouteWithContext,
   createRoute,
@@ -5,6 +7,10 @@ import {
   linkOptions,
   Outlet,
 } from "@tanstack/solid-router";
+import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
+import { Suspense } from "solid-js";
+import { ErrorComponent } from "@/components/Error";
+import { ColorSettingsPage } from "@/pages/Settings/ClientSettings";
 import {
   type Crumb,
   EpisodeTitleCrumb,
@@ -12,36 +18,30 @@ import {
   MovieTitleCrumb,
   ShowTitleCrumb,
 } from "./components/Breadcrumbs";
-import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
-import Dashboard from "./pages/Dashboard";
-import Home from "./pages/Home";
-import Movies from "./pages/Movies";
-import Movie from "./pages/Movie";
-import Shows from "./pages/Shows";
-import ShowPage from "./pages/Show";
-import Episode from "./pages/Episode";
-import Torrent from "./pages/Torrent";
-import Lists from "./pages/Lists";
-import ListDetails from "./pages/ListDetails";
-import GeneralSettingsPage from "./pages/Settings";
-import TestPage from "./pages/TestPage";
-import SearchPage from "./pages/Search";
-import PageLayout from "./layouts/PageLayout";
-import Layout from "./Layout";
-import { Schemas } from "./utils/serverApi";
-import WatchLayout from "./layouts/WatchLayout";
-import { WatchMovie, WatchShow } from "./pages/Watch";
-import tracing from "./utils/tracing";
-import { queryApi, queryClient } from "./utils/queryApi";
-import { QueryClientProvider } from "@tanstack/solid-query";
-import { SolidQueryDevtools } from "@tanstack/solid-query-devtools";
-import History from "./pages/Settings/History";
-import { Suspense } from "solid-js";
-import { ColorSettingsPage } from "@/pages/Settings/ClientSettings";
-import { ErrorComponent } from "@/components/Error";
-import { SettingsLayout } from "./layouts/SettingsLayout";
-import { ResourcesPage } from "./pages/Settings/Resources";
 import { DEFAULT_FILTER_STATE } from "./components/ContentFilterBar";
+import Layout from "./Layout";
+import PageLayout from "./layouts/PageLayout";
+import { SettingsLayout } from "./layouts/SettingsLayout";
+import WatchLayout from "./layouts/WatchLayout";
+import Dashboard from "./pages/Dashboard";
+import Episode from "./pages/Episode";
+import Home from "./pages/Home";
+import ListDetails from "./pages/ListDetails";
+import Lists from "./pages/Lists";
+import Movie from "./pages/Movie";
+import Movies from "./pages/Movies";
+import SearchPage from "./pages/Search";
+import GeneralSettingsPage from "./pages/Settings";
+import History from "./pages/Settings/History";
+import { ResourcesPage } from "./pages/Settings/Resources";
+import ShowPage from "./pages/Show";
+import Shows from "./pages/Shows";
+import TestPage from "./pages/TestPage";
+import Torrent from "./pages/Torrent";
+import { WatchMovie, WatchShow } from "./pages/Watch";
+import { queryApi, queryClient } from "./utils/queryApi";
+import type { Schemas } from "./utils/serverApi";
+import tracing from "./utils/tracing";
 
 type RouterContext = {
   crumbs?: Crumb[];
@@ -96,14 +96,25 @@ const watchRoute = createRoute({
   validateSearch: validateWatchParams,
 });
 
-const PROVIDERS: (Schemas["MetadataProvider"] | {})[] = ["local", "tmdb", "tvdb", "imdb"];
+const PROVIDERS: Schemas["MetadataProvider"][] = [
+  "local",
+  "tmdb",
+  "tvdb",
+  "imdb",
+];
+
+function isProvider(value: unknown): value is Schemas["MetadataProvider"] {
+  return PROVIDERS.includes(value as Schemas["MetadataProvider"]);
+}
 
 type MediaProviderParm = { provider: Schemas["MetadataProvider"] };
 
-function validateProviderParam(search: Record<string, unknown>): MediaProviderParm {
+function validateProviderParam(
+  search: Record<string, unknown>,
+): MediaProviderParm {
   let provider = search.provider;
-  if (typeof provider == "string" && PROVIDERS.includes(provider)) {
-    return { provider: search.provider as Schemas["MetadataProvider"] };
+  if (isProvider(provider)) {
+    return { provider };
   } else {
     return { provider: "local" };
   }
@@ -113,7 +124,7 @@ type SeasonParams = { provider: Schemas["MetadataProvider"]; season?: number };
 
 function validateSeasonParams(search: Record<string, unknown>): SeasonParams {
   let { provider } = validateProviderParam(search);
-  if (search.season === "string") {
+  if (typeof search.season === "string") {
     return { provider, season: +search.season };
   } else {
     return { provider };
@@ -123,9 +134,9 @@ function validateSeasonParams(search: Record<string, unknown>): SeasonParams {
 type SearchParams = { provider?: Schemas["MetadataProvider"]; search: string };
 
 function validateSearchParams(search: Record<string, unknown>): SearchParams {
-  let provider: Schemas["MetadataProvider"] | undefined = undefined;
-  if (typeof search.provider === "string" && PROVIDERS.includes(search.provider)) {
-    provider = search.provider as Schemas["MetadataProvider"];
+  let provider: Schemas["MetadataProvider"] | undefined;
+  if (isProvider(search.provider)) {
+    provider = search.provider;
   }
   let searchQuery = "";
   if (typeof search.search === "string") {
@@ -137,8 +148,8 @@ function validateSearchParams(search: Record<string, unknown>): SearchParams {
 type WatchParams = { variant_id?: string; video_id: number };
 
 function validateWatchParams(search: Record<string, unknown>): WatchParams {
-  let variant_id: string | undefined = undefined;
-  let video_id: number | undefined = undefined;
+  let variant_id: string | undefined;
+  let video_id: number | undefined;
   if (typeof search.variant_id === "string") {
     variant_id = search.provider as Schemas["MetadataProvider"];
   }
@@ -162,7 +173,11 @@ const showOpts = (id: string, provider: Schemas["MetadataProvider"]) =>
     params: { query: { provider }, path: { id } },
   }));
 
-const seasonOpts = (id: string, season: number, provider: Schemas["MetadataProvider"]) =>
+const seasonOpts = (
+  id: string,
+  season: number,
+  provider: Schemas["MetadataProvider"],
+) =>
   queryApi.queryOptions("get", "/api/show/{id}/{season}", () => ({
     params: { path: { id, season }, query: { provider } },
   }));
@@ -182,7 +197,8 @@ const byContentOpts = (content_type: "movie" | "show", id: number) =>
     params: { query: { content_type, id } },
   }));
 
-const capabilitiesOpts = () => queryApi.queryOptions("get", "/api/configuration/capabilities");
+const capabilitiesOpts = () =>
+  queryApi.queryOptions("get", "/api/configuration/capabilities");
 
 const allListsOpts = () => queryApi.queryOptions("get", "/api/lists");
 
@@ -253,7 +269,9 @@ const movieRoute = createRoute({
     crumbs: [
       { label: "Movies", link: linkOptions({ to: "/movies" }) },
       {
-        label: () => <MovieTitleCrumb id={params.id} provider={search.provider} />,
+        label: () => (
+          <MovieTitleCrumb id={params.id} provider={search.provider} />
+        ),
         link: linkOptions({ to: "/movies/$id", params, search }),
       },
     ],
@@ -261,7 +279,9 @@ const movieRoute = createRoute({
   loaderDeps: ({ search }) => ({ provider: search.provider }),
   loader: async ({ params, deps }) => {
     // Blocking: head needs the title/plot
-    const movie = await queryClient.ensureQueryData(movieOpts(params.id, deps.provider)());
+    const movie = await queryClient.ensureQueryData(
+      movieOpts(params.id, deps.provider)(),
+    );
 
     if (movie.provider === "local") {
       queryClient.prefetchQuery(byContentOpts("movie", +movie.provider_id)());
@@ -307,7 +327,9 @@ const showRoute = createRoute({
     crumbs: [
       { label: "Shows", link: linkOptions({ to: "/shows" }) },
       {
-        label: () => <ShowTitleCrumb id={params.id} provider={search.provider} />,
+        label: () => (
+          <ShowTitleCrumb id={params.id} provider={search.provider} />
+        ),
         link: linkOptions({ to: "/shows/$id", params, search }),
       },
     ],
@@ -321,7 +343,9 @@ const showRoute = createRoute({
   }),
   loader: async ({ params, deps, location }) => {
     // Blocking: head needs the title/plot. The page reads the same cache entry.
-    const show = await queryClient.ensureQueryData(showOpts(params.id, deps.provider)());
+    const show = await queryClient.ensureQueryData(
+      showOpts(params.id, deps.provider)(),
+    );
     queryClient.prefetchQuery(capabilitiesOpts()());
     const season = (location.search as SeasonParams).season;
     if (season !== undefined) {
@@ -330,7 +354,10 @@ const showRoute = createRoute({
     return { title: show.title, description: show.plot ?? "" };
   },
   head: ({ loaderData }) =>
-    metaHead(loaderData ? loaderData.title : "Show", loaderData?.description || "Watch this show."),
+    metaHead(
+      loaderData ? loaderData.title : "Show",
+      loaderData?.description || "Watch this show.",
+    ),
 });
 
 const episodeRoute = createRoute({
@@ -343,7 +370,9 @@ const episodeRoute = createRoute({
     crumbs: [
       { label: "Shows", link: linkOptions({ to: "/shows" }) },
       {
-        label: () => <ShowTitleCrumb id={params.id} provider={search.provider} />,
+        label: () => (
+          <ShowTitleCrumb id={params.id} provider={search.provider} />
+        ),
         link: linkOptions({
           to: "/shows/$id",
           params: { id: params.id },
@@ -394,7 +423,9 @@ const episodeRoute = createRoute({
   },
   head: ({ loaderData }) =>
     metaHead(
-      loaderData ? `${loaderData.title} (S${loaderData.season}E${loaderData.number})` : "Episode",
+      loaderData
+        ? `${loaderData.title} (S${loaderData.season}E${loaderData.number})`
+        : "Episode",
       loaderData?.description || "Watch this episode.",
     ),
 });
@@ -409,7 +440,8 @@ const listsRoute = createRoute({
   loader: () => {
     queryClient.prefetchQuery(allListsOpts()());
   },
-  head: () => metaHead("Lists", "Your watchlist, saved items, and custom lists."),
+  head: () =>
+    metaHead("Lists", "Your watchlist, saved items, and custom lists."),
 });
 
 const listRoute = createRoute({
@@ -434,7 +466,10 @@ const listRoute = createRoute({
     return { title: list.name, description: list.description ?? "" };
   },
   head: ({ loaderData }) =>
-    metaHead(loaderData ? loaderData.title : "List", loaderData?.description || "List contents."),
+    metaHead(
+      loaderData ? loaderData.title : "List",
+      loaderData?.description || "List contents.",
+    ),
 });
 
 const torrentRoute = createRoute({
@@ -459,7 +494,9 @@ const serverSettingsRoute = createRoute({
   path: "/settings",
   component: GeneralSettingsPage,
   loader: () => {
-    queryClient.prefetchQuery(queryApi.queryOptions("get", "/api/configuration")());
+    queryClient.prefetchQuery(
+      queryApi.queryOptions("get", "/api/configuration")(),
+    );
   },
   head: () => metaHead("Settings", "Configure your media server."),
 });
@@ -523,12 +560,21 @@ const homeRoute = createRoute({
   path: "/",
   component: Home,
   loader: () => {
-    queryClient.prefetchQuery(queryApi.queryOptions("get", "/api/search/trending_shows")());
-    queryClient.prefetchQuery(queryApi.queryOptions("get", "/api/search/trending_movies")());
-    queryClient.prefetchQuery(queryApi.queryOptions("get", "/api/history/suggest/shows")());
-    queryClient.prefetchQuery(queryApi.queryOptions("get", "/api/history/suggest/movies")());
+    queryClient.prefetchQuery(
+      queryApi.queryOptions("get", "/api/search/trending_shows")(),
+    );
+    queryClient.prefetchQuery(
+      queryApi.queryOptions("get", "/api/search/trending_movies")(),
+    );
+    queryClient.prefetchQuery(
+      queryApi.queryOptions("get", "/api/history/suggest/shows")(),
+    );
+    queryClient.prefetchQuery(
+      queryApi.queryOptions("get", "/api/history/suggest/movies")(),
+    );
   },
-  head: () => metaHead("", "Continue watching and discover new movies and shows."),
+  head: () =>
+    metaHead("", "Continue watching and discover new movies and shows."),
 });
 
 const watchShow = createRoute({
@@ -571,7 +617,9 @@ const watchMovie = createRoute({
   validateSearch: validateWatchParams,
   loader: async ({ params }) => {
     // Watch pages always use the local provider.
-    const movie = await queryClient.ensureQueryData(movieOpts(params.id, "local")());
+    const movie = await queryClient.ensureQueryData(
+      movieOpts(params.id, "local")(),
+    );
     queryClient.prefetchQuery(byContentOpts("movie", +params.id)());
     return { title: movie.title };
   },
@@ -596,7 +644,11 @@ export const routeTree = rootRoute.addChildren([
     logsRoute,
     testRoute,
 
-    settingsRoute.addChildren([serverSettingsRoute, clientSettingsRoute, resourcesSettingsRoute]),
+    settingsRoute.addChildren([
+      serverSettingsRoute,
+      clientSettingsRoute,
+      resourcesSettingsRoute,
+    ]),
   ]),
 
   watchRoute.addChildren([watchMovie, watchShow]),

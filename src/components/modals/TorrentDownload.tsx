@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
-import { Schemas } from "../../utils/serverApi";
+import type { Schemas } from "../../utils/serverApi";
 import { TorrentDownloadSteps } from "../TorrentDownload";
 
 type Props = {
@@ -13,7 +13,10 @@ type Props = {
 
 export default function DownloadTorrentModal(props: Props) {
   return (
-    <Dialog open={props.open} onOpenChange={(isOpen) => isOpen || props.onClose()}>
+    <Dialog
+      open={props.open}
+      onOpenChange={(isOpen) => isOpen || props.onClose()}
+    >
       <DialogContent class="sm:h-3/4 sm:w-2/3">
         <div class="h-full min-w-0 overflow-hidden">
           <DialogHeader>

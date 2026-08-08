@@ -1,13 +1,13 @@
 import { linkOptions } from "@tanstack/solid-router";
-import type { Component } from "solid-js";
+import Download from "lucide-solid/icons/download";
+import Film from "lucide-solid/icons/film";
+import History from "lucide-solid/icons/history";
 import House from "lucide-solid/icons/house";
 import LayoutDashboard from "lucide-solid/icons/layout-dashboard";
-import Download from "lucide-solid/icons/download";
-import Tv from "lucide-solid/icons/tv";
-import Film from "lucide-solid/icons/film";
 import ListVideo from "lucide-solid/icons/list-video";
 import Settings from "lucide-solid/icons/settings";
-import History from "lucide-solid/icons/history";
+import Tv from "lucide-solid/icons/tv";
+import type { Component } from "solid-js";
 
 export type NavRoute = {
   to: string;

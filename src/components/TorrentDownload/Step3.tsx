@@ -1,8 +1,15 @@
 import { For } from "solid-js";
-import { Schemas } from "../../utils/serverApi";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/ui/table";
 import { formatSize } from "../../utils/formats";
+import type { Schemas } from "../../utils/serverApi";
 import { FilePicker } from "../FilePicker";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui/table";
 
 type Props = {
   content: Schemas["TorrentInfo"];
@@ -40,7 +47,11 @@ export default function Step3(props: Props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <For each={props.selectedFiles.map((idx) => props.content.contents.files[idx])}>
+            <For
+              each={props.selectedFiles.map(
+                (idx) => props.content.contents.files[idx],
+              )}
+            >
               {(file, idx) => <FileRow file={file} number={idx() + 1} />}
             </For>
             <TableRow>
@@ -59,7 +70,11 @@ export default function Step3(props: Props) {
       </div>
       <div>
         <h2 class="py-2 text-xl">Output location: </h2>
-        <FilePicker onChange={props.onOutputSelect} disallowFiles initialDir={props.output} />
+        <FilePicker
+          onChange={props.onOutputSelect}
+          disallowFiles
+          initialDir={props.output}
+        />
       </div>
     </div>
   );

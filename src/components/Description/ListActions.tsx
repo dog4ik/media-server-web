@@ -1,10 +1,10 @@
-import { Show } from "solid-js";
 import Check from "lucide-solid/icons/check";
 import Clock from "lucide-solid/icons/clock";
 import Heart from "lucide-solid/icons/heart";
+import { Show } from "solid-js";
 import Icon from "@/components/ui/Icon";
-import { useListActions } from "@/lib/lists";
 import { useNotifications } from "@/context/NotificationContext";
+import { useListActions } from "@/lib/lists";
 import type { Schemas } from "@/utils/serverApi";
 
 type Props = {
@@ -42,11 +42,15 @@ export function ListActions(props: Props) {
       </Icon>
       <Icon
         tooltip={
-          actions.inSaved() ? `Remove from ${actions.savedName()}` : `Add to ${actions.savedName()}`
+          actions.inSaved()
+            ? `Remove from ${actions.savedName()}`
+            : `Add to ${actions.savedName()}`
         }
         onClick={actions.toggleSaved}
       >
-        <Heart class={actions.inSaved() ? "fill-pink-500 text-pink-500" : undefined} />
+        <Heart
+          class={actions.inSaved() ? "fill-pink-500 text-pink-500" : undefined}
+        />
       </Icon>
     </>
   );

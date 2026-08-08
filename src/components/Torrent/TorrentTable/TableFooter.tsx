@@ -1,4 +1,4 @@
-import { Table } from "@tanstack/solid-table";
+import type { Table } from "@tanstack/solid-table";
 
 type Props<T> = {
   table: Table<T>;

@@ -1,10 +1,10 @@
-import { Button } from "@/ui/button";
-import { Schemas } from "@/utils/serverApi";
-import { Link, LinkOptions } from "@tanstack/solid-router";
+import { Link, type LinkOptions } from "@tanstack/solid-router";
 import BookCheck from "lucide-solid/icons/book-check";
 import Check from "lucide-solid/icons/check";
 import Heart from "lucide-solid/icons/heart";
 import { Show } from "solid-js";
+import { Button } from "@/ui/button";
+import type { Schemas } from "@/utils/serverApi";
 
 type Props = {
   liked?: Schemas["CompactList"];

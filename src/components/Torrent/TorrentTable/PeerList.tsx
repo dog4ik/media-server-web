@@ -1,25 +1,32 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui/table";
-import { Schemas } from "@/utils/serverApi";
 import {
-  CellContext,
+  type CellContext,
+  type ColumnDef,
+  type ColumnFiltersState,
   createSolidTable,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  type ColumnDef,
-  type ColumnFiltersState,
   type SortingState,
   type VisibilityState,
 } from "@tanstack/solid-table";
-import { TableColumnHeader } from "./ColumnHeader";
-import { formatSize } from "@/utils/formats";
-import { Badge } from "@/ui/badge";
 import { createMemo, createSignal, For, Show } from "solid-js";
+import { Badge } from "@/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/ui/table";
 import { TextField, TextFieldInput } from "@/ui/textfield";
-import { PaginationFooter } from "./TableFooter";
+import { formatSize } from "@/utils/formats";
 import { PersistentTableState } from "@/utils/persistent_table_state";
+import type { Schemas } from "@/utils/serverApi";
+import { TableColumnHeader } from "./ColumnHeader";
+import { PaginationFooter } from "./TableFooter";
 
 type Props = {
   peers: Schemas["StatePeer"][];
@@ -59,70 +66,98 @@ function Status(props: { cell: CellContext<Schemas["StatePeer"], unknown> }) {
 const COLUMNS: ColumnDef<Schemas["StatePeer"]>[] = [
   {
     accessorKey: "addr",
-    header: (props) => <TableColumnHeader column={props.column} title="Address" />,
+    header: (props) => (
+      <TableColumnHeader column={props.column} title="Address" />
+    ),
     cell: (props) => (
       <div class="flex space-x-2">
-        <span class="max-w-[250px] truncate font-medium">{props.row.getValue("addr")}</span>
+        <span class="max-w-[250px] truncate font-medium">
+          {props.row.getValue("addr")}
+        </span>
       </div>
     ),
   },
   {
     accessorKey: "client_name",
-    header: (props) => <TableColumnHeader column={props.column} title="Client name" />,
+    header: (props) => (
+      <TableColumnHeader column={props.column} title="Client name" />
+    ),
     cell: (props) => (
       <div class="flex space-x-2">
-        <span class="max-w-[250px] truncate font-medium">{props.row.getValue("client_name")}</span>
+        <span class="max-w-[250px] truncate font-medium">
+          {props.row.getValue("client_name")}
+        </span>
       </div>
     ),
   },
   {
     accessorKey: "downloaded",
     id: "total downloaded",
-    header: (props) => <TableColumnHeader column={props.column} title="Total downloaded" />,
+    header: (props) => (
+      <TableColumnHeader column={props.column} title="Total downloaded" />
+    ),
     cell: (props) => (
       <div class="flex w-[100px] items-center">
-        <span class="text-center">{formatSize(props.row.original.downloaded)}</span>
+        <span class="text-center">
+          {formatSize(props.row.original.downloaded)}
+        </span>
       </div>
     ),
   },
   {
     accessorKey: "download_speed",
     id: "download speed",
-    header: (props) => <TableColumnHeader column={props.column} title="Download speed" />,
+    header: (props) => (
+      <TableColumnHeader column={props.column} title="Download speed" />
+    ),
     cell: (props) => (
       <div class="flex w-[100px] items-center">
-        <span class="text-center">{formatSize(props.row.original.download_speed)}/s</span>
+        <span class="text-center">
+          {formatSize(props.row.original.download_speed)}/s
+        </span>
       </div>
     ),
   },
   {
     accessorKey: "uploaded",
     id: "total uploaded",
-    header: (props) => <TableColumnHeader column={props.column} title="Total uploaded" />,
+    header: (props) => (
+      <TableColumnHeader column={props.column} title="Total uploaded" />
+    ),
     cell: (props) => (
       <div class="flex w-[100px] items-center">
-        <span class="text-center">{formatSize(props.row.original.uploaded)}</span>
+        <span class="text-center">
+          {formatSize(props.row.original.uploaded)}
+        </span>
       </div>
     ),
   },
   {
     accessorKey: "upload_speed",
     id: "upload speed",
-    header: (props) => <TableColumnHeader column={props.column} title="Upload speed" />,
+    header: (props) => (
+      <TableColumnHeader column={props.column} title="Upload speed" />
+    ),
     cell: (props) => (
       <div class="flex w-[100px] items-center">
-        <span class="text-center">{formatSize(props.row.original.upload_speed)}/s</span>
+        <span class="text-center">
+          {formatSize(props.row.original.upload_speed)}/s
+        </span>
       </div>
     ),
   },
   {
     accessorKey: "in_status",
-    header: (props) => <TableColumnHeader column={props.column} title="In status" />,
+    header: (props) => (
+      <TableColumnHeader column={props.column} title="In status" />
+    ),
     cell: (props) => <Status cell={props} />,
   },
   {
     accessorKey: "out_status",
-    header: (props) => <TableColumnHeader column={props.column} title="Out status" />,
+    header: (props) => (
+      <TableColumnHeader column={props.column} title="Out status" />
+    ),
     cell: (props) => <Status cell={props} />,
   },
 ];
@@ -134,7 +169,9 @@ export function PeerList(props: Props) {
   const [columnVisibility, setColumnVisibility] = createSignal<VisibilityState>(
     persistentTableState.loadVisibilityState() ?? {},
   );
-  const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>(
+    [],
+  );
   const [sorting, setSorting] = createSignal<SortingState>([]);
 
   const table = createSolidTable({
@@ -181,8 +218,12 @@ export function PeerList(props: Props) {
               type="text"
               placeholder="Filter ip..."
               class="h-8"
-              value={(table.getColumn("addr")?.getFilterValue() as string) ?? ""}
-              onInput={(e) => table.getColumn("addr")?.setFilterValue(e.currentTarget.value)}
+              value={
+                (table.getColumn("addr")?.getFilterValue() as string) ?? ""
+              }
+              onInput={(e) =>
+                table.getColumn("addr")?.setFilterValue(e.currentTarget.value)
+              }
             />
           </TextField>
         </div>
@@ -199,7 +240,10 @@ export function PeerList(props: Props) {
                         <TableHead>
                           {header.isPlaceholder
                             ? null
-                            : flexRender(header.column.columnDef.header, header.getContext())}
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
                         </TableHead>
                       );
                     }}
@@ -225,7 +269,10 @@ export function PeerList(props: Props) {
                     <For each={row.getVisibleCells()}>
                       {(cell) => (
                         <TableCell>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
                         </TableCell>
                       )}
                     </For>
