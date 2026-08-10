@@ -21,11 +21,15 @@ type Props = {
 // Prevent flicker when the image component remounts with the cached image
 const GlobalImageCache: Set<string> = new Set();
 
+const PLACEHOLDER_IMAGE = "/no-photo.png";
+
 export default function FallbackImage(props: Props) {
   let sources = createMemo<string[]>(
-    () => [...props.srcList, "/no-photo.png"].filter(Boolean) as string[],
+    () => [...props.srcList, PLACEHOLDER_IMAGE].filter(Boolean) as string[],
   );
-  let cachedImage = sources().find((src) => GlobalImageCache.has(src));
+  let cachedImage = props.srcList.find(
+    (src) => src !== undefined && GlobalImageCache.has(src),
+  );
   const [currentImage, setCurrentImage] = createSignal<string | undefined>(
     cachedImage,
   );
