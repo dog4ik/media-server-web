@@ -22,47 +22,57 @@ type Props = {
 const GlobalImageCache: Set<string> = new Set();
 
 export default function FallbackImage(props: Props) {
-  let firstImage = props.srcList.at(0);
-  let isCached = GlobalImageCache.has(firstImage ?? "");
-  const [currentImage, setCurrentImage] = createSignal<string | undefined>(
-    firstImage,
+  let sources = createMemo<string[]>(
+    () => [...props.srcList, "/no-photo.png"].filter(Boolean) as string[],
   );
-  const [loading, setLoading] = createSignal(!isCached);
-  let sources = createMemo(() => [...props.srcList, "/no-photo.png"]);
+  let cachedImage = sources().find((src) => GlobalImageCache.has(src));
+  const [currentImage, setCurrentImage] = createSignal<string | undefined>(
+    cachedImage,
+  );
+  const [loading, setLoading] = createSignal(cachedImage === undefined);
   let active = true;
   tracing.debug({ images: props.srcList }, "Mounted fallback image");
 
-  function loadImage(index: number) {
-    if (index >= sources().length) {
-      console.log("Failed to load any of image sources");
-      return;
-    }
+  function tryLoadImage(url: string) {
+    return new Promise((res, rej) => {
+      tracing.trace({ url, sources: sources() }, "Loading image");
+      const img = new Image();
+      img.onload = () => {
+        setCurrentImage(url);
+        GlobalImageCache.add(url);
+        setLoading(false);
+        res(undefined);
+      };
+      img.onerror = () => {
+        if (!active) return;
+        rej(undefined);
+      };
+      img.src = url;
+      if (img.complete && img.naturalWidth !== 0) {
+        setCurrentImage(url);
+        setLoading(false);
+        res(undefined);
+      }
+    });
+  }
 
-    let url = sources()[index];
-    if (url === undefined) {
-      return loadImage(index + 1);
+  async function loadImages() {
+    for (let source of sources()) {
+      try {
+        if (active) {
+          await tryLoadImage(source);
+          return true;
+        }
+      } catch {
+        tracing.warn({ source }, "Failed to load image");
+      }
     }
-    tracing.trace({ url, sources: sources() }, "Loading image");
-    const img = new Image();
-    img.onload = () => {
-      setCurrentImage(url);
-      GlobalImageCache.add(url);
-      setLoading(false);
-    };
-    img.onerror = () => {
-      if (!active) return;
-      loadImage(index + 1);
-    };
-    img.src = url;
-    if (img.complete && img.naturalWidth !== 0) {
-      setCurrentImage(url);
-      setLoading(false);
-    }
+    return false;
   }
 
   createEffect(() => {
     active = true;
-    loadImage(0);
+    loadImages();
   });
   onCleanup(() => {
     active = false;
@@ -73,28 +83,33 @@ export default function FallbackImage(props: Props) {
       ? { height: `${props.height}px`, width: `${props.width}px` }
       : undefined;
 
+  // Solid control flow returns a function, which tanstack/solid-router `Link` mistakes
+  // for a render prop.
+  // Dev builds hide this behind the solid-refresh HMR memo.
   return (
-    <Show
-      when={!loading() && currentImage()}
-      fallback={
-        <Skeleton
-          class={clsx(
-            (props.fluid || sizeStyle() === undefined) && "h-full w-full",
-          )}
-          style={sizeStyle()}
-        />
-      }
-    >
-      {(_) => (
-        <img
-          src={currentImage()}
-          height={props.height}
-          width={props.width}
-          alt={props.alt}
-          class={clsx(props.class, props.fluid && "size-full object-cover")}
-          style={sizeStyle()}
-        />
-      )}
-    </Show>
+    <div class="contents">
+      <Show
+        when={!loading() && currentImage()}
+        fallback={
+          <Skeleton
+            class={clsx(
+              (props.fluid || sizeStyle() === undefined) && "h-full w-full",
+            )}
+            style={sizeStyle()}
+          />
+        }
+      >
+        {(_) => (
+          <img
+            src={currentImage()}
+            height={props.height}
+            width={props.width}
+            alt={props.alt}
+            class={clsx(props.class, props.fluid && "size-full object-cover")}
+            style={sizeStyle()}
+          />
+        )}
+      </Show>
+    </div>
   );
 }
