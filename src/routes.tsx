@@ -505,6 +505,9 @@ const resourcesSettingsRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: "settings/resources",
   component: ResourcesPage,
+  loader: () => {
+    queryClient.prefetchQuery(queryApi.queryOptions("get", "/api/resources")());
+  },
   head: () => metaHead("Resources", "Resource usage."),
 });
 

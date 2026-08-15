@@ -84,7 +84,7 @@ export function formatSize(bytes: number) {
   }
 
   if (kb > 1) {
-    return `${mb.toFixed(2)} Kb`;
+    return `${kb.toFixed(2)} Kb`;
   }
 
   return `${bytes} B`;
@@ -133,6 +133,13 @@ export function formatBitrate(bitrate: number): string {
   return `${bitrate} bps`;
 }
 
+export function formatPercent(size: number, total: number): string {
+  if (total <= 0) return "0%";
+  let pct = (size / total) * 100;
+  if (pct > 0 && pct < 0.1) return "<0.1%";
+  return `${pct.toFixed(1)}%`;
+}
+
 export function timeAgo(date: Date, locale = "en-US"): string {
   let now = Date.now();
   let diffMs = now - date.getTime();
@@ -158,4 +165,39 @@ export function timeAgo(date: Date, locale = "en-US"): string {
   }
 
   return rtf.format(0, "second");
+}
+
+if (import.meta.vitest) {
+  const { describe, test, assert } = import.meta.vitest;
+
+  describe("formatSize", () => {
+    test("bytes", () => {
+      assert.strictEqual(formatSize(0), "0 B");
+      assert.strictEqual(formatSize(1023), "1023 B");
+    });
+    test("kilobytes", () => {
+      assert.strictEqual(formatSize(1536), "1.50 Kb");
+      assert.strictEqual(formatSize(2048), "2.00 Kb");
+    });
+    test("megabytes", () => {
+      assert.strictEqual(formatSize(1.5 * 1024 * 1024), "1.50 Mb");
+    });
+    test("gigabytes", () => {
+      assert.strictEqual(formatSize(1.5 * 1024 ** 3), "1.50 Gb");
+      assert.strictEqual(formatSize(2 * 1024 ** 4), "2048.00 Gb");
+    });
+  });
+
+  describe("formatPercent", () => {
+    test("regular values", () => {
+      assert.strictEqual(formatPercent(50, 200), "25.0%");
+      assert.strictEqual(formatPercent(200, 200), "100.0%");
+    });
+    test("tiny values don't render as 0", () => {
+      assert.strictEqual(formatPercent(1, 10_000), "<0.1%");
+    });
+    test("zero total", () => {
+      assert.strictEqual(formatPercent(0, 0), "0%");
+    });
+  });
 }

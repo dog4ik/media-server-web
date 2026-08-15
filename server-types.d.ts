@@ -764,6 +764,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/resources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Server resources */
+        get: operations["resources"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/scan": {
         parameters: {
             query?: never;
@@ -2235,6 +2252,8 @@ export type components = {
                 genres?: components["schemas"]["Genre"][] | null;
                 local?: null | components["schemas"]["LocalShowData"];
                 locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+                /** Format: date-time */
+                next_episode_air_date?: string | null;
                 plot?: string | null;
                 poster?: string | null;
                 provider: components["schemas"]["MetadataProvider"];
@@ -2334,6 +2353,16 @@ export type components = {
             /** Format: int32 */
             profile_idc: number;
             resolution: components["schemas"]["Resolution"];
+        };
+        Disk: {
+            /** Format: int64 */
+            available_space: number;
+            fs: string;
+            is_read_only: boolean;
+            is_removable: boolean;
+            mountpoint: string;
+            /** Format: int64 */
+            total_space: number;
         };
         DownloadContentHint: {
             content_type: components["schemas"]["ParentMediaType"];
@@ -2632,6 +2661,29 @@ export type components = {
             /** @enum {string} */
             content_type: "show";
         });
+        MediaDirContent: {
+            /**
+             * Format: int64
+             * @description Id of the content, movies.id or shows.id
+             */
+            id: number;
+            /** Format: int64 */
+            metadata_id: number;
+            poster?: string | null;
+            /** Format: int64 */
+            size: number;
+            title: string;
+        };
+        MediaDirStats: {
+            /** @description Contents of the directory, ordered by size in descending order (heavy first) */
+            contents: components["schemas"]["MediaDirContent"][];
+            path: string;
+            /**
+             * Format: int64
+             * @description Total size of the directory including files other than content
+             */
+            size: number;
+        };
         /** @description Wrapper around [std::time::Duration] that is serialized in milliseconds */
         MediaDuration: number;
         /**
@@ -2938,6 +2990,26 @@ export type components = {
             /** Format: int64 */
             size: number;
         };
+        Resources: {
+            config_path: string;
+            db_path: string;
+            /** Format: int64 */
+            db_size: number;
+            disks: components["schemas"]["Disk"][];
+            /**
+             * Format: int64
+             * @description Stored but not used metadata items
+             */
+            metadata_orphan_count: number;
+            movie_media_dirs: components["schemas"]["MediaDirStats"][];
+            resources_path: string;
+            /** Format: int64 */
+            resources_size: number;
+            show_media_dirs: components["schemas"]["MediaDirStats"][];
+            tmp_path: string;
+            /** Format: int64 */
+            tmp_size: number;
+        };
         RoleMetadata: {
             character: string;
             poster?: string | null;
@@ -3016,6 +3088,8 @@ export type components = {
             genres?: components["schemas"]["Genre"][] | null;
             local?: null | components["schemas"]["LocalShowData"];
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
+            /** Format: date-time */
+            next_episode_air_date?: string | null;
             plot?: string | null;
             poster?: string | null;
             provider: components["schemas"]["MetadataProvider"];
@@ -3035,6 +3109,8 @@ export type components = {
             locale_metadata?: null | components["schemas"]["LocaleMetadata"];
             metadata_id: string;
             metadata_provider: components["schemas"]["MetadataProvider"];
+            /** Format: date-time */
+            next_episode_air_date?: string | null;
             plot?: string | null;
             poster?: string | null;
             release_date?: string | null;
@@ -4988,6 +5064,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    resources: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resources"];
                 };
             };
         };
