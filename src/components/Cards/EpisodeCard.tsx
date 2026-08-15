@@ -2,6 +2,7 @@ import { Link, type LinkOptions, linkOptions } from "@tanstack/solid-router";
 import { Show } from "solid-js";
 import { AddToListMenu } from "@/components/Lists/AddToListMenu";
 import { useMediaNotifications } from "@/context/NotificationContext";
+import { useDeleteEpisode } from "@/lib/deletion";
 import { episodeListItems, invalidateListQueries } from "@/lib/lists";
 import { Skeleton } from "@/ui/skeleton";
 import { type ExtendedEpisode, posterList } from "@/utils/library";
@@ -70,11 +71,12 @@ export function EpisodeCard(props: Props) {
     }),
   );
 
-  let deleteEpisode = queryApi.useMutation(
-    "delete",
-    "/api/local_episode/{id}",
-    () => ({}),
-  );
+  let deleteEpisode = useDeleteEpisode({
+    onDeleted: () => {
+      notify("Deleted episode");
+      props.onDelete();
+    },
+  });
 
   let removeLiked = queryApi.useMutation(
     "delete",
