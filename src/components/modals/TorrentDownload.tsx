@@ -17,8 +17,10 @@ export default function DownloadTorrentModal(props: Props) {
       open={props.open}
       onOpenChange={(isOpen) => isOpen || props.onClose()}
     >
-      <DialogContent class="sm:h-3/4 sm:w-2/3">
-        <div class="h-full min-w-0 overflow-hidden">
+      {/* DialogContent is `grid content-start`, so a lone auto row collapses to content
+          height and `h-full` children can't fill the modal; force the row to span it */}
+      <DialogContent class="grid-rows-[minmax(0,1fr)] sm:h-3/4 sm:w-2/3">
+        <div class="flex min-h-0 min-w-0 flex-col gap-4 overflow-hidden">
           <DialogHeader>
             <DialogTitle>Download</DialogTitle>
           </DialogHeader>

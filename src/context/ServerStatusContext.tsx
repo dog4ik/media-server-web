@@ -315,6 +315,7 @@ function createServerStatusContext(
       queryApi.invalidateQueries("get", "/api/show/{id}/{season}/{episode}");
       queryApi.invalidateQueries("get", "/api/local_movies");
       queryApi.invalidateQueries("get", "/api/movie/{id}");
+      queryApi.invalidateQueries("get", "/api/resources");
     }
     if (progress.progress_type === "pending") {
       setTasks("library_scan_tasks", 0, "latest_progress", progress.progress);

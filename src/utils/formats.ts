@@ -121,6 +121,9 @@ export function formatTorrentIndex(index: Schemas["TorrentIndexIdentifier"]) {
   if (index === "rutracker") {
     return "RuTracker";
   }
+  if (index === "nyaa") {
+    return "Nyaa";
+  }
   throw Error(`${index} torrent index is not supported`);
 }
 

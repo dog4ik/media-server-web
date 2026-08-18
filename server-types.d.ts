@@ -1812,6 +1812,13 @@ export type components = {
             statics_path: string;
             temp_path: string;
         };
+        /** @description Everything recognized in a single file name. */
+        Attributes: {
+            codec?: null | components["schemas"]["CodecAttr"];
+            resolution?: null | components["schemas"]["ResolutionAttr"];
+            source?: null | components["schemas"]["SourceAttr"];
+            tags: components["schemas"]["Tag"][];
+        };
         AudioCodec: "aac" | "ac3" | "eac3" | "dts" | "flac" | "opus" | {
             other: string;
         };
@@ -1847,6 +1854,8 @@ export type components = {
             long_name: string;
             name: string;
         };
+        /** @enum {string} */
+        CodecAttr: "h264" | "h265" | "av1";
         /** @enum {string} */
         CodecType: "audio" | "video" | "subtitle" | "data" | "attachment";
         /** @description Compact representation of a list. */
@@ -2199,6 +2208,13 @@ export type components = {
             release_date?: string | null;
             title: string;
         };
+        ContentIdentifier: (components["schemas"]["ShowIdentifier"] & {
+            /** @enum {string} */
+            media_type: "show";
+        }) | (components["schemas"]["MovieIdentifier"] & {
+            /** @enum {string} */
+            media_type: "movie";
+        });
         CreateList: {
             description?: string | null;
             name: string;
@@ -2721,6 +2737,12 @@ export type components = {
             history: components["schemas"]["History"];
             movie: components["schemas"]["MovieMetadata"];
         };
+        MovieIdentifier: {
+            attributes: components["schemas"]["Attributes"];
+            title: string;
+            /** Format: int32 */
+            year?: number | null;
+        };
         /** @description The unified movie data structure from any movie provider */
         MovieMetadata: {
             backdrop?: string | null;
@@ -2982,6 +3004,8 @@ export type components = {
             height: number;
             width: number;
         };
+        /** @enum {string} */
+        ResolutionAttr: "480p" | "720p" | "1080p" | "2160p";
         ResolvedTorrentFile: {
             /** Format: int64 */
             offset: number;
@@ -3099,6 +3123,21 @@ export type components = {
             seasons?: number[] | null;
             title: string;
         };
+        /**
+         * @description Full show identifier representation
+         *
+         *     Usually constructed from episode file name and parent directories
+         */
+        ShowIdentifier: {
+            attributes: components["schemas"]["Attributes"];
+            /** Format: int32 */
+            episode: number;
+            /** Format: int32 */
+            season: number;
+            title: string;
+            /** Format: int32 */
+            year?: number | null;
+        };
         /** @description The unified show data structure from any show provider */
         ShowMetadata: {
             backdrop?: string | null;
@@ -3124,6 +3163,8 @@ export type components = {
             /** Format: int64 */
             show_id: number;
         };
+        /** @enum {string} */
+        SourceAttr: "web" | "web_dl" | "web_rip" | "blu_ray" | "dvd" | "telesync";
         StartDirectStreamRequest: {
             /** Format: uuid */
             variant_id?: string | null;
@@ -3217,6 +3258,8 @@ export type components = {
             language?: string | null;
             path: string;
         };
+        /** @enum {string} */
+        Tag: "dubbed" | "subbed" | "dual_audio" | "multi_audio" | "multi_subs" | "uncensored" | "hdr" | "extended" | "remastered";
         TaskProgress: (components["schemas"]["ProgressStatus_WatchTask"] & {
             /** @enum {string} */
             task_type: "watchsession";
@@ -3341,20 +3384,8 @@ export type components = {
             transcode_tasks: components["schemas"]["Task_TranscodeJob"][];
             watch_sessions: components["schemas"]["Task_WatchTask"][];
         };
-        Torrent: {
-            author?: string | null;
-            /** Format: date-time */
-            created: string;
-            imdb_id?: string | null;
-            leechers: number;
-            /** Format: uri */
-            magnet?: string | null;
-            name: string;
-            provider: components["schemas"]["TorrentIndexIdentifier"];
-            provider_id: string;
-            seeders: number;
-            /** Format: int64 */
-            size: number;
+        Torrent: components["schemas"]["TorrentMetadata"] & {
+            identifier?: null | components["schemas"]["ContentIdentifier"];
         };
         TorrentContent: {
             show: components["schemas"]["TorrentShow"];
@@ -3380,7 +3411,7 @@ export type components = {
             metadata: components["schemas"]["EpisodeMetadata"];
         };
         /** @enum {string} */
-        TorrentIndexIdentifier: "tpb" | "rutracker";
+        TorrentIndexIdentifier: "tpb" | "nyaa" | "rutracker";
         TorrentInfo: {
             contents: components["schemas"]["TorrentContents"];
             name: string;
@@ -3389,6 +3420,21 @@ export type components = {
             pieces_amount: number;
             /** Format: int64 */
             total_size: number;
+        };
+        TorrentMetadata: {
+            author?: string | null;
+            /** Format: date-time */
+            created: string;
+            imdb_id?: string | null;
+            leechers: number;
+            /** Format: uri */
+            magnet?: string | null;
+            name: string;
+            provider: components["schemas"]["TorrentIndexIdentifier"];
+            provider_id: string;
+            seeders: number;
+            /** Format: int64 */
+            size: number;
         };
         TorrentMovie: {
             file_idx: number;
@@ -5937,7 +5983,7 @@ export interface operations {
         parameters: {
             query: {
                 id: string;
-                provider: "tpb" | "rutracker";
+                provider: "tpb" | "nyaa" | "rutracker";
             };
             header?: never;
             path?: never;
@@ -6137,7 +6183,7 @@ export interface operations {
             query: {
                 search: string;
                 content_type?: null | ("movie" | "show");
-                provider?: null | ("tpb" | "rutracker");
+                provider?: null | ("tpb" | "nyaa" | "rutracker");
             };
             header?: never;
             path?: never;
@@ -6152,6 +6198,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Torrent"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
                 };
             };
         };
