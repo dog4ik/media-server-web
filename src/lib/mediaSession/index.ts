@@ -7,7 +7,7 @@ import type { Video } from "@/utils/library";
 import type { Compatibility } from "@/utils/mediaCapabilities";
 import { fullUrl, type Schemas, server } from "@/utils/serverApi";
 import tracing from "@/utils/tracing";
-import { HlsSession } from "./hls";
+import type { HlsSession } from "./hls";
 import { ProgressiveDownload } from "./progressive_download";
 
 export interface PlaybackMethod {
@@ -145,6 +145,8 @@ export class MediaSessionState {
       })
       .then(throwResponseErrors);
 
+    // dynamic import so hls.js stays out of the main bundle until playback needs it
+    let { HlsSession } = await import("./hls");
     let session = new HlsSession();
     this.session = {
       type: "hls",
