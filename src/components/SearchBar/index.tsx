@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/solid-router";
-import { FiX } from "solid-icons/fi";
+import X from "lucide-solid/icons/x";
 import { createSignal, For, Match, Show, Switch } from "solid-js";
 import { Button } from "@/ui/button";
 import { Skeleton } from "@/ui/skeleton";
@@ -154,7 +154,7 @@ export default function SearchBar() {
               class="absolute top-1/2 right-1 -translate-y-1/2"
               aria-label="Clear search"
             >
-              <FiX />
+              <X size="1em" />
             </Button>
           </Show>
         </TextField>

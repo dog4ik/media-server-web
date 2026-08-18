@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/solid-query";
 import { Link } from "@tanstack/solid-router";
-import { FiX } from "solid-icons/fi";
+import X from "lucide-solid/icons/x";
 import {
   createMemo,
   ErrorBoundary,
@@ -96,7 +96,7 @@ function DisplayEpisode(props: DisplayEpisodeProps) {
         class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full"
         onClick={props.onRemove}
       >
-        <FiX size={20} />
+        <X size={20} />
       </Button>
     </Card>
   );
@@ -154,7 +154,7 @@ function DisplayMovie(props: DisplayMovieProps) {
         class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full"
         onClick={props.onRemove}
       >
-        <FiX size={20} />
+        <X size={20} />
       </Button>
     </Card>
   );

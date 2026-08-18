@@ -1,4 +1,4 @@
-import { FiTrash } from "solid-icons/fi";
+import Trash from "lucide-solid/icons/trash";
 import { createSignal, type JSX, type ParentProps, Show } from "solid-js";
 import { useNotificationsContext } from "@/context/NotificationContext";
 import { Button } from "@/ui/button";
@@ -196,7 +196,7 @@ export function UploadSubtitles(props: Props) {
                   onClick={() => setSubtitlesFile(undefined)}
                   variant="destructive"
                 >
-                  <FiTrash size={20} />
+                  <Trash size={20} />
                 </Button>
               </div>
             )}

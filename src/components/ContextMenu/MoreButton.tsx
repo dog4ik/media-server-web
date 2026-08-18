@@ -1,4 +1,4 @@
-import { FiMoreVertical } from "solid-icons/fi";
+import EllipsisVertical from "lucide-solid/icons/ellipsis-vertical";
 import {
   createUniqueId,
   type JSX,
@@ -97,7 +97,7 @@ anchor-name: --${menuId};
 `}
         class="text-muted-foreground hover:text-secondary-foreground focus-visible:ring-ring flex cursor-pointer items-center justify-center rounded-md p-1.5 hover:bg-none focus-visible:ring-2 focus-visible:outline-none"
       >
-        <FiMoreVertical size={20} />
+        <EllipsisVertical size={20} />
       </button>
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: the click handler only dismisses the popover; keyboard dismissal is handled by the document keydown listener registered in onMount */}
       <ul

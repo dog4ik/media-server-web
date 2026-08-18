@@ -1,4 +1,4 @@
-import { FiHash } from "solid-icons/fi";
+import Hash from "lucide-solid/icons/hash";
 import nameToHash from "../../utils/nameToHash";
 
 type Props = {
@@ -13,7 +13,7 @@ export default function SectionTitle(props: Props) {
       <h2 id={nameToHash(props.name)} class="heading text-4xl">
         {props.name}
       </h2>
-      <FiHash
+      <Hash
         class="opacity-0 transition-opacity group-hover:opacity-50"
         size={30}
       />

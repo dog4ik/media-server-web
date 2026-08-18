@@ -1,5 +1,5 @@
 import { Link, type LinkOptions } from "@tanstack/solid-router";
-import { FiPlay } from "solid-icons/fi";
+import Play from "lucide-solid/icons/play";
 
 type Props = {
   link: LinkOptions;
@@ -22,7 +22,7 @@ export default function PlayButton(props: Props) {
       }}
       {...props.link}
     >
-      <FiPlay size={25} class="stroke-black" />
+      <Play size={25} class="stroke-black" />
       <span class="text-black">Play</span>
     </Link>
   );

@@ -1,13 +1,11 @@
 import { Link, type LinkOptions } from "@tanstack/solid-router";
 import clsx from "clsx";
-import { FaSolidClosedCaptioning } from "solid-icons/fa";
-import {
-  FiLoader,
-  FiMaximize,
-  FiPause,
-  FiPlay,
-  FiSettings,
-} from "solid-icons/fi";
+import Captions from "lucide-solid/icons/captions";
+import Loader from "lucide-solid/icons/loader";
+import Maximize from "lucide-solid/icons/maximize";
+import Pause from "lucide-solid/icons/pause";
+import Play from "lucide-solid/icons/play";
+import Settings from "lucide-solid/icons/settings";
 import {
   createSignal,
   type JSX,
@@ -512,7 +510,7 @@ export default function VideoPlayer(props: Props) {
       </div>
       <Show when={isWaiting()}>
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          <FiLoader class="h-10 w-10 animate-spin" />
+          <Loader class="h-10 w-10 animate-spin" />
         </div>
       </Show>
       {/* Rendered only while open so its internal navigation resets on close. */}
@@ -558,7 +556,7 @@ export default function VideoPlayer(props: Props) {
                 class="cursor-pointer p-2"
                 onClick={() => togglePlay()}
               >
-                {isPaused() ? <FiPlay size={30} /> : <FiPause size={30} />}
+                {isPaused() ? <Play size={30} /> : <Pause size={30} />}
               </button>
               <div class="group flex items-center transition-all duration-300">
                 <button
@@ -596,7 +594,7 @@ export default function VideoPlayer(props: Props) {
                 class="cursor-pointer"
                 onClick={() => toggleCaptions()}
               >
-                <FaSolidClosedCaptioning
+                <Captions
                   class={`${tracks.subtitles && showCaptions() ? "text-white" : "text-neutral-700"}`}
                   size={30}
                 />
@@ -610,7 +608,7 @@ export default function VideoPlayer(props: Props) {
                   setShowMenu(!showMenu());
                 }}
               >
-                <FiSettings size={30} />
+                <Settings size={30} />
               </button>
               <button
                 type="button"
@@ -618,7 +616,7 @@ export default function VideoPlayer(props: Props) {
                 class="cursor-pointer p-2"
                 onClick={() => toggleFullScreenMode()}
               >
-                <FiMaximize size={30} />
+                <Maximize size={30} />
               </button>
             </div>
           </div>

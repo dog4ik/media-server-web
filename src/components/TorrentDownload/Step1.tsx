@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import ArrowDown from "lucide-solid/icons/arrow-down";
 import ArrowUp from "lucide-solid/icons/arrow-up";
-import { BiRegularMagnet } from "solid-icons/bi";
+import Magnet from "lucide-solid/icons/magnet";
 import {
   createMemo,
   createSignal,
@@ -192,7 +192,7 @@ function TorrentResult(props: TorrentResultProps) {
           >
             {(magnet) => (
               <a href={magnet()} onClick={(e) => e.stopPropagation()}>
-                <BiRegularMagnet size={20} />
+                <Magnet size={20} />
               </a>
             )}
           </Show>

@@ -1,4 +1,7 @@
-import { FiDelete, FiPause, FiPlay, FiPlus } from "solid-icons/fi";
+import Delete from "lucide-solid/icons/delete";
+import Pause from "lucide-solid/icons/pause";
+import Play from "lucide-solid/icons/play";
+import Plus from "lucide-solid/icons/plus";
 import { type ParentProps, Show } from "solid-js";
 
 type IconProps = {
@@ -27,16 +30,16 @@ export function TorrentBar() {
   return (
     <div class="flex items-center gap-4">
       <Icon title="Add torrent">
-        <FiPlus size={ICON_SIZE} />
+        <Plus size={ICON_SIZE} />
       </Icon>
       <Icon title="Pause torrents">
-        <FiPause size={ICON_SIZE} />
+        <Pause size={ICON_SIZE} />
       </Icon>
       <Icon title="Resume torrents">
-        <FiPlay size={ICON_SIZE} />
+        <Play size={ICON_SIZE} />
       </Icon>
       <Icon title="Remove torrents">
-        <FiDelete size={ICON_SIZE} />
+        <Delete size={ICON_SIZE} />
       </Icon>
     </div>
   );

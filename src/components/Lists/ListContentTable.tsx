@@ -11,7 +11,7 @@ import {
 import ArrowDown from "lucide-solid/icons/arrow-down";
 import ArrowUp from "lucide-solid/icons/arrow-up";
 import ArrowUpDown from "lucide-solid/icons/arrow-up-down";
-import { FiX } from "solid-icons/fi";
+import X from "lucide-solid/icons/x";
 import { createSignal, For, Match, Show, Switch } from "solid-js";
 import FallbackImage from "@/components/FallbackImage";
 import { cn } from "@/lib/cn";
@@ -208,7 +208,7 @@ export function ListContentTable(props: Props) {
           title="Remove from list"
           onClick={() => props.onRemove(cell.row.original)}
         >
-          <FiX size={18} />
+          <X size={18} />
         </Button>
       ),
     },

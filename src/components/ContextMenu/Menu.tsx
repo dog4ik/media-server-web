@@ -1,4 +1,4 @@
-import { FiChevronRight } from "solid-icons/fi";
+import ChevronRight from "lucide-solid/icons/chevron-right";
 import type { ParentProps } from "solid-js";
 import { cn } from "@/utils/cn";
 
@@ -52,7 +52,7 @@ anchor-name: --${props.popoverTarget};
       )}
     >
       <span class="pointer-events-none">{props.children}</span>
-      <FiChevronRight
+      <ChevronRight
         size={16}
         class="text-muted-foreground pointer-events-none"
       />

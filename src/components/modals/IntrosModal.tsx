@@ -1,4 +1,6 @@
-import { FiPlusCircle, FiSave, FiTrash2 } from "solid-icons/fi";
+import CirclePlus from "lucide-solid/icons/circle-plus";
+import Save from "lucide-solid/icons/save";
+import Trash2 from "lucide-solid/icons/trash-2";
 import {
   createEffect,
   createMemo,
@@ -151,7 +153,7 @@ function IntroRow(props: IntroRowProps) {
             size="sm"
             class="h-7 gap-1.5 px-3 text-xs"
           >
-            <FiSave size={12} />
+            <Save size={12} />
             {props.data.saving ? "Saving…" : "Save"}
           </Button>
           <Button
@@ -161,7 +163,7 @@ function IntroRow(props: IntroRowProps) {
             disabled={isDisabled() || props.data.intro === undefined}
             class="text-destructive hover:text-destructive h-7 w-7 p-0"
           >
-            <FiTrash2 size={14} />
+            <Trash2 size={14} />
           </Button>
         </div>
       </div>
@@ -179,7 +181,7 @@ function IntroRow(props: IntroRowProps) {
               disabled={props.data.videoId === undefined}
               class="text-muted-foreground hover:border-primary/60 hover:text-primary flex h-14 w-full items-center justify-center gap-2 rounded-md border border-dashed border-white/20 text-sm transition-colors disabled:pointer-events-none disabled:opacity-40"
             >
-              <FiPlusCircle size={15} />
+              <CirclePlus size={15} />
               Add intro
             </button>
           }
@@ -361,7 +363,7 @@ export function IntrosModal(props: Props) {
                       }
                       class="text-muted-foreground/60 hover:border-primary/40 hover:text-primary flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-white/15 text-xs transition-colors"
                     >
-                      <FiPlusCircle size={12} />
+                      <CirclePlus size={12} />
                       Set range for all episodes
                     </button>
                   }
@@ -384,7 +386,7 @@ export function IntrosModal(props: Props) {
               onClick={saveAll}
               class="h-7 shrink-0 gap-1.5 px-3 text-xs"
             >
-              <FiSave size={12} />
+              <Save size={12} />
               Save all
             </Button>
           </div>

@@ -1,4 +1,4 @@
-import { FiHardDrive } from "solid-icons/fi";
+import HardDrive from "lucide-solid/icons/hard-drive";
 import { Match, Switch } from "solid-js";
 import type { Schemas } from "../utils/serverApi";
 
@@ -16,7 +16,9 @@ export default function ProviderLogo(props: Props) {
         <img src="/tvdb.png" alt="tvdb logo" title="TVDB" />
       </Match>
       <Match when={props.provider === "local"}>
-        <FiHardDrive size={30} title="local" />
+        <span title="local">
+          <HardDrive size={30} />
+        </span>
       </Match>
     </Switch>
   );

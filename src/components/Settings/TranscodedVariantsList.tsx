@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/solid-query";
 import { Link, type LinkOptions } from "@tanstack/solid-router";
-import { FiTrash } from "solid-icons/fi";
+import Trash from "lucide-solid/icons/trash";
 import { ErrorBoundary, For, Match, Show, Suspense, Switch } from "solid-js";
 import {
   Table,
@@ -110,7 +110,7 @@ function Row(props: TableRowProps) {
           class="rounded-md p-2 transition-colors hover:bg-red-500"
           onClick={props.onDelete}
         >
-          <FiTrash size={20} />
+          <Trash size={20} />
         </button>
       </TableCell>
     </TableRow>

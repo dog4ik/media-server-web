@@ -1,6 +1,9 @@
 import { getRouteApi, linkOptions } from "@tanstack/solid-router";
 import clsx from "clsx";
-import { FiDownload, FiSearch, FiSkipForward, FiTrash } from "solid-icons/fi";
+import Download from "lucide-solid/icons/download";
+import Search from "lucide-solid/icons/search";
+import SkipForward from "lucide-solid/icons/skip-forward";
+import Trash from "lucide-solid/icons/trash";
 import { For, Show, Suspense } from "solid-js";
 import { EpisodeCard } from "@/components/Cards/EpisodeCard";
 import { ElementsGrid } from "@/components/ElementsGrid";
@@ -164,13 +167,13 @@ export default function Season(props: Props) {
               </div>
               <div class="flex shrink-0 flex-wrap items-center gap-2">
                 <Icon tooltip="Download" onClick={() => setDownloadModal(true)}>
-                  <FiDownload />
+                  <Download size="1em" />
                 </Icon>
                 <Icon
                   tooltip="Manage intros"
                   onClick={() => setIntrosModal(true)}
                 >
-                  <FiSkipForward />
+                  <SkipForward size="1em" />
                 </Icon>
                 <Show when={season().provider === "local"}>
                   <Icon
@@ -182,7 +185,7 @@ export default function Season(props: Props) {
                     disabled={!props.canDetectIntros}
                     onClick={() => detectIntros(+props.showId, season().number)}
                   >
-                    <FiSearch />
+                    <Search size="1em" />
                   </Icon>
                   <Icon
                     variant="destructive"
@@ -196,7 +199,7 @@ export default function Season(props: Props) {
                       )
                     }
                   >
-                    <FiTrash />
+                    <Trash size="1em" />
                   </Icon>
                 </Show>
               </div>

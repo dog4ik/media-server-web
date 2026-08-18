@@ -1,5 +1,5 @@
 import type { LinkOptions } from "@tanstack/solid-router";
-import { FiImage } from "solid-icons/fi";
+import ImageIcon from "lucide-solid/icons/image";
 import { type ParentProps, Show } from "solid-js";
 import type { Video } from "@/utils/library";
 import { queryApi } from "@/utils/queryApi";
@@ -51,11 +51,11 @@ export default function VideoActions(props: Props) {
       </Show>
       <Show when={props.video.details.previews_count === 0}>
         <Icon tooltip="Generate previews" onClick={generatePreviews}>
-          <FiImage />
+          <ImageIcon size="1em" />
         </Icon>
         <Show when={props.video.details.previews_count > 0}>
           <Icon tooltip="Remove previews" onClick={deletePreviews}>
-            <FiImage />
+            <ImageIcon size="1em" />
           </Icon>
         </Show>
       </Show>

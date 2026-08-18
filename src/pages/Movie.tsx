@@ -1,5 +1,5 @@
 import { getRouteApi, linkOptions } from "@tanstack/solid-router";
-import { FiDownload } from "solid-icons/fi";
+import Download from "lucide-solid/icons/download";
 import {
   createEffect,
   createSignal,
@@ -140,7 +140,7 @@ export default function Movie() {
                               tooltip="Download"
                               onClick={() => setDownloadModal(true)}
                             >
-                              <FiDownload />
+                              <Download size="1em" />
                             </Icon>
                           }
                         >
@@ -150,7 +150,7 @@ export default function Movie() {
                                 tooltip="Download"
                                 onClick={() => setDownloadModal(true)}
                               >
-                                <FiDownload />
+                                <Download size="1em" />
                               </Icon>
                             </VideoActions>
                           )}

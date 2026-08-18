@@ -1,10 +1,8 @@
-import {
-  FiAlertOctagon,
-  FiAlertTriangle,
-  FiRefreshCw,
-  FiSearch,
-  FiWifiOff,
-} from "solid-icons/fi";
+import OctagonAlert from "lucide-solid/icons/octagon-alert";
+import RefreshCw from "lucide-solid/icons/refresh-cw";
+import Search from "lucide-solid/icons/search";
+import TriangleAlert from "lucide-solid/icons/triangle-alert";
+import WifiOff from "lucide-solid/icons/wifi-off";
 import {
   type ComponentProps,
   ErrorBoundary,
@@ -72,7 +70,7 @@ function ErrorPanel(props: PanelProps) {
       <Show when={props.retry}>
         {(retry) => (
           <Button onClick={retry()} class="gap-2">
-            <FiRefreshCw />
+            <RefreshCw size="1em" />
             Try again
           </Button>
         )}
@@ -95,7 +93,7 @@ function ServerUnavailable(props: { reset: () => void }) {
   return (
     <ErrorPanel
       accent="muted"
-      icon={<FiWifiOff size={32} />}
+      icon={<WifiOff size={32} />}
       title="Server is not available"
       message={
         <>
@@ -160,7 +158,7 @@ export function ErrorComponent(props: Props) {
       <ErrorLayout>
         <ErrorPanel
           accent="muted"
-          icon={<FiSearch size={32} />}
+          icon={<Search size={32} />}
           title="Not found"
           message={
             props.err.message ||
@@ -176,7 +174,7 @@ export function ErrorComponent(props: Props) {
     return (
       <ErrorLayout>
         <ErrorPanel
-          icon={<FiAlertOctagon size={32} />}
+          icon={<OctagonAlert size={32} />}
           title="Request failed"
           message={
             props.context
@@ -193,7 +191,7 @@ export function ErrorComponent(props: Props) {
     return (
       <ErrorLayout>
         <ErrorPanel
-          icon={<FiAlertOctagon size={32} />}
+          icon={<OctagonAlert size={32} />}
           title="Internal server error"
           message={props.err.message || props.context}
           retry={props.reset}
@@ -205,7 +203,7 @@ export function ErrorComponent(props: Props) {
   return (
     <ErrorLayout>
       <ErrorPanel
-        icon={<FiAlertTriangle size={32} />}
+        icon={<TriangleAlert size={32} />}
         title="Something went wrong"
         message={
           props.context ?? props.err.message ?? "An unexpected error occurred."

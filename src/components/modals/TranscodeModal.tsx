@@ -1,4 +1,4 @@
-import { FiAlertTriangle } from "solid-icons/fi";
+import TriangleAlert from "lucide-solid/icons/triangle-alert";
 import { createSignal, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Alert, AlertDescription, AlertTitle } from "@/ui/alert";
@@ -135,7 +135,7 @@ export function TranscodeModal(props: Props) {
         <Show when={redundancy()}>
           {(r) => (
             <Alert>
-              <FiAlertTriangle class="h-4 w-4" />
+              <TriangleAlert class="h-4 w-4" />
               <AlertTitle>Warning: </AlertTitle>
               <AlertDescription>
                 Current configuration duplicates{" "}

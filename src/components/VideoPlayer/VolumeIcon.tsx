@@ -1,4 +1,7 @@
-import { FiVolume, FiVolume1, FiVolume2, FiVolumeX } from "solid-icons/fi";
+import Volume from "lucide-solid/icons/volume";
+import Volume1 from "lucide-solid/icons/volume-1";
+import Volume2 from "lucide-solid/icons/volume-2";
+import VolumeX from "lucide-solid/icons/volume-x";
 import { Match, Switch } from "solid-js";
 
 type Props = {
@@ -11,16 +14,16 @@ export default function VolumeIcon(props: Props) {
   return (
     <Switch>
       <Match when={props.volume === 0 || props.isMuted}>
-        <FiVolumeX size={size} />
+        <VolumeX size={size} />
       </Match>
       <Match when={props.volume < 0.3}>
-        <FiVolume size={size} />
+        <Volume size={size} />
       </Match>
       <Match when={props.volume >= 0.8}>
-        <FiVolume2 size={size} />
+        <Volume2 size={size} />
       </Match>
       <Match when={props.volume < 0.8}>
-        <FiVolume1 size={size} />
+        <Volume1 size={size} />
       </Match>
     </Switch>
   );

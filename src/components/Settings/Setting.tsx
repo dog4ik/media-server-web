@@ -1,5 +1,7 @@
 import clsx from "clsx";
-import { FiAlertTriangle, FiPlusCircle, FiX } from "solid-icons/fi";
+import CirclePlus from "lucide-solid/icons/circle-plus";
+import TriangleAlert from "lucide-solid/icons/triangle-alert";
+import X from "lucide-solid/icons/x";
 import {
   createMemo,
   createSignal,
@@ -131,7 +133,7 @@ export function InferredInput<T extends InputPropType>(props: InputProps<T>) {
           onClick={onAdd}
           class="flex h-12 w-full items-center justify-center rounded-xl bg-white/80"
         >
-          <FiPlusCircle size={30} />
+          <CirclePlus size={30} />
         </button>
       </div>
     );
@@ -204,7 +206,7 @@ function FileInputs(props: FileInputsProps) {
                 onChange={(val) => onChange(idx(), val)}
               />
               <Button variant={"destructive"} onClick={() => onRemove(idx())}>
-                <FiX size={20} />
+                <X size={20} />
               </Button>
             </div>
           )}
@@ -215,7 +217,7 @@ function FileInputs(props: FileInputsProps) {
           }}
           class="w-full"
         >
-          <FiPlusCircle size={30} />
+          <CirclePlus size={30} />
         </Button>
       </div>
     </>
@@ -241,7 +243,7 @@ export function Setting(props: Props & ParentProps) {
       <Switch>
         <Match when={props.remote.cli_value !== null}>
           <Alert>
-            <FiAlertTriangle size={20} />
+            <TriangleAlert size={20} />
             <AlertTitle>Warning</AlertTitle>
             <AlertDescription>
               Setting is being overwritten by CLI argument
@@ -250,7 +252,7 @@ export function Setting(props: Props & ParentProps) {
         </Match>
         <Match when={props.remote.env_value !== null}>
           <Alert>
-            <FiAlertTriangle size={20} />
+            <TriangleAlert size={20} />
             <AlertTitle>Warning</AlertTitle>
             <AlertDescription>
               Setting is being overwritten by environment variable

@@ -1,10 +1,8 @@
-import {
-  FiFileText,
-  FiFolder,
-  FiHardDrive,
-  FiHome,
-  FiVideo,
-} from "solid-icons/fi";
+import FileText from "lucide-solid/icons/file-text";
+import Folder from "lucide-solid/icons/folder";
+import HardDrive from "lucide-solid/icons/hard-drive";
+import House from "lucide-solid/icons/house";
+import Video from "lucide-solid/icons/video";
 import {
   createEffect,
   createMemo,
@@ -28,19 +26,19 @@ function FileIcon(props: { fileType: FileType }) {
   return (
     <Switch>
       <Match when={props.fileType === "file"}>
-        <FiFileText size={size} />
+        <FileText size={size} />
       </Match>
       <Match when={props.fileType === "disk"}>
-        <FiHardDrive size={size} />
+        <HardDrive size={size} />
       </Match>
       <Match when={props.fileType === "directory"}>
-        <FiFolder size={size} />
+        <Folder size={size} />
       </Match>
       <Match when={props.fileType === "home"}>
-        <FiHome size={size} />
+        <House size={size} />
       </Match>
       <Match when={props.fileType === "videos"}>
-        <FiVideo size={size} />
+        <Video size={size} />
       </Match>
     </Switch>
   );

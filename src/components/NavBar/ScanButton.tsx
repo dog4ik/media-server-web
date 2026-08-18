@@ -1,4 +1,6 @@
-import { FiCheck, FiRefreshCcw, FiX } from "solid-icons/fi";
+import Check from "lucide-solid/icons/check";
+import RefreshCcw from "lucide-solid/icons/refresh-ccw";
+import X from "lucide-solid/icons/x";
 import {
   createEffect,
   createMemo,
@@ -167,7 +169,7 @@ function PhaseSteps(props: { current: number }) {
                 title={phase.label}
               >
                 <Show when={state() === "done"} fallback={i() + 1}>
-                  <FiCheck size={10} />
+                  <Check size={10} />
                 </Show>
               </div>
             </>
@@ -390,7 +392,7 @@ export default function ScanButton() {
             onClick={startScan}
             aria-label="Scan library"
           >
-            <FiRefreshCcw size={20} />
+            <RefreshCcw size={20} />
           </TooltipTrigger>
           <TooltipContent>Scan library</TooltipContent>
         </Tooltip>
@@ -411,10 +413,10 @@ export default function ScanButton() {
             <Show
               when={isFinished()}
               fallback={
-                <FiRefreshCcw size={18} class="animate-spin text-white" />
+                <RefreshCcw size={18} class="animate-spin text-white" />
               }
             >
-              <FiCheck size={18} class="text-primary" />
+              <Check size={18} class="text-primary" />
             </Show>
           </DropdownMenuTrigger>
           <DropdownMenuContent class="w-80 p-0">
@@ -429,7 +431,7 @@ export default function ScanButton() {
                   aria-label="Discard scan result"
                   class="text-muted-foreground hover:text-foreground -mr-1 flex size-6 items-center justify-center rounded-md transition-colors"
                 >
-                  <FiX size={16} />
+                  <X size={16} />
                 </button>
               </Show>
             </div>

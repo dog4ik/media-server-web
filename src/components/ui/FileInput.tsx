@@ -1,4 +1,4 @@
-import { FiEdit2 } from "solid-icons/fi";
+import Pen from "lucide-solid/icons/pen";
 import { createSignal, Show } from "solid-js";
 import { Button } from "@/ui/button";
 import {
@@ -51,7 +51,7 @@ export default function FileInput(props: FileInputProps) {
             setShowModal(true);
           }}
         >
-          <FiEdit2 />
+          <Pen size="1em" />
         </Button>
       </div>
     </>

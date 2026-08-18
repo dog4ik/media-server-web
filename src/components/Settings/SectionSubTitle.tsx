@@ -1,4 +1,4 @@
-import { FiHash } from "solid-icons/fi";
+import Hash from "lucide-solid/icons/hash";
 import textToKebab from "../../utils/nameToHash";
 
 type Props = {
@@ -13,7 +13,7 @@ export default function SectionSubTitle(props: Props) {
       <h3 id={textToKebab(props.name)} class="heading text-2xl">
         {props.name}
       </h3>
-      <FiHash
+      <Hash
         class="opacity-0 transition-opacity group-hover:opacity-50"
         size={30}
       />

@@ -1,5 +1,6 @@
 import { getRouteApi } from "@tanstack/solid-router";
-import { FiDownload, FiSearch } from "solid-icons/fi";
+import Download from "lucide-solid/icons/download";
+import Search from "lucide-solid/icons/search";
 import {
   createEffect,
   createMemo,
@@ -115,7 +116,7 @@ export default function ShowPage() {
                         tooltip="Download"
                         onClick={() => setDownloadModal(true)}
                       >
-                        <FiDownload />
+                        <Download size="1em" />
                       </Icon>
                       <Show when={show().provider === "local"}>
                         <Suspense>
@@ -128,7 +129,7 @@ export default function ShowPage() {
                             disabled={!capabilities.data?.chromaprint_enabled}
                             onClick={() => detectIntros()}
                           >
-                            <FiSearch />
+                            <Search size="1em" />
                           </Icon>
                         </Suspense>
                       </Show>

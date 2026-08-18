@@ -1,12 +1,10 @@
-import {
-  FiArrowLeft,
-  FiCheck,
-  FiChevronRight,
-  FiFastForward,
-  FiMusic,
-  FiType,
-  FiVideo,
-} from "solid-icons/fi";
+import ArrowLeft from "lucide-solid/icons/arrow-left";
+import Check from "lucide-solid/icons/check";
+import ChevronRight from "lucide-solid/icons/chevron-right";
+import FastForward from "lucide-solid/icons/fast-forward";
+import Music from "lucide-solid/icons/music";
+import TypeIcon from "lucide-solid/icons/type";
+import Video from "lucide-solid/icons/video";
 import { createSignal, For, Match, Show, Switch } from "solid-js";
 import { unwrap } from "solid-js/store";
 import { Dynamic } from "solid-js/web";
@@ -21,7 +19,7 @@ import type { Schemas } from "@/utils/serverApi";
 type SubMenuKey = "subtitles" | "audio" | "video" | "playback";
 type MenuKey = "main" | SubMenuKey;
 
-type IconComponent = typeof FiVideo;
+type IconComponent = typeof Video;
 
 /** A row in the main menu that drills down into a sub menu. */
 type NavRow = {
@@ -109,7 +107,7 @@ function PanelHeader(props: { title: string; onBack: () => void }) {
       class="border-border text-popover-foreground hover:bg-accent hover:text-accent-foreground flex h-12 w-full shrink-0 items-center gap-2 border-b px-2 text-sm font-medium transition-colors"
       style={{ height: `${ROW_HEIGHT}px` }}
     >
-      <FiArrowLeft class="size-5 shrink-0" />
+      <ArrowLeft class="size-5 shrink-0" />
       <span class="truncate">{props.title}</span>
     </button>
   );
@@ -134,7 +132,7 @@ function NavMenuRow(props: {
       <span class="text-muted-foreground group-hover:text-accent-foreground truncate transition-colors">
         {props.row.value()}
       </span>
-      <FiChevronRight class="text-muted-foreground group-hover:text-accent-foreground size-4 shrink-0 transition-colors" />
+      <ChevronRight class="text-muted-foreground group-hover:text-accent-foreground size-4 shrink-0 transition-colors" />
     </button>
   );
 }
@@ -153,7 +151,7 @@ function SelectMenuRow(props: { row: SelectRow; onSelected: () => void }) {
     >
       <span class="flex size-5 shrink-0 items-center justify-center">
         <Show when={props.row.selected()}>
-          <FiCheck class="size-5" />
+          <Check class="size-5" />
         </Show>
       </span>
       <span class="flex-1 truncate text-left">{props.row.label}</span>
@@ -209,28 +207,28 @@ export default function PlayerMenu(props: MenuProps) {
     main: () => [
       {
         kind: "nav",
-        icon: FiFastForward,
+        icon: FastForward,
         label: "Playback speed",
         value: () => formatPlaybackSpeed(props.currentPlaybackSpeed),
         target: "playback",
       },
       {
         kind: "nav",
-        icon: FiType,
+        icon: TypeIcon,
         label: "Subtitles",
         value: () => formatSubtitlesTrack(tracks.subtitles),
         target: "subtitles",
       },
       {
         kind: "nav",
-        icon: FiMusic,
+        icon: Music,
         label: "Audio",
         value: () => formatAudioTrack(tracks.audio),
         target: "audio",
       },
       {
         kind: "nav",
-        icon: FiVideo,
+        icon: Video,
         label: "Video",
         value: () => formatVideoTrack(tracks.video),
         target: "video",

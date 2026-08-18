@@ -1,4 +1,6 @@
-import { FiCheck, FiFeather, FiZapOff } from "solid-icons/fi";
+import Check from "lucide-solid/icons/check";
+import Feather from "lucide-solid/icons/feather";
+import ZapOff from "lucide-solid/icons/zap-off";
 import { createSignal, type ParentProps, Show } from "solid-js";
 import {
   Card,
@@ -238,7 +240,7 @@ function SmoothStats(props: { capabilities: MediaCapabilitiesDecodingInfo }) {
         fallback={
           <Tooltip>
             <TooltipTrigger>
-              <FiCheck class="h-6 w-6 shrink-0 stroke-red-500" />
+              <Check class="h-6 w-6 shrink-0 stroke-red-500" />
             </TooltipTrigger>
             <TooltipContent>
               <p>Not supported</p>
@@ -248,7 +250,7 @@ function SmoothStats(props: { capabilities: MediaCapabilitiesDecodingInfo }) {
       >
         <Tooltip>
           <TooltipTrigger>
-            <FiCheck class="h-6 w-6 shrink-0 stroke-green-500" />
+            <Check class="h-6 w-6 shrink-0 stroke-green-500" />
           </TooltipTrigger>
           <TooltipContent>
             <p>Supported</p>
@@ -260,7 +262,7 @@ function SmoothStats(props: { capabilities: MediaCapabilitiesDecodingInfo }) {
         fallback={
           <Tooltip>
             <TooltipTrigger>
-              <FiFeather class="h-6 w-6 shrink-0 stroke-red-500" />
+              <Feather class="h-6 w-6 shrink-0 stroke-red-500" />
             </TooltipTrigger>
             <TooltipContent>
               <p>Not smooth</p>
@@ -270,7 +272,7 @@ function SmoothStats(props: { capabilities: MediaCapabilitiesDecodingInfo }) {
       >
         <Tooltip>
           <TooltipTrigger>
-            <FiFeather class="h-6 w-6 shrink-0 stroke-green-500" />
+            <Feather class="h-6 w-6 shrink-0 stroke-green-500" />
           </TooltipTrigger>
           <TooltipContent>
             <p>Smooth and easy</p>
@@ -282,7 +284,7 @@ function SmoothStats(props: { capabilities: MediaCapabilitiesDecodingInfo }) {
         fallback={
           <Tooltip>
             <TooltipTrigger>
-              <FiZapOff class="h-6 w-6 shrink-0 stroke-red-500" />
+              <ZapOff class="h-6 w-6 shrink-0 stroke-red-500" />
             </TooltipTrigger>
             <TooltipContent>
               <p>Not power efficient</p>
@@ -292,7 +294,7 @@ function SmoothStats(props: { capabilities: MediaCapabilitiesDecodingInfo }) {
       >
         <Tooltip>
           <TooltipTrigger>
-            <FiZapOff class="h-6 w-6 shrink-0 stroke-green-500" />
+            <ZapOff class="h-6 w-6 shrink-0 stroke-green-500" />
           </TooltipTrigger>
           <TooltipContent>
             <p>Power efficient</p>

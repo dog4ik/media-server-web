@@ -1,6 +1,6 @@
 import { Link, type LinkOptions } from "@tanstack/solid-router";
 import clsx from "clsx";
-import { FiX } from "solid-icons/fi";
+import X from "lucide-solid/icons/x";
 import { createSignal, onMount, type ParentProps, Show } from "solid-js";
 import { buttonVariants } from "@/ui/button";
 
@@ -130,7 +130,7 @@ export default function Notification(
           "absolute top-1 right-1 opacity-0 transition-opacity group-hover:opacity-100",
         )}
       >
-        <FiX />
+        <X size="1em" />
       </button>
     </div>
   );
