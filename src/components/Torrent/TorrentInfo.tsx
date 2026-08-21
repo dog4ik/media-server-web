@@ -87,6 +87,9 @@ export function TorrentInfo(props: Props) {
       <InfoCell label="Name" class="col-span-2 lg:col-span-4">
         <span class="break-all">{props.torrent.name}</span>
       </InfoCell>
+      <InfoCell label="Save location" class="col-span-2 lg:col-span-4">
+        <span class="break-all">{props.torrent.save_location}</span>
+      </InfoCell>
       <InfoCell label="Info hash (hex)" class="col-span-2 lg:col-span-3">
         <div class="flex items-center gap-1.5">
           <code class="min-w-0 text-sm break-all">

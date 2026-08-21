@@ -3464,6 +3464,7 @@ export type components = {
             pending_pieces: number[];
             /** Format: float */
             percent: number;
+            save_location: string;
             state: components["schemas"]["DownloadState"];
             total_pieces: number;
             /** Format: int64 */
