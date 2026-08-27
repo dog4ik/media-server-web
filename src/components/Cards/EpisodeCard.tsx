@@ -161,12 +161,13 @@ export function EpisodeCard(props: Props) {
           localLink={
             props.episode.local?.id &&
             props.localShowId &&
+            props.episode.local?.videos_count > 0 &&
             props.episode.provider !== "local"
               ? linkOptions({
                   to: "/shows/$id/$season/$episode",
                   search: { provider: "local" },
                   params: {
-                    id: props.localShowId?.toString(),
+                    id: props.localShowId.toString(),
                     season: props.episode.season_number.toString(),
                     episode: props.episode.number.toString(),
                   },

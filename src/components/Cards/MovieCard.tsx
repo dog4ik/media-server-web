@@ -149,7 +149,7 @@ export function MovieCard(props: Props) {
               }
             }}
             localLink={
-              props.movie.local?.id && props.movie.provider !== "local"
+              props.movie.local?.id && props.movie.local?.videos_count > 0
                 ? linkOptions({
                     to: "/movies/$id",
                     search: { provider: "local" },

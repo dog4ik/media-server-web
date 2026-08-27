@@ -1,12 +1,10 @@
 import {
-  type CellContext,
   type ColumnDef,
   type ColumnFiltersState,
   createSolidTable,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   type SortingState,
   type VisibilityState,
@@ -32,11 +30,11 @@ type Props = {
   peers: Schemas["StatePeer"][];
 };
 
-function Status(props: { cell: CellContext<Schemas["StatePeer"], unknown> }) {
+function Status(props: { status: Schemas["Status"] }) {
   return (
-    <div class="flex w-[100px] items-center gap-2">
+    <div class="flex w-25 items-center gap-2">
       <Show
-        when={props.cell.row.original.in_status.choked}
+        when={props.status.choked}
         fallback={
           <Badge title="Unchoked" class="bg-green-400 transition-colors">
             C
@@ -48,7 +46,7 @@ function Status(props: { cell: CellContext<Schemas["StatePeer"], unknown> }) {
         </Badge>
       </Show>
       <Show
-        when={props.cell.row.original.in_status.interested}
+        when={props.status.interested}
         fallback={
           <Badge title="Uninterested" class="bg-red-400 transition-colors">
             I
@@ -71,7 +69,7 @@ const COLUMNS: ColumnDef<Schemas["StatePeer"]>[] = [
     ),
     cell: (props) => (
       <div class="flex space-x-2">
-        <span class="max-w-[250px] truncate font-medium">
+        <span class="max-w-62.5 truncate font-medium">
           {props.row.getValue("addr")}
         </span>
       </div>
@@ -84,7 +82,7 @@ const COLUMNS: ColumnDef<Schemas["StatePeer"]>[] = [
     ),
     cell: (props) => (
       <div class="flex space-x-2">
-        <span class="max-w-[250px] truncate font-medium">
+        <span class="max-w-62.5 truncate font-medium">
           {props.row.getValue("client_name")}
         </span>
       </div>
@@ -97,7 +95,7 @@ const COLUMNS: ColumnDef<Schemas["StatePeer"]>[] = [
       <TableColumnHeader column={props.column} title="Total downloaded" />
     ),
     cell: (props) => (
-      <div class="flex w-[100px] items-center">
+      <div class="flex w-25 items-center">
         <span class="text-center">
           {formatSize(props.row.original.downloaded)}
         </span>
@@ -111,7 +109,7 @@ const COLUMNS: ColumnDef<Schemas["StatePeer"]>[] = [
       <TableColumnHeader column={props.column} title="Download speed" />
     ),
     cell: (props) => (
-      <div class="flex w-[100px] items-center">
+      <div class="flex w-25 items-center">
         <span class="text-center">
           {formatSize(props.row.original.download_speed)}/s
         </span>
@@ -125,7 +123,7 @@ const COLUMNS: ColumnDef<Schemas["StatePeer"]>[] = [
       <TableColumnHeader column={props.column} title="Total uploaded" />
     ),
     cell: (props) => (
-      <div class="flex w-[100px] items-center">
+      <div class="flex w-25 items-center">
         <span class="text-center">
           {formatSize(props.row.original.uploaded)}
         </span>
@@ -139,7 +137,7 @@ const COLUMNS: ColumnDef<Schemas["StatePeer"]>[] = [
       <TableColumnHeader column={props.column} title="Upload speed" />
     ),
     cell: (props) => (
-      <div class="flex w-[100px] items-center">
+      <div class="flex w-25 items-center">
         <span class="text-center">
           {formatSize(props.row.original.upload_speed)}/s
         </span>
@@ -151,14 +149,28 @@ const COLUMNS: ColumnDef<Schemas["StatePeer"]>[] = [
     header: (props) => (
       <TableColumnHeader column={props.column} title="In status" />
     ),
-    cell: (props) => <Status cell={props} />,
+    cell: (props) => <Status status={props.row.original.in_status} />,
   },
   {
     accessorKey: "out_status",
     header: (props) => (
       <TableColumnHeader column={props.column} title="Out status" />
     ),
-    cell: (props) => <Status cell={props} />,
+    cell: (props) => <Status status={props.row.original.out_status} />,
+  },
+  {
+    accessorKey: "interested_amount",
+    header: (props) => (
+      <TableColumnHeader column={props.column} title="Interested count" />
+    ),
+    cell: (props) => <span>{props.row.original.interested_amount}</span>,
+  },
+  {
+    accessorKey: "pending_blocks_amount",
+    header: (props) => (
+      <TableColumnHeader column={props.column} title="Pending block count" />
+    ),
+    cell: (props) => <span>{props.row.original.pending_blocks_amount}</span>,
   },
 ];
 
@@ -205,7 +217,6 @@ export function PeerList(props: Props) {
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
 

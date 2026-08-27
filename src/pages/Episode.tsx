@@ -107,14 +107,12 @@ export default function Episode() {
     "/api/video/by_content",
     () => ({
       params: {
-        query: { id: +episode.latest()?.provider_id!, content_type: "show" },
+        query: { id: episode.latest()?.local?.id!, content_type: "show" },
       },
     }),
     () => ({
       select: (videos) => videos.map((v) => new Video(v)),
-      enabled: episode.latest()?.provider === "local",
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
+      enabled: episode.latest()?.local?.id !== undefined,
     }),
   );
 
@@ -139,7 +137,7 @@ export default function Episode() {
     return linkOptions({
       to: "/shows/$id/$season/$episode/watch",
       params: {
-        id: params().id,
+        id: id.toString(),
         season: params().season,
         episode: params().episode,
       },

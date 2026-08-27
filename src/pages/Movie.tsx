@@ -65,13 +65,13 @@ export default function Movie() {
       params: {
         query: {
           content_type: "movie",
-          id: +(movie.latest()?.provider_id || "0"),
+          id: movie.latest()?.local?.id!,
         },
       },
     }),
     () => ({
       select: (videos) => videos.map((v) => new Video(v)),
-      enabled: movie.latest()?.provider === "local",
+      enabled: movie.latest()?.local?.id !== undefined,
     }),
   );
 
@@ -92,7 +92,7 @@ export default function Movie() {
     if (!id) return;
     return linkOptions({
       to: "/movies/$id/watch",
-      params: { id: params().id },
+      params: { id: id.toString() },
       search: { variant_id, video_id },
     });
   };
