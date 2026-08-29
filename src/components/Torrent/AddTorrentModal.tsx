@@ -28,7 +28,7 @@ const ICON_SIZE = 15;
 export function AddTorrentModal() {
   let [open, setOpen] = createSignal(false);
   let [magnetLink, setMagnetLink] = createSignal("");
-  let [saveLocation, setSaveLocation] = createSignal("");
+  let [saveLocation, setSaveLocation] = createSignal<string>();
   let [torrentFile, setTorrentFile] = createSignal<File>();
   let [error, setError] = createSignal<string>();
   let [isLoading, setIsLoading] = createSignal(false);
@@ -49,6 +49,11 @@ export function AddTorrentModal() {
     SubmitEvent
   > = async (e) => {
     e.preventDefault();
+    let location = saveLocation();
+    if (!location) {
+      setError("Please enter a save directory");
+      return;
+    }
     let link = magnetLink().trim();
     if (!link) {
       setError("Please enter a magnet link");
@@ -60,7 +65,7 @@ export function AddTorrentModal() {
       await server.POST("/api/torrent/open", {
         body: {
           magnet_link: link,
-          save_location: saveLocation() || null,
+          save_location: location,
         },
       });
       handleOpenChange(false);
@@ -80,6 +85,11 @@ export function AddTorrentModal() {
     e,
   ) => {
     e.preventDefault();
+    let location = saveLocation();
+    if (!location) {
+      setError("Please select a save directory");
+      return;
+    }
     let file = torrentFile();
     if (!file) {
       setError("Please select a .torrent file");
@@ -90,9 +100,7 @@ export function AddTorrentModal() {
       setIsLoading(true);
       let formData = new FormData();
       formData.append("torrent_file", file);
-      if (saveLocation()) {
-        formData.append("save_location", saveLocation());
-      }
+      formData.append("save_location", location);
       let response = await fetch(
         `${MEDIA_SERVER_URL}/api/torrent/open_torrent_file`,
         {

@@ -70,9 +70,9 @@ export default function ShowPage() {
   async function detectIntros() {
     const season = seasonNumber();
     if (show.data?.provider === "local" && season !== undefined) {
-      await server.POST("/api/show/{show_id}/{season}/detect_intros", {
+      await server.POST("/api/show/{id}/{season}/detect_intros", {
         params: {
-          path: { season, show_id: +show.data.provider_id },
+          path: { season, id: +show.data.provider_id },
         },
       });
     }
@@ -95,8 +95,6 @@ export default function ShowPage() {
                 <DownloadTorrentModal
                   open={downloadModal()}
                   onClose={() => setDownloadModal(false)}
-                  metadata_id={show().provider_id}
-                  metadata_provider={search().provider}
                   query={(p) => torrentQuery.SHOW_FORMATTER[p](show())}
                   content_type="show"
                 />

@@ -3,8 +3,6 @@ import type { Schemas } from "../../utils/serverApi";
 import { TorrentDownloadSteps } from "../TorrentDownload";
 
 type Props = {
-  metadata_provider: Schemas["MetadataProvider"];
-  metadata_id: string;
   content_type: Schemas["ParentMediaType"];
   onClose: () => void;
   query: (provider: Schemas["TorrentIndexIdentifier"]) => string;
@@ -25,11 +23,7 @@ export default function DownloadTorrentModal(props: Props) {
             <DialogTitle>Download</DialogTitle>
           </DialogHeader>
           <TorrentDownloadSteps
-            content_hint={{
-              content_type: props.content_type,
-              metadata_id: props.metadata_id,
-              metadata_provider: props.metadata_provider,
-            }}
+            content_hint={{ content_type: props.content_type }}
             onClose={props.onClose}
             downloadQuery={props.query}
           />

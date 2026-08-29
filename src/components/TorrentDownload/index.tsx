@@ -1,5 +1,6 @@
 import { createMemo, createSignal, Match, Show, Switch } from "solid-js";
 import { useNotifications } from "@/context/NotificationContext";
+import { torrentFilesIndex } from "@/lib/torrentContent";
 import { Button } from "@/ui/button";
 import { queryApi } from "@/utils/queryApi";
 import { formatSize } from "../../utils/formats";
@@ -50,9 +51,7 @@ export function TorrentDownloadSteps(props: Props) {
       params: {
         query: {
           magnet_link: selectedMagnetLink()!,
-          metadata_id: props.content_hint?.metadata_id,
           content_type: props.content_hint?.content_type,
-          metadata_provider: props.content_hint?.metadata_provider,
         },
       },
     }),
@@ -86,6 +85,11 @@ export function TorrentDownloadSteps(props: Props) {
     setCurrentStep(newStep);
   }
 
+  let filesIndex = createMemo(() => {
+    let content = resolvedMagnetLink.latest();
+    return content ? torrentFilesIndex(content) : undefined;
+  });
+
   let enabledFiles = createMemo(() =>
     selectedFiles().reduce<number[]>((acc, enabled, idx) => {
       if (enabled) acc.push(idx);
@@ -98,8 +102,7 @@ export function TorrentDownloadSteps(props: Props) {
       body: {
         magnet_link: selectedMagnetLink()!,
         enabled_files: enabledFiles(),
-        save_location: outputLocation(),
-        content_hint: props.content_hint,
+        save_location: outputLocation()!,
       },
     });
     if (r.error) {
@@ -160,10 +163,10 @@ export function TorrentDownloadSteps(props: Props) {
             <Button onClick={() => changeStep(currentStep() + 1)}>
               Selected{" "}
               {formatSize(
-                enabledFiles().reduce((acc, n) => {
-                  const file = resolvedMagnetLink.latest()?.contents.files[n];
-                  return acc + (file?.size ?? 0);
-                }, 0),
+                enabledFiles().reduce(
+                  (acc, idx) => acc + (filesIndex()?.get(idx)?.size ?? 0),
+                  0,
+                ),
               )}{" "}
               ({enabledFiles().length}{" "}
               {enabledFiles().length === 1 ? "File" : "Files"})
@@ -171,7 +174,9 @@ export function TorrentDownloadSteps(props: Props) {
           </Show>
         </Show>
         <Show when={currentStep() === 2}>
-          <Button onClick={handleFinish}>Finish</Button>
+          <Button disabled={!outputLocation()} onClick={handleFinish}>
+            Finish
+          </Button>
         </Show>
       </div>
     </div>

@@ -1,7 +1,7 @@
-import { createMemo, For, type ParentProps, Show } from "solid-js";
+import { For, type ParentProps, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Checkbox, CheckboxControl } from "@/ui/checkbox";
-import { formatSize } from "../../utils/formats";
+import { formatSE, formatSize } from "../../utils/formats";
 import type { Schemas } from "../../utils/serverApi";
 import { ElementsGrid } from "../ElementsGrid";
 
@@ -97,47 +97,14 @@ export default function Step2(props: Props) {
     props.onFileSelect(selectedFiles);
   }
 
-  let file = (idx: number) => props.content.contents.files[idx];
-
-  let otherFiles = createMemo(() => {
-    if (
-      props.content.contents.content &&
-      "show" in props.content.contents.content
-    ) {
-      let allShows = Object.values(
-        props.content.contents.content.show.seasons,
-      ).flatMap((d) => d?.map((f) => f.file_idx));
-      return props.content.contents.files
-        .map((f, i) => ({ ...f, idx: i }))
-        .filter((_, idx) => !allShows.includes(idx));
-    }
-    if (props.content.contents.content?.movie) {
-      let allMovies = Object.values(props.content.contents.content.movie).map(
-        (d) => d.file_idx,
-      );
-      return props.content.contents.files
-        .map((f, i) => ({ ...f, idx: i }))
-        .filter((_, idx) => !allMovies.includes(idx));
-    }
-    return props.content.contents.files.map((f, i) => ({ ...f, idx: i }));
-  });
-
   let show = () => {
-    if (
-      props.content.contents.content &&
-      "show" in props.content.contents.content
-    ) {
-      return props.content.contents.content.show;
-    }
+    let content = props.content.content;
+    return content?.media_type === "show" ? content : undefined;
   };
 
-  let movie = () => {
-    if (
-      props.content.contents.content &&
-      "movie" in props.content.contents.content
-    ) {
-      return props.content.contents.content.movie;
-    }
+  let movies = () => {
+    let content = props.content.content;
+    return content?.media_type === "movie" ? content.movies : undefined;
   };
 
   return (
@@ -147,11 +114,11 @@ export default function Step2(props: Props) {
           <For each={Object.entries(show().seasons)}>
             {([seasonNumber, season]) => (
               <SelectionSector
-                isSelected={season?.every((ep) => selectedFiles[ep.file_idx])}
+                isSelected={season.every((ep) => selectedFiles[ep.file_idx])}
                 title={`Season: ${seasonNumber}`}
                 onSelect={(force) =>
                   selectMany(
-                    season?.map((ep) => ep.file_idx),
+                    season.map((ep) => ep.file_idx),
                     force,
                   )
                 }
@@ -160,11 +127,11 @@ export default function Step2(props: Props) {
                   {(episode) => (
                     <File
                       title={episode.metadata.title}
-                      subtitle={`Episode ${episode.metadata.number.toString().padStart(2, "0")}`}
-                      path={file(episode.file_idx).path.at(-1)}
+                      subtitle={`Episode ${formatSE(episode.metadata.number)}`}
+                      path={episode.path.at(-1)}
                       poster={episode.metadata.poster ?? undefined}
                       isSelected={selectedFiles[episode.file_idx]}
-                      size={file(episode.file_idx).size}
+                      size={episode.size}
                       onSelect={(force) => select(episode.file_idx, force)}
                     />
                   )}
@@ -174,49 +141,52 @@ export default function Step2(props: Props) {
           </For>
         )}
       </Show>
-      <Show when={movie()}>
-        {(movie) => (
+      <Show when={movies()}>
+        {(movies) => (
           <SelectionSector
             title="Movie"
             onSelect={(force) =>
               selectMany(
-                movie().map((f) => f.file_idx),
+                movies().map((f) => f.file_idx),
                 force,
               )
             }
-            isSelected={movie().every((v) => selectedFiles[v.file_idx])}
+            isSelected={movies().every((v) => selectedFiles[v.file_idx])}
           >
-            <For each={movie()}>
+            <For each={movies()}>
               {(movie) => (
                 <File
                   isSelected={selectedFiles[movie.file_idx]}
-                  title={file(movie.file_idx).path.at(-1) ?? ""}
+                  title={movie.metadata.title}
+                  poster={movie.metadata.poster ?? undefined}
                   onSelect={(force) => select(movie.file_idx, force)}
-                  path={file(movie.file_idx).path.at(-1)}
-                  size={file(movie.file_idx).size}
+                  path={movie.path.at(-1)}
+                  size={movie.size}
                 />
               )}
             </For>
           </SelectionSector>
         )}
       </Show>
-      <Show when={otherFiles().length}>
+      <Show when={props.content.other_files.length}>
         <SelectionSector
           title="Other files"
           onSelect={(force) =>
             selectMany(
-              otherFiles().map((f) => f.idx),
+              props.content.other_files.map((f) => f.file_idx),
               force,
             )
           }
-          isSelected={otherFiles().every((v) => selectedFiles[v.idx])}
+          isSelected={props.content.other_files.every(
+            (v) => selectedFiles[v.file_idx],
+          )}
         >
-          <For each={otherFiles()}>
+          <For each={props.content.other_files}>
             {(file) => (
               <File
-                isSelected={selectedFiles[file.idx]}
+                isSelected={selectedFiles[file.file_idx]}
                 title={file.path.at(-1) ?? ""}
-                onSelect={(force) => select(file.idx, force)}
+                onSelect={(force) => select(file.file_idx, force)}
                 path={file.path.at(-1)}
                 size={file.size}
               />

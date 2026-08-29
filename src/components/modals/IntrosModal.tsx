@@ -297,8 +297,8 @@ export function IntrosModal(props: Props) {
     let d = data[index];
     if (!d.intro || d.videoId === undefined) return;
     setData(index, "saving", true);
-    await server.PUT("/api/video/{video_id}/intro", {
-      params: { path: { video_id: d.videoId } },
+    await server.PUT("/api/video/{id}/intro", {
+      params: { path: { id: d.videoId } },
       body: {
         start: Math.floor(d.intro.start_sec),
         end: Math.floor(d.intro.end_sec),
@@ -311,8 +311,8 @@ export function IntrosModal(props: Props) {
     let d = data[index];
     if (d.videoId === undefined) return;
     setData(index, "saving", true);
-    await server.DELETE("/api/video/{video_id}/intro", {
-      params: { path: { video_id: d.videoId } },
+    await server.DELETE("/api/video/{id}/intro", {
+      params: { path: { id: d.videoId } },
     });
     setData(index, {
       saving: false,

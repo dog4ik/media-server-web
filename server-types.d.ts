@@ -506,23 +506,6 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/local_episode/{episode_id}/watch": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Watch episode video */
-        get: operations["watch_episode"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/local_episode/{id}": {
         parameters: {
             query?: never;
@@ -536,6 +519,23 @@ export type paths = {
         post?: never;
         /** Delete episode from library. WARN: It will actually delete video files */
         delete: operations["delete_episode"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/local_episode/{id}/watch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Watch episode video */
+        get: operations["watch_episode"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -558,7 +558,7 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/local_movie/{movie_id}/watch": {
+    "/api/local_movie/{id}/watch": {
         parameters: {
             query?: never;
             header?: never;
@@ -696,6 +696,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/movie/{id}/fix_metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Fix movie metadata match */
+        post: operations["fix_movie_metadata"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/movie/{id}/poster": {
         parameters: {
             query?: never;
@@ -713,24 +730,7 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/movie/{movie_id}/fix_metadata": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Fix movie metadata match */
-        post: operations["fix_movie_metadata"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/movie/{movie_id}/reset_metadata": {
+    "/api/movie/{id}/reset_metadata": {
         parameters: {
             query?: never;
             header?: never;
@@ -901,6 +901,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/show/{id}/fix_metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Fix show metadata match */
+        post: operations["fix_show_metadata"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/show/{id}/poster": {
         parameters: {
             query?: never;
@@ -912,6 +929,23 @@ export type paths = {
         get: operations["show_poster"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/show/{id}/reset_metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset show metadata */
+        post: operations["reset_show_metadata"];
         delete?: never;
         options?: never;
         head?: never;
@@ -936,6 +970,40 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/show/{id}/{season}/detect_intros": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Detect intros for given season */
+        post: operations["detect_intros"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/show/{id}/{season}/intros": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete all season intros */
+        delete: operations["delete_season_intros"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/show/{id}/{season}/{episode}": {
         parameters: {
             query?: never;
@@ -954,75 +1022,7 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/show/{show_id}/fix_metadata": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Fix show metadata match */
-        post: operations["fix_show_metadata"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/show/{show_id}/reset_metadata": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Reset show metadata */
-        post: operations["reset_show_metadata"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/show/{show_id}/{season}/detect_intros": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Detect intros for given season */
-        post: operations["detect_intros"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/show/{show_id}/{season}/intros": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete all season intros */
-        delete: operations["delete_season_intros"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/show/{show_id}/{season}/{episode}/intros": {
+    "/api/show/{id}/{season}/{episode}/intros": {
         parameters: {
             query?: never;
             header?: never;
@@ -1315,7 +1315,7 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/torrent/session": {
+    "/api/torrent/session_state": {
         parameters: {
             query?: never;
             header?: never;
@@ -1486,6 +1486,28 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/video/{id}/intro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get intro for the video */
+        get: operations["video_intro"];
+        /**
+         * Update intros for the video
+         *     If into does not exist it will be created
+         */
+        put: operations["update_video_intro"];
+        post?: never;
+        /** Delete intro for the video */
+        delete: operations["delete_video_intro"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/video/{id}/metadata": {
         parameters: {
             query?: never;
@@ -1642,28 +1664,6 @@ export type paths = {
         put?: never;
         post?: never;
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/video/{video_id}/intro": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get intro for the video */
-        get: operations["video_intro"];
-        /**
-         * Update intros for the video
-         *     If into does not exist it will be created
-         */
-        put: operations["update_video_intro"];
-        post?: never;
-        /** Delete intro for the video */
-        delete: operations["delete_video_intro"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1847,17 +1847,8 @@ export type components = {
         };
         /** @enum {string} */
         ClientType: "web_client" | "upnp";
-        Codec: {
-            codec_type: components["schemas"]["CodecType"];
-            decode_supported: boolean;
-            encode_supported: boolean;
-            long_name: string;
-            name: string;
-        };
         /** @enum {string} */
         CodecAttr: "h264" | "h265" | "av1";
-        /** @enum {string} */
-        CodecType: "audio" | "video" | "subtitle" | "data" | "attachment";
         /** @description Compact representation of a list. */
         CompactList: {
             /**
@@ -2382,8 +2373,6 @@ export type components = {
         };
         DownloadContentHint: {
             content_type: components["schemas"]["ParentMediaType"];
-            metadata_id: string;
-            metadata_provider: components["schemas"]["MetadataProvider"];
         };
         DownloadError: {
             storage: components["schemas"]["StorageError"];
@@ -2806,7 +2795,6 @@ export type components = {
         };
         PendingTorrent: {
             info_hash: number[];
-            torrent_info: components["schemas"]["TorrentInfo"];
             /** Format: int64 */
             torrent_size: number;
         };
@@ -3007,6 +2995,7 @@ export type components = {
         /** @enum {string} */
         ResolutionAttr: "480p" | "720p" | "1080p" | "2160p";
         ResolvedTorrentFile: {
+            file_idx: number;
             /** Format: int64 */
             offset: number;
             path: string[];
@@ -3313,7 +3302,6 @@ export type components = {
             id: string;
             kind: {
                 info_hash: number[];
-                torrent_info: components["schemas"]["TorrentInfo"];
                 /** Format: int64 */
                 torrent_size: number;
             };
@@ -3388,33 +3376,35 @@ export type components = {
             identifier?: null | components["schemas"]["ContentIdentifier"];
         };
         TorrentContent: {
-            show: components["schemas"]["TorrentShow"];
+            /** @enum {string} */
+            media_type: "show";
+            seasons: {
+                [key: string]: components["schemas"]["TorrentEpisode"][];
+            };
+            show: components["schemas"]["Show"];
         } | {
-            movie: components["schemas"]["TorrentMovie"][];
-        };
-        TorrentContents: {
-            content?: null | components["schemas"]["TorrentContent"];
-            files: components["schemas"]["ResolvedTorrentFile"][];
+            /** @enum {string} */
+            media_type: "movie";
+            movies: components["schemas"]["TorrentMovie"][];
         };
         TorrentDefaultLocation: {
             movie_location?: string | null;
             show_location?: string | null;
         };
         TorrentDownloadPayload: {
-            content_hint?: null | components["schemas"]["DownloadContentHint"];
             enabled_files?: number[] | null;
             magnet_link: string;
-            save_location?: string | null;
+            save_location: string;
         };
-        TorrentEpisode: {
-            file_idx: number;
-            metadata: components["schemas"]["EpisodeMetadata"];
+        TorrentEpisode: components["schemas"]["ResolvedTorrentFile"] & {
+            metadata: components["schemas"]["Episode"];
         };
         /** @enum {string} */
         TorrentIndexIdentifier: "tpb" | "nyaa" | "rutracker";
         TorrentInfo: {
-            contents: components["schemas"]["TorrentContents"];
+            content?: null | components["schemas"]["TorrentContent"];
             name: string;
+            other_files: components["schemas"]["ResolvedTorrentFile"][];
             /** Format: int32 */
             piece_length: number;
             pieces_amount: number;
@@ -3436,18 +3426,11 @@ export type components = {
             /** Format: int64 */
             size: number;
         };
-        TorrentMovie: {
-            file_idx: number;
-            metadata: components["schemas"]["MovieMetadata"];
+        TorrentMovie: components["schemas"]["ResolvedTorrentFile"] & {
+            metadata: components["schemas"]["Movie"];
         };
         TorrentProgress: components["schemas"]["Progress"] & {
             torrent_hash: number[];
-        };
-        TorrentShow: {
-            seasons: {
-                [key: string]: components["schemas"]["TorrentEpisode"][];
-            };
-            show_metadata: components["schemas"]["ShowMetadata"];
         };
         TorrentState: {
             /** Format: double */
@@ -3570,9 +3553,6 @@ export type components = {
             state: components["schemas"]["TasksSnapshot"];
             /** @enum {string} */
             type: "connected";
-        } | {
-            /** @enum {string} */
-            type: "torrentunsubscribe";
         };
         /** @description Websockets connection input message */
         WsRequest: {
@@ -4548,40 +4528,6 @@ export interface operations {
             };
         };
     };
-    watch_episode: {
-        parameters: {
-            query?: {
-                variant?: string | null;
-            };
-            header?: never;
-            path: {
-                /** @description episode id */
-                episode_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Video progressive download stream */
-            206: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "video/*": unknown;
-                };
-            };
-            /** @description Video is not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-        };
-    };
     local_episode: {
         parameters: {
             query?: never;
@@ -4643,6 +4589,40 @@ export interface operations {
             };
         };
     };
+    watch_episode: {
+        parameters: {
+            query?: {
+                variant?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description episode id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Video progressive download stream */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "video/*": unknown;
+                };
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
     delete_movie: {
         parameters: {
             query?: never;
@@ -4681,7 +4661,7 @@ export interface operations {
             header?: never;
             path: {
                 /** @description movie id */
-                movie_id: number;
+                id: number;
             };
             cookie?: never;
         };
@@ -4997,6 +4977,36 @@ export interface operations {
             };
         };
     };
+    fix_movie_metadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Fixed movie metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Movie is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
     movie_poster: {
         parameters: {
             query?: never;
@@ -5033,45 +5043,13 @@ export interface operations {
             };
         };
     };
-    fix_movie_metadata: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Id of the movie that needs to be fixed */
-                movie_id: string;
-                provider: "local" | "tmdb" | "tvdb" | "imdb";
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Fixed movie metadata */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Movie is not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-        };
-    };
     reset_movie_metadata: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 /** @description Id of the movie that needs to be fixed */
-                movie_id: string;
+                id: string;
             };
             cookie?: never;
         };
@@ -5363,6 +5341,36 @@ export interface operations {
             };
         };
     };
+    fix_show_metadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Fixed show metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Show is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
     show_poster: {
         parameters: {
             query?: never;
@@ -5389,6 +5397,36 @@ export interface operations {
                 };
                 content?: never;
             };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    reset_show_metadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Id of the show that needs to be fixed */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully reset show metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Show is not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5453,6 +5491,70 @@ export interface operations {
         };
         responses: {
             /** @description Updated season metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Season is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    detect_intros: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                id: number;
+                /** @description Season number */
+                season: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Intro detection task is started */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Season is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    delete_season_intros: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Show id */
+                id: number;
+                /** @description Season number */
+                season: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Intros are removed */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -5545,139 +5647,13 @@ export interface operations {
             };
         };
     };
-    fix_show_metadata: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Id of the show that needs to be fixed */
-                show_id: string;
-                provider: "local" | "tmdb" | "tvdb" | "imdb";
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Fixed show metadata */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Show is not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-        };
-    };
-    reset_show_metadata: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Id of the show that needs to be fixed */
-                show_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successfully reset show metadata */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Show is not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-        };
-    };
-    detect_intros: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Show id */
-                show_id: number;
-                /** @description Season number */
-                season: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Intro detection task is started */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Season is not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-        };
-    };
-    delete_season_intros: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Show id */
-                show_id: number;
-                /** @description Season number */
-                season: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Intros are removed */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Season is not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-        };
-    };
     delete_episode_intros: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 /** @description Show id */
-                show_id: number;
+                id: number;
                 /** @description Season number */
                 season: number;
                 /** @description Episode number */
@@ -6106,11 +6082,16 @@ export interface operations {
     };
     parse_torrent_file: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                content_type: null | ("movie" | "show");
+            query?: {
+                /** @description Content type */
+                content_type?: components["schemas"]["ParentMediaType"];
+                /** @description Metadata provider */
+                metadata_provider?: components["schemas"]["MetadataProvider"];
+                /** @description Metadata id */
+                metadata_id?: string;
             };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -6484,6 +6465,116 @@ export interface operations {
             };
         };
     };
+    video_intro: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video Id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Intro */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Intro is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    update_video_intro: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video Id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditIntroPayload"];
+            };
+        };
+        responses: {
+            /** @description Intro is updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Intro is newly created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Intro payload is incorrect */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+            /** @description Video is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
+    delete_video_intro: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video Id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Intro was removed successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Intro is not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppError"];
+                };
+            };
+        };
+    };
     video_content_metadata: {
         parameters: {
             query?: never;
@@ -6801,116 +6892,6 @@ export interface operations {
                 };
             };
             /** @description Video is not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-        };
-    };
-    video_intro: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Video Id */
-                video_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Intro */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Intro is not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-        };
-    };
-    update_video_intro: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Video Id */
-                video_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EditIntroPayload"];
-            };
-        };
-        responses: {
-            /** @description Intro is updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Intro is newly created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Intro payload is incorrect */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-            /** @description Video is not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppError"];
-                };
-            };
-        };
-    };
-    delete_video_intro: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Video Id */
-                video_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Intro was removed successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Intro is not found */
             404: {
                 headers: {
                     [name: string]: unknown;

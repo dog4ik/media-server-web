@@ -1,4 +1,5 @@
-import { For } from "solid-js";
+import { createMemo, For } from "solid-js";
+import { torrentFilesIndex } from "@/lib/torrentContent";
 import {
   Table,
   TableBody,
@@ -34,6 +35,13 @@ function FileRow(props: FileRowProps) {
 }
 
 export default function Step3(props: Props) {
+  let files = createMemo(() => {
+    let index = torrentFilesIndex(props.content);
+    return props.selectedFiles
+      .map((idx) => index.get(idx))
+      .filter((file) => file !== undefined);
+  });
+
   return (
     <div>
       <div>
@@ -41,28 +49,20 @@ export default function Step3(props: Props) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead class="w-[100px]">#</TableHead>
+              <TableHead class="w-25">#</TableHead>
               <TableHead>Path</TableHead>
               <TableHead class="text-right">Size</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <For
-              each={props.selectedFiles.map(
-                (idx) => props.content.contents.files[idx],
-              )}
-            >
+            <For each={files()}>
               {(file, idx) => <FileRow file={file} number={idx() + 1} />}
             </For>
             <TableRow>
               <TableCell class="font-medium">Total:</TableCell>
               <TableCell></TableCell>
               <TableCell class="text-right">
-                {formatSize(
-                  props.selectedFiles
-                    .map((idx) => props.content.contents.files[idx])
-                    .reduce((acc, n) => acc + n.size, 0),
-                )}
+                {formatSize(files().reduce((acc, n) => acc + n.size, 0))}
               </TableCell>
             </TableRow>
           </TableBody>

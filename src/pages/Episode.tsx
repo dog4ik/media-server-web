@@ -156,9 +156,7 @@ export default function Episode() {
             {(episodeData) => (
               <DownloadTorrentModal
                 open={torrentModal()}
-                metadata_id={showData().provider_id}
                 onClose={() => setTorrentModal(false)}
-                metadata_provider={search().provider}
                 query={(p) =>
                   torrentQuery.EPISODE_FORMATTER[p](showData(), episodeData())
                 }

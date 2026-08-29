@@ -26,9 +26,9 @@ import useToggle from "@/utils/useToggle";
 const POSTER_WIDTH = 57;
 const POSTER_HEIGHT = 86;
 
-async function detectIntros(show_id: number, season: number) {
-  await server.POST("/api/show/{show_id}/{season}/detect_intros", {
-    params: { path: { season, show_id } },
+async function detectIntros(id: number, season: number) {
+  await server.POST("/api/show/{id}/{season}/detect_intros", {
+    params: { path: { season, id } },
   });
 }
 
@@ -113,8 +113,6 @@ export default function Season(props: Props) {
               <DownloadTorrentModal
                 open={downloadModal()}
                 onClose={() => setDownloadModal(false)}
-                metadata_id={season().provider_id}
-                metadata_provider={season().provider}
                 query={props.initialTorrentQuery}
                 content_type="show"
               />

@@ -115,9 +115,7 @@ export default function Movie() {
               <>
                 <DownloadTorrentModal
                   open={downloadModal()}
-                  metadata_id={movie().provider_id}
                   onClose={() => setDownloadModal(false)}
-                  metadata_provider={search().provider}
                   query={(p) => torrentQuery.MOVIE_FORMATTER[p](movie())}
                   content_type="movie"
                 />
