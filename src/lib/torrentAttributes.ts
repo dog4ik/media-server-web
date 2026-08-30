@@ -61,11 +61,17 @@ export function tierClass(tier: QualityTier | undefined): string {
 }
 
 export function identifierTitle(
-  identifier: Schemas["ContentIdentifier"],
+  identifier: Schemas["PartialContentIdentifier"],
 ): string {
   let title = identifier.title;
   if (identifier.media_type === "show") {
-    title += ` S${formatSE(identifier.season)}E${formatSE(identifier.episode)}`;
+    if (identifier.season != null && identifier.episode != null) {
+      title += ` S${formatSE(identifier.season)}E${formatSE(identifier.episode)}`;
+    } else if (identifier.season != null && identifier.episode == null) {
+      title += ` S${formatSE(identifier.season)}`;
+    } else if (identifier.episode != null) {
+      title += ` E${formatSE(identifier.episode)}`;
+    }
   }
   if (identifier.year) {
     title += ` (${identifier.year})`;

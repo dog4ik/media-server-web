@@ -2199,13 +2199,6 @@ export type components = {
             release_date?: string | null;
             title: string;
         };
-        ContentIdentifier: (components["schemas"]["ShowIdentifier"] & {
-            /** @enum {string} */
-            media_type: "show";
-        }) | (components["schemas"]["MovieIdentifier"] & {
-            /** @enum {string} */
-            media_type: "movie";
-        });
         CreateList: {
             description?: string | null;
             name: string;
@@ -2764,6 +2757,13 @@ export type components = {
          * @enum {string}
          */
         ParentMediaType: "movie" | "show";
+        PartialContentIdentifier: (components["schemas"]["ShowIdent"] & {
+            /** @enum {string} */
+            media_type: "show";
+        }) | (components["schemas"]["MovieIdentifier"] & {
+            /** @enum {string} */
+            media_type: "movie";
+        });
         PeerEvent: {
             ip: string;
             peer_event: components["schemas"]["PeerEventKind"];
@@ -3113,16 +3113,16 @@ export type components = {
             title: string;
         };
         /**
-         * @description Full show identifier representation
+         * @description Partial show identifier representation.
          *
-         *     Usually constructed from episode file name and parent directories
+         *     This is used during parsing where not all parts are yet known.
          */
-        ShowIdentifier: {
+        ShowIdent: {
             attributes: components["schemas"]["Attributes"];
             /** Format: int32 */
-            episode: number;
+            episode?: number | null;
             /** Format: int32 */
-            season: number;
+            season?: number | null;
             title: string;
             /** Format: int32 */
             year?: number | null;
@@ -3373,7 +3373,7 @@ export type components = {
             watch_sessions: components["schemas"]["Task_WatchTask"][];
         };
         Torrent: components["schemas"]["TorrentMetadata"] & {
-            identifier?: null | components["schemas"]["ContentIdentifier"];
+            identifier?: null | components["schemas"]["PartialContentIdentifier"];
         };
         TorrentContent: {
             /** @enum {string} */
