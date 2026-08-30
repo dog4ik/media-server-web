@@ -181,6 +181,24 @@ export function FilePicker(props: Props) {
                     />
                   )}
                 </Show>
+                <For each={locations().show_dirs}>
+                  {(dir) => (
+                    <EntryRow
+                      fileType="videos"
+                      title={dir.path}
+                      onClick={() => handleDirSelect(dir)}
+                    />
+                  )}
+                </For>
+                <For each={locations().movie_dirs}>
+                  {(dir) => (
+                    <EntryRow
+                      fileType="videos"
+                      title={dir.path}
+                      onClick={() => handleDirSelect(dir)}
+                    />
+                  )}
+                </For>
                 <Show when={locations().videos}>
                   {(videos) => (
                     <EntryRow

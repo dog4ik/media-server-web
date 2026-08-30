@@ -1825,10 +1825,15 @@ export type components = {
             path: string;
             title: string;
         };
+        /** @description Root directories for fs explorer */
         BrowseRootDirs: {
             disks: components["schemas"]["BrowseFile"][];
             home?: null | components["schemas"]["BrowseFile"];
+            /** @description Configured movie directories */
+            movie_dirs: components["schemas"]["BrowseFile"][];
             root: components["schemas"]["BrowseFile"];
+            /** @description Configured show directories */
+            show_dirs: components["schemas"]["BrowseFile"][];
             videos?: null | components["schemas"]["BrowseFile"];
         };
         Capabilities: {
