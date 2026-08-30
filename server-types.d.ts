@@ -1801,17 +1801,6 @@ export type components = {
         };
         /** @enum {string} */
         AppErrorKind: "internal_error" | "not_found" | "duplicate" | "bad_request" | "database_locked" | "unprocessable";
-        AppResources: {
-            app_version: string;
-            database_path: string;
-            log_path: string;
-            os: string;
-            os_version: string;
-            resources_path: string;
-            start_time: string;
-            statics_path: string;
-            temp_path: string;
-        };
         /** @description Everything recognized in a single file name. */
         Attributes: {
             codec?: null | components["schemas"]["CodecAttr"];
@@ -2264,21 +2253,6 @@ export type components = {
                 title: string;
             }[];
         };
-        /**
-         * @description `external_ids` table maps content to external movie/show metadata provider ids.
-         *     `external_provider` and `external_id` identify the item on the remote provider (e.g. TMDB).
-         *     `metadata_id` is the FK to the local metadata table.
-         */
-        DbExternalId: {
-            external_id: string;
-            external_provider: components["schemas"]["MetadataProvider"];
-            /** Format: int64 */
-            id: number;
-            /** Format: int64 */
-            is_prime: number;
-            /** Format: int64 */
-            metadata_id?: number | null;
-        };
         DetailedAudioTrack: {
             /** Format: int32 */
             channels: number;
@@ -2540,15 +2514,6 @@ export type components = {
         };
         /** @default null */
         IntroProgress: unknown;
-        JsonTracingEvent: {
-            fields: {
-                [key: string]: unknown;
-            };
-            level: string;
-            name: string;
-            target: string;
-            timestamp: string;
-        };
         /** @enum {string} */
         Language: "en" | "es" | "de" | "fr" | "ru" | "ja" | "sr";
         /**
@@ -2753,7 +2718,7 @@ export type components = {
          */
         OffsetDateTime: string;
         /**
-         * @description Leaf node type of the any content tree
+         * @description Top level node type of the any content tree
          * @enum {string}
          */
         ParentMediaType: "movie" | "show";
@@ -2792,11 +2757,6 @@ export type components = {
             upload_speed: number;
             /** Format: int64 */
             uploaded: number;
-        };
-        PendingTorrent: {
-            info_hash: number[];
-            /** Format: int64 */
-            torrent_size: number;
         };
         PersonMetadata: {
             imdb_id?: string | null;
