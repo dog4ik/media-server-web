@@ -110,7 +110,7 @@ export function MovieCard(props: Props) {
         <FixMetadata
           open={fixModal()}
           contentType="movie"
-          targetId={props.movie.provider_id}
+          targetId={props.movie.local?.id!}
           initialSearch={props.movie.title}
           onClose={() => toggleFixModal(false)}
         />

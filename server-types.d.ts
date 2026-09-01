@@ -3544,8 +3544,8 @@ export interface operations {
     actor_list: {
         parameters: {
             query?: {
-                take?: number | null;
-                cursor?: string | null;
+                take?: number;
+                cursor?: string;
             };
             header?: never;
             path?: never;
@@ -3869,14 +3869,15 @@ export interface operations {
     };
     fix_metadata: {
         parameters: {
-            query?: never;
+            query: {
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+                id: string;
+                content_type: "movie" | "show";
+            };
             header?: never;
             path: {
                 /** @description Id of the content that needs to be fixed */
                 metadata_id: string;
-                provider: "local" | "tmdb" | "tvdb" | "imdb";
-                id: string;
-                content_type: "movie" | "show";
             };
             cookie?: never;
         };
@@ -3903,8 +3904,8 @@ export interface operations {
     all_history: {
         parameters: {
             query?: {
-                take?: number | null;
-                cursor?: string | null;
+                take?: number;
+                cursor?: string;
             };
             header?: never;
             path?: never;
@@ -4014,7 +4015,7 @@ export interface operations {
     update_history: {
         parameters: {
             query?: {
-                id?: string | null;
+                id?: string;
             };
             header?: never;
             path: {
@@ -4557,7 +4558,7 @@ export interface operations {
     watch_episode: {
         parameters: {
             query?: {
-                variant?: string | null;
+                variant?: string;
             };
             header?: never;
             path: {
@@ -4621,7 +4622,7 @@ export interface operations {
     watch_movie: {
         parameters: {
             query?: {
-                variant?: string | null;
+                variant?: string;
             };
             header?: never;
             path: {
@@ -4656,11 +4657,11 @@ export interface operations {
         parameters: {
             query?: {
                 actors?: number[];
-                search?: string | null;
-                take?: number | null;
-                cursor?: string | null;
+                search?: string;
+                take?: number;
+                cursor?: string;
                 /** @description Only include content with at least one local video file. Defaults to `true`. */
-                only_local?: boolean | null;
+                only_local?: boolean;
             };
             header?: never;
             path?: never;
@@ -4743,11 +4744,11 @@ export interface operations {
         parameters: {
             query?: {
                 actors?: number[];
-                search?: string | null;
-                take?: number | null;
-                cursor?: string | null;
+                search?: string;
+                take?: number;
+                cursor?: string;
                 /** @description Only include content with at least one local video file. Defaults to `true`. */
-                only_local?: boolean | null;
+                only_local?: boolean;
             };
             header?: never;
             path?: never;
@@ -4769,7 +4770,7 @@ export interface operations {
     update_metadata_history: {
         parameters: {
             query?: {
-                id?: string | null;
+                id?: string;
             };
             header?: never;
             path: {
@@ -4944,11 +4945,14 @@ export interface operations {
     };
     fix_movie_metadata: {
         parameters: {
-            query?: never;
+            query: {
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+                id: string;
+            };
             header?: never;
             path: {
-                id: string;
-                provider: "local" | "tmdb" | "tvdb" | "imdb";
+                /** @description Id of the movie that needs to be fixed */
+                id: number;
             };
             cookie?: never;
         };
@@ -5030,12 +5034,13 @@ export interface operations {
     };
     reset_metadata: {
         parameters: {
-            query?: never;
+            query: {
+                content_type: "movie" | "show";
+            };
             header?: never;
             path: {
                 /** @description Id of the content that needs to be fixed */
                 metadata_id: string;
-                content_type: "movie" | "show";
             };
             cookie?: never;
         };
@@ -5308,11 +5313,14 @@ export interface operations {
     };
     fix_show_metadata: {
         parameters: {
-            query?: never;
+            query: {
+                provider: "local" | "tmdb" | "tvdb" | "imdb";
+                id: string;
+            };
             header?: never;
             path: {
-                id: string;
-                provider: "local" | "tmdb" | "tvdb" | "imdb";
+                /** @description Id of the show that needs to be fixed */
+                id: number;
             };
             cookie?: never;
         };
@@ -6129,8 +6137,8 @@ export interface operations {
         parameters: {
             query: {
                 search: string;
-                content_type?: null | ("movie" | "show");
-                provider?: null | ("tpb" | "nyaa" | "rutracker");
+                content_type?: "movie" | "show";
+                provider?: "tpb" | "nyaa" | "rutracker";
             };
             header?: never;
             path?: never;
@@ -6836,7 +6844,7 @@ export interface operations {
     watch: {
         parameters: {
             query?: {
-                variant?: string | null;
+                variant?: string;
             };
             header?: never;
             path: {

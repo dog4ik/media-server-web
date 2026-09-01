@@ -1,4 +1,5 @@
-import { For, Match, Switch } from "solid-js";
+import LoaderCircle from "lucide-solid/icons/loader-circle";
+import { For, Match, Show, Switch } from "solid-js";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +16,8 @@ import ProviderLogo from "../ProviderLogo";
 
 type SearchResultProps = {
   metadata: Schemas["MetadataSearchResult"];
+  pending: boolean;
+  disabled: boolean;
   onClick: () => void;
 };
 
@@ -23,8 +26,14 @@ function SearchResult(props: SearchResultProps) {
     <button
       type="button"
       onClick={props.onClick}
-      class="bg-card hover:bg-card/80 w-full overflow-hidden rounded-lg transition-colors"
+      disabled={props.disabled}
+      class="bg-card hover:bg-card/80 relative w-full overflow-hidden rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-60"
     >
+      <Show when={props.pending}>
+        <div class="bg-background/50 absolute inset-0 grid place-items-center">
+          <LoaderCircle class="size-8 animate-spin" />
+        </div>
+      </Show>
       <div class="grid grid-cols-[120px_1fr] gap-4 p-4 md:p-6">
         <img
           src={props.metadata.poster ?? "/no-photo.png"}
@@ -69,7 +78,7 @@ function SearchResultSkeleton() {
 type Props = {
   initialSearch?: string;
   open: boolean;
-  targetId: string;
+  targetId: number;
   contentType: Schemas["ParentMediaType"];
   onClose: () => void;
 };
@@ -88,6 +97,24 @@ export default function FixMetadata(props: Props) {
     }),
     () => ({ enabled: props.open }),
   );
+
+  let fixMetadata =
+    props.contentType === "movie"
+      ? queryApi.useMutation("post", "/api/movie/{id}/fix_metadata", () => ({
+          onSuccess: () => {
+            props.onClose();
+            queryApi.invalidateQueries("get", "/api/local_movies");
+          },
+        }))
+      : queryApi.useMutation("post", "/api/show/{id}/fix_metadata", () => ({
+          onSuccess: () => {
+            props.onClose();
+            queryApi.invalidateQueries("get", "/api/local_shows");
+          },
+        }));
+
+  let pendingId = () =>
+    fixMetadata.isPending ? fixMetadata.variables?.params.query.id : undefined;
 
   let filteredResults = () =>
     searchResult.data?.filter(
@@ -150,7 +177,21 @@ export default function FixMetadata(props: Props) {
                   {(result) => (
                     <SearchResult
                       metadata={result}
-                      onClick={() => console.log("todo: fix metadata")}
+                      pending={pendingId() === result.metadata_id}
+                      disabled={fixMetadata.isPending}
+                      onClick={() =>
+                        fixMetadata.mutate({
+                          params: {
+                            query: {
+                              id: result.metadata_id,
+                              provider: result.metadata_provider,
+                            },
+                            path: {
+                              id: props.targetId,
+                            },
+                          },
+                        })
+                      }
                     />
                   )}
                 </For>

@@ -83,7 +83,7 @@ export function ShowCard(props: Props) {
         <FixMetadata
           open={fixModal()}
           contentType="show"
-          targetId={props.show.provider_id}
+          targetId={props.show.local?.id!}
           initialSearch={props.show.title}
           onClose={() => toggleFixModal(false)}
         />
