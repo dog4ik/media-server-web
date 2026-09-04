@@ -121,8 +121,7 @@ export class BitField {
   }
 
   mask(idx: number) {
-    // return 1 << (7 - (idx % 8));
-    return 1 << (idx % 8);
+    return 1 << (7 - (idx % 8));
   }
 }
 
@@ -134,6 +133,23 @@ if (import.meta.vitest) {
       bf.set(9);
       bf.unset(9);
       assert.strictEqual(bf.isEmpty(), true);
+    });
+
+    test("msb first bit order", () => {
+      // BEP 3: piece 0 is the high bit of the first byte.
+      let bf = BitField.empty(16);
+      bf.set(0);
+      assert.strictEqual(bf.bytes[0], 0b1000_0000);
+      bf.set(7);
+      assert.strictEqual(bf.bytes[0], 0b1000_0001);
+      bf.set(8);
+      assert.strictEqual(bf.bytes[1], 0b1000_0000);
+
+      // Trailing byte of a 7 piece torrent, all pieces downloaded.
+      let trailing = new BitField(Uint8Array.from([0b1111_1110]));
+      assert.strictEqual(trailing.has(6), true);
+      assert.strictEqual(trailing.has(7), false);
+      assert.strictEqual(trailing.rangeCount(0, 7), 7);
     });
 
     test("total count", () => {

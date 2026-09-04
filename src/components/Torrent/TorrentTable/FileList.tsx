@@ -213,15 +213,16 @@ export function FileList(props: Props) {
     {
       accessorFn: (entry) => {
         if (entry.kind === "file") {
-          let totalPieces = entry.end_piece - entry.start_piece;
+          // end piece in inclusive
+          let totalPieces = entry.end_piece - entry.start_piece + 1;
           let downloadedPieces = props.downloadedPieces.rangeCount(
             entry.start_piece,
-            entry.end_piece,
+            entry.end_piece + 1,
           );
           if (downloadedPieces === 0) {
             return 0;
           } else {
-            return (downloadedPieces / totalPieces) * 100;
+            return ((downloadedPieces / totalPieces) * 100).toFixed(2);
           }
         } else {
           return 100;
