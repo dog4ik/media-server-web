@@ -11,7 +11,9 @@ export default function Subtitles(props: Props) {
   let subs = createMemo(() => {
     if (fetchedSubtitles.isSuccess && fetchedSubtitles.data) {
       let subs = new Subtitle();
-      subs.parse(fetchedSubtitles.data);
+      try {
+        subs.parse(fetchedSubtitles.data);
+      } catch {}
       return subs;
     }
   });
